@@ -1,0 +1,7 @@
+add_subdirectory(FileReader)
+add_subdirectory(FileWriter)
+add_subdirectory(MarkovChain)
+add_subdirectory(Model)
+add_subdirectory(PolytopeSpace)
+add_subdirectory(RandomNumberGenerator)
+add_subdirectory(Transformation)
