@@ -1,1 +1,2 @@
-add_subdirectory(hops)
+add_subdirectory(nups)
+target_include_directories(nups PUBLIC .)

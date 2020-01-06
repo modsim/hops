@@ -1,87 +1,56 @@
 ########################################################################################################################
-# CMAKE Settings ########################################################################################################################
+# CMAKE Settings
+########################################################################################################################
 
 cmake_minimum_required(VERSION 3.14)
-set(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")
-project(hops)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
-
-if (UNIX)
-    message(STATUS "Adjusting CMAKE_PREFIX_PATH on UNIX for CLP")
-    list(APPEND CMAKE_PREFIX_PATH /usr/lib/x86_64-linux-gnu)
-endif (UNIX)
-
-########################################################################################################################
-# MSVC stuff
-########################################################################################################################
-if (CMAKE_GENERATOR MATCHES "Visual Studio")
-    add_definitions(-D_USE_MATH_DEFINES)
-    add_compile_options("/Za")
-endif ()
-
-set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+project(nups)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules/")
 
 ########################################################################################################################
 # Build Parameters
 ########################################################################################################################
 
-set(MKL_ROOT_DIR "~/intel/compilers_and_libraries/linux/mkl" CACHE PATH "Path to installed mkl directory.")
+set(ENV{MKLROOT} "/home/jadebeck/intel/compilers_and_libraries/linux/mkl")
 set(MKL_USE_interface lp64)
 
 ########################################################################################################################
 # Set Options
 ########################################################################################################################
 
-option(HOPS_SBML_SUPPORT "Enables SBML support. Use -DHOPS_SBML_SUPPORT=ON to enable." OFF)
-option(HOPS_HDF5_SUPPORT "Enables HDF5 support with HighFive. Use -DHOPS_HDF5_SUPPORT=ON to enable." OFF)
-option(HOPS_BENCHMARKS "Enables compilation of Benchmarks (Requires Celero). Use -DHOPS_BENCHMARKS=ON to enable." OFF)
-option(HOPS_DOCS "Enables generation of documentation. Use -DHOPS_DOCS=OFF to disable." ON)
-option(HOPS_BINARIES "Enables compilation of hops executables. Use -DHOPS_BINARIES=OFF to disable." ON)
-option(HOPS_TESTS "Enables compilation of unit tests. Use -DHOPS_TESTS=OFF to disable." ON)
-option(HOPS_NO_INSTALL "Disables installation. Use -DHOPS_NO_INSTALL=ON to disable installation." OFF)
-set(HOPS_LIBRARY_TYPE SHARED CACHE STRING "Type of library to build. Options are HEADER_ONLY, STATIC or SHARED")
-set_property(CACHE HOPS_LIBRARY_TYPE PROPERTY STRINGS HEADER_ONLY STATIC SHARED)
+option(NUPS_BENCHMARKS "Enables compilation of Benchmarks (Requires Celero). Use -DNUPS_BENCHMARKS=OFF to disable." ON)
+option(NUPS_DOCS "Enables generation of documentation. Use -DNUPS_DOCS=OFF to disable." ON)
+option(NUPS_EXAMPLES "Enables compilation of Examples. Use -DNUPS_EXAMPLES=OFF to disable." ON)
+option(NUPS_TESTS "Enables compilation of unit tests. Use -DNUPS_TESTS=OFF to disable." ON)
 
 ########################################################################################################################
 # C++-Compiler Settings
 ########################################################################################################################
 
-set(CMAKE_C_FLAGS "${CMAKE_FLAGS} ${MPI_FLAGS}")
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MPI_CXX_FLAGS}")
-if (CMAKE_COMPILER_IS_GNUCXX)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra -Wall")
-    set(CMAKE_CXX_FLAGS_DEBUG "-g")
-endif ()
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${MPI_EXE_LINKER_FLAGS}")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra")
+set(CMAKE_CXX_FLAGS_DEBUG "-g")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 include(CheckCXXCompilerFlag)
 CHECK_CXX_COMPILER_FLAG("-march=native" COMPILER_SUPPORTS_MARCH_NATIVE)
 if (COMPILER_SUPPORTS_MARCH_NATIVE)
     message(STATUS "Adding compiler flag march=native")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
 else ()
-    message(WARNING "compiler does not support flag -march=native")
+    message(WARN "compiler does not support flag march=native")
 endif ()
-CHECK_CXX_COMPILER_FLAG("-O3" COMPILER_SUPPORTS_O3)
-if (COMPILER_SUPPORTS_MARCH_NATIVE)
-    message(STATUS "Adding compiler flag -O3")
-    set(CMAKE_CXX_FLAGS_RELEASE "-O3")
-else ()
-    message(STATUS "Adding compiler flag -O2")
-    set(CMAKE_CXX_FLAGS_RELEASE "-O2")
-endif ()
-
 
 ########################################################################################################################
-# Pre-Third-Party-Search Definitions
+# Definitions
 ########################################################################################################################
 
 if (NOT ${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-    message(STATUS "Disabling Runtime checks: Using Release mode for hops and Eigen")
+    message(STATUS "Disabling Runtime checks: Using Release mode for nups and Eigen")
     add_definitions(-DNDEBUG)
 else ()
     message(STATUS "Enabling Runtime checks.")
 endif (NOT ${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+
+#add_definitions(-DEIGEN_USE_MKL_ALL)
 
 ########################################################################################################################
 # Third-Party Dependencies
@@ -90,91 +59,44 @@ endif (NOT ${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 find_package(Doxygen)
 find_package(Eigen3 REQUIRED)
 find_package(MKL)
-find_package(OpenMP)
-message(STATUS "FOUND MKL ? ${MKL_FOUND}")
+
+message(STATUS "Executed command: \n${MKL_LINK_TOOL_COMMAND}")
+message(STATUS "Found MKL_LIBRARIES:\n${MKL_LIBRARIES} ")
+message(STATUS "Found MKL_DEFINITIONS:\n${MKL_DEFINITIONS} ")
+message(STATUS "Found MKL_LIBRARY_DIR:\n${MKL_LIBRARY_DIR} ")
+message(STATUS "Found MKL_INCLUDE_DIR:\n${MKL_INCLUDE_DIR} ")
 
 ########################################################################################################################
-# Post-Third-Party-Search Definitions
+# NUPS
 ########################################################################################################################
 
-if (MKL_LIBRARY_DIR)
-    message(STATUS "Found MKL: Adding preprocessor definition EIGEN_USE_MKL_ALL")
-    add_definitions(-DEIGEN_USE_MKL_ALL)
-endif (MKL_LIBRARY_DIR)
-
-########################################################################################################################
-# HOPS
-########################################################################################################################
-
-if (HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
-    message(STATUS "Set to header-only installation")
-    set(SCOPE INTERFACE)
-    add_library(hops INTERFACE)
-
-    target_compile_definitions(hops INTERFACE HOPS_HEADER_ONLY)
-    if (HOPS_HDF5_SUPPORT)
-        target_compile_definitions(hops INTERFACE HOPS_HDF5_SUPPORT)
-    endif (HOPS_HDF5_SUPPORT)
-
-    target_include_directories(hops INTERFACE ${EIGEN3_INCLUDE_DIR}
-            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-            $<INSTALL_INTERFACE:include>
-            )
-else (HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
-    message(STATUS "Set to ${HOPS_LIBRARY_TYPE} library installation")
-    set(SCOPE PRIVATE)
-    add_library(hops ${HOPS_LIBRARY_TYPE})
-    target_compile_definitions(hops ${SCOPE} HOPS_HDF5_SUPPORT)
-
-    target_include_directories(hops PUBLIC ${EIGEN3_INCLUDE_DIR}
-            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-            $<INSTALL_INTERFACE:include>
-            )
-endif (HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
-
-if (OpenMP_CXX_FOUND)
-    target_link_libraries(hops INTERFACE OpenMP::OpenMP_CXX)
-    target_link_libraries(hops ${SCOPE} OpenMP::OpenMP_CXX)
-    target_link_options(hops INTERFACE ${OpenMP_CXX_LIBRARY} ${OpenMP_CXX_FLAGS})
-    target_link_options(hops ${SCOPE} ${OpenMP_CXX_LIBRARY} ${OpenMP_CXX_FLAGS})
-else (OpenMP_CXX_FOUND)
-    message(WARNING "OPENMP not found.")
-endif (OpenMP_CXX_FOUND)
-
-
+add_library(nups STATIC "")
+target_include_directories(nups PUBLIC ${EIGEN3_INCLUDE_DIR}
+        ${MKL_INCLUDE_DIR}
+        )
+target_link_directories(nups PUBLIC
+        ${MKL_LIBRARY_DIR}
+        )
+target_link_libraries(nups PUBLIC
+        ${MKL_LIBRARIES}
+        )
 add_subdirectory(include)
+add_subdirectory(src)
 
 ########################################################################################################################
-# MKL support for faster linear algebra
+# NUPS_DOCS
 ########################################################################################################################
 
-if (MKL_INCLUDE_DIR)
-    target_include_directories(hops ${SCOPE} ${MKL_INCLUDE_DIR})
-endif (MKL_INCLUDE_DIR)
-if (MKL_LIBRARY_DIR)
-    target_link_directories(hops ${SCOPE} ${MKL_LIBRARY_DIR})
-endif (MKL_LIBRARY_DIR)
-if (MKL_LIBRARIES)
-    target_link_libraries(hops ${SCOPE} ${MKL_LIBRARIES})
-endif (MKL_LIBRARIES)
-
-########################################################################################################################
-# HOPS_DOCS
-########################################################################################################################
-
-if (HOPS_DOCS)
+if (NUPS_DOCS)
     if (NOT_DOXYGEN_FOUND)
         message(WARNING "Skipping Doxygen documentation, because Doxygen is not found.
                  Doxygen is needed to build the API docs.")
     else ()
-        message(STATUS "Enabled Doxygen documentation. Use -DHOPS_DOCS=OFF to disable.")
+        message(STATUS "Enabled Doxygen documentation. Use -DNUPS_DOCS=OFF to disable.")
         set(DOCUMENTATION_DIR "docs")
-
-        set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")
-
         set(doxy_main_page "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
-        set(doxyfile_in "${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in")
-        set(doxyfile "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile")
+        set(doxyfile_in "${CMAKE_CURRENT_SOURCE_DIR}/docs/Doxyfile.in")
+        set(doxyfile "${CMAKE_CURRENT_BINARY_DIR}/docs/Doxyfile")
         configure_file(${doxyfile_in} ${doxyfile} @ONLY)
         add_custom_target(docs
                 COMMAND ${DOXYGEN_EXECUTABLE} ${doxyfile} && make -C ${CMAKE_CURRENT_BINARY_DIR}/docs/latex
@@ -184,41 +106,41 @@ if (HOPS_DOCS)
                 )
     endif ()
 else ()
-    message(STATUS "Disabled Doxygen generation. Use -DHOPS_DOCS=ON to enable.")
+    message(STATUS "Disabled Doxygen generation. Use -DNUPS_DOCS=ON to enable.")
 endif ()
 
 ########################################################################################################################
-# HOPS_BENCHMARKS
+# NUPS_BENCHMARKS
 ########################################################################################################################
 
-if (HOPS_BENCHMARKS)
-    message(STATUS "Enabled compilation of benchmarks. Use -DHOPS_BENCHMARKS=OFF to disable.")
+if (NUPS_BENCHMARKS)
+    message(STATUS "Enabled compilation of benchmarks. Use -DNUPS_BENCHMARKS=OFF to disable.")
     add_subdirectory(benchmarks)
 else ()
-    message(STATUS "Disabled compilation of benchmarks. Use -DHOPS_BENCHMARKS=ON to enable.")
+    message(STATUS "Disabled compilation of benchmarks. Use -DNUPS_BENCHMARKS=ON to enable.")
 endif ()
 
 ########################################################################################################################
-# HOPS_BINARIES
+# NUPS_EXAMPLES
 ########################################################################################################################
 
-if (HOPS_BINARIES)
-    message(STATUS "Enabled compilation of executables. Use -DHOPS_BINARIES=OFF to disable.")
-    add_subdirectory(bin)
+if (NUPS_EXAMPLES)
+    message(STATUS "Enabled compilation of examples. Use -DNUPS_EXAMPLES=OFF to disable.")
+    add_subdirectory(examples)
 else ()
-    message(STATUS "Disabled compilation of executables. Use -DHOPS_BINARIES=ON to enable.")
+    message(STATUS "Disabled compilation of examples. Use -DNUPS_EXAMPLES=ON to enable.")
 endif ()
 
 ########################################################################################################################
-# HOPS_TESTS
+# NUPS_TESTS
 ########################################################################################################################
 
-if (HOPS_TESTS)
-    message(STATUS "Enabled compilation of tests. Use -DHOPS_TESTS=OFF to disable.")
+if (NUPS_TESTS)
+    message(STATUS "Enabled compilation of tests. Use -DNUPS_TESTS=OFF to disable.")
     enable_testing()
     add_subdirectory(tests)
 else ()
-    message(STATUS "Disabled compilation of tests. Use -DHOPS_TESTS=ON to enable.")
+    message(STATUS "Disabled compilation of tests. Use -DNUPS_TESTS=ON to enable.")
 endif ()
 
 
@@ -226,8 +148,8 @@ endif ()
 # Resources
 ########################################################################################################################
 
-if (HOPS_BENCHMARKS OR HOPS_EXAMPLES OR HOPS_TESTS)
-    message(STATUS "Copying resources")
+if (NUPS_BENCHMARKS OR NUPS_EXAMPLES OR NUPS_TESTS)
+    message(STATUS "Copying resources.")
     add_subdirectory(resources)
 endif ()
 
@@ -235,16 +157,4 @@ endif ()
 # Install
 ########################################################################################################################
 
-if(NOT HOPS_NO_INSTALL)
-    install(DIRECTORY include/ DESTINATION include/ FILES_MATCHING PATTERN "*.hpp")
-    install(DIRECTORY include/ DESTINATION include/ FILES_MATCHING PATTERN "*.cpp")
-    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/hops/hops.hpp DESTINATION include/hops)
-
-    if (HOPS_BINARIES)
-        install(TARGETS hops-sampler DESTINATION bin/)
-    endif ()
-
-    install(TARGETS hops EXPORT hops-config LIBRARY DESTINATION "lib")
-    install(EXPORT hops-config DESTINATION "lib")
-endif()
-
+# TODO install command
