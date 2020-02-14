@@ -1,9 +1,9 @@
-#include <nups/FileWriter/FileWriterFactory.hpp>
-#include <nups/FileWriter/FileWriterType.hpp>
-#include <nups/FileWriter/CsvWriter.hpp>
+#include <hops/FileWriter/FileWriterFactory.hpp>
+#include <hops/FileWriter/FileWriterType.hpp>
+#include <hops/FileWriter/CsvWriter.hpp>
 
-std::unique_ptr<const nups::FileWriter>
-nups::FileWriterFactory::createFileWriter(const std::string &filename, FileWriterType fileWriterType) {
+std::unique_ptr<const hops::FileWriter>
+hops::FileWriterFactory::createFileWriter(const std::string &filename, FileWriterType fileWriterType) {
     switch(fileWriterType) {
         case FileWriterType::Csv: {
             return std::make_unique<CsvWriter>(filename);

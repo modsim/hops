@@ -1,3 +1,2 @@
-if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
-    target_sources(hops PRIVATE RandomNumberGenerator.hpp)
-endif (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
+target_include_directories(HOPS PUBLIC pcg-cpp)
+target_sources(HOPS PUBLIC RandomNumberGenerator.hpp)

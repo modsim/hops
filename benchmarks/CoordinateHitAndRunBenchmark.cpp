@@ -11,11 +11,11 @@ using Matrix = Eigen::MatrixXd;
 using Vector = Eigen::VectorXd;
 using Polytope = PolytopeSpaceFixture<Model, Matrix, Vector>;
 
-template<nups::MarkovChainType markovChainType>
+template<hops::MarkovChainType markovChainType>
 using MarkovChain = MarkovChainFixture<Polytope, markovChainType>;
 
 BASELINE_F(CoordinateHitAndRun, CHRRS,
-           MarkovChain<nups::MarkovChainType::CoordinateHitAndRun>, numberOfSamples,
+           MarkovChain<hops::MarkovChainType::CoordinateHitAndRun>, numberOfSamples,
            numberOfIterationsPerSample) {
     markovChain->draw(randomNumberGenerator, 1);
 }

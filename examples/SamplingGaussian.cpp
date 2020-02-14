@@ -1,13 +1,13 @@
-#include <nups/FileReader/CsvReader.hpp>
-#include <nups/FileWriter/FileWriterFactory.hpp>
-#include <nups/MarkovChain/MarkovChainFactory.hpp>
-#include <nups/PolytopeSpace/PolytopeSpace.hpp>
-#include <nups/MarkovChain/Recorder/StateRecorder.hpp>
-#include <nups/MarkovChain/Draw/MetropolisHastingsFilter.hpp>
-#include <nups/MarkovChain/Proposal/DikinProposal.hpp>
-#include <nups/Model/Model.hpp>
-#include <nups/Model/MultivariateGaussianModel.hpp>
-#include <nups/MarkovChain/Proposal/CSmMALAProposal.hpp>
+#include <hops/FileReader/CsvReader.hpp>
+#include <hops/FileWriter/FileWriterFactory.hpp>
+#include <hops/MarkovChain/MarkovChainFactory.hpp>
+#include <hops/PolytopeSpace/PolytopeSpace.hpp>
+#include <hops/MarkovChain/Recorder/StateRecorder.hpp>
+#include <hops/MarkovChain/Draw/MetropolisHastingsFilter.hpp>
+#include <hops/MarkovChain/Proposal/DikinProposal.hpp>
+#include <hops/Model/Model.hpp>
+#include <hops/Model/MultivariateGaussianModel.hpp>
+#include <hops/MarkovChain/Proposal/CSmMALAProposal.hpp>
 
 int main() {
 //    Eigen::MatrixXd A(4, 2);
@@ -17,52 +17,52 @@ int main() {
 //    b(b.rows() - 2) = 1;
 //    Eigen::VectorXd s(2);
 //    s << 0.2, 0.2;
-    auto A = nups::CsvReader::readMatrix<Eigen::MatrixXd>("../resources/simplex_64D/A_simplex_64D_unrounded.csv");
-    auto b = nups::CsvReader::readVector<Eigen::VectorXd>("../resources/simplex_64D/b_simplex_64D_unrounded.csv");
-    auto s = nups::CsvReader::readVector<Eigen::VectorXd>("../resources/simplex_64D/start_simplex_64D_unrounded.csv");
+    auto A = hops::CsvReader::readMatrix<Eigen::MatrixXd>("../resources/simplex_64D/A_simplex_64D_unrounded.csv");
+    auto b = hops::CsvReader::readVector<Eigen::VectorXd>("../resources/simplex_64D/b_simplex_64D_unrounded.csv");
+    auto s = hops::CsvReader::readVector<Eigen::VectorXd>("../resources/simplex_64D/start_simplex_64D_unrounded.csv");
 
-    auto fileWriter1 = nups::FileWriterFactory::createFileWriter("chain1", nups::FileWriterType::Csv);
-    auto fileWriter2 = nups::FileWriterFactory::createFileWriter("chain2", nups::FileWriterType::Csv);
-    auto fileWriter3 = nups::FileWriterFactory::createFileWriter("chain3", nups::FileWriterType::Csv);
+    auto fileWriter1 = hops::FileWriterFactory::createFileWriter("chain1", hops::FileWriterType::Csv);
+    auto fileWriter2 = hops::FileWriterFactory::createFileWriter("chain2", hops::FileWriterType::Csv);
+    auto fileWriter3 = hops::FileWriterFactory::createFileWriter("chain3", hops::FileWriterType::Csv);
 
-    nups::RandomNumberGenerator randomNumberGenerator(42);
+    hops::RandomNumberGenerator randomNumberGenerator(42);
 
-    nups::PolytopeSpace polytopeSpace(A, b, s);
+    hops::PolytopeSpace polytopeSpace(A, b, s);
 
     Eigen::VectorXd mean = s;
     Eigen::MatrixXd covariance = 0.00005*Eigen::MatrixXd::Identity(A.cols(), A.cols());
 
-    auto markovChain1 = nups::MarkovChainAdapter(
-            nups::StateRecorder(
-                    nups::MetropolisHastingsFilter(
-                            nups::Model(
-                                    nups::DikinProposal(
+    auto markovChain1 = hops::MarkovChainAdapter(
+            hops::StateRecorder(
+                    hops::MetropolisHastingsFilter(
+                            hops::Model(
+                                    hops::DikinProposal(
                                             A, b, s
                                     ),
-                                    nups::MultivariateGaussianModel(mean, covariance)
+                                    hops::MultivariateGaussianModel(mean, covariance)
                             )
                     )
             )
     );
 
-    auto markovChain2 = nups::MarkovChainAdapter(
-            nups::StateRecorder(
-                    nups::MetropolisHastingsFilter(
-                            nups::Model(
-                                    nups::DikinProposal(
+    auto markovChain2 = hops::MarkovChainAdapter(
+            hops::StateRecorder(
+                    hops::MetropolisHastingsFilter(
+                            hops::Model(
+                                    hops::DikinProposal(
                                             A, b, s
                                     ),
-                                    nups::MultivariateGaussianModel(mean, covariance)
+                                    hops::MultivariateGaussianModel(mean, covariance)
                             )
                     )
             )
     );
 
-    auto markovChain3 = nups::MarkovChainAdapter(
-            nups::StateRecorder(
-                    nups::MetropolisHastingsFilter(
-                            nups::CSmMALAProposal(
-                                    nups::MultivariateGaussianModel(mean, covariance), A, b, s)
+    auto markovChain3 = hops::MarkovChainAdapter(
+            hops::StateRecorder(
+                    hops::MetropolisHastingsFilter(
+                            hops::CSmMALAProposal(
+                                    hops::MultivariateGaussianModel(mean, covariance), A, b, s)
                     )
             )
     );

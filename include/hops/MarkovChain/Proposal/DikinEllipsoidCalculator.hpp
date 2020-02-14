@@ -3,8 +3,6 @@
 
 #include <Eigen/Cholesky>
 #include <Eigen/Core>
-#include <Eigen/Dense>
-#include "../../FileWriter/CsvWriter.hpp"
 
 namespace hops {
     template<typename MatrixType, typename VectorType>
@@ -12,11 +10,11 @@ namespace hops {
     public:
         DikinEllipsoidCalculator(MatrixType A, VectorType b);
 
-        std::pair<bool, Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>>
-        computeCholeskyFactorOfDikinEllipsoid(const VectorType &x);
+        Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>
+        calculateCholeskyFactorOfDikinEllipsoid(const VectorType &x);
 
         Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>
-        computeDikinEllipsoid(const VectorType &x);
+        calculateDikinEllipsoid(const VectorType &x);
 
     private:
         MatrixType A;
@@ -28,27 +26,17 @@ namespace hops {
             A(std::move(A)), b(std::move(b)) {}
 
     template<typename MatrixType, typename VectorType>
-    std::pair<bool, Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>>
-    DikinEllipsoidCalculator<MatrixType, VectorType>::computeCholeskyFactorOfDikinEllipsoid(const VectorType &x) {
-        Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic> dikinEllipsoid =
-                computeDikinEllipsoid(x);
-
-        Eigen::LLT<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>> solver(dikinEllipsoid);
-        bool successful = solver.info() == Eigen::Success;
-        return std::make_pair(successful, solver.matrixL());
+    Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>
+    DikinEllipsoidCalculator<MatrixType, VectorType>::calculateCholeskyFactorOfDikinEllipsoid(const VectorType &x) {
+        Eigen::LLT<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>, Eigen::Upper> solver(
+                calculateDikinEllipsoid((x)));
+        return solver.matrixU();
     }
 
     template<typename MatrixType, typename VectorType>
     Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>
-    DikinEllipsoidCalculator<MatrixType, VectorType>::computeDikinEllipsoid(const VectorType &x) {
-        Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, 1> inv_slack = (this->b -
-                                                                                   this->A * x).cwiseInverse();
-
-        Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic> halfDikin =
-                inv_slack.asDiagonal() * this->A;
-        Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic> dikin =
-                halfDikin.transpose() * halfDikin;
-        return dikin;
+    DikinEllipsoidCalculator<MatrixType, VectorType>::calculateDikinEllipsoid(const VectorType &x) {
+        return A.transpose() * ((b - A * x).array().pow(2).inverse().matrix().asDiagonal()) * A;
     }
 }
 

@@ -1,47 +1,47 @@
-#ifndef NUPS_FIXTURES_HPP
-#define NUPS_FIXTURES_HPP
+#ifndef HOPS_FIXTURES_HPP
+#define HOPS_FIXTURES_HPP
 
 #include <celero/Celero.h>
-#include <nups/FileReader/CsvReader.hpp>
-#include <nups/MarkovChain/MarkovChainFactory.hpp>
-#include <nups/PolytopeSpace/PolytopeSpace.hpp>
-#include <nups/Transformation/Transformation.hpp>
+#include <hops/FileReader/CsvReader.hpp>
+#include <hops/MarkovChain/MarkovChainFactory.hpp>
+#include <hops/PolytopeSpace/PolytopeSpace.hpp>
+#include <hops/Transformation/Transformation.hpp>
 
 
 template<typename ModelFiles, typename Matrix, typename Vector>
 class PolytopeSpaceFixture {
 public:
     PolytopeSpaceFixture() {
-        polytopeSpace.A = nups::CsvReader::readMatrix<Matrix>(std::string(ModelFiles::A));
-        polytopeSpace.b = nups::CsvReader::readVector<Vector>(std::string(ModelFiles::b));
-        polytopeSpace.startingPoint = nups::CsvReader::readVector<Vector>(std::string(ModelFiles::startingPoint));
-//        polytopeSpace.N = nups::CsvReader::readMatrix<Matrix>(std::string(ModelFiles::N));
-//        polytopeSpace.shift = nups::CsvReader::readVector<Vector>(std::string(ModelFiles::p_shift));
+        polytopeSpace.A = hops::CsvReader::readMatrix<Matrix>(std::string(ModelFiles::A));
+        polytopeSpace.b = hops::CsvReader::readVector<Vector>(std::string(ModelFiles::b));
+        polytopeSpace.startingPoint = hops::CsvReader::readVector<Vector>(std::string(ModelFiles::startingPoint));
+//        polytopeSpace.N = hops::CsvReader::readMatrix<Matrix>(std::string(ModelFiles::N));
+//        polytopeSpace.shift = hops::CsvReader::readVector<Vector>(std::string(ModelFiles::p_shift));
 
-        polytopeSpace.roundedA = nups::CsvReader::readMatrix<Matrix>(std::string(ModelFiles::roundedA));
-        polytopeSpace.roundedb = nups::CsvReader::readVector<Vector>(std::string(ModelFiles::roundedb));
-        polytopeSpace.roundedStartingPoint = nups::CsvReader::readVector<Vector>(std::string(ModelFiles::roundedStartingPoint));
-        polytopeSpace.roundedT = nups::CsvReader::readMatrix<Matrix>(std::string(ModelFiles::roundedT));
-        polytopeSpace.roundedN = nups::CsvReader::readMatrix<Matrix>(std::string(ModelFiles::roundedN));
-        polytopeSpace.roundedShift = nups::CsvReader::readVector<Vector>(std::string(ModelFiles::roundedp_shift));
+        polytopeSpace.roundedA = hops::CsvReader::readMatrix<Matrix>(std::string(ModelFiles::roundedA));
+        polytopeSpace.roundedb = hops::CsvReader::readVector<Vector>(std::string(ModelFiles::roundedb));
+        polytopeSpace.roundedStartingPoint = hops::CsvReader::readVector<Vector>(std::string(ModelFiles::roundedStartingPoint));
+        polytopeSpace.roundedT = hops::CsvReader::readMatrix<Matrix>(std::string(ModelFiles::roundedT));
+        polytopeSpace.roundedN = hops::CsvReader::readMatrix<Matrix>(std::string(ModelFiles::roundedN));
+        polytopeSpace.roundedShift = hops::CsvReader::readVector<Vector>(std::string(ModelFiles::roundedp_shift));
     }
 
-    nups::PolytopeSpace<Matrix, Vector> polytopeSpace;
+    hops::PolytopeSpace<Matrix, Vector> polytopeSpace;
 };
 
-template<typename PolytopeSpaceFixture, nups::MarkovChainType markovChainType>
+template<typename PolytopeSpaceFixture, hops::MarkovChainType markovChainType>
 class MarkovChainFixture : public celero::TestFixture {
 public:
     MarkovChainFixture() {
-        markovChain = nups::MarkovChainFactory::createMarkovChain(
+        markovChain = hops::MarkovChainFactory::createMarkovChain(
                 polytopeSpaceFixture.polytopeSpace,
                 markovChainType
         );
     }
 
     PolytopeSpaceFixture polytopeSpaceFixture;
-    std::unique_ptr<nups::MarkovChain> markovChain;
-    nups::RandomNumberGenerator randomNumberGenerator{std::random_device{}()};
+    std::unique_ptr<hops::MarkovChain> markovChain;
+    hops::RandomNumberGenerator randomNumberGenerator{std::random_device{}()};
 };
 
 struct Recon3D {
@@ -218,4 +218,4 @@ struct simplex_2048D {
     static constexpr const char *roundedp_shift = "../resources/simplex_2048D/p_shift_simplex_2048D_rounded.csv";
 };
 
-#endif //NUPS_FIXTURES_HPP
+#endif //HOPS_FIXTURES_HPP

@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
-#include <nups/MarkovChain/Recorder/IsWriteRecordsToFileAvailable.hpp>
+#include <hops/MarkovChain/Recorder/IsWriteRecordsToFileAvailable.hpp>
 
 namespace {
     TEST(IsStoreRecordAvailable, WhenStoreRecordIsNotAvailable) {
-        EXPECT_FALSE(nups::IsWriteRecordsToFileAvailable<double>::value);
+        EXPECT_FALSE(hops::IsWriteRecordsToFileAvailable<double>::value);
     }
 
     TEST(IsStoreRecordAvailable, WhenStoreRecordHasWrongSignature) {
@@ -12,15 +12,15 @@ namespace {
             void writeRecordsToFile();
         };
 
-        EXPECT_FALSE(nups::IsWriteRecordsToFileAvailable<RecorderMock>::value);
+        EXPECT_FALSE(hops::IsWriteRecordsToFileAvailable<RecorderMock>::value);
     }
 
     TEST(IsStoreRecordAvailable, WhenStoreRecordIsAvailable) {
         class RecorderMock {
         public:
-            void writeRecordsToFile(const nups::FileWriter *);
+            void writeRecordsToFile(const hops::FileWriter *);
         };
 
-        EXPECT_TRUE(nups::IsWriteRecordsToFileAvailable<RecorderMock>::value);
+        EXPECT_TRUE(hops::IsWriteRecordsToFileAvailable<RecorderMock>::value);
     }
 }

@@ -1,6 +1,6 @@
 #include <Eigen/Core>
 #include <gtest/gtest.h>
-#include <nups/Model/MultivariateGaussianModel.hpp>
+#include <hops/Model/MultivariateGaussianModel.hpp>
 
 namespace {
     TEST(MultivariateGaussianModel, negativeLogLikelihood) {
@@ -12,8 +12,8 @@ namespace {
         Eigen::MatrixXd covariance(2, 2);
         covariance << 0.04, 0, 0, 0.04;
 
-        nups::MultivariateGaussianModel multivariateGaussianModel1(mean1, covariance);
-        nups::MultivariateGaussianModel multivariateGaussianModel2(mean2, covariance);
+        hops::MultivariateGaussianModel multivariateGaussianModel1(mean1, covariance);
+        hops::MultivariateGaussianModel multivariateGaussianModel2(mean2, covariance);
 
         Eigen::VectorXd evaluationPoint(2);
         evaluationPoint << 0.8, 0.8;

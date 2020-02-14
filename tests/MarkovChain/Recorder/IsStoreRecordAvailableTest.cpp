@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
-#include <nups/MarkovChain/Recorder/IsStoreRecordAvailable.hpp>
+#include <hops/MarkovChain/Recorder/IsStoreRecordAvailable.hpp>
 
 namespace {
     TEST(IsStoreRecordAvailable, WhenStoreRecordIsNotAvailable) {
-        EXPECT_FALSE(nups::IsStoreRecordAvailable<double>::value);
+        EXPECT_FALSE(hops::IsStoreRecordAvailable<double>::value);
     }
 
     TEST(IsStoreRecordAvailable, WhenStoreRecordHasWrongSignature) {
@@ -12,7 +12,7 @@ namespace {
             void storeRecord(double);
         };
 
-        EXPECT_FALSE(nups::IsStoreRecordAvailable<RecorderMock>::value);
+        EXPECT_FALSE(hops::IsStoreRecordAvailable<RecorderMock>::value);
     }
 
     TEST(IsStoreRecordAvailable, WhenStoreRecordIsAvailable) {
@@ -21,6 +21,6 @@ namespace {
             void storeRecord();
         };
 
-        EXPECT_TRUE(nups::IsStoreRecordAvailable<RecorderMock>::value);
+        EXPECT_TRUE(hops::IsStoreRecordAvailable<RecorderMock>::value);
     }
 }

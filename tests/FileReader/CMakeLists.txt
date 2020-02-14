@@ -9,7 +9,7 @@
               ../../include
               )
       target_link_libraries(${TEST_NAME}
-              nups
+              HOPS
               gtest
               gtest_main
               )

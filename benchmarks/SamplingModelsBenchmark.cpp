@@ -1,4 +1,4 @@
-#include <nups/FileWriter/FileWriterFactory.hpp>
+#include <hops/FileWriter/FileWriterFactory.hpp>
 #include "Fixtures.hpp"
 
 template<typename Matrix, typename Vector, typename Model>
@@ -10,20 +10,20 @@ void sample(long seed, const std::string &filename) {
     Polytope polytope;
     const long thinning = 100 * polytope.polytopeSpace.roundedA.cols();
     std::cout << "thinning is " << thinning << ", " << std::flush;
-    nups::MarkovChainAdapter
+    hops::MarkovChainAdapter
             markovChain(
-            nups::StateRecorder(
-                    nups::StateTransformation(
-                            nups::NoOpDraw(
-                                    nups::CoordinateHitAndRunProposal<Matrix, Vector>(
+            hops::StateRecorder(
+                    hops::StateTransformation(
+                            hops::NoOpDraw(
+                                    hops::CoordinateHitAndRunProposal<Matrix, Vector>(
                                             polytope.polytopeSpace.roundedA,
                                             polytope.polytopeSpace.roundedb,
                                             polytope.polytopeSpace.roundedStartingPoint)),
-                            nups::Transformation(polytope.polytopeSpace.roundedN, polytope.polytopeSpace.roundedShift)
+                            hops::Transformation(polytope.polytopeSpace.roundedN, polytope.polytopeSpace.roundedShift)
                     )
             )
     );
-    nups::RandomNumberGenerator randomNumberGenerator(std::random_device{}(), seed);
+    hops::RandomNumberGenerator randomNumberGenerator(std::random_device{}(), seed);
     // burn in
     markovChain.draw(randomNumberGenerator, 1, numberOfSamples);
     markovChain.clearHistory();
@@ -42,7 +42,7 @@ void sample(long seed, const std::string &filename) {
               << std::endl;
 
     // Create FileWriter
-    auto fileWriter = nups::FileWriterFactory::createFileWriter(filename, nups::FileWriterType::Csv);
+    auto fileWriter = hops::FileWriterFactory::createFileWriter(filename, hops::FileWriterType::Csv);
 
     // Write samples to file
     markovChain.writeHistory(fileWriter.get());

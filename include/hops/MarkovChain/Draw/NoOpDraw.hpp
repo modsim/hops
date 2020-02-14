@@ -1,10 +1,10 @@
-#ifndef NUPS_NOOPDRAW_HPP
-#define NUPS_NOOPDRAW_HPP
+#ifndef HOPS_NOOPDRAW_HPP
+#define HOPS_NOOPDRAW_HPP
 
-#include <nups/MarkovChain/Draw/IsAcceptProposalAvailable.hpp>
-#include <nups/RandomNumberGenerator/RandomNumberGenerator.hpp>
+#include <hops/MarkovChain/Draw/IsAcceptProposalAvailable.hpp>
+#include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
 
-namespace nups {
+namespace hops {
     template<typename MarkovChainProposer>
     class NoOpDraw : public MarkovChainProposer {
     public:
@@ -19,4 +19,4 @@ namespace nups {
     };
 }
 
-#endif //NUPS_NOOPDRAW_HPP
+#endif //HOPS_NOOPDRAW_HPP

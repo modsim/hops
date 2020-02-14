@@ -1,9 +1,9 @@
-#ifndef NUPS_POLYTOPESPACE_HPP
-#define NUPS_POLYTOPESPACE_HPP
+#ifndef HOPS_POLYTOPESPACE_HPP
+#define HOPS_POLYTOPESPACE_HPP
 
 #include <utility>
 
-namespace nups {
+namespace hops {
     template<typename MatrixType, typename VectorType>
     struct PolytopeSpace {
         PolytopeSpace() = default;
@@ -27,4 +27,4 @@ namespace nups {
     };
 }
 
-#endif //NUPS_POLYTOPESPACE_HPP
+#endif //HOPS_POLYTOPESPACE_HPP

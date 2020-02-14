@@ -1,4 +1,4 @@
-target_sources(nups
+target_sources(HOPS
         PRIVATE
         CsvWriter.cpp
         CsvWriterImpl.cpp

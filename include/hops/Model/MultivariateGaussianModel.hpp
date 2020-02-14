@@ -1,8 +1,8 @@
 #ifndef HOPS_MULTIVARIATEGAUSSIANMODEL_HPP
 #define HOPS_MULTIVARIATEGAUSSIANMODEL_HPP
 
-#define _USE_MATH_DEFINES
-#include <math.h>
+#include <boost/math/constants/constants.hpp>
+#include <cmath>
 #include <Eigen/Cholesky>
 #include <Eigen/Core>
 #include <Eigen/LU>
@@ -22,11 +22,11 @@ namespace hops {
          * @param x
          * @return
          */
-        typename MatrixType::Scalar computeNegativeLogLikelihood(const VectorType &x) const;
+        double calculateNegativeLogLikelihood(const VectorType &x) const;
 
-        MatrixType computeExpectedFisherInformation(const VectorType &) const;
+        MatrixType calculateExpectedFisherInformation(const VectorType &) const;
 
-        VectorType computeLogLikelihoodGradient(const VectorType &x) const;
+        VectorType calculateGradient(const VectorType &x) const;
 
     private:
         VectorType mean;
@@ -39,34 +39,29 @@ namespace hops {
     MultivariateGaussianModel<MatrixType, VectorType>::MultivariateGaussianModel(VectorType mean,
                                                                                  MatrixType covariance) :
             mean(std::move(mean)),
-            covariance(std::move(covariance)) {
+            covariance(std::move(covariance)),
+            inverseCovariance(this->covariance.inverse()) {
         Eigen::LLT<MatrixType, Eigen::Upper> solver(this->covariance);
-        Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic> matrixL = solver.matrixL();
-        Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic> matrixU = solver.matrixU();
-        Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic> inverseMatrixL = matrixL.inverse();
-        inverseCovariance = inverseMatrixL * inverseMatrixL.transpose();
-
-        logNormalizationConstant = -static_cast<typename MatrixType::Scalar>(this->mean.rows()) / 2 *
-                                   std::log(2 * M_PI)
-                                   - matrixL.diagonal().array().log().sum();
+        logNormalizationConstant =
+                -std::log(std::sqrt(std::pow(2 * boost::math::constants::pi<double>(), this->mean.rows())))
+                - MatrixType(solver.matrixU()).diagonal().array().log().sum();
     }
 
     template<typename MatrixType, typename VectorType>
-    typename MatrixType::Scalar
-    MultivariateGaussianModel<MatrixType, VectorType>::computeNegativeLogLikelihood(const VectorType &x) const {
+    double
+    MultivariateGaussianModel<MatrixType, VectorType>::calculateNegativeLogLikelihood(const VectorType &x) const {
         return -logNormalizationConstant +
-               0.5 * static_cast<typename MatrixType::Scalar>((x - mean).transpose() * inverseCovariance * (x - mean));
+               0.5 * static_cast<double>((x - mean).transpose() * inverseCovariance * (x - mean));
     }
 
     template<typename MatrixType, typename VectorType>
     MatrixType
-    MultivariateGaussianModel<MatrixType, VectorType>::computeExpectedFisherInformation(const VectorType &) const {
+    MultivariateGaussianModel<MatrixType, VectorType>::calculateExpectedFisherInformation(const VectorType &) const {
         return inverseCovariance;
     }
 
     template<typename MatrixType, typename VectorType>
-    VectorType
-    MultivariateGaussianModel<MatrixType, VectorType>::computeLogLikelihoodGradient(const VectorType &x) const {
+    VectorType MultivariateGaussianModel<MatrixType, VectorType>::calculateGradient(const VectorType &x) const {
         return -inverseCovariance * (x - mean);
     }
 }

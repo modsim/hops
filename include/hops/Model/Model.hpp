@@ -1,12 +1,12 @@
-#ifndef NUPS_MODEL_HPP
-#define NUPS_MODEL_HPP
+#ifndef HOPS_MODEL_HPP
+#define HOPS_MODEL_HPP
 
-#include <nups/MarkovChain/Draw/IsCalculateLogAcceptanceProbabilityAvailable.hpp>
-#include <nups/RandomNumberGenerator/RandomNumberGenerator.hpp>
+#include <hops/MarkovChain/Draw/IsCalculateLogAcceptanceProbabilityAvailable.hpp>
+#include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
 
 // TODO introduce coldness to model and see how to get it into CSmMALA also
 // TODO maybe by introducing it here already!
-namespace nups {
+namespace hops {
     /**
      * @brief Model Mixin to add model likelihood to calculateLogAcceptanceRate().
      * @details Useful for MarkovChainProposer classes, that do not already contain the model.
@@ -48,4 +48,4 @@ namespace nups {
     }
 }
 
-#endif //NUPS_MODEL_HPP
+#endif //HOPS_MODEL_HPP

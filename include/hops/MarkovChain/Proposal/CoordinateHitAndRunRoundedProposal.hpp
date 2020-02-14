@@ -1,10 +1,10 @@
-#ifndef NUPS_COORDINATEHITANDRUNROUNDEDPROPOSAL_HPP
-#define NUPS_COORDINATEHITANDRUNROUNDEDPROPOSAL_HPP
+#ifndef HOPS_COORDINATEHITANDRUNROUNDEDPROPOSAL_HPP
+#define HOPS_COORDINATEHITANDRUNROUNDEDPROPOSAL_HPP
 
-#include <nups/RandomNumberGenerator/RandomNumberGenerator.hpp>
+#include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
 #include <random>
 
-namespace nups {
+namespace hops {
     template<typename MatrixType, typename VectorType>
     class CoordinateHitAndRunRoundedProposal {
     public:
@@ -102,4 +102,4 @@ namespace nups {
     }
 }
 
-#endif //NUPS_COORDINATEHITANDRUNROUNDEDPROPOSAL_HPP
+#endif //HOPS_COORDINATEHITANDRUNROUNDEDPROPOSAL_HPP

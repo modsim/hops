@@ -1,3 +1,1 @@
-if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
-    target_sources(hops PRIVATE Transformation.hpp)
-endif (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
+target_sources(HOPS PUBLIC Transformation.hpp)

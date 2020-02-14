@@ -6,7 +6,7 @@
 namespace hops {
     class CsvWriter : public FileWriter {
     public:
-        explicit CsvWriter(std::string path, int outputPrecision = 17);
+        explicit CsvWriter(std::string path);
 
         void write(const std::string &description, const std::vector<float> &records) const override;
 
@@ -20,13 +20,8 @@ namespace hops {
 
         void write(const std::string &description, const std::vector<std::string> &records) const override;
 
-        void write(const std::string &description, const Eigen::MatrixXd &matrix) const override;
-
-        void write(const std::string &description, const Eigen::VectorXd &vector) const override;
-
     private:
         std::string path;
-        int outputPrecision;
     };
 }
 

@@ -1,6 +1,6 @@
 #include <Eigen/Core>
 #include <gtest/gtest.h>
-#include <nups/FileWriter/CsvWriterImpl.hpp>
+#include <hops/FileWriter/CsvWriterImpl.hpp>
 
 namespace {
     TEST(CsvWriterImpl, writeInts) {
@@ -8,7 +8,7 @@ namespace {
         std::string expectedOutput = "-525\n0\n35\n";
 
         std::ostringstream actualOutput;
-        nups::internal::CsvWriterImpl::writeOneDimensionalRecords(actualOutput, data);
+        hops::internal::CsvWriterImpl::writeOneDimensionalRecords(actualOutput, data);
 
         EXPECT_EQ(actualOutput.str(), expectedOutput);
     }
@@ -18,7 +18,7 @@ namespace {
         std::string expectedOutput = "-525\n0\n35\n";
 
         std::ostringstream actualOutput;
-        nups::internal::CsvWriterImpl::writeOneDimensionalRecords(actualOutput, data);
+        hops::internal::CsvWriterImpl::writeOneDimensionalRecords(actualOutput, data);
 
         EXPECT_EQ(actualOutput.str(), expectedOutput);
     }
@@ -28,7 +28,7 @@ namespace {
         std::string expectedOutput = "1.25\n5.513\n8.35\n";
 
         std::ostringstream actualOutput;
-        nups::internal::CsvWriterImpl::writeOneDimensionalRecords(actualOutput, data);
+        hops::internal::CsvWriterImpl::writeOneDimensionalRecords(actualOutput, data);
 
         EXPECT_EQ(actualOutput.str(), expectedOutput);
     }
@@ -38,7 +38,7 @@ namespace {
         std::string expectedOutput = "1.25\n5.513\n8.35\n";
 
         std::ostringstream actualOutput;
-        nups::internal::CsvWriterImpl::writeOneDimensionalRecords(actualOutput, data);
+        hops::internal::CsvWriterImpl::writeOneDimensionalRecords(actualOutput, data);
 
         EXPECT_EQ(actualOutput.str(), expectedOutput);
     }
@@ -48,7 +48,7 @@ namespace {
         std::string expectedOutput = "test1\ntest2\n";
 
         std::ostringstream actualOutput;
-        nups::internal::CsvWriterImpl::writeOneDimensionalRecords(actualOutput, data);
+        hops::internal::CsvWriterImpl::writeOneDimensionalRecords(actualOutput, data);
 
         EXPECT_EQ(actualOutput.str(), expectedOutput);
     }
@@ -64,7 +64,7 @@ namespace {
         std::string expectedOutput = "1.1,5.6,3.14\n-1.1\n";
 
         std::ostringstream actualOutput;
-        nups::internal::CsvWriterImpl::writeEigenVectorRecords(actualOutput, data);
+        hops::internal::CsvWriterImpl::writeEigenVectorRecords(actualOutput, data);
 
         EXPECT_EQ(actualOutput.str(), expectedOutput);
     }
@@ -80,7 +80,7 @@ namespace {
         std::string expectedOutput = "1.1,5.6,3.14\n-1.1\n";
 
         std::ostringstream actualOutput;
-        nups::internal::CsvWriterImpl::writeEigenVectorRecords(actualOutput, data);
+        hops::internal::CsvWriterImpl::writeEigenVectorRecords(actualOutput, data);
 
         EXPECT_EQ(actualOutput.str(), expectedOutput);
     }

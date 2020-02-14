@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <Eigen/Core>
-#include <nups/MarkovChain/Proposal/DikinEllipsoidCalculator.hpp>
+#include <hops/MarkovChain/Proposal/DikinEllipsoidCalculator.hpp>
 
 namespace {
 
@@ -18,7 +18,7 @@ namespace {
         Eigen::VectorXd b(rows);
         b << 1, 1, 1, 1, 1, 1;
 
-        nups::DikinEllipsoidCalculator dikinEllipsoidCalculator(A, b);
+        hops::DikinEllipsoidCalculator dikinEllipsoidCalculator(A, b);
         Eigen::VectorXd interiorPoint(cols);
         for (size_t i = 0; i < cols; ++i) {
             interiorPoint(i) = 0;

@@ -1,10 +1,10 @@
-#ifndef NUPS_CSMMALA_HPP
-#define NUPS_CSMMALA_HPP
+#ifndef HOPS_CSMMALA_HPP
+#define HOPS_CSMMALA_HPP
 
-#include <nups/MarkovChain/Proposal/DikinProposal.hpp>
+#include <hops/MarkovChain/Proposal/DikinProposal.hpp>
 #include <random>
 
-namespace nups {
+namespace hops {
     template<typename Model>
     class CSmMALAProposal {
     private:
@@ -168,4 +168,4 @@ namespace nups {
     }
 }
 
-#endif //NUPS_CSMMALA_HPP
+#endif //HOPS_CSMMALA_HPP

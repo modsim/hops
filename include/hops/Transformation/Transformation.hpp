@@ -23,13 +23,6 @@ namespace hops {
             return matrix * vector + shift;
         }
 
-        VectorType applyInverse(VectorType vector) {
-            if (!matrix.isLowerTriangular()) {
-                return matrix.inverse() * (vector - shift);
-            }
-            return matrix.template triangularView<Eigen::Lower>().solve(vector - shift);
-        }
-
         MatrixType matrix;
         VectorType shift;
     };
