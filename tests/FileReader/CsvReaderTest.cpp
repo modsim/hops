@@ -1,12 +1,12 @@
 #include <gtest/gtest.h>
-#include <nups/FileReader/CsvReader.hpp>
+#include <hops/FileReader/CsvReader.hpp>
 
 namespace {
     TEST(FileReader, readVectorOfInts) {
         Eigen::VectorXi expectedResult(5);
         expectedResult << 1, 0, -1, 0, 0;
 
-        auto actualResult = nups::CsvReader::readVector<Eigen::VectorXi>("../../resources/b_small.csv");
+        auto actualResult = hops::CsvReader::readVector<Eigen::VectorXi>("../../resources/b_small.csv");
 
         EXPECT_EQ(actualResult, expectedResult);
     }
@@ -15,7 +15,7 @@ namespace {
         Eigen::Matrix<long, Eigen::Dynamic, 1> expectedResult(5);
         expectedResult << 1, 0, -1, 0, 0;
 
-        auto actualResult = nups::CsvReader::readVector<Eigen::Matrix<long, Eigen::Dynamic, 1>>(
+        auto actualResult = hops::CsvReader::readVector<Eigen::Matrix<long, Eigen::Dynamic, 1>>(
                 "../../resources/b_small.csv");
 
         EXPECT_EQ(actualResult, expectedResult);
@@ -25,7 +25,7 @@ namespace {
         Eigen::VectorXf expectedResult(5);
         expectedResult << 1.5, 0, -1, 0, 0;
 
-        auto actualResult = nups::CsvReader::readVector<Eigen::VectorXf>("../../resources/b_small.csv");
+        auto actualResult = hops::CsvReader::readVector<Eigen::VectorXf>("../../resources/b_small.csv");
 
         EXPECT_EQ(actualResult, expectedResult);
     }
@@ -34,7 +34,7 @@ namespace {
         Eigen::VectorXd expectedResult(5);
         expectedResult << 1.5, 0, -1, 0, 0;
 
-        auto actualResult = nups::CsvReader::readVector<Eigen::VectorXd>("../../resources/b_small.csv");
+        auto actualResult = hops::CsvReader::readVector<Eigen::VectorXd>("../../resources/b_small.csv");
 
         EXPECT_EQ(actualResult, expectedResult);
     }
@@ -47,7 +47,7 @@ namespace {
                 0, 0, -1, 0,
                 0, 0, 0, -1;
 
-        auto actualResult = nups::CsvReader::readMatrix<Eigen::MatrixXi>("../../resources/A_small.csv");
+        auto actualResult = hops::CsvReader::readMatrix<Eigen::MatrixXi>("../../resources/A_small.csv");
 
         EXPECT_EQ(actualResult, expectedResult);
     }
@@ -60,7 +60,7 @@ namespace {
                 0, 0, -1, 0,
                 0, 0, 0, -1;
 
-        auto actualResult = nups::CsvReader::readMatrix<Eigen::Matrix<long, Eigen::Dynamic, Eigen::Dynamic>>(
+        auto actualResult = hops::CsvReader::readMatrix<Eigen::Matrix<long, Eigen::Dynamic, Eigen::Dynamic>>(
                 "../../resources/A_small.csv");
 
         EXPECT_EQ(actualResult, expectedResult);
@@ -74,7 +74,7 @@ namespace {
                 0, 0, -1, 0,
                 0, 0, 0, -1;
 
-        auto actualResult = nups::CsvReader::readMatrix<Eigen::MatrixXf>("../../resources/A_small.csv");
+        auto actualResult = hops::CsvReader::readMatrix<Eigen::MatrixXf>("../../resources/A_small.csv");
 
         EXPECT_EQ(actualResult, expectedResult);
     }
@@ -87,7 +87,7 @@ namespace {
                 0, 0, -1, 0,
                 0, 0, 0, -1;
 
-        auto actualResult = nups::CsvReader::readMatrix<Eigen::MatrixXd>("../../resources/A_small.csv");
+        auto actualResult = hops::CsvReader::readMatrix<Eigen::MatrixXd>("../../resources/A_small.csv");
 
         EXPECT_EQ(actualResult, expectedResult);
     }
@@ -102,7 +102,7 @@ namespace {
 
         Eigen::SparseMatrix<int> expectedResult = matrix.sparseView();
 
-        auto actualResult = nups::CsvReader::readMatrix<Eigen::SparseMatrix<int>>("../../resources/A_small.csv");
+        auto actualResult = hops::CsvReader::readMatrix<Eigen::SparseMatrix<int>>("../../resources/A_small.csv");
 
         EXPECT_TRUE((actualResult - expectedResult).norm() <= 0);
     }
@@ -116,7 +116,7 @@ namespace {
                 0, 0, 0, -1;
         Eigen::SparseMatrix<long> expectedResult = matrix.sparseView();
 
-        auto actualResult = nups::CsvReader::readMatrix<Eigen::SparseMatrix<long>>("../../resources/A_small.csv");
+        auto actualResult = hops::CsvReader::readMatrix<Eigen::SparseMatrix<long>>("../../resources/A_small.csv");
 
         EXPECT_TRUE((actualResult - expectedResult).norm() <= 0);
     }
@@ -130,7 +130,7 @@ namespace {
                 0, 0, 0, -1;
         Eigen::SparseMatrix<float> expectedResult = matrix.sparseView();
 
-        auto actualResult = nups::CsvReader::readMatrix<Eigen::SparseMatrix<float>>("../../resources/A_small.csv");
+        auto actualResult = hops::CsvReader::readMatrix<Eigen::SparseMatrix<float>>("../../resources/A_small.csv");
 
         EXPECT_TRUE((actualResult - expectedResult).norm() <= 0);
     }
@@ -144,13 +144,13 @@ namespace {
                 0, 0, 0, -1;
         Eigen::SparseMatrix<double> expectedResult = matrix.sparseView();
 
-        auto actualResult = nups::CsvReader::readMatrix<Eigen::MatrixXd>("../../resources/A_small.csv");
+        auto actualResult = hops::CsvReader::readMatrix<Eigen::MatrixXd>("../../resources/A_small.csv");
 
         EXPECT_TRUE((actualResult - expectedResult).norm() <= 0);
     }
 
     TEST(FileReader, readRecon2v04) {
-        auto actualResult = nups::CsvReader::readMatrix<Eigen::MatrixXd>(
+        auto actualResult = hops::CsvReader::readMatrix<Eigen::MatrixXd>(
                 "../../resources/Recon2.v04/A_Recon2.v04_unrounded.csv");
 
         for (long i = 0; i < actualResult.cols(); ++i) {

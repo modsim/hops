@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
-#include <nups/MarkovChain/Recorder/IsClearRecordsAvailable.hpp>
+#include <hops/MarkovChain/Recorder/IsClearRecordsAvailable.hpp>
 
 namespace {
     TEST(IsClearRecordsAvailable, WhenRecordIsNotAvailable) {
-        EXPECT_FALSE(nups::IsClearRecordsAvailable<double>::value);
+        EXPECT_FALSE(hops::IsClearRecordsAvailable<double>::value);
     }
 
     TEST(IsClearRecordsAvailable, WhenRecordHasWrongSignature) {
@@ -12,7 +12,7 @@ namespace {
             void clearRecords(double);
         };
 
-        EXPECT_FALSE(nups::IsClearRecordsAvailable<RecorderMock>::value);
+        EXPECT_FALSE(hops::IsClearRecordsAvailable<RecorderMock>::value);
     }
 
     TEST(IsClearRecordsAvailable, WhenRecordIsAvailableWithCorrectTypedef) {
@@ -21,6 +21,6 @@ namespace {
             void clearRecords();
         };
 
-        EXPECT_TRUE(nups::IsClearRecordsAvailable<RecorderMock>::value);
+        EXPECT_TRUE(hops::IsClearRecordsAvailable<RecorderMock>::value);
     }
 }

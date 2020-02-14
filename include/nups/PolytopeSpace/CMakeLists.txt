@@ -1,1 +1,0 @@
-target_sources(nups PUBLIC PolytopeSpace.hpp)

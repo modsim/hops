@@ -1,0 +1,42 @@
+#ifndef HOPS_METROPOLISHASTINGSFILTER_HPP
+#define HOPS_METROPOLISHASTINGSFILTER_HPP
+
+#include <hops/FileWriter/FileWriter.hpp>
+#include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
+#include <random>
+
+namespace hops {
+    template<typename MarkovChainProposer>
+    class MetropolisHastingsFilter : public MarkovChainProposer {
+    public:
+        explicit MetropolisHastingsFilter(const MarkovChainProposer &markovChainImpl) : MarkovChainProposer(
+                markovChainImpl) {}
+
+        void draw(RandomNumberGenerator &randomNumberGenerator);
+
+        double getAcceptanceRate();
+
+        long numberOfProposals = 0;
+        long numberOfAcceptedProposals = 0;
+        std::uniform_real_distribution<double> uniformRealDistribution;
+    };
+
+    template<typename MarkovChainProposer>
+    void MetropolisHastingsFilter<MarkovChainProposer>::draw(hops::RandomNumberGenerator &randomNumberGenerator) {
+        MarkovChainProposer::propose(randomNumberGenerator);
+        numberOfProposals++;
+        double acceptanceChance = std::log(uniformRealDistribution(randomNumberGenerator));
+        double acceptanceProbability = MarkovChainProposer::calculateLogAcceptanceProbability();
+        if (acceptanceChance < acceptanceProbability) {
+            MarkovChainProposer::acceptProposal();
+            numberOfAcceptedProposals++;
+        }
+    }
+
+    template<typename MarkovChainProposer>
+    double MetropolisHastingsFilter<MarkovChainProposer>::getAcceptanceRate() {
+        return static_cast<double>(numberOfAcceptedProposals) / numberOfProposals;
+    }
+}
+
+#endif //HOPS_METROPOLISHASTINGSFILTER_HPP

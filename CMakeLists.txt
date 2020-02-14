@@ -3,7 +3,7 @@
 ########################################################################################################################
 
 cmake_minimum_required(VERSION 3.14)
-project(nups)
+project(hops)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules/")
 
 ########################################################################################################################
@@ -17,10 +17,10 @@ set(MKL_USE_interface lp64)
 # Set Options
 ########################################################################################################################
 
-option(NUPS_BENCHMARKS "Enables compilation of Benchmarks (Requires Celero). Use -DNUPS_BENCHMARKS=OFF to disable." ON)
-option(NUPS_DOCS "Enables generation of documentation. Use -DNUPS_DOCS=OFF to disable." ON)
-option(NUPS_EXAMPLES "Enables compilation of Examples. Use -DNUPS_EXAMPLES=OFF to disable." ON)
-option(NUPS_TESTS "Enables compilation of unit tests. Use -DNUPS_TESTS=OFF to disable." ON)
+option(HOPS_BENCHMARKS "Enables compilation of Benchmarks (Requires Celero). Use -DHOPS_BENCHMARKS=OFF to disable." ON)
+option(HOPS_DOCS "Enables generation of documentation. Use -DHOPS_DOCS=OFF to disable." ON)
+option(HOPS_EXAMPLES "Enables compilation of Examples. Use -DHOPS_EXAMPLES=OFF to disable." ON)
+option(HOPS_TESTS "Enables compilation of unit tests. Use -DHOPS_TESTS=OFF to disable." ON)
 
 ########################################################################################################################
 # C++-Compiler Settings
@@ -44,7 +44,7 @@ endif ()
 ########################################################################################################################
 
 if (NOT ${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-    message(STATUS "Disabling Runtime checks: Using Release mode for nups and Eigen")
+    message(STATUS "Disabling Runtime checks: Using Release mode for HOPS and Eigen")
     add_definitions(-DNDEBUG)
 else ()
     message(STATUS "Enabling Runtime checks.")
@@ -67,32 +67,32 @@ message(STATUS "Found MKL_LIBRARY_DIR:\n${MKL_LIBRARY_DIR} ")
 message(STATUS "Found MKL_INCLUDE_DIR:\n${MKL_INCLUDE_DIR} ")
 
 ########################################################################################################################
-# NUPS
+# HOPS
 ########################################################################################################################
 
-add_library(nups STATIC "")
-target_include_directories(nups PUBLIC ${EIGEN3_INCLUDE_DIR}
+add_library(HOPS STATIC "")
+target_include_directories(HOPS PUBLIC ${EIGEN3_INCLUDE_DIR}
         ${MKL_INCLUDE_DIR}
         )
-target_link_directories(nups PUBLIC
+target_link_directories(HOPS PUBLIC
         ${MKL_LIBRARY_DIR}
         )
-target_link_libraries(nups PUBLIC
+target_link_libraries(HOPS PUBLIC
         ${MKL_LIBRARIES}
         )
 add_subdirectory(include)
 add_subdirectory(src)
 
 ########################################################################################################################
-# NUPS_DOCS
+# HOPS_DOCS
 ########################################################################################################################
 
-if (NUPS_DOCS)
+if (HOPS_DOCS)
     if (NOT_DOXYGEN_FOUND)
         message(WARNING "Skipping Doxygen documentation, because Doxygen is not found.
                  Doxygen is needed to build the API docs.")
     else ()
-        message(STATUS "Enabled Doxygen documentation. Use -DNUPS_DOCS=OFF to disable.")
+        message(STATUS "Enabled Doxygen documentation. Use -DHOPS_DOCS=OFF to disable.")
         set(DOCUMENTATION_DIR "docs")
         set(doxy_main_page "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
         set(doxyfile_in "${CMAKE_CURRENT_SOURCE_DIR}/docs/Doxyfile.in")
@@ -106,41 +106,41 @@ if (NUPS_DOCS)
                 )
     endif ()
 else ()
-    message(STATUS "Disabled Doxygen generation. Use -DNUPS_DOCS=ON to enable.")
+    message(STATUS "Disabled Doxygen generation. Use -DHOPS_DOCS=ON to enable.")
 endif ()
 
 ########################################################################################################################
-# NUPS_BENCHMARKS
+# HOPS_BENCHMARKS
 ########################################################################################################################
 
-if (NUPS_BENCHMARKS)
-    message(STATUS "Enabled compilation of benchmarks. Use -DNUPS_BENCHMARKS=OFF to disable.")
+if (HOPS_BENCHMARKS)
+    message(STATUS "Enabled compilation of benchmarks. Use -DHOPS_BENCHMARKS=OFF to disable.")
     add_subdirectory(benchmarks)
 else ()
-    message(STATUS "Disabled compilation of benchmarks. Use -DNUPS_BENCHMARKS=ON to enable.")
+    message(STATUS "Disabled compilation of benchmarks. Use -DHOPS_BENCHMARKS=ON to enable.")
 endif ()
 
 ########################################################################################################################
-# NUPS_EXAMPLES
+# HOPS_EXAMPLES
 ########################################################################################################################
 
-if (NUPS_EXAMPLES)
-    message(STATUS "Enabled compilation of examples. Use -DNUPS_EXAMPLES=OFF to disable.")
+if (HOPS_EXAMPLES)
+    message(STATUS "Enabled compilation of examples. Use -DHOPS_EXAMPLES=OFF to disable.")
     add_subdirectory(examples)
 else ()
-    message(STATUS "Disabled compilation of examples. Use -DNUPS_EXAMPLES=ON to enable.")
+    message(STATUS "Disabled compilation of examples. Use -DHOPS_EXAMPLES=ON to enable.")
 endif ()
 
 ########################################################################################################################
-# NUPS_TESTS
+# HOPS_TESTS
 ########################################################################################################################
 
-if (NUPS_TESTS)
-    message(STATUS "Enabled compilation of tests. Use -DNUPS_TESTS=OFF to disable.")
+if (HOPS_TESTS)
+    message(STATUS "Enabled compilation of tests. Use -DHOPS_TESTS=OFF to disable.")
     enable_testing()
     add_subdirectory(tests)
 else ()
-    message(STATUS "Disabled compilation of tests. Use -DNUPS_TESTS=ON to enable.")
+    message(STATUS "Disabled compilation of tests. Use -DHOPS_TESTS=ON to enable.")
 endif ()
 
 
@@ -148,7 +148,7 @@ endif ()
 # Resources
 ########################################################################################################################
 
-if (NUPS_BENCHMARKS OR NUPS_EXAMPLES OR NUPS_TESTS)
+if (HOPS_BENCHMARKS OR HOPS_EXAMPLES OR HOPS_TESTS)
     message(STATUS "Copying resources.")
     add_subdirectory(resources)
 endif ()

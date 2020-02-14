@@ -1,7 +1,7 @@
-#include "nups/FileReader/CsvReader.hpp"
+#include "hops/FileReader/CsvReader.hpp"
 
 template<typename VectorType>
-VectorType nups::CsvReader::readVector(const std::string &file) {
+VectorType hops::CsvReader::readVector(const std::string &file) {
     std::ifstream fileStream(file);
     if (fileStream.fail()) {
         throw std::runtime_error("Could not access file: " + file);
@@ -19,17 +19,17 @@ VectorType nups::CsvReader::readVector(const std::string &file) {
     return result;
 }
 
-template Eigen::VectorXi nups::CsvReader::readVector(const std::string &file);
+template Eigen::VectorXi hops::CsvReader::readVector(const std::string &file);
 
-template Eigen::Matrix<long, Eigen::Dynamic, 1> nups::CsvReader::readVector(const std::string &file);
+template Eigen::Matrix<long, Eigen::Dynamic, 1> hops::CsvReader::readVector(const std::string &file);
 
-template Eigen::VectorXf nups::CsvReader::readVector(const std::string &file);
+template Eigen::VectorXf hops::CsvReader::readVector(const std::string &file);
 
-template Eigen::VectorXd nups::CsvReader::readVector(const std::string &file);
+template Eigen::VectorXd hops::CsvReader::readVector(const std::string &file);
 
 
 template<typename MatrixType>
-MatrixType nups::CsvReader::readMatrix(const std::string &file) {
+MatrixType hops::CsvReader::readMatrix(const std::string &file) {
 
     std::ifstream fileStream(file);
     if (fileStream.fail()) {
@@ -64,18 +64,18 @@ MatrixType nups::CsvReader::readMatrix(const std::string &file) {
     return result;
 }
 
-template Eigen::MatrixXi nups::CsvReader::readMatrix(const std::string &file);
+template Eigen::MatrixXi hops::CsvReader::readMatrix(const std::string &file);
 
-template Eigen::Matrix<long, Eigen::Dynamic, Eigen::Dynamic> nups::CsvReader::readMatrix(const std::string &file);
+template Eigen::Matrix<long, Eigen::Dynamic, Eigen::Dynamic> hops::CsvReader::readMatrix(const std::string &file);
 
-template Eigen::MatrixXf nups::CsvReader::readMatrix(const std::string &file);
+template Eigen::MatrixXf hops::CsvReader::readMatrix(const std::string &file);
 
-template Eigen::MatrixXd nups::CsvReader::readMatrix(const std::string &file);
+template Eigen::MatrixXd hops::CsvReader::readMatrix(const std::string &file);
 
-template Eigen::SparseMatrix<int> nups::CsvReader::readMatrix(const std::string &file);
+template Eigen::SparseMatrix<int> hops::CsvReader::readMatrix(const std::string &file);
 
-template Eigen::SparseMatrix<long> nups::CsvReader::readMatrix(const std::string &file);
+template Eigen::SparseMatrix<long> hops::CsvReader::readMatrix(const std::string &file);
 
-template Eigen::SparseMatrix<float> nups::CsvReader::readMatrix(const std::string &file);
+template Eigen::SparseMatrix<float> hops::CsvReader::readMatrix(const std::string &file);
 
-template Eigen::SparseMatrix<double> nups::CsvReader::readMatrix(const std::string &file);
+template Eigen::SparseMatrix<double> hops::CsvReader::readMatrix(const std::string &file);

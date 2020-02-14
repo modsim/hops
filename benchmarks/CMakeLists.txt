@@ -15,6 +15,6 @@ foreach (BENCHMARK_SOURCE ${BENCHMARK_SOURCES})
             )
     target_link_libraries(${BENCHMARK_NAME}
             ${CELERO_LIBRARIES}
-            nups
+            HOPS
             )
 endforeach (BENCHMARK_SOURCE)
