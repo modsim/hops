@@ -5,7 +5,6 @@ namespace hops {
     enum class MarkovChainType {
         NoOpDraw,
         CoordinateHitAndRun,
-        CoordinateHitAndRunRoundedProposals,
         CoordinateHitAndRunRoundedStateSpace,
         DikinWalk,
         HitAndRun,

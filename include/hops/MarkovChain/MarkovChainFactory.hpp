@@ -5,7 +5,6 @@
 #include <hops/MarkovChain/MarkovChainType.hpp>
 #include <hops/MarkovChain/Proposal/CoordinateHitAndRunProposal.hpp>
 #include <hops/MarkovChain/Proposal/CoordinateHitAndRunProposal.hpp>
-#include <hops/MarkovChain/Proposal/CoordinateHitAndRunRoundedProposal.hpp>
 #include <hops/MarkovChain/MarkovChainAdapter.hpp>
 #include <hops/MarkovChain/Draw/NoOpDraw.hpp>
 #include <hops/MarkovChain/Recorder/StateRecorder.hpp>
@@ -42,24 +41,6 @@ namespace hops {
                                                         stateSpace.A,
                                                         stateSpace.b,
                                                         stateSpace.startingPoint)
-                                        )
-                                )
-                        )
-                );
-            }
-            case MarkovChainType::CoordinateHitAndRunRoundedProposals: {
-                return std::unique_ptr<MarkovChain>(
-                        new MarkovChainAdapter(
-                                StateRecorder(
-                                        StateTransformation(
-                                                NoOpDraw(
-                                                        CoordinateHitAndRunRoundedProposal<decltype(stateSpace.A), decltype(stateSpace.b)>(
-                                                                stateSpace.A,
-                                                                stateSpace.roundedT,
-                                                                stateSpace.b,
-                                                                stateSpace.startingPoint)
-                                                ),
-                                                Transformation(stateSpace.N, stateSpace.shift)
                                         )
                                 )
                         )

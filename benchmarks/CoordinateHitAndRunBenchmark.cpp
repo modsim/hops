@@ -4,7 +4,7 @@
 CELERO_MAIN
 
 constexpr const int numberOfSamples = 1;
-constexpr const int numberOfIterationsPerSample = 1000;
+constexpr const int numberOfIterationsPerSample = 10;
 
 using Model = Recon2;
 using Matrix = Eigen::MatrixXd;
@@ -17,5 +17,5 @@ using MarkovChain = MarkovChainFixture<Polytope, markovChainType>;
 BASELINE_F(CoordinateHitAndRun, CHRRS,
            MarkovChain<hops::MarkovChainType::CoordinateHitAndRun>, numberOfSamples,
            numberOfIterationsPerSample) {
-    markovChain->draw(randomNumberGenerator, 1);
+    markovChain->draw(randomNumberGenerator, 1, 2428*2428*8);
 }

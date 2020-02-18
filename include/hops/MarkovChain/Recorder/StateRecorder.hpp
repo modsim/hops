@@ -13,10 +13,6 @@ namespace hops {
     public:
         explicit StateRecorder(const MarkovChainImpl &markovChainImpl) : MarkovChainImpl(markovChainImpl) {}
 
-//        void draw(RandomNumberGenerator &randomNumberGenerator) {
-//            MarkovChainImpl::draw(randomNumberGenerator);
-//        }
-
         void writeRecordsToFile(const FileWriter *const fileWriter) const {
             fileWriter->write("states", records);
             if constexpr(IsWriteRecordsToFileAvailable<MarkovChainImpl>::value) {

@@ -18,6 +18,10 @@ namespace hops {
             return transformation.apply(MarkovChainImpl::getState());
         }
 
+        typename MarkovChainImpl::StateType getProposal() {
+            return transformation.apply(MarkovChainImpl::getProposal());
+        }
+
     private:
         Transformation transformation;
     };

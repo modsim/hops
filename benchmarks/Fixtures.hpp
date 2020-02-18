@@ -66,6 +66,8 @@ struct Recon2 {
     static constexpr const char *A = "../resources/Recon2.v04/A_Recon2.v04_unrounded.csv";
     static constexpr const char *b = "../resources/Recon2.v04/b_Recon2.v04_unrounded.csv";
     static constexpr const char *startingPoint = "../resources/Recon2.v04/start_Recon2.v04_unrounded.csv";
+    static constexpr const char *N = "../resources/Recon2.v04/N_Recon2.v04_unrounded.csv";
+    static constexpr const char *p_shift = "../resources/Recon2.v04/p_shift_Recon2.v04_unrounded.csv";
     static constexpr const char *roundedA = "../resources/Recon2.v04/A_Recon2.v04_rounded.csv";
     static constexpr const char *roundedb = "../resources/Recon2.v04/b_Recon2.v04_rounded.csv";
     static constexpr const char *roundedStartingPoint = "../resources/Recon2.v04/start_Recon2.v04_rounded.csv";
@@ -73,9 +75,6 @@ struct Recon2 {
     static constexpr const char *roundedN = "../resources/Recon2.v04/N_Recon2.v04_rounded.csv";
     static constexpr const char *roundedp_shift = "../resources/Recon2.v04/p_shift_Recon2.v04_rounded.csv";
 
-    // Wrong files, since they are not needed right now
-    static constexpr const char *N = "../resources/Recon2.v04/N_Recon2.v04_rounded.csv";
-    static constexpr const char *p_shift = "../resources/Recon2.v04/p_shift_Recon2.v04_rounded.csv";
 };
 
 struct RECON1 {
