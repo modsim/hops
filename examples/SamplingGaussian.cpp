@@ -10,16 +10,18 @@
 #include <hops/MarkovChain/Proposal/CSmMALAProposal.hpp>
 
 int main() {
-//    Eigen::MatrixXd A(4, 2);
-//    A << -1, 0, 0, -1, 1, 0, 0, 1;
-//    Eigen::VectorXd b = Eigen::VectorXd::Zero(4);
-//    b(b.rows() - 1) = 1;
-//    b(b.rows() - 2) = 1;
-//    Eigen::VectorXd s(2);
-//    s << 0.2, 0.2;
     auto A = hops::CsvReader::readMatrix<Eigen::MatrixXd>("../resources/simplex_64D/A_simplex_64D_unrounded.csv");
     auto b = hops::CsvReader::readVector<Eigen::VectorXd>("../resources/simplex_64D/b_simplex_64D_unrounded.csv");
     auto s = hops::CsvReader::readVector<Eigen::VectorXd>("../resources/simplex_64D/start_simplex_64D_unrounded.csv");
+
+    auto Arounded = hops::CsvReader::readMatrix<Eigen::MatrixXd>("../resources/simplex_64D/A_simplex_64D_rounded.csv");
+    auto Nrounded = hops::CsvReader::readMatrix<Eigen::MatrixXd>("../resources/simplex_64D/N_simplex_64D_rounded.csv");
+    auto Trounded = hops::CsvReader::readMatrix<Eigen::MatrixXd>("../resources/simplex_64D/T_simplex_64D_rounded.csv");
+    auto brounded = hops::CsvReader::readVector<Eigen::VectorXd>("../resources/simplex_64D/b_simplex_64D_rounded.csv");
+    auto srounded = hops::CsvReader::readVector<Eigen::VectorXd>(
+            "../resources/simplex_64D/start_simplex_64D_rounded.csv");
+    auto shiftrounded = hops::CsvReader::readVector<Eigen::VectorXd>(
+            "../resources/simplex_64D/p_shift_simplex_64D_rounded.csv");
 
     auto fileWriter1 = hops::FileWriterFactory::createFileWriter("chain1", hops::FileWriterType::Csv);
     auto fileWriter2 = hops::FileWriterFactory::createFileWriter("chain2", hops::FileWriterType::Csv);
@@ -30,7 +32,7 @@ int main() {
     hops::PolytopeSpace polytopeSpace(A, b, s);
 
     Eigen::VectorXd mean = s;
-    Eigen::MatrixXd covariance = 0.00005*Eigen::MatrixXd::Identity(A.cols(), A.cols());
+    Eigen::MatrixXd covariance = 0.00005 * Eigen::MatrixXd::Identity(A.cols(), A.cols());
 
     auto markovChain1 = hops::MarkovChainAdapter(
             hops::StateRecorder(
@@ -49,11 +51,13 @@ int main() {
             hops::StateRecorder(
                     hops::MetropolisHastingsFilter(
                             hops::Model(
-                                    hops::DikinProposal(
-                                            A, b, s
-                                    ),
-                                    hops::MultivariateGaussianModel(mean, covariance)
-                            )
+                                    hops::StateTransformation(
+                                            hops::CoordinateHitAndRunProposal(
+                                                    Arounded,
+                                                    brounded,
+                                                    srounded),
+                                            hops::Transformation(Nrounded, shiftrounded)),
+                                    hops::MultivariateGaussianModel(mean, covariance))
                     )
             )
     );
@@ -67,7 +71,7 @@ int main() {
             )
     );
 
-    long thinning = 64;
+    long thinning = 256;
     long numberOfSamples = 10000;
     long startEpoch = std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::high_resolution_clock::now().time_since_epoch()

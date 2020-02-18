@@ -58,15 +58,15 @@ void runChains() {
 }
 
 int main() {
-    runChains<simplex_64D>();
-    runChains<simplex_256D>();
-    runChains<simplex_512D>();
-    runChains<simplex_1024D>();
-    runChains<simplex_2048D>();
-    runChains<e_coli_core>();
-    runChains<iAT_PLT_636>();
-    runChains<iJO1366>();
-    runChains<RECON1>();
+//    runChains<simplex_64D>();
+//    runChains<simplex_256D>();
+//    runChains<simplex_512D>();
+//    runChains<simplex_1024D>();
+//    runChains<simplex_2048D>();
+//    runChains<e_coli_core>();
+//    runChains<iAT_PLT_636>();
+//    runChains<iJO1366>();
+//    runChains<RECON1>();
     runChains<Recon2>();
-    runChains<Recon3D>();
+//    runChains<Recon3D>();
 }
