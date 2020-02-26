@@ -40,7 +40,7 @@ else ()
 endif ()
 
 ########################################################################################################################
-# Definitions
+# Pre-Third-Party-Search Definitions
 ########################################################################################################################
 
 if (NOT ${CMAKE_BUILD_TYPE} STREQUAL "Debug")
@@ -50,8 +50,6 @@ else ()
     message(STATUS "Enabling Runtime checks.")
 endif (NOT ${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 
-#add_definitions(-DEIGEN_USE_MKL_ALL)
-
 ########################################################################################################################
 # Third-Party Dependencies
 ########################################################################################################################
@@ -60,11 +58,15 @@ find_package(Doxygen)
 find_package(Eigen3 REQUIRED)
 find_package(MKL)
 
-message(STATUS "Executed command: \n${MKL_LINK_TOOL_COMMAND}")
-message(STATUS "Found MKL_LIBRARIES:\n${MKL_LIBRARIES} ")
-message(STATUS "Found MKL_DEFINITIONS:\n${MKL_DEFINITIONS} ")
-message(STATUS "Found MKL_LIBRARY_DIR:\n${MKL_LIBRARY_DIR} ")
-message(STATUS "Found MKL_INCLUDE_DIR:\n${MKL_INCLUDE_DIR} ")
+########################################################################################################################
+# Post-Third-Party-Search Definitions
+########################################################################################################################
+
+# If MKL is found, use it.
+if(MKL_LIBRARY_DIR)
+    message(STATUS "Found MKL: Adding preprocessor definition EIGEN_USE_MKL_ALL")
+    add_definitions(-DEIGEN_USE_MKL_ALL)
+endif(MKL_LIBRARY_DIR)
 
 ########################################################################################################################
 # HOPS

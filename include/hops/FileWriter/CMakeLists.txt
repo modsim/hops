@@ -1,3 +1,4 @@
+# TODO move to impl in source
 find_package(HDF5 REQUIRED COMPONENTS C CXX)
 target_include_directories(HOPS PUBLIC ${HDF5_INCLUDE_DIRS})
 target_link_libraries(HOPS PUBLIC

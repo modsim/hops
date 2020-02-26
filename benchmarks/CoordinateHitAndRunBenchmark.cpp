@@ -17,5 +17,5 @@ using MarkovChain = MarkovChainFixture<Polytope, markovChainType>;
 BASELINE_F(CoordinateHitAndRun, CHRRS,
            MarkovChain<hops::MarkovChainType::CoordinateHitAndRun>, numberOfSamples,
            numberOfIterationsPerSample) {
-    markovChain->draw(randomNumberGenerator, 1, 2428*2428*8);
+    markovChain->draw(randomNumberGenerator, 10, 242800);
 }
