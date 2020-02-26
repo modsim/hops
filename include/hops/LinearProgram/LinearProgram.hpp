@@ -12,34 +12,30 @@ namespace hops {
 
         virtual ~LinearProgram() = default;
 
-        virtual LinearProgramSolution solve(const Eigen::VectorXd &objective) const = 0;
+        virtual LinearProgramSolution solve(const Eigen::VectorXd &objective) = 0;
 
         /**
-         * @brief Removes redundant constraints and returns system matrices. Changes to the system matrices
-         *        are reflected internally in the LP solver.
          * @param tolerance
          * @return A and b
          */
         virtual std::tuple<Eigen::MatrixXd, Eigen::VectorXd> removeRedundantConstraints(double tolerance) = 0;
 
-        [[nodiscard]] virtual LinearProgramSolution computeChebyshevCenter() const = 0;
+        virtual LinearProgramSolution calculateChebyshevCenter() = 0;
 
         /**
          * @details dimensions with missing upper boundaries are counted starting from 1 upwards.
          *          dimensions with missing lower boundaries are counted starting from -1 downwards.
          * @return
          */
-        [[nodiscard]] virtual std::vector<long> computeUnconstrainedDimensions() const = 0;
+        virtual std::vector<long> calculateUnconstrainedDimensions() = 0;
 
         /**
-         * @brief Adds box constraints to unconstrained dimensions and returns system matrices.
-         *        Changes to the system matrices are reflected internally in the LP solver.
+         *
          * @param lb
          * @param ub
          * @return A and b
          */
-        virtual std::tuple<Eigen::MatrixXd, Eigen::VectorXd>
-        addBoxConstraintsToUnconstrainedDimensions(double lb, double ub) = 0;
+        virtual std::tuple<Eigen::MatrixXd, Eigen::VectorXd> addBoxConstraintsToUnconstrainedDimensions(double lb, double ub) = 0;
 
         [[nodiscard]] const Eigen::MatrixXd &getA() const {
             return A;

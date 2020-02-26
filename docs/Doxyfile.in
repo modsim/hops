@@ -1519,7 +1519,7 @@ MATHJAX_CODEFILE       =
 # (GENERATE_HTMLHELP), Qt help (GENERATE_QHP), or docsets (GENERATE_DOCSET)
 # there is already a search function so this one should typically be disabled.
 # For large projects the javascript based search engine can be slow, then
-# enabling SERVER_BASED_SEARCH may provide a better solution. It is possible to
+# enabling SERVER_BASED_SEARCH may provide a better optimalParameters. It is possible to
 # search using the keyboard; to jump to the search box use <access key> + S
 # (what the <access key> is depends on the OS and browser, but it is typically
 # <CTRL>, <ALT>/<option>, or both). Inside the search box use the <cursor down
