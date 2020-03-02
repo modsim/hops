@@ -1,12 +1,12 @@
-#ifdef HOPS_GUROBI_FOUND
+#ifdef HOPS_CLP_FOUND
 
 #include <Eigen/Core>
 #include <gtest/gtest.h>
 #include <hops/LinearProgram/LinearProgramSolution.hpp>
-#include <hops/LinearProgram/LinearProgramGurobiImpl.hpp>
+#include <hops/LinearProgram/LinearProgramClpImpl.hpp>
 
 namespace {
-    TEST(LinearProgrammingGurobiImpl, solveSmallTestProblem) {
+    TEST(LinearProgrammingClpImpl, solveSmallTestProblem) {
         Eigen::VectorXd expectedParameters(2);
         expectedParameters << 8.0 / 3, 2.0 / 3;
 
@@ -18,7 +18,7 @@ namespace {
         b << 4, 12, 1;
         Eigen::VectorXd obj(2);
         obj << 1, 1;
-        hops::LinearProgramGurobiImpl linearProgram(A, b);
+        hops::LinearProgramClpImpl linearProgram(A, b);
         hops::LinearProgramSolution actualSolution = linearProgram.solve(obj);
 
         EXPECT_NEAR(actualSolution.objectiveValue, expectedSolution.objectiveValue, 0.0001);
@@ -26,9 +26,9 @@ namespace {
         EXPECT_EQ(actualSolution.status, expectedSolution.status);
     }
 
-    TEST(LinearProgrammingGurobiImpl, calculateChebyshevCenter) {
-        Eigen::VectorXd expectedChebyshevCenter(2);
-        expectedChebyshevCenter << 0.29289321881345, 0.29289321881345;
+    TEST(LinearProgrammingClpImpl, calculateChebyshevCenter) {
+        Eigen::VectorXd expectedChebyshevParameters(2);
+        expectedChebyshevParameters << 0.29289321881345, 0.29289321881345;
 
         Eigen::MatrixXd A(3, 2);
         Eigen::VectorXd b(3);
@@ -37,13 +37,13 @@ namespace {
                 0, -1;
         b << 1, 0, 0;
 
-        auto linearProgram = hops::LinearProgramGurobiImpl(A, b);
+        auto linearProgram = hops::LinearProgramClpImpl(A, b);
         auto actualChebyshevCenter = linearProgram.calculateChebyshevCenter();
 
-        EXPECT_TRUE(actualChebyshevCenter.optimalParameters.isApprox(expectedChebyshevCenter, 1e-12));
+        EXPECT_TRUE(actualChebyshevCenter.optimalParameters.isApprox(expectedChebyshevParameters, 1e-11));
     }
 
-    TEST(LinearProgrammingGurobiImpl, calculateChebyshevCenterIsStableUnderRepeatedCalculations) {
+    TEST(LinearProgrammingClpImpl, calculateChebyshevCenterIsStableUnderRepeatedCalculations) {
         Eigen::MatrixXd A(3, 2);
         Eigen::VectorXd b(3);
         A << 1, 1,
@@ -51,7 +51,7 @@ namespace {
                 0, -1;
         b << 1, 0, 0;
 
-        auto linearProgram = hops::LinearProgramGurobiImpl(A, b);
+        auto linearProgram = hops::LinearProgramClpImpl(A, b);
         auto actualChebyshevCenter1 = linearProgram.calculateChebyshevCenter();
         auto actualChebyshevCenter2 = linearProgram.calculateChebyshevCenter();
         auto actualChebyshevCenter3 = linearProgram.calculateChebyshevCenter();
@@ -65,7 +65,7 @@ namespace {
         EXPECT_EQ(actualChebyshevCenter3, actualChebyshevCenter4);
     }
 
-    TEST(LinearProgrammingGurobiImpl, removeSingleRedundantConstraintTest) {
+    TEST(LinearProgrammingClpImpl, removeSingleRedundantConstraintTest) {
         Eigen::MatrixXd expectedA(4, 2);
         expectedA << 1, 0, 0, 1, -1, 0, 0, -1;
         Eigen::VectorXd expectedb(4);
@@ -76,14 +76,14 @@ namespace {
         Eigen::VectorXd b(5);
         b << 1, 1, 1, 1, 2;
 
-        auto linearProgram = hops::LinearProgramGurobiImpl(A, b);
+        auto linearProgram = hops::LinearProgramClpImpl(A, b);
         auto[actualA, actualb] = linearProgram.removeRedundantConstraints(1e-15);
 
         EXPECT_TRUE(actualA.isApprox(expectedA));
         EXPECT_TRUE(actualb.isApprox(expectedb));
     }
 
-    TEST(LinearProgrammingGurobiImpl, removeSeveralRedundantConstraintsTest) {
+    TEST(LinearProgrammingClpImpl, removeSeveralRedundantConstraintsTest) {
         Eigen::MatrixXd expectedA(4, 2);
         expectedA << 1, 0, 0, 1, -1, 0, 0, -1;
         Eigen::VectorXd expectedB(4);
@@ -95,13 +95,13 @@ namespace {
         Eigen::VectorXd b(10);
         b << 1, 1, 1, 1, 2, 7, 4, 2, 100, 5;
 
-        auto linearProgram = hops::LinearProgramGurobiImpl(A, b);
+        auto linearProgram = hops::LinearProgramClpImpl(A, b);
         auto[actualA, actualB] = linearProgram.removeRedundantConstraints(1e-15);
         EXPECT_TRUE(actualA.isApprox(expectedA));
         EXPECT_TRUE(actualB.isApprox(expectedB));
     }
 
-    TEST(LinearProgrammingGurobiImpl, calculateUnconstrainedDimensions) {
+    TEST(LinearProgrammingClpImpl, calculateUnconstrainedDimensions) {
         std::vector<long> expectedUnboundDirections{1, -1};
 
         Eigen::MatrixXd A(2, 2);
@@ -109,13 +109,13 @@ namespace {
         Eigen::VectorXd b(2);
         b << 1, 1;
 
-        auto linearProgram = hops::LinearProgramGurobiImpl(A, b);
+        auto linearProgram = hops::LinearProgramClpImpl(A, b);
         auto actualUnboundDirections = linearProgram.calculateUnconstrainedDimensions();
 
         EXPECT_EQ(actualUnboundDirections, expectedUnboundDirections);
     }
 
-    TEST(LinearProgrammingGurobiImpl, addConstraintsToUnconstrainedDimensions) {
+    TEST(LinearProgrammingClpImpl, addConstraintsToUnconstrainedDimensions) {
         Eigen::MatrixXd expectedA(4, 2);
         expectedA << 0, 1, 0, -1, 1, 0, -1, 0;
         Eigen::VectorXd expectedB(4);
@@ -126,7 +126,7 @@ namespace {
         Eigen::VectorXd b(2);
         b << 1, 1;
 
-        auto linearProgram = hops::LinearProgramGurobiImpl(A, b);
+        auto linearProgram = hops::LinearProgramClpImpl(A, b);
         auto[actualA, actualB] = linearProgram.addBoxConstraintsToUnconstrainedDimensions(2, 3);
 
         EXPECT_EQ(actualA, expectedA);
@@ -134,4 +134,4 @@ namespace {
     }
 }
 
-#endif //HOPS_GUROBI_FOUND
+#endif //HOPS_CLP_FOUND

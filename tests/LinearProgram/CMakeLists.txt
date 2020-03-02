@@ -1,4 +1,5 @@
 set(TEST_SOURCES
+        LinearProgramClpImplTest.cpp
         LinearProgramGurobiImplTest.cpp
         )
 

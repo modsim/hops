@@ -1,12 +1,14 @@
+#ifdef HOPS_GUROBI_FOUND
+
 #include <Eigen/Core>
 #include <hops/LinearProgram/LinearProgramGurobiImpl.hpp>
 #include <hops/LinearProgram/GurobiEnvironmentSingleton.hpp>
 
 namespace {
-    std::vector<GRBVar> addVariablesToModel(GRBModel &model, size_t numberOfVariables) {
+    std::vector<GRBVar> addVariablesToModel(GRBModel *model, size_t numberOfVariables) {
         std::vector<GRBVar> variables;
         for (size_t i = 0; i < numberOfVariables; ++i) {
-            variables.emplace_back(model.addVar(
+            variables.emplace_back(model->addVar(
                     -GRB_INFINITY,
                     +GRB_INFINITY,
                     0,
@@ -19,7 +21,7 @@ namespace {
 
     void addLinearConstraints(const Eigen::MatrixXd &inequalityA,
                               const Eigen::VectorXd &inequalityB,
-                              GRBModel &model,
+                              GRBModel *model,
                               const std::vector<GRBVar> &variables) {
         for (long i = 0; i < inequalityA.rows(); ++i) {
             GRBLinExpr expression;
@@ -28,15 +30,15 @@ namespace {
                 coefficients[j] = inequalityA.coeff(i, j);
             }
             expression.addTerms(coefficients, &variables[0], inequalityA.cols());
-            model.addConstr(expression, GRB_LESS_EQUAL, inequalityB(i), "row_" + std::to_string(i));
+            model->addConstr(expression, GRB_LESS_EQUAL, inequalityB(i), "row_" + std::to_string(i));
         }
     }
 
-    void addObjective(const Eigen::VectorXd &objective, GRBModel &model,
+    void addObjective(const Eigen::VectorXd &objective, GRBModel *model,
                       const std::vector<GRBVar> &variables) {
         GRBLinExpr objectiveExpression = 0.0;
         objectiveExpression.addTerms(objective.data(), &variables[0], objective.rows());
-        model.setObjective(objectiveExpression, GRB_MAXIMIZE);
+        model->setObjective(objectiveExpression, GRB_MAXIMIZE);
     }
 
     hops::LinearProgramStatus parseStatus(int returnCode) {
@@ -60,48 +62,50 @@ namespace {
     }
 }
 
-hops::LinearProgramGurobiImpl::LinearProgramGurobiImpl(Eigen::MatrixXd A, Eigen::VectorXd b) :
+hops::LinearProgramGurobiImpl::LinearProgramGurobiImpl(const Eigen::MatrixXd &A, Eigen::VectorXd b) :
         LinearProgram(A, b),
-        model(GRBModel(GurobiEnvironmentSingleton::getInstance().getGurobiEnvironment())) {
-    variables = addVariablesToModel(model, A.cols());
-    addLinearConstraints(A, b, model, variables);
-    model.update();
+        model(std::make_unique<GRBModel>(GRBModel(GurobiEnvironmentSingleton::getInstance().getGurobiEnvironment()))) {
+    variables = addVariablesToModel(model.get(), A.cols());
+    addLinearConstraints(A, b, model.get(), variables);
+    model->update();
 }
 
 hops::LinearProgramGurobiImpl::LinearProgramGurobiImpl(const hops::LinearProgramGurobiImpl &other) :
         LinearProgram(other.A, other.b),
-        model(other.model) {}
-
-hops::LinearProgramGurobiImpl hops::LinearProgramGurobiImpl::operator=(const hops::LinearProgramGurobiImpl &other) {
-    return hops::LinearProgramGurobiImpl(other);
+        variables(other.variables) {
+    model = std::make_unique<GRBModel>(*other.model);
 }
 
-hops::LinearProgramSolution hops::LinearProgramGurobiImpl::solve(const Eigen::VectorXd &objective) {
-    addObjective(objective, model, variables);
-    model.update();
+hops::LinearProgramGurobiImpl &hops::LinearProgramGurobiImpl::operator=(const hops::LinearProgramGurobiImpl &other) {
+    this->A = other.A;
+    this->b = other.b;
+    this->model = std::make_unique<GRBModel>(*other.model);
+    this->variables = other.variables;
+    return *this;
+}
+
+hops::LinearProgramSolution hops::LinearProgramGurobiImpl::solve(const Eigen::VectorXd &objective) const {
+    addObjective(objective, model.get(), variables);
+    model->update();
 
     try {
-        model.optimize();
+        model->optimize();
 
-        int status = model.get(GRB_IntAttr_Status);
+        int status = model->get(GRB_IntAttr_Status);
 
         if (status == GRB_INF_OR_UNBD) {
-            model.set(GRB_IntParam_Presolve, 0);
-            model.optimize();
-            status = model.get(GRB_IntAttr_Status);
+            model->set(GRB_IntParam_Presolve, 0);
+            model->optimize();
+            status = model->get(GRB_IntAttr_Status);
         }
         if (status == GRB_OPTIMAL) {
-            double objectiveValue = model.get(GRB_DoubleAttr_ObjVal);
-
-            auto numberOfColumns = model.get(GRB_IntAttr_NumVars);
-
-            auto modelVariables = model.getVars();
-
+            double objectiveValue = model->get(GRB_DoubleAttr_ObjVal);
+            auto numberOfColumns = model->get(GRB_IntAttr_NumVars);
+            auto modelVariables = model->getVars();
             Eigen::VectorXd solution(numberOfColumns);
             for (int i = 0; i < numberOfColumns; ++i) {
                 solution(i) = modelVariables[i].get(GRB_DoubleAttr_X);
             }
-
             return LinearProgramSolution(objectiveValue, solution, parseStatus(status));
         } else if (status == GRB_INFEASIBLE) {
             return LinearProgramSolution(std::numeric_limits<double>::quiet_NaN(),
@@ -118,32 +122,33 @@ hops::LinearProgramSolution hops::LinearProgramGurobiImpl::solve(const Eigen::Ve
         }
     }
     catch (const GRBException &e) {
-        throw std::runtime_error("GUrobi encountered an exception: " + e.getMessage());
+        throw std::runtime_error("Gurobi encountered an exception: " + e.getMessage());
     }
+    throw std::runtime_error("Exception: Gurobi failed to provide problem status or exception.");
 }
 
 std::tuple<Eigen::MatrixXd, Eigen::VectorXd>
 hops::LinearProgramGurobiImpl::removeRedundantConstraints(double tolerance) {
     std::vector<long> constraintsToRemove;
     for (int i = 0; i < static_cast<int>(A.rows()); ++i) {
-        GRBConstr constraintToTestForRedundancy = model.getConstrByName("row_" + std::to_string(i));
-        model.remove(constraintToTestForRedundancy);
-        model.update();
+        GRBConstr constraintToTestForRedundancy = model->getConstrByName("row_" + std::to_string(i));
+        model->remove(constraintToTestForRedundancy);
+        model->update();
         GRBLinExpr constraintLHS;
         double coefficients[A.cols()];
         for (long j = 0; j < A.cols(); ++j) {
             coefficients[j] = A.coeff(i, j);
         }
         constraintLHS.addTerms(coefficients, &variables[0], A.cols());
-        auto temporaryConstraint = model.addConstr(constraintLHS, GRB_LESS_EQUAL, b(i) + 10);
-        model.update();
+        auto temporaryConstraint = model->addConstr(constraintLHS, GRB_LESS_EQUAL, b(i) + 10);
+        model->update();
         auto solution = solve(A.row(i));
-        model.remove(temporaryConstraint);
-        model.update();
+        model->remove(temporaryConstraint);
+        model->update();
 
         if (solution.status != LinearProgramStatus::OPTIMAL || solution.objectiveValue + tolerance > b(i)) {
-            model.addConstr(constraintLHS, GRB_LESS_EQUAL, b(i), "row_" + std::to_string(i));
-            model.update();
+            model->addConstr(constraintLHS, GRB_LESS_EQUAL, b(i), "row_" + std::to_string(i));
+            model->update();
         } else {
             constraintsToRemove.emplace_back(i);
         }
@@ -167,45 +172,7 @@ hops::LinearProgramGurobiImpl::removeRedundantConstraints(double tolerance) {
     return std::make_tuple(A, b);
 }
 
-std::vector<long> hops::LinearProgramGurobiImpl::calculateUnconstrainedDimensions() {
-    std::vector<long> directions;
-    for (long i = 0; i < A.cols(); ++i) {
-        Eigen::VectorXd objective = Eigen::VectorXd::Zero(A.cols());
-        objective(i) = 1.0;
-        auto forwardSolution = solve(objective);
-        if (forwardSolution.status != hops::LinearProgramStatus::OPTIMAL) {
-            directions.push_back(i + 1);
-        }
-
-        auto backwardSolution = solve(-objective);
-        if (backwardSolution.status != hops::LinearProgramStatus::OPTIMAL) {
-            directions.push_back(-i - 1);
-        }
-    }
-    return directions;
-}
-
-std::tuple<Eigen::MatrixXd, Eigen::VectorXd>
-hops::LinearProgramGurobiImpl::addBoxConstraintsToUnconstrainedDimensions(double lb, double ub) {
-    std::vector<long> unconstrainedDimensions = calculateUnconstrainedDimensions();
-
-    for (const auto &unconstrainedDimension : unconstrainedDimensions) {
-        A.conservativeResize(A.rows() + 1, A.cols());
-        A.row(A.rows() - 1) = Eigen::VectorXd::Zero(A.cols());
-        b.conservativeResize(b.rows() + 1);
-        if (unconstrainedDimension > 0) {
-            A(A.rows() - 1, unconstrainedDimension - 1) = 1;
-            b(b.rows() - 1) = ub;
-        } else {
-            A(A.rows() - 1, -unconstrainedDimension - 1) = -1;
-            b(b.rows() - 1) = lb;
-        }
-    }
-    *this = LinearProgramGurobiImpl(A, b);
-    return std::make_tuple(A, b);
-}
-
-hops::LinearProgramSolution hops::LinearProgramGurobiImpl::calculateChebyshevCenter() {
+hops::LinearProgramSolution hops::LinearProgramGurobiImpl::calculateChebyshevCenter() const {
     //Extend system by dimension for radius
     const long numberOfRows = A.rows();
     const long numberOfColumns = A.cols();
@@ -227,3 +194,44 @@ hops::LinearProgramSolution hops::LinearProgramGurobiImpl::calculateChebyshevCen
     chebyshevSolution.optimalParameters.conservativeResize(A.cols());
     return chebyshevSolution;
 }
+
+std::vector<long> hops::LinearProgramGurobiImpl::calculateUnconstrainedDimensions() const {
+    std::vector<long> directions;
+    for (long i = 0; i < A.cols(); ++i) {
+        Eigen::VectorXd objective = Eigen::VectorXd::Zero(A.cols());
+        objective(i) = 1.0;
+        auto forwardSolution = solve(objective);
+        if (forwardSolution.status != hops::LinearProgramStatus::OPTIMAL) {
+            directions.push_back(i + 1);
+        }
+
+        auto backwardSolution = solve(-objective);
+        if (backwardSolution.status != hops::LinearProgramStatus::OPTIMAL) {
+            directions.push_back(-i - 1);
+        }
+    }
+    return directions;
+}
+
+
+std::tuple<Eigen::MatrixXd, Eigen::VectorXd>
+hops::LinearProgramGurobiImpl::addBoxConstraintsToUnconstrainedDimensions(double lb, double ub) {
+    std::vector<long> unconstrainedDimensions = calculateUnconstrainedDimensions();
+
+    for (const auto &unconstrainedDimension : unconstrainedDimensions) {
+        A.conservativeResize(A.rows() + 1, A.cols());
+        A.row(A.rows() - 1) = Eigen::VectorXd::Zero(A.cols());
+        b.conservativeResize(b.rows() + 1);
+        if (unconstrainedDimension > 0) {
+            A(A.rows() - 1, unconstrainedDimension - 1) = 1;
+            b(b.rows() - 1) = ub;
+        } else {
+            A(A.rows() - 1, -unconstrainedDimension - 1) = -1;
+            b(b.rows() - 1) = lb;
+        }
+    }
+    *this = LinearProgramGurobiImpl(A, b);
+    return std::make_tuple(A, b);
+}
+
+#endif //HOPS_GUROBI_FOUND
