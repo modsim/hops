@@ -1,21 +1,20 @@
-#ifdef HOPS_GUROBI_FOUND
+#ifdef HOPS_CLP_FOUND
 
-#ifndef HOPS_LINEARPROGRAMGUROBIIMPL_HPP
-#define HOPS_LINEARPROGRAMGUROBIIMPL_HPP
+#ifndef HOPS_LINEARPROGRAMCLPIMPL_HPP
+#define HOPS_LINEARPROGRAMCLPIMPL_HPP
 
+#include <coin/ClpSimplex.hpp>
 #include <Eigen/Core>
-#include <gurobi_c++.h>
-#include <memory>
 #include "LinearProgram.hpp"
 
 namespace hops {
-    class LinearProgramGurobiImpl : public LinearProgram {
+    class LinearProgramClpImpl : public LinearProgram {
     public:
-        LinearProgramGurobiImpl(const Eigen::MatrixXd &A, Eigen::VectorXd b);
+        LinearProgramClpImpl(const Eigen::MatrixXd &A, const Eigen::VectorXd &b);
 
-        LinearProgramGurobiImpl(const LinearProgramGurobiImpl &other);
+        LinearProgramClpImpl(const LinearProgramClpImpl &other);
 
-        LinearProgramGurobiImpl &operator=(const LinearProgramGurobiImpl &other);
+        LinearProgramClpImpl &operator=(const LinearProgramClpImpl &other);
 
         LinearProgramSolution solve(const Eigen::VectorXd &objective) const override;
 
@@ -29,10 +28,10 @@ namespace hops {
         addBoxConstraintsToUnconstrainedDimensions(double lb, double ub) override;
 
     private:
-        std::unique_ptr<GRBModel> model;
-        std::vector<GRBVar> variables;
+        mutable ClpSimplex model;
     };
 }
 
-#endif //HOPS_LINEARPROGRAMGUROBIIMPL_HPP
-#endif //HOPS_GUROBI_FOUND
+
+#endif //HOPS_LINEARPROGRAMCLPIMPL_HPP
+#endif //HOPS_CLP_FOUND
