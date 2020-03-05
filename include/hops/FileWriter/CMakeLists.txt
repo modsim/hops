@@ -1,13 +1,5 @@
-# TODO move to impl in source
-find_package(HDF5 REQUIRED COMPONENTS C CXX)
-target_include_directories(HOPS PUBLIC ${HDF5_INCLUDE_DIRS})
-target_link_libraries(HOPS PUBLIC
-        ${HDF5_LIBRARIES}
-        stdc++fs
-        )
-
-target_sources(HOPS
-        PUBLIC
+target_sources(hops
+        PRIVATE
         CsvWriter.hpp
         CsvWriterImpl.hpp
         FileWriter.hpp

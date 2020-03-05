@@ -26,6 +26,7 @@ option(HOPS_TESTS "Enables compilation of unit tests. Use -DHOPS_TESTS=OFF to di
 # C++-Compiler Settings
 ########################################################################################################################
 
+# TODO update to target_compile_feature and target_compile_option
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "-Wall -Wextra")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
@@ -39,12 +40,14 @@ else ()
     message(WARN "compiler does not support flag march=native")
 endif ()
 
+
+
 ########################################################################################################################
 # Pre-Third-Party-Search Definitions
 ########################################################################################################################
 
 if (NOT ${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-    message(STATUS "Disabling Runtime checks: Using Release mode for HOPS and Eigen")
+    message(STATUS "Disabling Runtime checks: Using Release mode for hops and Eigen")
     add_definitions(-DNDEBUG)
 else ()
     message(STATUS "Enabling Runtime checks.")
@@ -72,14 +75,14 @@ endif(MKL_LIBRARY_DIR)
 # HOPS
 ########################################################################################################################
 
-add_library(HOPS STATIC "")
-target_include_directories(HOPS PUBLIC ${EIGEN3_INCLUDE_DIR}
+add_library(hops STATIC "")
+target_include_directories(hops PUBLIC ${EIGEN3_INCLUDE_DIR}
         ${MKL_INCLUDE_DIR}
         )
-target_link_directories(HOPS PUBLIC
+target_link_directories(hops PUBLIC
         ${MKL_LIBRARY_DIR}
         )
-target_link_libraries(HOPS PUBLIC
+target_link_libraries(hops PUBLIC
         ${MKL_LIBRARIES}
         )
 add_subdirectory(include)
@@ -159,4 +162,6 @@ endif ()
 # Install
 ########################################################################################################################
 
-# TODO install command
+install(DIRECTORY include/ DESTINATION include/hops FILES_MATCHING PATTERN "*.hpp")
+install(TARGETS hops  EXPORT hops-config DESTINATION "lib")
+install(EXPORT hops-config DESTINATION "lib" CONFIGURATIONS RELEASE)

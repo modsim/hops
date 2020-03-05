@@ -1,1 +1,1 @@
-target_sources(HOPS PUBLIC PolytopeSpace.hpp)
+target_sources(hops PRIVATE PolytopeSpace.hpp)

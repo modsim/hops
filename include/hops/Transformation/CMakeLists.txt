@@ -1,1 +1,1 @@
-target_sources(HOPS PUBLIC Transformation.hpp)
+target_sources(hops PRIVATE Transformation.hpp)
