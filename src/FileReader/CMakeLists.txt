@@ -1,1 +1,1 @@
-target_sources(HOPS PRIVATE CsvReader.cpp)
+target_sources(hops PRIVATE CsvReader.cpp)

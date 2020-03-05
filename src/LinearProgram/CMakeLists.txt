@@ -4,18 +4,18 @@ find_package(GUROBI)
 find_package(CLP)
 
 if (GUROBI_FOUND)
-    target_compile_definitions(HOPS PUBLIC HOPS_GUROBI_FOUND)
-    target_include_directories(HOPS PUBLIC ${GUROBI_INCLUDE_DIR})
+    target_compile_definitions(hops PUBLIC HOPS_GUROBI_FOUND)
+    target_include_directories(hops PUBLIC ${GUROBI_INCLUDE_DIR})
     # IMPORTANT: Gurobi C++ Libraries have to be listed before Gurobi C Libraries to prevent linker error
-    target_link_libraries(HOPS PRIVATE ${GUROBI_CXX_LIBRARY} ${GUROBI_LIBRARY})
-    target_sources(HOPS PRIVATE GurobiEnvironmentSingleton.cpp LinearProgramGurobiImpl.cpp)
+    target_link_libraries(hops PRIVATE ${GUROBI_CXX_LIBRARY} ${GUROBI_LIBRARY})
+    target_sources(hops PRIVATE GurobiEnvironmentSingleton.cpp LinearProgramGurobiImpl.cpp)
 endif ()
 
 if (CLP_FOUND)
-    target_compile_definitions(HOPS PUBLIC HOPS_CLP_FOUND)
-    target_include_directories(HOPS PUBLIC ${CLP_INCLUDE_DIRS})
-    target_link_libraries(HOPS PRIVATE ${CLP_LIBRARIES})
-    target_sources(HOPS PRIVATE LinearProgramClpImpl.cpp)
+    target_compile_definitions(hops PUBLIC HOPS_CLP_FOUND)
+    target_include_directories(hops PUBLIC ${CLP_INCLUDE_DIRS})
+    target_link_libraries(hops PRIVATE ${CLP_LIBRARIES})
+    target_sources(hops PRIVATE LinearProgramClpImpl.cpp)
 endif ()
 
 if (NOT GUROBI_FOUND AND NOT CLP_FOUND)
@@ -23,4 +23,4 @@ if (NOT GUROBI_FOUND AND NOT CLP_FOUND)
 endif ()
 
 
-target_sources(HOPS PRIVATE LinearProgram.cpp)
+target_sources(hops PRIVATE LinearProgram.cpp)

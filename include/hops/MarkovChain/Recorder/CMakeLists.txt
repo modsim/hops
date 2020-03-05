@@ -1,4 +1,4 @@
-target_sources(HOPS PUBLIC
+target_sources(hops PRIVATE
         AcceptanceRateRecorder.hpp
         IsClearRecordsAvailable.hpp
         IsStoreRecordAvailable.hpp

@@ -9,7 +9,7 @@ foreach (TEST_SOURCE ${TEST_SOURCES})
           ../../include
           )
   target_link_libraries(${TEST_NAME}
-          HOPS
+          hops
           gtest
           gtest_main
           )

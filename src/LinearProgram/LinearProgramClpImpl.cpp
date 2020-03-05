@@ -126,7 +126,6 @@ std::tuple<Eigen::MatrixXd, Eigen::VectorXd> hops::LinearProgramClpImpl::removeR
     }
     *this = LinearProgramClpImpl(A, b);
     return std::make_tuple(A, b);
-
 }
 
 hops::LinearProgramSolution hops::LinearProgramClpImpl::calculateChebyshevCenter() const {

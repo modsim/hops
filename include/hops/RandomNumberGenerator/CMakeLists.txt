@@ -1,2 +1,2 @@
-target_include_directories(HOPS PUBLIC pcg-cpp)
-target_sources(HOPS PUBLIC RandomNumberGenerator.hpp)
+target_include_directories(hops PRIVATE pcg-cpp)
+target_sources(hops PRIVATE RandomNumberGenerator.hpp)
