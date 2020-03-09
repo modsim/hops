@@ -4,6 +4,7 @@
 #include <Eigen/LU>
 #include <hops/MarkovChain/Proposal/DikinEllipsoidCalculator.hpp>
 #include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
+#include <random>
 
 namespace hops {
     template<typename MatrixType, typename VectorType>

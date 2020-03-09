@@ -29,8 +29,6 @@ int main() {
 
     hops::RandomNumberGenerator randomNumberGenerator(42);
 
-    hops::PolytopeSpace polytopeSpace(A, b, s);
-
     Eigen::VectorXd mean = s;
     Eigen::MatrixXd covariance = 0.00005 * Eigen::MatrixXd::Identity(A.cols(), A.cols());
 

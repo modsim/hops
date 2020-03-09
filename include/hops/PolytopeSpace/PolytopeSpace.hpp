@@ -4,6 +4,7 @@
 #include <utility>
 
 namespace hops {
+    // TODO maybe this class belongs to benchmark fixtures, because it should not be required anywhere else
     template<typename MatrixType, typename VectorType>
     struct PolytopeSpace {
         PolytopeSpace() = default;
