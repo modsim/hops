@@ -65,7 +65,6 @@ find_package(MKL)
 # Post-Third-Party-Search Definitions
 ########################################################################################################################
 
-# If MKL is found, use it.
 if(MKL_LIBRARY_DIR)
     message(STATUS "Found MKL: Adding preprocessor definition EIGEN_USE_MKL_ALL")
     add_definitions(-DEIGEN_USE_MKL_ALL)
@@ -85,6 +84,7 @@ target_link_directories(hops PUBLIC
 target_link_libraries(hops PUBLIC
         ${MKL_LIBRARIES}
         )
+
 add_subdirectory(include)
 add_subdirectory(src)
 
@@ -162,6 +162,7 @@ endif ()
 # Install
 ########################################################################################################################
 
-install(DIRECTORY include/ DESTINATION include/hops FILES_MATCHING PATTERN "*.hpp")
-install(TARGETS hops  EXPORT hops-config DESTINATION "lib")
+install(DIRECTORY include/ DESTINATION include/ FILES_MATCHING PATTERN "*.hpp")
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/hops/hops.hpp DESTINATION include/hops)
+install(TARGETS hops EXPORT hops-config LIBRARY DESTINATION "lib")
 install(EXPORT hops-config DESTINATION "lib" CONFIGURATIONS RELEASE)

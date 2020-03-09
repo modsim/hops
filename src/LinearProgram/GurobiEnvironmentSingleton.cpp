@@ -1,3 +1,5 @@
+#ifdef HOPS_GUROBI_FOUND
+
 #include <hops/LinearProgram/GurobiEnvironmentSingleton.hpp>
 
 hops::GurobiEnvironmentSingleton &hops::GurobiEnvironmentSingleton::getInstance() {
@@ -20,3 +22,5 @@ hops::GurobiEnvironmentSingleton::GurobiEnvironmentSingleton() : environment(tru
     environment.set(GRB_DoubleParam_OptimalityTol, 1e-9);
     environment.set(GRB_DoubleParam_MarkowitzTol, 0.999);
 }
+
+#endif //HOPS_GUROBI_FOUND
