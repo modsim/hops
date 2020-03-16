@@ -10,6 +10,6 @@ constexpr const int numberOfIterationsPerSample = 1;
 template<typename ModelFiles>
 using PolytopeSpace = PolytopeSpaceFixture<ModelFiles, Eigen::MatrixXd, Eigen::VectorXd>;
 
-BASELINE(CoordinateHitAndRun, CHR, numberOfSamples, numberOfIterationsPerSample) {
+BASELINE(readRecon3D, CHR, numberOfSamples, numberOfIterationsPerSample) {
     PolytopeSpace<Recon3D> polytopeSpaceFixture;
 }

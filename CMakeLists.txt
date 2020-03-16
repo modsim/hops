@@ -10,7 +10,9 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/mo
 # Build Parameters
 ########################################################################################################################
 
-set(ENV{MKLROOT} "/home/jadebeck/intel/compilers_and_libraries/linux/mkl")
+# TODO replace by standard path and check if env is required
+#set(ENV{MKLROOT} "/home/jadebeck/intel/compilers_and_libraries/linux/mkl" CACHE PATH "Path to installed mkl directory.")
+set(MKL_ROOT_DIR "/home/jadebeck/intel/compilers_and_libraries/linux/mkl" CACHE PATH "Path to installed mkl directory.")
 set(MKL_USE_interface lp64)
 
 ########################################################################################################################
@@ -60,6 +62,8 @@ endif (NOT ${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 find_package(Doxygen)
 find_package(Eigen3 REQUIRED)
 find_package(MKL)
+# TODO test mkl is found on ibt015
+message(STATUS "FOUND MKL ?  ${MKL_FOUND}")
 
 ########################################################################################################################
 # Post-Third-Party-Search Definitions

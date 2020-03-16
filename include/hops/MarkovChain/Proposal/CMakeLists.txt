@@ -3,4 +3,5 @@ target_sources(hops PRIVATE
         CSmMALAProposal.hpp
         DikinEllipsoidCalculator.hpp
         DikinProposal.hpp
+        HitAndRunProposal.hpp
         )

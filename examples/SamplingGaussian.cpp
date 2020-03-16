@@ -1,7 +1,6 @@
 #include <hops/FileReader/CsvReader.hpp>
 #include <hops/FileWriter/FileWriterFactory.hpp>
 #include <hops/MarkovChain/MarkovChainFactory.hpp>
-#include <hops/PolytopeSpace/PolytopeSpace.hpp>
 #include <hops/MarkovChain/Recorder/StateRecorder.hpp>
 #include <hops/MarkovChain/Draw/MetropolisHastingsFilter.hpp>
 #include <hops/MarkovChain/Proposal/DikinProposal.hpp>
@@ -29,8 +28,8 @@ int main() {
 
     hops::RandomNumberGenerator randomNumberGenerator(42);
 
-    Eigen::VectorXd mean = s;
-    Eigen::MatrixXd covariance = 0.00005 * Eigen::MatrixXd::Identity(A.cols(), A.cols());
+    const Eigen::VectorXd &mean = s;
+    Eigen::MatrixXd covariance = Eigen::MatrixXd::Identity(A.cols(), A.cols());
 
     auto markovChain1 = hops::MarkovChainAdapter(
             hops::StateRecorder(
@@ -44,6 +43,7 @@ int main() {
                     )
             )
     );
+    markovChain1.setStepSize(3. / 40);
 
     auto markovChain2 = hops::MarkovChainAdapter(
             hops::StateRecorder(
@@ -68,8 +68,9 @@ int main() {
                     )
             )
     );
+    markovChain3.setStepSize(3. / 40);
 
-    long thinning = 256;
+    long thinning = 23;
     long numberOfSamples = 10000;
     long startEpoch = std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::high_resolution_clock::now().time_since_epoch()

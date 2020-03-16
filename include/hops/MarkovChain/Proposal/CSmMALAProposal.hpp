@@ -38,6 +38,7 @@ namespace hops {
         void setStepSize(typename MatrixType::Scalar newStepSize);
 
     private:
+        StateType calculateTruncatedGradient(StateType x);
         Model model;
         MatrixType A;
         VectorType b;
@@ -112,7 +113,7 @@ namespace hops {
         driftedProposal = proposal + 0.5 * std::pow(covarianceFactor, 2) *
                                      proposalCholeskyOfMetric.template triangularView<Eigen::Upper>().solve(
                                              proposalCholeskyOfMetric.transpose().template triangularView<Eigen::Upper>().solve(
-                                                     model.calculateGradient(proposal)
+                                                     calculateTruncatedGradient(proposal)
                                              )
                                      );
 
@@ -144,7 +145,7 @@ namespace hops {
         driftedState = state + 0.5 * std::pow(covarianceFactor, 2) *
                                stateCholeskyOfMetric.template triangularView<Eigen::Upper>().solve(
                                        stateCholeskyOfMetric.transpose().template triangularView<Eigen::Upper>().solve(
-                                               model.calculateGradient(state)
+                                               calculateTruncatedGradient(state)
                                        )
                                );
     }
@@ -165,6 +166,16 @@ namespace hops {
         stepSize = newStepSize;
         geometricFactor = A.cols() / (2 * stepSize);
         covarianceFactor = std::sqrt(stepSize / A.cols());
+    }
+
+    template<typename Model>
+    typename CSmMALAProposal<Model>::StateType CSmMALAProposal<Model>::calculateTruncatedGradient(StateType x) {
+        StateType gradient = model.calculateLogLikelihoodGradient(x);
+        double norm = gradient.norm();
+        if(norm > 1) {
+            gradient /= norm;
+        }
+        return gradient;
     }
 }
 

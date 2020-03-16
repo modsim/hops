@@ -42,8 +42,8 @@ namespace hops {
 
     template<typename MatrixType, typename VectorType>
     CoordinateHitAndRunProposal<MatrixType, VectorType>::CoordinateHitAndRunProposal(MatrixType A_,
-                                                                             VectorType b_,
-                                                                             StateType currentState_)
+                                                                                     VectorType b_,
+                                                                                     StateType currentState_)
             :
             A(std::move(A_)), b(std::move(b_)), state(std::move(currentState_)) {
         slacks = this->b - this->A * this->state;
@@ -57,7 +57,7 @@ namespace hops {
         typename MatrixType::Scalar forwardDistance = 1. / inverseDistances.maxCoeff();
         typename MatrixType::Scalar backwardDistance = 1. / inverseDistances.minCoeff();
         assert(backwardDistance < 0 && forwardDistance > 0);
-        assert(((b- A * state).array() > 0).all());
+        assert(((b - A * state).array() > 0).all());
 
         stepSize = backwardDistance + (forwardDistance - backwardDistance) * stepSizeDistribution(generator);
     }

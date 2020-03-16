@@ -4,8 +4,8 @@
 #include <celero/Celero.h>
 #include <hops/FileReader/CsvReader.hpp>
 #include <hops/MarkovChain/MarkovChainFactory.hpp>
-#include <hops/PolytopeSpace/PolytopeSpace.hpp>
 #include <hops/Transformation/Transformation.hpp>
+#include "PolytopeSpace.hpp"
 
 
 template<typename ModelFiles, typename Matrix, typename Vector>
@@ -20,7 +20,8 @@ public:
 
         polytopeSpace.roundedA = hops::CsvReader::readMatrix<Matrix>(std::string(ModelFiles::roundedA));
         polytopeSpace.roundedb = hops::CsvReader::readVector<Vector>(std::string(ModelFiles::roundedb));
-        polytopeSpace.roundedStartingPoint = hops::CsvReader::readVector<Vector>(std::string(ModelFiles::roundedStartingPoint));
+        polytopeSpace.roundedStartingPoint = hops::CsvReader::readVector<Vector>(
+                std::string(ModelFiles::roundedStartingPoint));
         polytopeSpace.roundedT = hops::CsvReader::readMatrix<Matrix>(std::string(ModelFiles::roundedT));
         polytopeSpace.roundedN = hops::CsvReader::readMatrix<Matrix>(std::string(ModelFiles::roundedN));
         polytopeSpace.roundedShift = hops::CsvReader::readVector<Vector>(std::string(ModelFiles::roundedp_shift));
