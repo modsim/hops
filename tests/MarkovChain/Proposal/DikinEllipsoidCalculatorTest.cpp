@@ -3,8 +3,6 @@
 #include <hops/MarkovChain/Proposal/DikinEllipsoidCalculator.hpp>
 
 namespace {
-
-
    TEST(DikinEllipsoidCalculator, Square) {
        const long rows = 6;
        const long cols = 3;

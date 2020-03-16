@@ -9,3 +9,7 @@ configure_file(p_shift_iJO1366_unrounded.csv ${CMAKE_CURRENT_BINARY_DIR} COPYONL
 configure_file(start_iJO1366_rounded.csv ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
 configure_file(start_iJO1366_unrounded.csv ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
 configure_file(T_iJO1366_rounded.csv ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+configure_file(iJO1366.xml ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+configure_file(S_iJO1366.csv ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+configure_file(lb_iJO1366.csv ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+configure_file(ub_iJO1366.csv ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)

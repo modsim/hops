@@ -7,6 +7,7 @@ if (GUROBI_FOUND)
     target_compile_definitions(hops PUBLIC HOPS_GUROBI_FOUND)
     target_include_directories(hops PUBLIC ${GUROBI_INCLUDE_DIR})
     # IMPORTANT: Gurobi C++ Libraries have to be listed before Gurobi C Libraries to prevent linker error
+    # TODO replace public by interface?
     target_link_libraries(hops PUBLIC ${GUROBI_CXX_LIBRARY} ${GUROBI_LIBRARY})
     target_sources(hops PRIVATE GurobiEnvironmentSingleton.cpp LinearProgramGurobiImpl.cpp)
 endif ()
@@ -14,6 +15,7 @@ endif ()
 if (CLP_FOUND)
     target_compile_definitions(hops PUBLIC HOPS_CLP_FOUND)
     target_include_directories(hops PUBLIC ${CLP_INCLUDE_DIRS})
+    # TODO replace public by interface?
     target_link_libraries(hops PUBLIC ${CLP_LIBRARIES})
     target_sources(hops PRIVATE LinearProgramClpImpl.cpp)
 endif ()

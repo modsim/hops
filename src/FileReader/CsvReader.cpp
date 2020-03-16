@@ -1,4 +1,6 @@
 #include "hops/FileReader/CsvReader.hpp"
+#include <Eigen/Core>
+#include <Eigen/Sparse>
 
 template<typename VectorType>
 VectorType hops::CsvReader::readVector(const std::string &file) {
@@ -9,7 +11,8 @@ VectorType hops::CsvReader::readVector(const std::string &file) {
     std::vector<std::string> cells;
     std::string line;
     while (std::getline(fileStream, line)) {
-        cells.push_back(line);
+        auto const position = line.find_last_of(',');
+        cells.push_back(line.substr(position + 1));
     }
 
     VectorType result(cells.size());
@@ -29,7 +32,7 @@ template Eigen::VectorXd hops::CsvReader::readVector(const std::string &file);
 
 
 template<typename MatrixType>
-MatrixType hops::CsvReader::readMatrix(const std::string &file) {
+MatrixType hops::CsvReader::readMatrix(const std::string &file, bool hasColumnAndRowNames) {
 
     std::ifstream fileStream(file);
     if (fileStream.fail()) {
@@ -47,13 +50,18 @@ MatrixType hops::CsvReader::readMatrix(const std::string &file) {
         stringRepresentationOfMatrix.push_back(cells);
     }
 
-    Eigen::SparseMatrix<typename MatrixType::Scalar> result(stringRepresentationOfMatrix.size(),
-                                                            stringRepresentationOfMatrix.at(0).size());
+    size_t numberOfRows = hasColumnAndRowNames ? stringRepresentationOfMatrix.size() - 1
+                                               : stringRepresentationOfMatrix.size();
+    size_t numberOfColumns = hasColumnAndRowNames ? stringRepresentationOfMatrix.at(0).size() - 1
+                                                  : stringRepresentationOfMatrix.at(0).size();
+    Eigen::SparseMatrix<typename MatrixType::Scalar> result(numberOfRows, numberOfColumns);
     std::vector<Eigen::Triplet<typename MatrixType::Scalar>> triplets;
 
-    for (size_t i = 0; i < stringRepresentationOfMatrix.size(); ++i) {
-        for (size_t j = 0; j < stringRepresentationOfMatrix.at(i).size(); ++j) {
-            typename MatrixType::Scalar value = std::stod(stringRepresentationOfMatrix.at(i).at(j));
+    for (size_t i = 0; i < numberOfRows; ++i) {
+        for (size_t j = 0; j < numberOfColumns; ++j) {
+            size_t row = hasColumnAndRowNames ? i + 1 : i;
+            size_t col = hasColumnAndRowNames ? j + 1 : j;
+            typename MatrixType::Scalar value = std::stod(stringRepresentationOfMatrix.at(row).at(col));
             if (value != 0) {
                 triplets.emplace_back(i, j, value);
             }
@@ -64,18 +72,19 @@ MatrixType hops::CsvReader::readMatrix(const std::string &file) {
     return result;
 }
 
-template Eigen::MatrixXi hops::CsvReader::readMatrix(const std::string &file);
+template Eigen::MatrixXi hops::CsvReader::readMatrix(const std::string &file, bool hasColumnAndRowNames);
 
-template Eigen::Matrix<long, Eigen::Dynamic, Eigen::Dynamic> hops::CsvReader::readMatrix(const std::string &file);
+template Eigen::Matrix<long, Eigen::Dynamic, Eigen::Dynamic>
+hops::CsvReader::readMatrix(const std::string &file, bool hasColumnAndRowNames);
 
-template Eigen::MatrixXf hops::CsvReader::readMatrix(const std::string &file);
+template Eigen::MatrixXf hops::CsvReader::readMatrix(const std::string &file, bool hasColumnAndRowNames);
 
-template Eigen::MatrixXd hops::CsvReader::readMatrix(const std::string &file);
+template Eigen::MatrixXd hops::CsvReader::readMatrix(const std::string &file, bool hasColumnAndRowNames);
 
-template Eigen::SparseMatrix<int> hops::CsvReader::readMatrix(const std::string &file);
+template Eigen::SparseMatrix<int> hops::CsvReader::readMatrix(const std::string &file, bool hasColumnAndRowNames);
 
-template Eigen::SparseMatrix<long> hops::CsvReader::readMatrix(const std::string &file);
+template Eigen::SparseMatrix<long> hops::CsvReader::readMatrix(const std::string &file, bool hasColumnAndRowNames);
 
-template Eigen::SparseMatrix<float> hops::CsvReader::readMatrix(const std::string &file);
+template Eigen::SparseMatrix<float> hops::CsvReader::readMatrix(const std::string &file, bool hasColumnAndRowNames);
 
-template Eigen::SparseMatrix<double> hops::CsvReader::readMatrix(const std::string &file);
+template Eigen::SparseMatrix<double> hops::CsvReader::readMatrix(const std::string &file, bool hasColumnAndRowNames);
