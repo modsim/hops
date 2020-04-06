@@ -18,7 +18,7 @@ namespace hops {
          * @param b
          * @param currentState
          */
-        DikinProposal(MatrixType A, VectorType b, StateType currentState);
+        DikinProposal(MatrixType A, VectorType b, VectorType currentState);
 
         void propose(RandomNumberGenerator &randomNumberGenerator);
 
@@ -58,7 +58,7 @@ namespace hops {
     template<typename MatrixType, typename VectorType>
     DikinProposal<MatrixType, VectorType>::DikinProposal(MatrixType A,
                                                          VectorType b,
-                                                         StateType currentState) :
+                                                         VectorType currentState) :
             A(std::move(A)),
             b(std::move(b)),
             dikinEllipsoidCalculator(this->A, this->b) {
@@ -73,13 +73,13 @@ namespace hops {
             proposal(i) = normalDistribution(randomNumberGenerator);
         }
         proposal = state + covarianceFactor *
-                           stateCholeskyOfDikinEllipsoid.template triangularView<Eigen::Upper>().solve(proposal);
+                           stateCholeskyOfDikinEllipsoid.template triangularView<Eigen::Lower>().solve(proposal);
     }
 
     template<typename MatrixType, typename VectorType>
     void DikinProposal<MatrixType, VectorType>::acceptProposal() {
         state.swap(proposal);
-        stateCholeskyOfDikinEllipsoid.swap(proposalCholeskyOfDikinEllipsoid);
+        stateCholeskyOfDikinEllipsoid = std::move(proposalCholeskyOfDikinEllipsoid);
         stateLogSqrtDeterminant = proposalLogSqrtDeterminant;
     }
 
@@ -114,7 +114,6 @@ namespace hops {
         stateCholeskyOfDikinEllipsoid = dikinEllipsoidCalculator.calculateCholeskyFactorOfDikinEllipsoid(state);
         stateLogSqrtDeterminant = stateCholeskyOfDikinEllipsoid.diagonal().array().log().sum();
     }
-
 
     template<typename MatrixType, typename VectorType>
     typename DikinProposal<MatrixType, VectorType>::StateType

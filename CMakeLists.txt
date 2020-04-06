@@ -43,7 +43,6 @@ else ()
 endif ()
 
 
-
 ########################################################################################################################
 # Pre-Third-Party-Search Definitions
 ########################################################################################################################
@@ -69,25 +68,21 @@ message(STATUS "FOUND MKL ?  ${MKL_FOUND}")
 # Post-Third-Party-Search Definitions
 ########################################################################################################################
 
-if(MKL_LIBRARY_DIR)
+if (MKL_LIBRARY_DIR)
     message(STATUS "Found MKL: Adding preprocessor definition EIGEN_USE_MKL_ALL")
     add_definitions(-DEIGEN_USE_MKL_ALL)
-endif(MKL_LIBRARY_DIR)
+endif (MKL_LIBRARY_DIR)
 
 ########################################################################################################################
 # HOPS
 ########################################################################################################################
 
 add_library(hops STATIC "")
-target_include_directories(hops PUBLIC ${EIGEN3_INCLUDE_DIR}
-        ${MKL_INCLUDE_DIR}
-        )
-target_link_directories(hops PUBLIC
-        ${MKL_LIBRARY_DIR}
-        )
-target_link_libraries(hops PUBLIC
-        ${MKL_LIBRARIES}
-        )
+target_include_directories(hops PUBLIC ${EIGEN3_INCLUDE_DIR} )
+
+target_include_directories(hops PRIVATE ${MKL_INCLUDE_DIR} )
+target_link_directories(hops PRIVATE ${MKL_LIBRARY_DIR} )
+target_link_libraries(hops PRIVATE ${MKL_LIBRARIES} )
 
 add_subdirectory(include)
 add_subdirectory(src)

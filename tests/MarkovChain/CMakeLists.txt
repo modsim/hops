@@ -1,2 +1,3 @@
-  add_subdirectory(Proposal)
-  add_subdirectory(Recorder)
+add_subdirectory(ParallelTempering)
+add_subdirectory(Proposal)
+add_subdirectory(Recorder)

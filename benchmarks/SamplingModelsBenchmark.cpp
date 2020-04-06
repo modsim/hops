@@ -21,7 +21,7 @@ void sample(long seed, const std::string &filename) {
             markovChain(
             hops::StateRecorder(
                     hops::StateTransformation(
-                            hops::NoOpDraw(
+                            hops::NoOpDrawAdapter(
                                     hops::CoordinateHitAndRunProposal<Matrix, Vector>(
                                             polytope.polytopeSpace.roundedA,
                                             polytope.polytopeSpace.roundedb,

@@ -1,13 +1,105 @@
 #ifndef HOPS_HITANDRUNPROPOSAL_HPP
 #define HOPS_HITANDRUNPROPOSAL_HPP
 
+#include "ChordStepDistributions.hpp"
+#include <hops/MarkovChain/IsSetStepSizeAvailable.hpp>
+#include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
+#include <random>
+
 namespace hops {
-    // TODO required to debug non-uniform coordinate-hit-and-run
-    template <typename MatrixType, typename VectorType, typename StepSizeDistribution>
+    template<typename MatrixType, typename VectorType, typename ChordStepDistribution = UniformStepDistribution<typename MatrixType::Scalar>>
     class HitAndRunProposal {
     public:
-        using StateType = VectorType
+        using StateType = VectorType;
+
+        HitAndRunProposal(MatrixType A, VectorType b, VectorType currentState);
+
+        void propose(RandomNumberGenerator &randomNumberGenerator);
+
+        void acceptProposal();
+
+        StateType getState() const;
+
+        StateType getProposal() const;
+
+        void setState(StateType newState);
+
+        void setStepSize(typename MatrixType::Scalar stepSize);
+
+    private:
+        MatrixType A;
+        VectorType b;
+        StateType state;
+        StateType proposal;
+        VectorType slacks;
+        VectorType inverseDistances;
+
+        VectorType updateDirection;
+        typename MatrixType::Scalar step = 0;
+        ChordStepDistribution chordStepDistribution;
+        std::normal_distribution<typename MatrixType::Scalar> normalDistribution;
     };
+
+    template<typename MatrixType, typename VectorType, typename ChordStepDistribution>
+    HitAndRunProposal<MatrixType, VectorType, ChordStepDistribution>::HitAndRunProposal(MatrixType A_,
+                                                                                        VectorType b_,
+                                                                                        VectorType currentState_) :
+            A(std::move(A_)),
+            b(std::move(b_)),
+            state(std::move(currentState_)) {
+        slacks = this->b - this->A * this->state;
+        updateDirection = state;
+    }
+
+    template<typename MatrixType, typename VectorType, typename ChordStepDistribution>
+    void HitAndRunProposal<MatrixType, VectorType, ChordStepDistribution>::propose(
+            RandomNumberGenerator &randomNumberGenerator) {
+        for (long i = 0; i < updateDirection.rows(); ++i) {
+            updateDirection(i) = normalDistribution(randomNumberGenerator);
+        }
+        updateDirection.normalize();
+
+        inverseDistances = (A * updateDirection).cwiseQuotient(slacks);
+        typename MatrixType::Scalar forwardDistance = 1. / inverseDistances.maxCoeff();
+        typename MatrixType::Scalar backwardDistance = 1. / inverseDistances.minCoeff();
+        assert(backwardDistance < 0 && forwardDistance > 0);
+        assert(((b - A * state).array() >= 0).all());
+
+        step = chordStepDistribution.draw(randomNumberGenerator, backwardDistance, forwardDistance);
+        proposal = state + updateDirection * step;
+    }
+
+    template<typename MatrixType, typename VectorType, typename ChordStepDistribution>
+    void HitAndRunProposal<MatrixType, VectorType, ChordStepDistribution>::acceptProposal() {
+        state = proposal;
+        slacks.noalias() -= A * updateDirection * step;
+    }
+
+    template<typename MatrixType, typename VectorType, typename ChordStepDistribution>
+    typename HitAndRunProposal<MatrixType, VectorType, ChordStepDistribution>::StateType
+    HitAndRunProposal<MatrixType, VectorType, ChordStepDistribution>::getState() const {
+        return state;
+    }
+
+    template<typename MatrixType, typename VectorType, typename ChordStepDistribution>
+    typename HitAndRunProposal<MatrixType, VectorType, ChordStepDistribution>::StateType
+    HitAndRunProposal<MatrixType, VectorType, ChordStepDistribution>::getProposal() const {
+        return proposal;
+    }
+
+    template<typename MatrixType, typename VectorType, typename ChordStepDistribution>
+    void HitAndRunProposal<MatrixType, VectorType, ChordStepDistribution>::setState(StateType newState) {
+        HitAndRunProposal::state = std::move(newState);
+        slacks = b - A * HitAndRunProposal::state;
+    }
+
+    template<typename MatrixType, typename VectorType, typename ChordStepDistribution>
+    void HitAndRunProposal<MatrixType, VectorType, ChordStepDistribution>::setStepSize(
+            typename MatrixType::Scalar stepSize) {
+        if constexpr (IsSetStepSizeAvailable<ChordStepDistribution, typename MatrixType::Scalar>::value) {
+            chordStepDistribution.setStepSize(stepSize);
+        }
+    }
 }
 
 #endif //HOPS_HITANDRUNPROPOSAL_HPP

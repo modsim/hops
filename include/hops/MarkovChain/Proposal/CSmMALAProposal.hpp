@@ -19,7 +19,7 @@ namespace hops {
          * @param b
          * @param currentState
          */
-        CSmMALAProposal(const Model &model, MatrixType A, VectorType b, StateType currentState);
+        CSmMALAProposal(const Model &model, MatrixType A, VectorType b, VectorType currentState);
 
         void propose(RandomNumberGenerator &randomNumberGenerator);
 
@@ -69,7 +69,7 @@ namespace hops {
     CSmMALAProposal<Model>::CSmMALAProposal(const Model &model,
                                             MatrixType A,
                                             VectorType b,
-                                            StateType currentState) :
+                                            VectorType currentState) :
             model(model),
             A(std::move(A)),
             b(std::move(b)),
@@ -85,12 +85,15 @@ namespace hops {
             proposal(i) = normalDistribution(randomNumberGenerator);
         }
         proposal = driftedState +
-                   covarianceFactor * stateCholeskyOfMetric.template triangularView<Eigen::Upper>().solve(proposal);
+                   covarianceFactor * stateCholeskyOfMetric.template triangularView<Eigen::Lower>().solve(proposal);
     }
 
     template<typename Model>
     void CSmMALAProposal<Model>::acceptProposal() {
         state.swap(proposal);
+        if(((A * state - b).array() > 0 ).any()) {
+            throw std::runtime_error("Current state is outside of polytope!");
+        }
         driftedState.swap(driftedProposal);
         stateCholeskyOfMetric.swap(proposalCholeskyOfMetric);
         stateLogSqrtDeterminant = proposalLogSqrtDeterminant;
@@ -108,11 +111,11 @@ namespace hops {
         proposalCholeskyOfMetric = solver.compute(
                         fisherWeight * model.calculateExpectedFisherInformation(proposal)
                         + (1 - fisherWeight) * dikinEllipsoidCalculator.calculateDikinEllipsoid(proposal))
-                .matrixU();
+                .matrixL();
         proposalLogSqrtDeterminant = proposalCholeskyOfMetric.diagonal().array().log().sum();
         driftedProposal = proposal + 0.5 * std::pow(covarianceFactor, 2) *
-                                     proposalCholeskyOfMetric.template triangularView<Eigen::Upper>().solve(
-                                             proposalCholeskyOfMetric.transpose().template triangularView<Eigen::Upper>().solve(
+                                     proposalCholeskyOfMetric.template triangularView<Eigen::Lower>().solve(
+                                             proposalCholeskyOfMetric.transpose().template triangularView<Eigen::Lower>().solve(
                                                      calculateTruncatedGradient(proposal)
                                              )
                                      );
@@ -138,13 +141,15 @@ namespace hops {
         stateCholeskyOfMetric = solver.compute(
                         fisherWeight * model.calculateExpectedFisherInformation(state) +
                         (1 - fisherWeight) * dikinEllipsoidCalculator.calculateDikinEllipsoid(state))
-                .matrixU();
+                .matrixL();
         stateLogSqrtDeterminant = stateCholeskyOfMetric.diagonal().array().log().sum();
         stateLikelihood = model.calculateNegativeLogLikelihood(state);
 
+        // TODO here there is an error! instead of solving tiwce solving once should suffice,
+        // since product of Lower trinagular matrices is lower triangular matrix
         driftedState = state + 0.5 * std::pow(covarianceFactor, 2) *
-                               stateCholeskyOfMetric.template triangularView<Eigen::Upper>().solve(
-                                       stateCholeskyOfMetric.transpose().template triangularView<Eigen::Upper>().solve(
+                               stateCholeskyOfMetric.template triangularView<Eigen::Lower>().solve(
+                                       stateCholeskyOfMetric.transpose().template triangularView<Eigen::Lower>().solve(
                                                calculateTruncatedGradient(state)
                                        )
                                );

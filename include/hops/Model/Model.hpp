@@ -26,6 +26,8 @@ namespace hops {
                 void acceptProposal();
 
                 double calculateLogAcceptanceProbability();
+
+                double getNegativeLogLikelihoodOfCurrentState();
     private:
         double stateNegativeLogLikelihood;
         double proposalNegativeLogLikelihood;
@@ -45,6 +47,11 @@ namespace hops {
            acceptanceProbability += MarkovChainProposer::calculateLogAcceptanceProbability();
         }
         return acceptanceProbability;
+    }
+
+    template<typename MarkovChainProposer, typename ModelImpl>
+    double Model<MarkovChainProposer, ModelImpl>::getNegativeLogLikelihoodOfCurrentState() {
+        return stateNegativeLogLikelihood;
     }
 }
 

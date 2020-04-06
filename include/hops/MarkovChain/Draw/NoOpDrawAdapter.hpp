@@ -1,14 +1,14 @@
-#ifndef HOPS_NOOPDRAW_HPP
-#define HOPS_NOOPDRAW_HPP
+#ifndef HOPS_NOOPDRAWADAPTER_HPP
+#define HOPS_NOOPDRAWADAPTER_HPP
 
 #include <hops/MarkovChain/Draw/IsAcceptProposalAvailable.hpp>
 #include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
 
 namespace hops {
     template<typename MarkovChainProposer>
-    class NoOpDraw : public MarkovChainProposer {
+    class NoOpDrawAdapter : public MarkovChainProposer {
     public:
-        explicit NoOpDraw(const MarkovChainProposer &markovChainImpl) : MarkovChainProposer(markovChainImpl) {}
+        explicit NoOpDrawAdapter(const MarkovChainProposer &markovChainImpl) : MarkovChainProposer(markovChainImpl) {}
 
         void draw(RandomNumberGenerator &randomNumberGenerator) {
             MarkovChainProposer::propose(randomNumberGenerator);
@@ -19,4 +19,4 @@ namespace hops {
     };
 }
 
-#endif //HOPS_NOOPDRAW_HPP
+#endif //HOPS_NOOPDRAWADAPTER_HPP
