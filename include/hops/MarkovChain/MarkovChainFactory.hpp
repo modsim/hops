@@ -6,7 +6,7 @@
 #include <hops/MarkovChain/Proposal/CoordinateHitAndRunProposal.hpp>
 #include <hops/MarkovChain/Proposal/CoordinateHitAndRunProposal.hpp>
 #include <hops/MarkovChain/MarkovChainAdapter.hpp>
-#include <hops/MarkovChain/Draw/NoOpDraw.hpp>
+#include <hops/MarkovChain/Draw/NoOpDrawAdapter.hpp>
 #include <hops/MarkovChain/Recorder/StateRecorder.hpp>
 #include <hops/MarkovChain/StateTransformation.hpp>
 #include <hops/MarkovChain/Recorder/TimestampRecorder.hpp>
@@ -24,19 +24,19 @@ namespace hops {
          * @return
          */
         template<typename StateSpace>
-        static std::unique_ptr<hops::MarkovChain>
+        static std::unique_ptr<MarkovChain>
         createMarkovChain(const StateSpace &stateSpace, MarkovChainType proposalType);
     };
 
     template<typename StateSpace>
-    std::unique_ptr<hops::MarkovChain>
+    std::unique_ptr<MarkovChain>
     MarkovChainFactory::createMarkovChain(const StateSpace &stateSpace, MarkovChainType proposalType) {
         switch (proposalType) {
             case MarkovChainType::CoordinateHitAndRun: {
                 return std::unique_ptr<MarkovChain>(
                         new MarkovChainAdapter(
                                 StateRecorder(
-                                        NoOpDraw(
+                                        NoOpDrawAdapter(
                                                 CoordinateHitAndRunProposal<decltype(stateSpace.A), decltype(stateSpace.b)>(
                                                         stateSpace.A,
                                                         stateSpace.b,
@@ -51,7 +51,7 @@ namespace hops {
                         new MarkovChainAdapter(
                                 StateRecorder(
                                         StateTransformation(
-                                                NoOpDraw(
+                                                NoOpDrawAdapter(
                                                         CoordinateHitAndRunProposal<decltype(stateSpace.roundedA), decltype(stateSpace.roundedb)>(
                                                                 stateSpace.roundedA,
                                                                 stateSpace.roundedb,

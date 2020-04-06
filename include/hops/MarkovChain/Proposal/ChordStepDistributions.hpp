@@ -1,13 +1,13 @@
 #ifndef HOPS_CHORDSTEPDISTRIBUTIONS_HPP
 #define HOPS_CHORDSTEPDISTRIBUTIONS_HPP
 
-#include "../../RandomNumberGenerator/RandomNumberGenerator.hpp"
+#include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
 #include <random>
 #include <string>
 #include "TruncatedNormalDistribution.hpp"
 
 namespace hops {
-    template<typename RealType = double>
+    template<typename RealType>
     class UniformStepDistribution {
     public:
         RealType draw(RandomNumberGenerator &randomNumberGenerator, RealType lowerLimit, RealType upperLimit) {
@@ -15,15 +15,11 @@ namespace hops {
             return uniformRealDistribution(randomNumberGenerator, params);
         }
 
-        constexpr RealType computeInverseNormalizationConstant(RealType, RealType, RealType) {
-            return 1.;
-        }
-
     private:
         std::uniform_real_distribution<RealType> uniformRealDistribution;
     };
 
-    template<typename RealType = double>
+    template<typename RealType>
     class GaussianStepDistribution {
     public:
         RealType draw(RandomNumberGenerator &randomNumberGenerator, RealType lowerLimit,
@@ -31,16 +27,12 @@ namespace hops {
             return truncatedNormalDistribution(randomNumberGenerator, {stepSize, lowerLimit, upperLimit});
         }
 
-        RealType getStepSize() const {
-            return stepSize;
+        RealType getStepSize(RealType newStepSize) {
+            stepSize = newStepSize;
         }
 
         void setStepSize(RealType newStepSize) {
             stepSize = newStepSize;
-        }
-
-        RealType computeInverseNormalizationConstant(RealType sigma, RealType lowerBound, RealType upperBound) {
-            return truncatedNormalDistribution.inverseNormalization({sigma, lowerBound, upperBound});
         }
 
     private:

@@ -22,14 +22,14 @@ namespace hops {
          */
         virtual std::tuple<Eigen::MatrixXd, Eigen::VectorXd> removeRedundantConstraints(double tolerance) = 0;
 
-        virtual LinearProgramSolution calculateChebyshevCenter() const = 0;
+        [[nodiscard]] virtual LinearProgramSolution calculateChebyshevCenter() const = 0;
 
         /**
          * @details dimensions with missing upper boundaries are counted starting from 1 upwards.
          *          dimensions with missing lower boundaries are counted starting from -1 downwards.
          * @return
          */
-        virtual std::vector<long> calculateUnconstrainedDimensions() const = 0;
+        [[nodiscard]] virtual std::vector<long> calculateUnconstrainedDimensions() const = 0;
 
         /**
          * @brief Adds box constraints to unconstrained dimensions and returns system matrices.

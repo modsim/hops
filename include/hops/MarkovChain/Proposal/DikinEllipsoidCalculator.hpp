@@ -28,9 +28,24 @@ namespace hops {
     template<typename MatrixType, typename VectorType>
     Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>
     DikinEllipsoidCalculator<MatrixType, VectorType>::calculateCholeskyFactorOfDikinEllipsoid(const VectorType &x) {
-        Eigen::LLT<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>, Eigen::Upper> solver(
-                calculateDikinEllipsoid((x)));
-        return solver.matrixU();
+        Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic> dikinEllipsoid =
+                calculateDikinEllipsoid(x);
+
+        Eigen::LLT<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>> solver(dikinEllipsoid);
+        if (solver.info() != Eigen::Success) {
+            Eigen::LDLT<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>> semiPositiveDefiniteCholeskySolver(
+                    dikinEllipsoid);
+            if (semiPositiveDefiniteCholeskySolver.info() != Eigen::Success) {
+                throw std::runtime_error(
+                        std::string("Error in cholesky factorization of dikin ellipsoid. Solver status: ") +
+                        std::to_string(solver.info())
+                );
+            }
+            return semiPositiveDefiniteCholeskySolver.vectorD().cwiseAbs().cwiseSqrt().asDiagonal() *
+                   Eigen::MatrixXd(semiPositiveDefiniteCholeskySolver.matrixL());
+        } else {
+            return solver.matrixL();
+        }
     }
 
     template<typename MatrixType, typename VectorType>

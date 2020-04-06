@@ -1,8 +1,8 @@
 set(EXAMPLE_SOURCES
-#        TODO
-#        CoordinateHitAndRunExample.cpp
-#        CoordinateHitAndRunRoundedExample.cpp
-        SamplingGaussian.cpp
+        SamplingUniformTarget.cpp
+        SamplingGaussianTarget.cpp
+        SamplingRBAModel.cpp
+        SamplingRBAModelUniformly.cpp
         )
 
 foreach (EXAMPLE_SOURCE ${EXAMPLE_SOURCES})

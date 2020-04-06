@@ -4,5 +4,5 @@ set(sbml_DIR /usr/local/lib/cmake CACHE PATH "Path to sbml-config.cmake. Usually
 
 find_package(sbml CONFIG REQUIRED)
 
-target_link_libraries(hops PRIVATE sbml)
+target_link_libraries(hops PUBLIC sbml)
 target_sources(hops PRIVATE SbmlReader.cpp)

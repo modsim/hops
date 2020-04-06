@@ -1,7 +1,6 @@
 #include "hops/FileReader/SbmlReader.hpp"
 #include <Eigen/Core>
 #include <Eigen/Sparse>
-#include <iostream>
 #include <sbml/SBMLTypes.h>
 #include <sbml/packages/fbc/common/FbcExtensionTypes.h>
 
@@ -75,43 +74,16 @@ hops::SbmlModel<MatrixType, VectorType> hops::SbmlReader::readModel(const std::s
         throw std::runtime_error("SBML errors.");
     }
 
-    unsigned int level = document->getLevel();
-    unsigned int version = document->getVersion();
-
-    std::cout << std::endl
-              << "File: " << file
-              << " (Level " << level << ", version " << version << ")" << std::endl;
-
     Model *model = document->getModel();
 
     if (!model) {
-        std::cout << "No model present." << std::endl;
         throw std::runtime_error("No model present.");
     }
 
-    std::cout << "               "
-              << (level == 1 ? "name: " : "  id: ")
-              << (model->isSetId() ? model->getId() : std::string("(empty)")) << std::endl;
-
-    if (model->isSetSBOTerm())
-        std::cout << "      model sboTerm: " << model->getSBOTerm() << std::endl;
-
-    std::cout << "functionDefinitions: " << model->getNumFunctionDefinitions() << std::endl;
-    std::cout << "    unitDefinitions: " << model->getNumUnitDefinitions() << std::endl;
-    std::cout << "   compartmentTypes: " << model->getNumCompartmentTypes() << std::endl;
-    std::cout << "        specieTypes: " << model->getNumSpeciesTypes() << std::endl;
-    std::cout << "       compartments: " << model->getNumCompartments() << std::endl;
-    std::cout << "            species: " << model->getNumSpecies() << std::endl;
-    std::cout << "         parameters: " << model->getNumParameters() << std::endl;
-    std::cout << " initialAssignments: " << model->getNumInitialAssignments() << std::endl;
-    std::cout << "              rules: " << model->getNumRules() << std::endl;
-    std::cout << "        constraints: " << model->getNumConstraints() << std::endl;
-    std::cout << "          reactions: " << model->getNumReactions() << std::endl;
-    std::cout << "             events: " << model->getNumEvents() << std::endl;
-    std::cout << std::endl;
-
     SbmlModel<MatrixType, VectorType> sbmlModel;
+
     sbmlModel.setStoichiometry(MatrixType(parseStoichiometry(model).cast<typename MatrixType::Scalar>()));
+
     auto constraints = parseConstraints(model);
     sbmlModel.setLowerBounds(std::get<3>(constraints).cast<typename MatrixType::Scalar>());
     sbmlModel.setUpperBounds(std::get<2>(constraints).cast<typename MatrixType::Scalar>());

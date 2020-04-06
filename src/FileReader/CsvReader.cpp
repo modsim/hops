@@ -12,12 +12,20 @@ VectorType hops::CsvReader::readVector(const std::string &file) {
     std::string line;
     while (std::getline(fileStream, line)) {
         auto const position = line.find_last_of(',');
-        cells.push_back(line.substr(position + 1));
+        std::string cell = line.substr(position + 1);
+        cells.push_back(cell);
     }
 
-    VectorType result(cells.size());
-    for (size_t i = 0; i < cells.size(); ++i) {
-        result(i) = std::stod(cells[i]);
+    size_t startIndex = 0;
+    try {
+        std::stod(cells[0]);
+    }
+    catch (std::invalid_argument &) {
+        startIndex = 1;
+    }
+    VectorType result(cells.size() - startIndex);
+    for (size_t i = startIndex; i < cells.size(); ++i) {
+        result(i - startIndex) = std::stod(cells[i]);
     }
     return result;
 }
@@ -47,7 +55,7 @@ MatrixType hops::CsvReader::readMatrix(const std::string &file, bool hasColumnAn
         while (std::getline(lineStream, cell, ',')) {
             cells.push_back(cell);
         }
-        stringRepresentationOfMatrix.push_back(cells);
+        stringRepresentationOfMatrix.emplace_back(cells);
     }
 
     size_t numberOfRows = hasColumnAndRowNames ? stringRepresentationOfMatrix.size() - 1
