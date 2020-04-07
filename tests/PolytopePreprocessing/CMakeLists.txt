@@ -1,7 +1,5 @@
 set(TEST_SOURCES
-        LinearProgramClpImplTest.cpp
-        LinearProgramFactoryTest.cpp
-        LinearProgramGurobiImplTest.cpp
+        MaximumVolumeEllipsoidTest.cpp
         )
 
 foreach (TEST_SOURCE ${TEST_SOURCES})

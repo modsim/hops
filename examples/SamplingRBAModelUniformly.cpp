@@ -3,22 +3,20 @@
 #include <hops/MarkovChain/MarkovChainFactory.hpp>
 #include <hops/MarkovChain/Recorder/StateRecorder.hpp>
 #include <hops/MarkovChain/Draw/MetropolisHastingsFilter.hpp>
-#include <hops/MarkovChain/Proposal/DikinProposal.hpp>
 #include <hops/Model/Model.hpp>
-#include <hops/Model/MultivariateGaussianModel.hpp>
-#include <hops/MarkovChain/Proposal/CSmMALAProposal.hpp>
 
 int main(int argc, char **argv) {
-    assert(argc == 6);
+    assert(argc == 7);
     hops::RandomNumberGenerator randomNumberGenerator((std::random_device()()));
 
     std::cout
-            << std::string(argv[0]) << std::endl
-            << std::string(argv[1]) << std::endl
-            << std::string(argv[2]) << std::endl
-            << std::string(argv[3]) << std::endl
-            << std::string(argv[4]) << std::endl
-            << std::string(argv[5]) << std::endl;
+            << "program: " << std::string(argv[0]) << std::endl
+            << "A: " << std::string(argv[1]) << std::endl
+            << "b: " << std::string(argv[2]) << std::endl
+            << "mu: " << std::string(argv[3]) << std::endl
+            << "cov: " << std::string(argv[4]) << std::endl
+            << "outdir: " << std::string(argv[5]) << std::endl
+            << "rng: " << std::string(argv[6]) << std::endl;
     Eigen::MatrixXd A;
     Eigen::MatrixXd covariance;
     try {
@@ -39,42 +37,26 @@ int main(int argc, char **argv) {
 
     auto fileWriter1 = hops::FileWriterFactory::createFileWriter(std::string(argv[5]) + "uchr",
                                                                  hops::FileWriterType::Csv);
-    auto fileWriter2 = hops::FileWriterFactory::createFileWriter(std::string(argv[5]) + "udikin",
-                                                                 hops::FileWriterType::Csv);
-
     auto markovChain1 = hops::MarkovChainAdapter(
             hops::NoOpDrawAdapter(
-                    hops::StateRecorder(
-//                            hops::StateTransformation(
+                    hops::TimestampRecorder(
+                            hops::StateRecorder(
                                     hops::CoordinateHitAndRunProposal(
                                             A,
                                             b,
                                             mean)
-//                                    ,hops::Transformation(N, shift))
+                            )
                     )
             )
     );
 
-    auto markovChain2 = hops::MarkovChainAdapter(
-            hops::StateRecorder(
-                    hops::MetropolisHastingsFilter(
-                            hops::DikinProposal(
-                                    A,
-                                    b,
-                                    mean)
-                    )
-            )
-    );
-    markovChain2.setStepSize(1e-3);
-
-    long thinning = 1; //A.cols() * 100;
-    long numberOfSamples = 10;
+    long thinning = A.cols() * 1000;
+    long numberOfSamples = 10000;
     while (true) {
         long startEpoch = std::chrono::duration_cast<std::chrono::milliseconds>(
                 std::chrono::high_resolution_clock::now().time_since_epoch()
         ).count();
         markovChain1.draw(randomNumberGenerator, numberOfSamples, thinning);
-        markovChain2.draw(randomNumberGenerator, numberOfSamples, thinning);
         long endEpoch = std::chrono::duration_cast<std::chrono::milliseconds>(
                 std::chrono::high_resolution_clock::now().time_since_epoch()
         ).count();
@@ -84,9 +66,7 @@ int main(int argc, char **argv) {
                   << " s per sample"
                   << std::endl;
         markovChain1.writeHistory(fileWriter1.get());
-        markovChain2.writeHistory(fileWriter2.get());
         markovChain1.clearHistory();
-        markovChain2.clearHistory();
     }
 }
 
