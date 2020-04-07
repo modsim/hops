@@ -202,8 +202,8 @@ namespace {
             parallelTempering.attemptExchange(sharedRandomNumberGenerator);
         }
 
-        int expectedRngState = sharedRandomNumberGenerator - checkPoint;
-        int actualRngState = expectedRngState;
+        double expectedRngState = sharedRandomNumberGenerator - checkPoint;
+        double actualRngState = expectedRngState;
 
         int recvFromRank = (world_rank - 1) >= 0 ? world_rank - 1 : world_size - 1;
         int sendToRank = (world_rank + 1) % (world_size);

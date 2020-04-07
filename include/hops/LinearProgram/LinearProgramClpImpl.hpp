@@ -1,11 +1,12 @@
-#ifdef HOPS_CLP_FOUND
-
 #ifndef HOPS_LINEARPROGRAMCLPIMPL_HPP
 #define HOPS_LINEARPROGRAMCLPIMPL_HPP
 
-#include <coin/ClpSimplex.hpp>
 #include <Eigen/Core>
 #include "LinearProgram.hpp"
+
+#ifdef HOPS_CLP_FOUND
+
+#include <coin/ClpSimplex.hpp>
 
 namespace hops {
     class LinearProgramClpImpl : public LinearProgram {
@@ -32,6 +33,37 @@ namespace hops {
     };
 }
 
+#else //HOPS_CLP_FOUND
 
-#endif //HOPS_LINEARPROGRAMCLPIMPL_HPP
+namespace hops {
+    class LinearProgramClpImpl : public LinearProgram {
+    public:
+        LinearProgramClpImpl(const Eigen::MatrixXd &A, const Eigen::VectorXd &b) : LinearProgram(A, b) {
+            throw std::runtime_error("HOPS did not find CLP during compilation.");
+        }
+
+        [[nodiscard]] LinearProgramSolution solve(const Eigen::VectorXd &) const override {
+            throw std::runtime_error("HOPS did not find CLP during compilation.");
+        }
+
+        std::tuple<Eigen::MatrixXd, Eigen::VectorXd> removeRedundantConstraints(double) override {
+            throw std::runtime_error("HOPS did not find CLP during compilation.");
+        }
+
+        [[nodiscard]] LinearProgramSolution calculateChebyshevCenter() const override {
+            throw std::runtime_error("HOPS did not find CLP during compilation.");
+        }
+
+        [[nodiscard]] std::vector<long> calculateUnconstrainedDimensions() const override {
+            throw std::runtime_error("HOPS did not find CLP during compilation.");
+        }
+
+        std::tuple<Eigen::MatrixXd, Eigen::VectorXd>
+        addBoxConstraintsToUnconstrainedDimensions(double, double) override {
+            throw std::runtime_error("HOPS did not find CLP during compilation.");
+        }
+    };
+}
+
 #endif //HOPS_CLP_FOUND
+#endif //HOPS_LINEARPROGRAMCLPIMPL_HPP

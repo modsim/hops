@@ -56,3 +56,20 @@ void hops::CsvWriter::write(const std::string &description, const std::vector<st
     out.precision(17);
     internal::CsvWriterImpl::writeOneDimensionalRecords(out, records);
 }
+
+void hops::CsvWriter::write(const std::string &description, const Eigen::MatrixXd &matrix) {
+    std::experimental::filesystem::path outputPath(CsvWriter::path);
+    outputPath /= outputPath.filename().string() + "_" + description + ".csv";
+    std::ofstream out(outputPath.string(), std::ios_base::app);
+    out.precision(17);
+    // TODO move implementaiton to writerImpl
+    for (long i = 0; i < matrix.rows(); ++i) {
+        for (long j = 0; j < matrix.cols(); ++j) {
+            out << matrix(i, j);
+            if (j != matrix.cols() - 1) {
+                out << ",";
+            }
+        }
+        out << "\n";
+    }
+}
