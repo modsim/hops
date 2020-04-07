@@ -61,7 +61,6 @@ endif (NOT ${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 find_package(Doxygen)
 find_package(Eigen3 REQUIRED)
 find_package(MKL)
-# TODO test mkl is found on ibt015
 message(STATUS "FOUND MKL ?  ${MKL_FOUND}")
 
 ########################################################################################################################
@@ -80,9 +79,9 @@ endif (MKL_LIBRARY_DIR)
 add_library(hops STATIC "")
 target_include_directories(hops PUBLIC ${EIGEN3_INCLUDE_DIR} )
 
-target_include_directories(hops PRIVATE ${MKL_INCLUDE_DIR} )
-target_link_directories(hops PRIVATE ${MKL_LIBRARY_DIR} )
-target_link_libraries(hops PRIVATE ${MKL_LIBRARIES} )
+target_include_directories(hops PUBLIC ${MKL_INCLUDE_DIR} )
+target_link_directories(hops PUBLIC ${MKL_LIBRARY_DIR} )
+target_link_libraries(hops PUBLIC ${MKL_LIBRARIES} )
 
 add_subdirectory(include)
 add_subdirectory(src)
