@@ -13,6 +13,7 @@
 #include <hops/Transformation/Transformation.hpp>
 
 namespace hops {
+    // TODO update
     class MarkovChainFactory {
     public:
         /**

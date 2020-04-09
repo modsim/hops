@@ -4,6 +4,16 @@
 #include <hops/FileWriter/CsvWriter.hpp>
 
 namespace {
+    Eigen::MatrixXd createEcoliMatrix();
+
+    Eigen::VectorXd createEcoliVector();
+
+    Eigen::VectorXd createEcoliStart();
+
+    Eigen::MatrixXd createEcoliMatlabE();
+
+    Eigen::MatrixXd createEcoliMatlabE2();
+
     TEST(MaximumVolumeEllipsoid, test2DSimplexSameResultAsCobraToolbox) {
         Eigen::MatrixXd expectedRoundingTransformation(2, 2);
         expectedRoundingTransformation << 0.333333302249001, 0.,
@@ -91,6 +101,122 @@ namespace {
         EXPECT_LE(maxErrorE2, 1e-8);
     }
 
+
+    TEST(MaximumVolumeEllipsoid, testEcoli) {
+        Eigen::MatrixXd ecoliMatrix = createEcoliMatrix();
+        Eigen::VectorXd ecoliVector = createEcoliVector();
+        Eigen::VectorXd start = createEcoliStart();
+        auto maximumVolumeEllipsoid = hops::MaximumVolumeEllipsoid<double>::construct(
+                ecoliMatrix,
+                ecoliVector,
+                12,
+                start
+        );
+
+        const double vol = maximumVolumeEllipsoid.calculateVolume();
+        EXPECT_LE(std::abs(vol - 1.05772409651363e+28), 1e-10 * 1.05772409651363e+28);
+
+        Eigen::MatrixXd matlabE = createEcoliMatlabE();
+        Eigen::MatrixXd matlabE2 = createEcoliMatlabE2();
+        const double maxErrorE = (matlabE - maximumVolumeEllipsoid.getRoundingTransformation()).cwiseAbs().maxCoeff();
+        const double maxErrorE2 = (matlabE2 - maximumVolumeEllipsoid.getEllipsoid()).cwiseAbs().maxCoeff();
+        EXPECT_LE(maxErrorE, 1e-10);
+        EXPECT_LE(maxErrorE2, 1e-10);
+    }
+
+    TEST(MaximumVolumeEllipsoid, testDifferentStartingPointForEcoli) {
+        const int maximumNumberOfIterationsToRun = 20000;
+        Eigen::MatrixXd A = createEcoliMatrix();
+        Eigen::VectorXd b = createEcoliVector();
+        Eigen::VectorXd start = createEcoliStart();
+
+        auto maximumVolumeEllipsoid = hops::MaximumVolumeEllipsoid<double>::construct(A,
+                                                                                      b,
+                                                                                      maximumNumberOfIterationsToRun,
+                                                                                      start,
+                                                                                      1e-6);
+        const double vol1 = maximumVolumeEllipsoid.calculateVolume();
+
+        const Eigen::MatrixXd matlabE = createEcoliMatlabE();
+        const Eigen::MatrixXd matlabE2 = createEcoliMatlabE2();
+
+        auto linearProgram = hops::LinearProgramFactory::createLinearProgram(A, b);
+        auto linearProgramSolution = linearProgram->solve(start);
+        Eigen::VectorXd start2 = (start + linearProgramSolution.optimalParameters) / 2;
+
+        auto maximumVolumeEllipsoid2 = hops::MaximumVolumeEllipsoid<double>::construct(A,
+                                                                                       b,
+                                                                                       maximumNumberOfIterationsToRun,
+                                                                                       start2,
+                                                                                       1e-6);
+
+        const double vol2 = maximumVolumeEllipsoid2.calculateVolume();
+        const double maxCenterError = (maximumVolumeEllipsoid.getCenter() -
+                                       maximumVolumeEllipsoid2.getCenter()).lpNorm<Eigen::Infinity>();
+
+        EXPECT_TRUE(maximumVolumeEllipsoid.hasConverged());
+        EXPECT_TRUE(maximumVolumeEllipsoid2.hasConverged());
+        EXPECT_LE(std::abs(vol2 - vol1) / vol2, 0.01);
+        EXPECT_LE(maxCenterError, 0.01);
+        EXPECT_LE((maximumVolumeEllipsoid.getRoundingTransformation() -
+                   maximumVolumeEllipsoid2.getRoundingTransformation())
+                          .lpNorm<Eigen::Infinity>(), 0.05);
+    }
+
+    // TODO why does this test take forever
+//    TEST(MaximumVolumeEllipsoid, rounde_coli_core) {
+//        auto A_e_coli_core_rounded = hops::CsvReader::readMatrix<Eigen::MatrixXd>(
+//                "../../resources/e_coli_core/A_e_coli_core_rounded.csv");
+//        auto b_e_coli_core_rounded = hops::CsvReader::readVector<Eigen::VectorXd>(
+//                "../../resources/e_coli_core/b_e_coli_core_rounded.csv");
+//        auto expectedRoundingTransformation = hops::CsvReader::readMatrix<Eigen::MatrixXd>(
+//                "../../resources/e_coli_core/T_e_coli_core_rounded.csv");
+//
+//        auto A_e_coli_core = hops::CsvReader::readMatrix<Eigen::MatrixXd>(
+//                "../../resources/e_coli_core/A_e_coli_core_unrounded.csv");
+//        auto b_e_coli_core = hops::CsvReader::readVector<Eigen::VectorXd>(
+//                "../../resources/e_coli_core/b_e_coli_core_unrounded.csv");
+//
+//        auto maximumVolumeEllipsoid = hops::MaximumVolumeEllipsoid<double>::construct(
+//                A_e_coli_core,
+//                b_e_coli_core,
+//                100000,
+//                1e-3);
+//
+//        std::cout << maximumVolumeEllipsoid.getCenter() << std::endl;
+//
+//        b_e_coli_core = b_e_coli_core - A_e_coli_core*maximumVolumeEllipsoid.getCenter();
+//        for(long i=0; b_e_coli_core_rounded.rows(); ++i) {
+//            std::cout << b_e_coli_core_rounded(i) << "-" << b_e_coli_core(i) << std::endl;
+//        }
+//
+//        EXPECT_TRUE(b_e_coli_core.isApprox(b_e_coli_core_rounded));
+//        EXPECT_TRUE(maximumVolumeEllipsoid.hasConverged());
+//        EXPECT_LE((maximumVolumeEllipsoid.getRoundingTransformation() - expectedRoundingTransformation.transpose()).norm(), 1e-2);
+//        EXPECT_LE((A_e_coli_core*maximumVolumeEllipsoid.getRoundingTransformation() - expectedRoundingTransformation.transpose()).norm(), 1e-2);
+//    }
+
+// TODO this test takes too long as long as we don't start with sparse systems
+//    TEST(MaximumVolumeEllipsoid, compareRoundingOfiJO1366ToCobraToolbox) {
+//        auto expectedRoundingTransformation = hops::CsvReader::readMatrix<Eigen::MatrixXd>(
+//                "../../resources/iAT_PLT_636/T_iAT_PLT_636_rounded.csv");
+//
+//        auto A_iAT_PLT_636 = hops::CsvReader::readMatrix<Eigen::MatrixXd>(
+//                "../../resources/iAT_PLT_636/A_iAT_PLT_636_unrounded.csv");
+//        auto b_iAT_PLT_636 = hops::CsvReader::readVector<Eigen::VectorXd>(
+//                "../../resources/iAT_PLT_636/b_iAT_PLT_636_unrounded.csv");
+//
+//        auto maximumVolumeEllipsoid = hops::MaximumVolumeEllipsoid<double>::construct(
+//                A_iAT_PLT_636,
+//                b_iAT_PLT_636,
+//                50,
+//                1e-6);
+//
+//        std::cout << "current error is " << maximumVolumeEllipsoid.getCurrentError() << std::endl;
+//        EXPECT_TRUE(maximumVolumeEllipsoid.hasConverged());
+//        EXPECT_LE((maximumVolumeEllipsoid.getRoundingTransformation() - expectedRoundingTransformation.transpose()).norm(), 1e-2);
+//    }
+
     Eigen::MatrixXd createEcoliMatrix() {
         Eigen::MatrixXd A(81, 27);
         A << 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -114,8 +240,65 @@ namespace {
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                 -1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, Eigen::MatrixXd::Identity(27, 27),
-                -Eigen::MatrixXd::Identity(27, 27);
+                1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                //  pasted
+                1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+                -1, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0,
+                -0, -1, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0,
+                -0, -0, -1, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0,
+                -0, -0, -0, -1, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0,
+                -0, -0, -0, -0, -1, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0,
+                -0, -0, -0, -0, -0, -1, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0,
+                -0, -0, -0, -0, -0, -0, -1, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0,
+                -0, -0, -0, -0, -0, -0, -0, -1, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0,
+                -0, -0, -0, -0, -0, -0, -0, -0, -1, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0,
+                -0, -0, -0, -0, -0, -0, -0, -0, -0, -1, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0,
+                -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -1, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0,
+                -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -1, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0,
+                -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -1, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0,
+                -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -1, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0,
+                -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -1, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0,
+                -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -1, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0,
+                -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -1, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0,
+                -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -1, -0, -0, -0, -0, -0, -0, -0, -0, -0,
+                -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -1, -0, -0, -0, -0, -0, -0, -0, -0,
+                -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -1, -0, -0, -0, -0, -0, -0, -0,
+                -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -1, -0, -0, -0, -0, -0, -0,
+                -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -1, -0, -0, -0, -0, -0,
+                -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -1, -0, -0, -0, -0,
+                -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -1, -0, -0, -0,
+                -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -1, -0, -0,
+                -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -1, -0,
+                -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -1;
+//                Eigen::MatrixXd::Identity(27, 27),
+//                -Eigen::MatrixXd::Identity(27, 27);
+
         return A;
     }
 
@@ -204,119 +387,4 @@ namespace {
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2458.69868452143;
         return matlabE2;
     }
-
-    TEST(MaximumVolumeEllipsoid, testEcoli) {
-        Eigen::MatrixXd ecoliMatrix = createEcoliMatrix();
-        Eigen::VectorXd ecoliVector = createEcoliVector();
-        Eigen::VectorXd start = createEcoliStart();
-        auto maximumVolumeEllipsoid = hops::MaximumVolumeEllipsoid<double>::construct(
-                ecoliMatrix,
-                ecoliVector,
-                12,
-                start
-        );
-
-        const double vol = maximumVolumeEllipsoid.calculateVolume();
-        EXPECT_LE(std::abs(vol - 1.05772409651363e+28), 1e-10 * 1.05772409651363e+28);
-
-        Eigen::MatrixXd matlabE = createEcoliMatlabE();
-        Eigen::MatrixXd matlabE2 = createEcoliMatlabE2();
-        const double maxErrorE = (matlabE - maximumVolumeEllipsoid.getRoundingTransformation()).cwiseAbs().maxCoeff();
-        const double maxErrorE2 = (matlabE2 - maximumVolumeEllipsoid.getEllipsoid()).cwiseAbs().maxCoeff();
-        EXPECT_LE(maxErrorE, 1e-10);
-        EXPECT_LE(maxErrorE2, 1e-10);
-    }
-
-    TEST(MaximumVolumeEllipsoid, testDifferentStartingPointForEcoli) {
-        const int maximumNumberOfIterationsToRun = 20000;
-        const Eigen::MatrixXd A = createEcoliMatrix();
-        const Eigen::VectorXd b = createEcoliVector();
-        const Eigen::VectorXd start = createEcoliStart();
-
-        auto maximumVolumeEllipsoid = hops::MaximumVolumeEllipsoid<double>::construct(A,
-                                                                                      b,
-                                                                                      maximumNumberOfIterationsToRun,
-                                                                                      start,
-                                                                                      1e-6);
-        const double vol1 = maximumVolumeEllipsoid.calculateVolume();
-
-        const Eigen::MatrixXd matlabE = createEcoliMatlabE();
-        const Eigen::MatrixXd matlabE2 = createEcoliMatlabE2();
-
-        auto linearProgram = hops::LinearProgramFactory::createLinearProgram(A, b);
-        auto linearProgramSolution = linearProgram->solve(start);
-        Eigen::VectorXd start2 = (start + linearProgramSolution.optimalParameters) / 2;
-
-        auto maximumVolumeEllipsoid2 = hops::MaximumVolumeEllipsoid<double>::construct(A,
-                                                                                       b,
-                                                                                       maximumNumberOfIterationsToRun,
-                                                                                       start2,
-                                                                                       1e-6);
-
-        const double vol2 = maximumVolumeEllipsoid2.calculateVolume();
-        const double maxCenterError = (maximumVolumeEllipsoid.getCenter() -
-                                       maximumVolumeEllipsoid2.getCenter()).lpNorm<Eigen::Infinity>();
-
-        EXPECT_TRUE(maximumVolumeEllipsoid.hasConverged());
-        EXPECT_TRUE(maximumVolumeEllipsoid2.hasConverged());
-        EXPECT_LE(std::abs(vol2 - vol1) / vol2, 0.01);
-        EXPECT_LE(maxCenterError, 0.01);
-        EXPECT_LE((maximumVolumeEllipsoid.getRoundingTransformation() -
-                   maximumVolumeEllipsoid2.getRoundingTransformation())
-                          .lpNorm<Eigen::Infinity>(), 0.05);
-    }
-
-    // TODO why doesn't this convergence quickly
-//    TEST(MaximumVolumeEllipsoid, rounde_coli_core) {
-//        auto A_e_coli_core_rounded = hops::CsvReader::readMatrix<Eigen::MatrixXd>(
-//                "../../resources/e_coli_core/A_e_coli_core_rounded.csv");
-//        auto b_e_coli_core_rounded = hops::CsvReader::readVector<Eigen::VectorXd>(
-//                "../../resources/e_coli_core/b_e_coli_core_rounded.csv");
-//        auto expectedRoundingTransformation = hops::CsvReader::readMatrix<Eigen::MatrixXd>(
-//                "../../resources/e_coli_core/T_e_coli_core_rounded.csv");
-//
-//        auto A_e_coli_core = hops::CsvReader::readMatrix<Eigen::MatrixXd>(
-//                "../../resources/e_coli_core/A_e_coli_core_unrounded.csv");
-//        auto b_e_coli_core = hops::CsvReader::readVector<Eigen::VectorXd>(
-//                "../../resources/e_coli_core/b_e_coli_core_unrounded.csv");
-//
-//        auto maximumVolumeEllipsoid = hops::MaximumVolumeEllipsoid<double>::construct(
-//                A_e_coli_core,
-//                b_e_coli_core,
-//                100000,
-//                1e-3);
-//
-//        std::cout << maximumVolumeEllipsoid.getCenter() << std::endl;
-//
-//        b_e_coli_core = b_e_coli_core - A_e_coli_core*maximumVolumeEllipsoid.getCenter();
-//        for(long i=0; b_e_coli_core_rounded.rows(); ++i) {
-//            std::cout << b_e_coli_core_rounded(i) << "-" << b_e_coli_core(i) << std::endl;
-//        }
-//
-////        EXPECT_TRUE(b_e_coli_core.isApprox(b_e_coli_core_rounded));
-//        EXPECT_TRUE(maximumVolumeEllipsoid.hasConverged());
-////        EXPECT_LE((maximumVolumeEllipsoid.getRoundingTransformation() - expectedRoundingTransformation.transpose()).norm(), 1e-2);
-////        EXPECT_LE((A_e_coli_core*maximumVolumeEllipsoid.getRoundingTransformation() - expectedRoundingTransformation.transpose()).norm(), 1e-2);
-//    }
-//
-// TODO this test takes too long as long as we don't start with sparse systems
-//    TEST(MaximumVolumeEllipsoid, compareRoundingOfiJO1366ToCobraToolbox) {
-//        auto expectedRoundingTransformation = hops::CsvReader::readMatrix<Eigen::MatrixXd>(
-//                "../../resources/iAT_PLT_636/T_iAT_PLT_636_rounded.csv");
-//
-//        auto A_iAT_PLT_636 = hops::CsvReader::readMatrix<Eigen::MatrixXd>(
-//                "../../resources/iAT_PLT_636/A_iAT_PLT_636_unrounded.csv");
-//        auto b_iAT_PLT_636 = hops::CsvReader::readVector<Eigen::VectorXd>(
-//                "../../resources/iAT_PLT_636/b_iAT_PLT_636_unrounded.csv");
-//
-//        auto maximumVolumeEllipsoid = hops::MaximumVolumeEllipsoid<double>::construct(
-//                A_iAT_PLT_636,
-//                b_iAT_PLT_636,
-//                50,
-//                1e-6);
-//
-//        std::cout << "current error is " << maximumVolumeEllipsoid.getCurrentError() << std::endl;
-//        EXPECT_TRUE(maximumVolumeEllipsoid.hasConverged());
-//        EXPECT_LE((maximumVolumeEllipsoid.getRoundingTransformation() - expectedRoundingTransformation.transpose()).norm(), 1e-2);
-//    }
 }
