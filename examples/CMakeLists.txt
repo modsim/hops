@@ -3,6 +3,7 @@ set(EXAMPLE_SOURCES
         SamplingGaussianTarget.cpp
         SamplingRBAModel.cpp
         SamplingRBAModelUniformly.cpp
+        UniformSampler.cpp
         )
 
 foreach (EXAMPLE_SOURCE ${EXAMPLE_SOURCES})
