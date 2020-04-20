@@ -32,6 +32,13 @@ namespace hops {
 
         void setStepSize(typename MatrixType::Scalar stepSize);
 
+        [[nodiscard]] typename MatrixType::Scalar calculateLogAcceptanceProbability() {
+            return chordStepDistribution.calculateInverseNormalizationConstant(0, backwardDistance, forwardDistance)
+                   - chordStepDistribution.calculateInverseNormalizationConstant(0, backwardDistance - step, forwardDistance - step);
+        }
+
+        std::string getName();
+
     private:
         MatrixType A;
         VectorType b;
@@ -42,6 +49,8 @@ namespace hops {
         long coordinateToUpdate = 0;
         typename MatrixType::Scalar step = 0;
         ChordStepDistribution chordStepDistribution;
+        typename MatrixType::Scalar forwardDistance;
+        typename MatrixType::Scalar backwardDistance;
     };
 
     template<typename MatrixType, typename VectorType, typename ChordStepDistribution>
@@ -61,8 +70,8 @@ namespace hops {
         ++coordinateToUpdate %= state.rows();
 
         inverseDistances = A.col(coordinateToUpdate).cwiseQuotient(slacks);
-        typename MatrixType::Scalar forwardDistance = 1. / inverseDistances.maxCoeff();
-        typename MatrixType::Scalar backwardDistance = 1. / inverseDistances.minCoeff();
+        forwardDistance = 1. / inverseDistances.maxCoeff();
+        backwardDistance = 1. / inverseDistances.minCoeff();
         assert(backwardDistance < 0 && forwardDistance > 0);
         assert(((b - A * state).array() > 0).all());
 
@@ -103,6 +112,11 @@ namespace hops {
         if constexpr (IsSetStepSizeAvailable<ChordStepDistribution, typename MatrixType::Scalar>::value) {
             chordStepDistribution.setStepSize(stepSize);
         }
+    }
+
+    template<typename MatrixType, typename VectorType, typename ChordStepDistribution>
+    std::string CoordinateHitAndRunProposal<MatrixType, VectorType, ChordStepDistribution>::getName() {
+        return "Coordinate Hit-and-Run";
     }
 }
 

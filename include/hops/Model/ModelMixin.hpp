@@ -1,14 +1,14 @@
 #ifndef HOPS_MODELMIXIN_HPP
 #define HOPS_MODELMIXIN_HPP
 
-#include <cmath>
-
 #include <hops/MarkovChain/Draw/IsCalculateLogAcceptanceProbabilityAvailable.hpp>
 #include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
 
+// TODO introduce coldness to model and see how to get it into CSmMALA also
+// TODO maybe by introducing it here already!
 namespace hops {
     /**
-     * @brief ModelMixin Mixin to add model likelihood to computeLogAcceptanceRate().
+     * @brief ModelMixin Mixin to add model likelihood to calculateLogAcceptanceRate().
      * @details Useful for MarkovChainProposer classes, that do not already contain the model.
      * @tparam MarkovChainProposer
      * @tparam ModelImpl
@@ -20,15 +20,14 @@ namespace hops {
                 MarkovChainProposer(markovChainProposer),
                 ModelImpl(model) {
             proposalNegativeLogLikelihood = 0;
-            stateNegativeLogLikelihood = ModelImpl::computeNegativeLogLikelihood(MarkovChainProposer::getState());
+            stateNegativeLogLikelihood = ModelImpl::calculateNegativeLogLikelihood(MarkovChainProposer::getState());
         }
 
-        void acceptProposal();
+                void acceptProposal();
 
-        double computeLogAcceptanceProbability();
+                double calculateLogAcceptanceProbability();
 
-        double getNegativeLogLikelihoodOfCurrentState();
-
+                double getNegativeLogLikelihoodOfCurrentState();
     private:
         double stateNegativeLogLikelihood;
         double proposalNegativeLogLikelihood;
@@ -41,15 +40,11 @@ namespace hops {
     }
 
     template<typename MarkovChainProposer, typename ModelImpl>
-    double ModelMixin<MarkovChainProposer, ModelImpl>::computeLogAcceptanceProbability() {
-        double acceptanceProbability = 0;
+    double ModelMixin<MarkovChainProposer, ModelImpl>::calculateLogAcceptanceProbability() {
+        proposalNegativeLogLikelihood = ModelMixin::calculateNegativeLogLikelihood(MarkovChainProposer::getProposal());
+        double acceptanceProbability = stateNegativeLogLikelihood - proposalNegativeLogLikelihood;
         if constexpr(IsCalculateLogAcceptanceProbabilityAvailable<MarkovChainProposer>::value) {
-            acceptanceProbability += MarkovChainProposer::computeLogAcceptanceProbability();
-        }
-        if (std::isfinite(acceptanceProbability)) {
-            proposalNegativeLogLikelihood = ModelImpl::computeNegativeLogLikelihood(
-                    MarkovChainProposer::getProposal());
-            acceptanceProbability += stateNegativeLogLikelihood - proposalNegativeLogLikelihood;
+           acceptanceProbability += MarkovChainProposer::calculateLogAcceptanceProbability();
         }
         return acceptanceProbability;
     }

@@ -36,6 +36,8 @@ namespace hops {
 
         void setStepSize(typename MatrixType::Scalar newStepSize);
 
+        std::string getName();
+
     private:
         MatrixType A;
         VectorType b;
@@ -131,6 +133,11 @@ namespace hops {
         stepSize = newStepSize;
         geometricFactor = A.cols() / (2 * stepSize);
         covarianceFactor = std::sqrt(stepSize / A.cols());
+    }
+
+    template<typename MatrixType, typename VectorType>
+    std::string DikinProposal<MatrixType, VectorType>::getName() {
+        return "Dikin Walk";
     }
 }
 

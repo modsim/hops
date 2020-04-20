@@ -37,6 +37,8 @@ namespace hops {
 
         void setStepSize(typename MatrixType::Scalar newStepSize);
 
+        std::string getName();
+
     private:
         StateType calculateTruncatedGradient(StateType x);
         Model model;
@@ -181,6 +183,11 @@ namespace hops {
             gradient /= norm;
         }
         return gradient;
+    }
+
+    template<typename Model>
+    std::string CSmMALAProposal<Model>::getName() {
+        return "CSmMALA";
     }
 }
 

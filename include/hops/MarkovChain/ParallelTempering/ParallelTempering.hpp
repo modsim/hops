@@ -1,22 +1,24 @@
 #ifndef HOPS_PARALLELTEMPERING_HPP
 #define HOPS_PARALLELTEMPERING_HPP
 
+#include <hops/FileWriter/FileWriter.hpp>
+#include <hops/MarkovChain/Recorder/IsStoreRecordAvailable.hpp>
+#include <hops/MarkovChain/Recorder/IsWriteRecordsToFileAvailable.hpp>
 #include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
 #include <mpi/mpi.h>
 #include <random>
 
 namespace hops {
     /**
-     * @brief Mixin for adding parallel tempering to Markov chains. REQUIRES MPI.
-     * @tparam MarkovChainImpl
+     * @brief Mixin for adding parallel tempering to Markov chains. Requires MPI.
+     * @tparam MarkovChainImpl A class that has the ColdnessAttribute and its Recorders mixed in.
      */
     template<typename MarkovChainImpl>
     class ParallelTempering : public MarkovChainImpl {
     public:
-        ParallelTempering(
-                const MarkovChainImpl &markovChainImpl, int numberOfChains, double exchangeAttemptProbability) :
+        ParallelTempering(const MarkovChainImpl &markovChainImpl, // NOLINT(cppcoreguidelines-pro-type-member-init)
+                          double exchangeAttemptProbability) :
                 MarkovChainImpl(markovChainImpl),
-                numberOfChains(numberOfChains),
                 exchangeAttemptProbability(exchangeAttemptProbability) {
             if (exchangeAttemptProbability > 1) {
                 this->exchangeAttemptProbability = 1;
@@ -30,9 +32,46 @@ namespace hops {
                 std::atexit(finalizeMpi);
             }
             MPI_Comm_dup(MPI_COMM_WORLD, &communicator);
+            MPI_Comm_size(communicator, &numberOfChains);
+
+            int chainIndex;
+            MPI_Comm_rank(communicator, &chainIndex);
+            int largestChainIndex = numberOfChains == 1 ? 1 : numberOfChains - 1;
+            MarkovChainImpl::setColdness(1. - static_cast<double>(chainIndex) / largestChainIndex);
         }
 
-        bool attemptExchange(RandomNumberGenerator &randomNumberGenerator) {
+        void draw(RandomNumberGenerator &randomNumberGenerator) {
+            MarkovChainImpl::draw(randomNumberGenerator);
+            executeParallelTemperingStep(randomNumberGenerator);
+        }
+
+        void writeRecordsToFile(const FileWriter *const fileWriter) const {
+            if constexpr(IsWriteRecordsToFileAvailable<MarkovChainImpl>::value) {
+                int chainIndex;
+                MPI_Comm_rank(communicator, &chainIndex);
+                // TODO include again
+//                if (chainIndex == 0) {
+                    MarkovChainImpl::writeRecordsToFile(fileWriter);
+//                }
+            }
+        }
+
+        void storeRecord() {
+            if constexpr(IsStoreRecordAvailable<MarkovChainImpl>::value) {
+                int chainIndex;
+                MPI_Comm_rank(communicator, &chainIndex);
+                // TODO include again
+//                if (chainIndex == 0) {
+                    MarkovChainImpl::storeRecord();
+//                }
+            }
+        }
+
+        /**
+         * @param randomNumberGenerator
+         * @return true only if state exchange occured.
+         */
+        bool executeParallelTemperingStep(RandomNumberGenerator &randomNumberGenerator) {
             if (shouldProposeExchange(randomNumberGenerator)) {
                 std::pair<int, int> chainPair = generateChainPairForExchangeProposal(randomNumberGenerator);
                 int world_rank;
@@ -58,10 +97,10 @@ namespace hops {
 
         double calculateExchangeAcceptanceProbability(int otherChainRank) {
             double coldness = this->getColdness();
-            double negativeLogLikelihood = this->getNegativeLogLikelihoodOfCurrentState();
+            double coldNegativeLogLikelihood = this->getNegativeLogLikelihoodOfCurrentState() / coldness ;
             double thisChainProperties[] = {
                     coldness,
-                    negativeLogLikelihood
+                    coldNegativeLogLikelihood
             };
 
             double otherChainProperties[2];
@@ -79,12 +118,12 @@ namespace hops {
         }
 
         void exchangeStates(int otherChainRank) {
-            typename MarkovChainImpl::StateType thisState = this->getCurrentState();
+            typename MarkovChainImpl::StateType thisState = MarkovChainImpl::getState();
 
             MPI_Sendrecv_replace(thisState.data(), thisState.size(), MPI_DOUBLE, otherChainRank, INTERNAL_MPI_TAG,
                                  otherChainRank, INTERNAL_MPI_TAG, communicator, MPI_STATUS_IGNORE);
 
-            this->setCurrentState(thisState);
+            MarkovChainImpl::setState(thisState);
         }
 
         std::pair<int, int> generateChainPairForExchangeProposal(RandomNumberGenerator &randomNumberGenerator) {

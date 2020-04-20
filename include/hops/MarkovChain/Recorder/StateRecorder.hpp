@@ -18,7 +18,7 @@ namespace hops {
             if constexpr(IsWriteRecordsToFileAvailable<MarkovChainImpl>::value) {
                 MarkovChainImpl::writeRecordsToFile(fileWriter);
             }
-        };
+        }
 
         void storeRecord() {
             records.emplace_back(MarkovChainImpl::getState());
@@ -30,10 +30,7 @@ namespace hops {
         void clearRecords() {
             records.clear();
             if constexpr(IsClearRecordsAvailable<MarkovChainImpl>::value) {
-                records.clear();
-                if constexpr(IsClearRecordsAvailable<MarkovChainImpl>::value) {
-                    MarkovChainImpl::clearRecords();
-                }
+                MarkovChainImpl::clearRecords();
             }
         }
 

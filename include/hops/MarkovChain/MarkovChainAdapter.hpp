@@ -35,6 +35,10 @@ namespace hops {
         void clearHistory() override {
             MarkovChainImpl::clearRecords();
         }
+
+        std::string getName() override {
+            return MarkovChainImpl::getName();
+        }
     };
 }
 
