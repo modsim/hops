@@ -27,7 +27,7 @@ int main(int argc, char **argv) {
     std::cout << "prerounded start: " << startfile << std::endl;
     std::cout << "prerounded N: " << Nfile << std::endl;
     std::cout << "prerounded p_shift: " << p_shiftfile << std::endl;
-    std::cout << "seed" << stringSeed << std::endl;
+    std::cout << "seed: " << stringSeed << std::endl;
     auto A = hops::CsvReader::readMatrix<Eigen::MatrixXd>(Afile);
     auto N = hops::CsvReader::readMatrix<Eigen::MatrixXd>(Nfile);
     auto b = hops::CsvReader::readVector<Eigen::VectorXd>(bfile);
@@ -51,10 +51,10 @@ int main(int argc, char **argv) {
     );
 
 
-    while (true) {
-        markovChain.draw(randomNumberGenerator, 1000, A.cols() * 200);
+//    while (true) {
+        markovChain.draw(randomNumberGenerator, 10000, A.cols() * 200);
         markovChain.writeHistory(
-                hops::FileWriterFactory::createFileWriter("chrr" + stringSeed, hops::FileWriterType::Csv).get());
+                hops::FileWriterFactory::createFileWriter(std::string(argv[1]) + stringSeed, hops::FileWriterType::Csv).get());
         markovChain.clearHistory();
-    }
+//    }
 }

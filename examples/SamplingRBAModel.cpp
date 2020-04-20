@@ -4,7 +4,7 @@
 #include <hops/MarkovChain/Recorder/StateRecorder.hpp>
 #include <hops/MarkovChain/Draw/MetropolisHastingsFilter.hpp>
 #include <hops/MarkovChain/Proposal/DikinProposal.hpp>
-#include <hops/Model/Model.hpp>
+#include <hops/Model/ModelMixin.hpp>
 #include <hops/Model/MultivariateGaussianModel.hpp>
 #include <hops/MarkovChain/Proposal/CSmMALAProposal.hpp>
 #include <hops/LinearProgram/LinearProgramGurobiImpl.hpp>
@@ -51,7 +51,7 @@ int main(int argc, char **argv) {
     auto markovChain1 = hops::MarkovChainAdapter(
             hops::StateRecorder(
                     hops::MetropolisHastingsFilter(
-                            hops::Model(
+                            hops::ModelMixin(
                                     hops::DikinProposal(
                                             A, b, s
                                     ),

@@ -7,7 +7,7 @@
 #include "TruncatedNormalDistribution.hpp"
 
 namespace hops {
-    template<typename RealType>
+    template<typename RealType = double>
     class UniformStepDistribution {
     public:
         RealType draw(RandomNumberGenerator &randomNumberGenerator, RealType lowerLimit, RealType upperLimit) {
@@ -15,11 +15,15 @@ namespace hops {
             return uniformRealDistribution(randomNumberGenerator, params);
         }
 
+        constexpr RealType calculateInverseNormalizationConstant(RealType, RealType, RealType) {
+            return 1.;
+        }
+
     private:
         std::uniform_real_distribution<RealType> uniformRealDistribution;
     };
 
-    template<typename RealType>
+    template<typename RealType = double>
     class GaussianStepDistribution {
     public:
         RealType draw(RandomNumberGenerator &randomNumberGenerator, RealType lowerLimit,
@@ -33,6 +37,10 @@ namespace hops {
 
         void setStepSize(RealType newStepSize) {
             stepSize = newStepSize;
+        }
+
+        RealType calculateInverseNormalizationConstant(RealType sigma, RealType lowerBound, RealType upperBound) {
+            return truncatedNormalDistribution.inverseNormalization({sigma, lowerBound, upperBound});
         }
 
     private:

@@ -39,7 +39,7 @@ if (COMPILER_SUPPORTS_MARCH_NATIVE)
     message(STATUS "Adding compiler flag march=native")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
 else ()
-    message(WARN "compiler does not support flag march=native")
+    message(WARNING "compiler does not support flag march=native")
 endif ()
 
 

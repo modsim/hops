@@ -1,6 +1,8 @@
 set(EXAMPLE_SOURCES
+        ParallelTemperingDemo.cpp
         SamplingUniformTarget.cpp
         SamplingGaussianTarget.cpp
+        SamplingGaussianTargetDemo.cpp
         SamplingRBAModel.cpp
         SamplingRBAModelUniformly.cpp
         UniformSampler.cpp

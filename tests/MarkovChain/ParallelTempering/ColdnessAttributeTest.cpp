@@ -1,17 +1,18 @@
 #include <gtest/gtest.h>
 #include <hops/MarkovChain/ParallelTempering/ColdnessAttribute.hpp>
+#include <Eigen/Core>
 
 namespace {
     TEST(ColdnessAttribute, getColdness) {
         double expectedColdness = 0.5;
-        
-        class MarkovChainMock {
-        public:
-            using StateType=double;
-        };
 
-        hops::ColdnessAttribute<MarkovChainMock> markovChainWithColdnessAttribute(markovChainWithColdnessAttribute,
-                                                                                  expectedColdness);
+        class ModelMock {
+        public:
+            using MatrixType = Eigen::MatrixXd;
+            using VectorType = Eigen::VectorXd;
+        } modelMock;
+
+        hops::ColdnessAttribute markovChainWithColdnessAttribute(modelMock, expectedColdness);
 
         double actualColdness = markovChainWithColdnessAttribute.getColdness();
         EXPECT_EQ(actualColdness, expectedColdness);
@@ -20,13 +21,13 @@ namespace {
     TEST(ColdnessAttribute, setColdness) {
         double expectedColdness = 0.5;
 
-        class MarkovChainMock {
+        class ModelMock {
         public:
-            using StateType=double;
-        };
+            using MatrixType = Eigen::MatrixXd;
+            using VectorType = Eigen::VectorXd;
+        } modelMock;
 
-        hops::ColdnessAttribute<MarkovChainMock> markovChainWithColdnessAttribute(markovChainWithColdnessAttribute,
-                                                                                  1.);
+        hops::ColdnessAttribute markovChainWithColdnessAttribute(modelMock, 1.);
 
         markovChainWithColdnessAttribute.setColdness(expectedColdness);
 
@@ -37,13 +38,13 @@ namespace {
     TEST(ColdnessAttribute, constructorWithColdnessLargerThan1) {
         double expectedColdness = 1;
 
-        class MarkovChainMock {
+        class ModelMock {
         public:
-            using StateType=double;
-        };
+            using MatrixType = Eigen::MatrixXd;
+            using VectorType = Eigen::VectorXd;
+        } modelMock;
 
-        hops::ColdnessAttribute<MarkovChainMock> markovChainWithColdnessAttribute(markovChainWithColdnessAttribute,
-                                                                                  1.5);
+        hops::ColdnessAttribute markovChainWithColdnessAttribute(modelMock, 1.5);
 
         double actualColdness = markovChainWithColdnessAttribute.getColdness();
         EXPECT_EQ(actualColdness, expectedColdness);
@@ -52,13 +53,13 @@ namespace {
     TEST(ColdnessAttribute, constructorWithColdnessLessThan0) {
         double expectedColdness = 0;
 
-        class MarkovChainMock {
+        class ModelMock {
         public:
-            using StateType=double;
-        };
+            using MatrixType = Eigen::MatrixXd;
+            using VectorType = Eigen::VectorXd;
+        } modelMock;
 
-        hops::ColdnessAttribute<MarkovChainMock> markovChainWithColdnessAttribute(markovChainWithColdnessAttribute,
-                                                                                  -1.5);
+        hops::ColdnessAttribute markovChainWithColdnessAttribute(modelMock, -1.5);
 
         double actualColdness = markovChainWithColdnessAttribute.getColdness();
         EXPECT_EQ(actualColdness, expectedColdness);
@@ -67,13 +68,13 @@ namespace {
     TEST(ColdnessAttribute, setColdnessToMoreThan1G) {
         double expectedColdness = 1;
 
-        class MarkovChainMock {
+        class ModelMock {
         public:
-            using StateType=double;
-        };
+            using MatrixType = Eigen::MatrixXd;
+            using VectorType = Eigen::VectorXd;
+        } modelMock;
 
-        hops::ColdnessAttribute<MarkovChainMock> markovChainWithColdnessAttribute(markovChainWithColdnessAttribute,
-                                                                                  1.5);
+        hops::ColdnessAttribute markovChainWithColdnessAttribute(modelMock, 1.5);
 
         markovChainWithColdnessAttribute.setColdness(1.5);
 
@@ -84,13 +85,13 @@ namespace {
     TEST(ColdnessAttribute, setColdnessToLessThan0) {
         double expectedColdness = 0;
 
-        class MarkovChainMock {
+        class ModelMock {
         public:
-            using StateType=double;
-        };
+            using MatrixType = Eigen::MatrixXd;
+            using VectorType = Eigen::VectorXd;
+        } modelMock;
 
-        hops::ColdnessAttribute<MarkovChainMock> markovChainWithColdnessAttribute(markovChainWithColdnessAttribute,
-                                                                                  -1.5);
+        hops::ColdnessAttribute markovChainWithColdnessAttribute(modelMock, -1.5);
 
         markovChainWithColdnessAttribute.setColdness(-1.5);
 
@@ -101,19 +102,20 @@ namespace {
     TEST(ColdnessAttribute, calculateNegativeLogLikelihood) {
         double expectedNegativeLogLikelihood = -250;
 
-        class MarkovChainMock {
+        class ModelMock {
         public:
-            using StateType=double;
-            double calculateNegativeLogLikelihood(const StateType&) {
+            using MatrixType = Eigen::MatrixXd;
+            using VectorType = Eigen::VectorXd;
+
+            double calculateNegativeLogLikelihood(const VectorType &) {
                 return -1000;
             }
-        };
+        } modelMock;
 
-        hops::ColdnessAttribute<MarkovChainMock> markovChainWithColdnessAttribute(markovChainWithColdnessAttribute,
-                                                                                  0.25);
+        hops::ColdnessAttribute markovChainWithColdnessAttribute(modelMock, 0.25);
 
 
-        hops::ColdnessAttribute<MarkovChainMock>::StateType mockState = 0;
+        hops::ColdnessAttribute<ModelMock>::VectorType mockState = Eigen::VectorXd::Zero(1);
         double actualNegativeLogLikelihood = markovChainWithColdnessAttribute.calculateNegativeLogLikelihood(mockState);
         EXPECT_EQ(actualNegativeLogLikelihood, expectedNegativeLogLikelihood);
     }

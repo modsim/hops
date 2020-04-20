@@ -31,7 +31,7 @@
 #include "MarkovChain/MarkovChainFactory.hpp"
 #include "MarkovChain/MarkovChainType.hpp"
 #include "MarkovChain/StateTransformation.hpp"
-#include "Model/Model.hpp"
+#include "hops/Model/ModelMixin.hpp"
 #include "Model/MultivariateGaussianModel.hpp"
 #include "RandomNumberGenerator/RandomNumberGenerator.hpp"
 #include "Transformation/Transformation.hpp"

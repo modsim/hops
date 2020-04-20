@@ -22,7 +22,7 @@ namespace hops {
          * @param x
          * @return
          */
-        double calculateNegativeLogLikelihood(const VectorType &x) const;
+        typename MatrixType::Scalar calculateNegativeLogLikelihood(const VectorType &x) const;
 
         MatrixType calculateExpectedFisherInformation(const VectorType &) const;
 
@@ -43,15 +43,15 @@ namespace hops {
             inverseCovariance(this->covariance.inverse()) {
         Eigen::LLT<MatrixType, Eigen::Upper> solver(this->covariance);
         logNormalizationConstant =
-                -std::log(std::sqrt(std::pow(2 * boost::math::constants::pi<double>(), this->mean.rows())))
+                -std::log(std::sqrt(std::pow(2 * boost::math::constants::pi<typename MatrixType::Scalar>(), this->mean.rows())))
                 - MatrixType(solver.matrixU()).diagonal().array().log().sum();
     }
 
     template<typename MatrixType, typename VectorType>
-    double
+    typename MatrixType::Scalar
     MultivariateGaussianModel<MatrixType, VectorType>::calculateNegativeLogLikelihood(const VectorType &x) const {
         return -logNormalizationConstant +
-               0.5 * static_cast<double>((x - mean).transpose() * inverseCovariance * (x - mean));
+               0.5 * static_cast<typename MatrixType::Scalar>((x - mean).transpose() * inverseCovariance * (x - mean));
     }
 
     template<typename MatrixType, typename VectorType>

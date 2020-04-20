@@ -7,18 +7,23 @@ namespace hops {
     /**
      * @brief Mixin to add coldness to target distribution.
      * @details The result from calculateNegativeLogLikelihood function is adjusted by the coldness.
-     * @tparam MarkovChainImpl
+     * @tparam Model
      */
-    template<typename MarkovChainImpl>
-    class ColdnessAttribute : public MarkovChainImpl {
+    template<typename Model>
+    class ColdnessAttribute : public Model {
     public:
-        ColdnessAttribute(MarkovChainImpl &markovChainImpl, double coldness) : // NOLINT(cppcoreguidelines-pro-type-member-init)
-                MarkovChainImpl(markovChainImpl) {
+        ColdnessAttribute(const Model &markovChainImpl, double coldness) : // NOLINT(cppcoreguidelines-pro-type-member-init)
+                Model(markovChainImpl) {
             setColdness(coldness);
         }
 
-        double calculateNegativeLogLikelihood(const typename MarkovChainImpl::StateType &state) {
-            return coldness * MarkovChainImpl::calculateNegativeLogLikelihood(state);
+        explicit ColdnessAttribute(const Model &markovChainImpl) : // NOLINT(cppcoreguidelines-pro-type-member-init)
+                Model(markovChainImpl) {
+            setColdness(1);
+        }
+
+        typename Model::MatrixType::Scalar calculateNegativeLogLikelihood(const typename Model::VectorType &state) {
+            return coldness * Model::calculateNegativeLogLikelihood(state);
         }
 
         [[nodiscard]] double getColdness() const {

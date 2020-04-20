@@ -34,6 +34,12 @@ namespace hops {
          */
         virtual void clearHistory() = 0;
 
+        virtual std::string getName() = 0;
+
+        // TODO
+//        virtual void setStepSize() = 0;
+//        virtual get setStepSize() = 0;
+
         virtual ~MarkovChain() {}
     };
 }

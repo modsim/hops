@@ -1,4 +1,5 @@
 target_sources(hops PRIVATE
-        Model.hpp
+        ModelMixin.hpp
+        MultimodalModel.hpp
         MultivariateGaussianModel.hpp
         )

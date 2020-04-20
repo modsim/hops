@@ -3,7 +3,7 @@
 #include <hops/MarkovChain/MarkovChainFactory.hpp>
 #include <hops/MarkovChain/Recorder/StateRecorder.hpp>
 #include <hops/MarkovChain/Draw/MetropolisHastingsFilter.hpp>
-#include <hops/Model/Model.hpp>
+#include <hops/Model/ModelMixin.hpp>
 
 int main(int argc, char **argv) {
     assert(argc == 7);
