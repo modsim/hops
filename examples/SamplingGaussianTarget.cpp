@@ -60,7 +60,8 @@ int main(int argc, char **argv) {
         markovChain = wrapMarkovChainProposer(proposer, stepSize);
     } else if (chainName == "CSmMALA") {
         markovChain = wrapMarkovChainProposer(
-                hops::CSmMALAProposal(hops::MultivariateGaussianModel(mean, covariance), A, b, s), stepSize);
+                hops::CSmMALAProposal(hops::MultivariateGaussianModel(mean, covariance), A, b, s),
+                stepSize);
     } else if (chainName == "CHRR") {
         auto proposer = hops::ModelMixin(
                 hops::StateTransformation(
@@ -88,7 +89,7 @@ int main(int argc, char **argv) {
     hops::RandomNumberGenerator randomNumberGenerator((std::random_device()()));
     long thinning = mean.rows() * 100;
     long numberOfSamples = 1000;
-    for(int i=0; i<50; ++i) {
+    for (int i = 0; i < 50; ++i) {
         markovChain->draw(randomNumberGenerator, numberOfSamples, thinning);
         markovChain->writeHistory(fileWriter.get());
         markovChain->clearHistory();
