@@ -49,10 +49,9 @@ namespace hops {
             if constexpr(IsWriteRecordsToFileAvailable<MarkovChainImpl>::value) {
                 int chainIndex;
                 MPI_Comm_rank(communicator, &chainIndex);
-                // TODO include again
-//                if (chainIndex == 0) {
+                if (chainIndex == 0) {
                     MarkovChainImpl::writeRecordsToFile(fileWriter);
-//                }
+                }
             }
         }
 
@@ -60,10 +59,9 @@ namespace hops {
             if constexpr(IsStoreRecordAvailable<MarkovChainImpl>::value) {
                 int chainIndex;
                 MPI_Comm_rank(communicator, &chainIndex);
-                // TODO include again
-//                if (chainIndex == 0) {
+                if (chainIndex == 0) {
                     MarkovChainImpl::storeRecord();
-//                }
+                }
             }
         }
 
