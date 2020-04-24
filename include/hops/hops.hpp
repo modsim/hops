@@ -16,6 +16,8 @@
 #include "MarkovChain/Draw/IsCalculateLogAcceptanceProbabilityAvailable.hpp"
 #include "MarkovChain/Draw/MetropolisHastingsFilter.hpp"
 #include "hops/MarkovChain/Draw/NoOpDrawAdapter.hpp"
+#include "MarkovChain/ParallelTempering/ColdnessAttribute.hpp"
+#include "MarkovChain/ParallelTempering/ParallelTempering.hpp"
 #include "MarkovChain/Proposal/CoordinateHitAndRunProposal.hpp"
 #include "MarkovChain/Proposal/CSmMALAProposal.hpp"
 #include "MarkovChain/Proposal/DikinEllipsoidCalculator.hpp"

@@ -12,7 +12,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/mo
 
 # TODO replace by standard path and check if env is required
 #set(ENV{MKLROOT} "/home/jadebeck/intel/compilers_and_libraries/linux/mkl" CACHE PATH "Path to installed mkl directory.")
-set(MKL_ROOT_DIR "/home/jadebeck/intel/compilers_and_libraries/linux/mkl" CACHE PATH "Path to installed mkl directory.")
+#set(MKL_ROOT_DIR "/home/jadebeck/intel/compilers_and_libraries/linux/mkl" CACHE PATH "Path to installed mkl directory.")
 set(MKL_USE_interface lp64)
 
 ########################################################################################################################
@@ -61,7 +61,7 @@ endif (NOT ${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 find_package(Doxygen)
 find_package(Eigen3 REQUIRED)
 find_package(MKL)
-message(STATUS "FOUND MKL ?  ${MKL_FOUND}")
+message(STATUS "FOUND MKL ? ${MKL_FOUND}")
 
 ########################################################################################################################
 # Post-Third-Party-Search Definitions
@@ -77,11 +77,17 @@ endif (MKL_LIBRARY_DIR)
 ########################################################################################################################
 
 add_library(hops STATIC "")
-target_include_directories(hops PUBLIC ${EIGEN3_INCLUDE_DIR} )
+target_include_directories(hops PUBLIC ${EIGEN3_INCLUDE_DIR})
 
-target_include_directories(hops PUBLIC ${MKL_INCLUDE_DIR} )
-target_link_directories(hops PUBLIC ${MKL_LIBRARY_DIR} )
-target_link_libraries(hops PUBLIC ${MKL_LIBRARIES} )
+if (MKL_INCLUDE_DIR)
+    target_include_directories(hops PUBLIC ${MKL_INCLUDE_DIR})
+endif (MKL_INCLUDE_DIR)
+if (MKL_LIBRARY_DIR)
+    target_link_directories(hops PUBLIC ${MKL_LIBRARY_DIR})
+endif (MKL_LIBRARY_DIR)
+if (MKL_LIBRARIES)
+    target_link_libraries(hops PUBLIC ${MKL_LIBRARIES})
+endif (MKL_LIBRARIES)
 
 add_subdirectory(include)
 add_subdirectory(src)

@@ -4,7 +4,7 @@
 #include <Eigen/Sparse>
 
 namespace {
-    TEST(FileReader, readVectorOfInts) {
+    TEST(CsvReader, readVectorOfInts) {
         Eigen::VectorXi expectedResult(5);
         expectedResult << 1, 0, -1, 0, 0;
 
@@ -13,7 +13,7 @@ namespace {
         EXPECT_EQ(actualResult, expectedResult);
     }
 
-    TEST(FileReader, readVectorOfIntsWithRowNames) {
+    TEST(CsvReader, readVectorOfIntsWithRowNames) {
         Eigen::VectorXi expectedResult(5);
         expectedResult << 1, 0, -1, 0, 0;
 
@@ -22,7 +22,7 @@ namespace {
         EXPECT_EQ(actualResult, expectedResult);
     }
 
-    TEST(FileReader, readVectorOfLongs) {
+    TEST(CsvReader, readVectorOfLongs) {
         Eigen::Matrix<long, Eigen::Dynamic, 1> expectedResult(5);
         expectedResult << 1, 0, -1, 0, 0;
 
@@ -32,7 +32,7 @@ namespace {
         EXPECT_EQ(actualResult, expectedResult);
     }
 
-    TEST(FileReader, readVectorOfLongsWithRowNames) {
+    TEST(CsvReader, readVectorOfLongsWithRowNames) {
         Eigen::Matrix<long, Eigen::Dynamic, 1> expectedResult(5);
         expectedResult << 1, 0, -1, 0, 0;
 
@@ -42,7 +42,7 @@ namespace {
         EXPECT_EQ(actualResult, expectedResult);
     }
 
-    TEST(FileReader, readVectorOfFloats) {
+    TEST(CsvReader, readVectorOfFloats) {
         Eigen::VectorXf expectedResult(5);
         expectedResult << 1.5, 0, -1, 0, 0;
 
@@ -51,7 +51,7 @@ namespace {
         EXPECT_EQ(actualResult, expectedResult);
     }
 
-    TEST(FileReader, readVectorOfFloatsWithRowNames) {
+    TEST(CsvReader, readVectorOfFloatsWithRowNames) {
         Eigen::VectorXf expectedResult(5);
         expectedResult << 1.5, 0, -1, 0, 0;
 
@@ -60,7 +60,7 @@ namespace {
         EXPECT_EQ(actualResult, expectedResult);
     }
 
-    TEST(FileReader, readVectorOfDoubles) {
+    TEST(CsvReader, readVectorOfDoubles) {
         Eigen::VectorXd expectedResult(5);
         expectedResult << 1.5, 0, -1, 0, 0;
 
@@ -69,7 +69,7 @@ namespace {
         EXPECT_EQ(actualResult, expectedResult);
     }
 
-    TEST(FileReader, readVectorOfDoublesWithRowNames) {
+    TEST(CsvReader, readVectorOfDoublesWithRowNames) {
         Eigen::VectorXd expectedResult(5);
         expectedResult << 1.5, 0, -1, 0, 0;
 
@@ -78,7 +78,7 @@ namespace {
         EXPECT_EQ(actualResult, expectedResult);
     }
 
-    TEST(FileReader, readMatrixOfInts) {
+    TEST(CsvReader, readMatrixOfInts) {
         Eigen::MatrixXi expectedResult(5, 4);
         expectedResult << 1, 1, 1, 1,
                 -1, 0, 0, 0,
@@ -91,7 +91,7 @@ namespace {
         EXPECT_EQ(actualResult, expectedResult);
     }
 
-    TEST(FileReader, readMatrixOfIntsWithColumnAndRowNames) {
+    TEST(CsvReader, readMatrixOfIntsWithColumnAndRowNames) {
         Eigen::MatrixXi expectedResult(5, 4);
         expectedResult << 1, 1, 1, 1,
                 -1, 0, 0, 0,
@@ -104,7 +104,7 @@ namespace {
         EXPECT_EQ(actualResult, expectedResult);
     }
 
-    TEST(FileReader, readMatrixOfLongs) {
+    TEST(CsvReader, readMatrixOfLongs) {
         Eigen::Matrix<long, Eigen::Dynamic, Eigen::Dynamic> expectedResult(5, 4);
         expectedResult << 1, 1, 1, 1,
                 -1, 0, 0, 0,
@@ -118,7 +118,7 @@ namespace {
         EXPECT_EQ(actualResult, expectedResult);
     }
 
-    TEST(FileReader, readMatrixOfLongsWithColumnAndRowNames) {
+    TEST(CsvReader, readMatrixOfLongsWithColumnAndRowNames) {
         Eigen::Matrix<long, Eigen::Dynamic, Eigen::Dynamic> expectedResult(5, 4);
         expectedResult << 1, 1, 1, 1,
                 -1, 0, 0, 0,
@@ -132,7 +132,7 @@ namespace {
         EXPECT_EQ(actualResult, expectedResult);
     }
 
-    TEST(FileReader, readMatrixOfFloats) {
+    TEST(CsvReader, readMatrixOfFloats) {
         Eigen::MatrixXf expectedResult(5, 4);
         expectedResult << 1.5, 1, 1, 1,
                 -1, 0, 0, 0,
@@ -145,7 +145,7 @@ namespace {
         EXPECT_EQ(actualResult, expectedResult);
     }
 
-    TEST(FileReader, readMatrixOfFloatsWithColumnAndRowNames) {
+    TEST(CsvReader, readMatrixOfFloatsWithColumnAndRowNames) {
         Eigen::MatrixXf expectedResult(5, 4);
         expectedResult << 1.5, 1, 1, 1,
                 -1, 0, 0, 0,
@@ -158,7 +158,7 @@ namespace {
         EXPECT_EQ(actualResult, expectedResult);
     }
 
-    TEST(FileReader, readMatrixOfDoubles) {
+    TEST(CsvReader, readMatrixOfDoubles) {
         Eigen::MatrixXd expectedResult(5, 4);
         expectedResult << 1.5, 1, 1, 1,
                 -1, 0, 0, 0,
@@ -171,7 +171,7 @@ namespace {
         EXPECT_EQ(actualResult, expectedResult);
     }
 
-    TEST(FileReader, readMatrixOfDoublesWithColumnAndRowNames) {
+    TEST(CsvReader, readMatrixOfDoublesWithColumnAndRowNames) {
         Eigen::MatrixXd expectedResult(5, 4);
         expectedResult << 1.5, 1, 1, 1,
                 -1, 0, 0, 0,
@@ -184,7 +184,7 @@ namespace {
         EXPECT_EQ(actualResult, expectedResult);
     }
 
-    TEST(FileReader, readSparseMatrixOfInts) {
+    TEST(CsvReader, readSparseMatrixOfInts) {
         Eigen::MatrixXi matrix(5, 4);
         matrix << 1, 1, 1, 1,
                 -1, 0, 0, 0,
@@ -199,7 +199,7 @@ namespace {
         EXPECT_TRUE((actualResult - expectedResult).norm() <= 0);
     }
 
-    TEST(FileReader, readSparseMatrixOfIntsWithColumnAndRowNames) {
+    TEST(CsvReader, readSparseMatrixOfIntsWithColumnAndRowNames) {
         Eigen::MatrixXi matrix(5, 4);
         matrix << 1, 1, 1, 1,
                 -1, 0, 0, 0,
@@ -214,7 +214,7 @@ namespace {
         EXPECT_TRUE((actualResult - expectedResult).norm() <= 0);
     }
 
-    TEST(FileReader, readSparseMatrixOfLongs) {
+    TEST(CsvReader, readSparseMatrixOfLongs) {
         Eigen::Matrix<long, Eigen::Dynamic, Eigen::Dynamic> matrix(5, 4);
         matrix << 1, 1, 1, 1,
                 -1, 0, 0, 0,
@@ -228,7 +228,7 @@ namespace {
         EXPECT_TRUE((actualResult - expectedResult).norm() <= 0);
     }
 
-    TEST(FileReader, readSparseMatrixOfLongsWithColumnAndRowNames) {
+    TEST(CsvReader, readSparseMatrixOfLongsWithColumnAndRowNames) {
         Eigen::Matrix<long, Eigen::Dynamic, Eigen::Dynamic> matrix(5, 4);
         matrix << 1, 1, 1, 1,
                 -1, 0, 0, 0,
@@ -242,7 +242,7 @@ namespace {
         EXPECT_TRUE((actualResult - expectedResult).norm() <= 0);
     }
 
-    TEST(FileReader, readSparseMatrixOfFloats) {
+    TEST(CsvReader, readSparseMatrixOfFloats) {
         Eigen::MatrixXf matrix(5, 4);
         matrix << 1.5, 1, 1, 1,
                 -1, 0, 0, 0,
@@ -256,7 +256,7 @@ namespace {
         EXPECT_TRUE((actualResult - expectedResult).norm() <= 0);
     }
 
-    TEST(FileReader, readSparseMatrixOfFloatsWithColumnAndRowNames) {
+    TEST(CsvReader, readSparseMatrixOfFloatsWithColumnAndRowNames) {
         Eigen::MatrixXf matrix(5, 4);
         matrix << 1.5, 1, 1, 1,
                 -1, 0, 0, 0,
@@ -270,7 +270,7 @@ namespace {
         EXPECT_TRUE((actualResult - expectedResult).norm() <= 0);
     }
 
-    TEST(FileReader, readSparseMatrixOfDoubles) {
+    TEST(CsvReader, readSparseMatrixOfDoubles) {
         Eigen::MatrixXd matrix(5, 4);
         matrix << 1.5, 1, 1, 1,
                 -1, 0, 0, 0,
@@ -284,7 +284,7 @@ namespace {
         EXPECT_TRUE((actualResult - expectedResult).norm() <= 0);
     }
 
-    TEST(FileReader, readSparseMatrixOfDoublesWithColumnAndRowNames) {
+    TEST(CsvReader, readSparseMatrixOfDoublesWithColumnAndRowNames) {
         Eigen::MatrixXd matrix(5, 4);
         matrix << 1.5, 1, 1, 1,
                 -1, 0, 0, 0,
@@ -298,7 +298,7 @@ namespace {
         EXPECT_TRUE((actualResult - expectedResult).norm() <= 0);
     }
 
-    TEST(FileReader, readRecon2v04) {
+    TEST(CsvReader, readRecon2v04) {
         auto actualResult = hops::CsvReader::readMatrix<Eigen::MatrixXd>(
                 "../../resources/Recon2.v04/A_Recon2.v04_unrounded.csv");
 
