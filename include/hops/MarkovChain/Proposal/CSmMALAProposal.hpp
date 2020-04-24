@@ -37,6 +37,8 @@ namespace hops {
 
         void setStepSize(typename MatrixType::Scalar newStepSize);
 
+        double getNegativeLogLikelihoodOfCurrentState();
+
         std::string getName();
 
     private:
@@ -183,6 +185,11 @@ namespace hops {
             gradient /= norm;
         }
         return gradient;
+    }
+
+    template <typename Model>
+    double CSmMALAProposal<Model>::getNegativeLogLikelihoodOfCurrentState() {
+        return stateLikelihood;
     }
 
     template<typename Model>

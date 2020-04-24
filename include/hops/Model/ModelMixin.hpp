@@ -4,8 +4,6 @@
 #include <hops/MarkovChain/Draw/IsCalculateLogAcceptanceProbabilityAvailable.hpp>
 #include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
 
-// TODO introduce coldness to model and see how to get it into CSmMALA also
-// TODO maybe by introducing it here already!
 namespace hops {
     /**
      * @brief ModelMixin Mixin to add model likelihood to calculateLogAcceptanceRate().
