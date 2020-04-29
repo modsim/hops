@@ -1,3 +1,4 @@
+add_subdirectory(MarkovChain)
 add_subdirectory(FileReader)
 add_subdirectory(FileWriter)
 add_subdirectory(LinearProgram)

@@ -1,9 +1,10 @@
 find_package(Celero REQUIRED)
 
 set(BENCHMARK_SOURCES
-        CoordinateHitAndRunBenchmark.cpp
+        CSmMALABenchmark.cpp
         CsvReaderBenchmark.cpp
-        SamplingModelsBenchmark.cpp
+        MCMCBenchmark.cpp
+        #SamplingModelsBenchmark.cpp
         )
 
 foreach (BENCHMARK_SOURCE ${BENCHMARK_SOURCES})

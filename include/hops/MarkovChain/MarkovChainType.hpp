@@ -3,13 +3,10 @@
 
 namespace hops {
     enum class MarkovChainType {
-        NoOpDraw,
         CoordinateHitAndRun,
-        CoordinateHitAndRunRoundedStateSpace,
+        CSmMALA,
         DikinWalk,
         HitAndRun,
-        HitAndRunRounded,
-        HitAndRunRoundedProposals,
     };
 }
 

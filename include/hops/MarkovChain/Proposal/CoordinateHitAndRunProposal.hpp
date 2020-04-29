@@ -6,6 +6,8 @@
 #include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
 #include <random>
 
+// TODO overrelaxed
+
 namespace hops {
     template<typename MatrixType, typename VectorType, typename ChordStepDistribution = UniformStepDistribution<typename MatrixType::Scalar>>
     class CoordinateHitAndRunProposal {
@@ -31,6 +33,8 @@ namespace hops {
         void setState(StateType newState);
 
         void setStepSize(typename MatrixType::Scalar stepSize);
+
+        typename MatrixType::Scalar getStepSize() const;
 
         [[nodiscard]] typename MatrixType::Scalar calculateLogAcceptanceProbability() {
             return chordStepDistribution.calculateInverseNormalizationConstant(0, backwardDistance, forwardDistance)
@@ -109,9 +113,21 @@ namespace hops {
     template<typename MatrixType, typename VectorType, typename ChordStepDistribution>
     void CoordinateHitAndRunProposal<MatrixType, VectorType, ChordStepDistribution>::setStepSize(
             typename MatrixType::Scalar stepSize) {
-        if constexpr (IsSetStepSizeAvailable<ChordStepDistribution, typename MatrixType::Scalar>::value) {
+        if constexpr (IsSetStepSizeAvailable<ChordStepDistribution>::value) {
             chordStepDistribution.setStepSize(stepSize);
         }
+        else {
+            throw std::runtime_error("Step size not available.");
+        }
+    }
+
+    template<typename MatrixType, typename VectorType, typename ChordStepDistribution>
+    typename MatrixType::Scalar
+    CoordinateHitAndRunProposal<MatrixType, VectorType, ChordStepDistribution>::getStepSize() const {
+        if constexpr (IsSetStepSizeAvailable<ChordStepDistribution>::value) {
+            return chordStepDistribution.getStepSize();
+        }
+        throw std::runtime_error("Step size not available.");
     }
 
     template<typename MatrixType, typename VectorType, typename ChordStepDistribution>

@@ -17,7 +17,7 @@ namespace hops {
     class ParallelTempering : public MarkovChainImpl {
     public:
         ParallelTempering(const MarkovChainImpl &markovChainImpl, // NOLINT(cppcoreguidelines-pro-type-member-init)
-                          double exchangeAttemptProbability) :
+                          double exchangeAttemptProbability = 0.1) :
                 MarkovChainImpl(markovChainImpl),
                 exchangeAttemptProbability(exchangeAttemptProbability) {
             if (exchangeAttemptProbability > 1) {
@@ -95,7 +95,7 @@ namespace hops {
 
         double calculateExchangeAcceptanceProbability(int otherChainRank) {
             double coldness = this->getColdness();
-            double coldNegativeLogLikelihood = this->getNegativeLogLikelihoodOfCurrentState() / coldness ;
+            double coldNegativeLogLikelihood = this->getNegativeLogLikelihoodOfCurrentState() / coldness;
             double thisChainProperties[] = {
                     coldness,
                     coldNegativeLogLikelihood
@@ -137,6 +137,13 @@ namespace hops {
             return (chance < exchangeAttemptProbability);
         }
 
+        double getExchangeAttemptProbability() const {
+            return exchangeAttemptProbability;
+        }
+
+        void setExchangeAttemptProbability(double newExchangeAttemptProbability) {
+            ParallelTempering::exchangeAttemptProbability = newExchangeAttemptProbability;
+        }
 
     private:
         static void finalizeMpi() {

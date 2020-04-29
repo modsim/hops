@@ -8,7 +8,6 @@ namespace {
 
         class ModelMock {
         public:
-            using MatrixType = Eigen::MatrixXd;
             using VectorType = Eigen::VectorXd;
         } modelMock;
 
@@ -23,7 +22,6 @@ namespace {
 
         class ModelMock {
         public:
-            using MatrixType = Eigen::MatrixXd;
             using VectorType = Eigen::VectorXd;
         } modelMock;
 
@@ -40,7 +38,6 @@ namespace {
 
         class ModelMock {
         public:
-            using MatrixType = Eigen::MatrixXd;
             using VectorType = Eigen::VectorXd;
         } modelMock;
 
@@ -55,7 +52,6 @@ namespace {
 
         class ModelMock {
         public:
-            using MatrixType = Eigen::MatrixXd;
             using VectorType = Eigen::VectorXd;
         } modelMock;
 
@@ -70,7 +66,6 @@ namespace {
 
         class ModelMock {
         public:
-            using MatrixType = Eigen::MatrixXd;
             using VectorType = Eigen::VectorXd;
         } modelMock;
 
@@ -87,7 +82,6 @@ namespace {
 
         class ModelMock {
         public:
-            using MatrixType = Eigen::MatrixXd;
             using VectorType = Eigen::VectorXd;
         } modelMock;
 
@@ -104,10 +98,9 @@ namespace {
 
         class ModelMock {
         public:
-            using MatrixType = Eigen::MatrixXd;
             using VectorType = Eigen::VectorXd;
 
-            double calculateNegativeLogLikelihood(const VectorType &) {
+            [[maybe_unused]] double calculateNegativeLogLikelihood(const VectorType &) {
                 return -1000;
             }
         } modelMock;

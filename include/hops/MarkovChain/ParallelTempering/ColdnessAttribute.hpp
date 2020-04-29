@@ -12,17 +12,12 @@ namespace hops {
     template<typename Model>
     class ColdnessAttribute : public Model {
     public:
-        ColdnessAttribute(const Model &markovChainImpl, double coldness) : // NOLINT(cppcoreguidelines-pro-type-member-init)
+        ColdnessAttribute(const Model &markovChainImpl, double coldness = 1) : // NOLINT(cppcoreguidelines-pro-type-member-init)
                 Model(markovChainImpl) {
             setColdness(coldness);
         }
 
-        explicit ColdnessAttribute(const Model &markovChainImpl) : // NOLINT(cppcoreguidelines-pro-type-member-init)
-                Model(markovChainImpl) {
-            setColdness(1);
-        }
-
-        typename Model::MatrixType::Scalar calculateNegativeLogLikelihood(const typename Model::VectorType &state) {
+        typename Model::VectorType::Scalar calculateNegativeLogLikelihood(const typename Model::VectorType &state) {
             return coldness * Model::calculateNegativeLogLikelihood(state);
         }
 

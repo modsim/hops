@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <hops/FileReader/CsvReader.hpp>
 #include <hops/PolytopePreprocessing/MaximumVolumeEllipsoid.hpp>
+#include <hops/PolytopePreprocessing/NormalizePolytope.hpp>
 #include <hops/FileWriter/CsvWriter.hpp>
 
 namespace {
@@ -180,22 +181,17 @@ namespace {
 //        auto maximumVolumeEllipsoid = hops::MaximumVolumeEllipsoid<double>::construct(
 //                A_e_coli_core,
 //                b_e_coli_core,
-//                100000,
+//                1000,
 //                1e-3);
 //
-//        std::cout << maximumVolumeEllipsoid.getCenter() << std::endl;
-//
-//        b_e_coli_core = b_e_coli_core - A_e_coli_core*maximumVolumeEllipsoid.getCenter();
-//        for(long i=0; b_e_coli_core_rounded.rows(); ++i) {
-//            std::cout << b_e_coli_core_rounded(i) << "-" << b_e_coli_core(i) << std::endl;
-//        }
-//
-//        EXPECT_TRUE(b_e_coli_core.isApprox(b_e_coli_core_rounded));
 //        EXPECT_TRUE(maximumVolumeEllipsoid.hasConverged());
-//        EXPECT_LE((maximumVolumeEllipsoid.getRoundingTransformation() - expectedRoundingTransformation.transpose()).norm(), 1e-2);
-//        EXPECT_LE((A_e_coli_core*maximumVolumeEllipsoid.getRoundingTransformation() - expectedRoundingTransformation.transpose()).norm(), 1e-2);
+//        std::cout << (maximumVolumeEllipsoid.getRoundingTransformation() -  expectedRoundingTransformation) << std::endl;
+//        std::cout << maximumVolumeEllipsoid.getRoundingTransformation()(1, 1)  << std::endl;
+//        std::cout << expectedRoundingTransformation(1, 1)  << std::endl;
+//        std::cout << (maximumVolumeEllipsoid.getRoundingTransformation() -  expectedRoundingTransformation).minCoeff() << std::endl;
+//        EXPECT_LE((maximumVolumeEllipsoid.getRoundingTransformation() - expectedRoundingTransformation).norm(), 1e-2);
 //    }
-
+//
 // TODO this test takes too long as long as we don't start with sparse systems
 //    TEST(MaximumVolumeEllipsoid, compareRoundingOfiJO1366ToCobraToolbox) {
 //        auto expectedRoundingTransformation = hops::CsvReader::readMatrix<Eigen::MatrixXd>(

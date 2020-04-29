@@ -31,8 +31,8 @@ namespace hops {
             return truncatedNormalDistribution(randomNumberGenerator, {stepSize, lowerLimit, upperLimit});
         }
 
-        RealType getStepSize(RealType newStepSize) {
-            stepSize = newStepSize;
+        RealType getStepSize() const {
+            return stepSize;
         }
 
         void setStepSize(RealType newStepSize) {

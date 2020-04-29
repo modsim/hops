@@ -89,21 +89,20 @@ hops::MaximumVolumeEllipsoid<RealType>::construct(const Eigen::Matrix<RealType, 
     const RealType minmu = 1e-8;
     const RealType tau0 = 0.75;
 
-    Eigen::Matrix<RealType, Eigen::Dynamic, Eigen::Dynamic> A = Ain;
-    const int m = A.rows();
-    const int n = A.cols();
+    const int m = Ain.rows();
+    const int n = Ain.cols();
     const Eigen::Matrix<RealType, Eigen::Dynamic, 1> b = Eigen::Matrix<RealType, Eigen::Dynamic, 1>::Ones(m);
     const RealType bnrm = bin.norm();
 
-    const int rank = A.colPivHouseholderQr().rank();
+    const int rank = Ain.colPivHouseholderQr().rank();
     if (rank < n) {
         throw std::runtime_error("Algorithm needs full column rank, because A^T * A has to be invertible");
     }
 
-    const Eigen::Matrix<RealType, Eigen::Dynamic, 1> tempBmAx0 = bin - A * startingPoint;
+    const Eigen::Matrix<RealType, Eigen::Dynamic, 1> tempBmAx0 = bin - Ain * startingPoint;
     const Eigen::Matrix<RealType, Eigen::Dynamic, Eigen::Dynamic> bmAx0 = (tempBmAx0).cwiseInverse().asDiagonal();
 
-    A = bmAx0 * A;
+    Eigen::SparseMatrix<RealType> A = (bmAx0 * Ain).sparseView();
     Eigen::Matrix<RealType, Eigen::Dynamic, 1> x = Eigen::Matrix<RealType, Eigen::Dynamic, 1>::Zero(n);
     Eigen::Matrix<RealType, Eigen::Dynamic, 1> y = Eigen::Matrix<RealType, Eigen::Dynamic, 1>::Ones(m);
     Eigen::Matrix<RealType, Eigen::Dynamic, 1> bmAx = b;
@@ -121,7 +120,7 @@ hops::MaximumVolumeEllipsoid<RealType>::construct(const Eigen::Matrix<RealType, 
 
         Eigen::Matrix<RealType, Eigen::Dynamic, Eigen::Dynamic> Y = y.asDiagonal();
 
-        E2 = (A.transpose() * y.asDiagonal() * A).inverse();
+        E2 = Eigen::Matrix<RealType, Eigen::Dynamic, Eigen::Dynamic>((A.transpose() * y.asDiagonal() * A)).inverse();
         Eigen::Matrix<RealType, Eigen::Dynamic, Eigen::Dynamic> Q = A * E2 * A.transpose();
 
         Eigen::Matrix<RealType, Eigen::Dynamic, 1> h = Q.diagonal().cwiseSqrt();

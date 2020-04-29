@@ -73,3 +73,15 @@ void hops::CsvWriter::write(const std::string &description, const Eigen::MatrixX
         out << "\n";
     }
 }
+
+void hops::CsvWriter::write(const std::string &description, const Eigen::VectorXd &vector) {
+    std::experimental::filesystem::path outputPath(CsvWriter::path);
+    outputPath /= outputPath.filename().string() + "_" + description + ".csv";
+    std::ofstream out(outputPath.string(), std::ios_base::app);
+    out.precision(17);
+    // TODO move implementaiton to writerImpl
+    for (long i = 0; i < vector.rows(); ++i) {
+        out << vector(i);
+        out << "\n";
+    }
+}

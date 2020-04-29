@@ -4,12 +4,12 @@
 #include <type_traits>
 
 namespace hops {
-    template<typename T, typename RealType, typename = void>
+    template<typename T, typename = void>
     struct IsSetStepSizeAvailable : std::false_type {
     };
 
-    template<typename T, typename RealType>
-    struct IsSetStepSizeAvailable<T, RealType, std::void_t<decltype(std::declval<T>().setStepSize(std::declval<RealType>()))> > :
+    template<typename T>
+    struct IsSetStepSizeAvailable<T, std::void_t<decltype(std::declval<T>().setStepSize(std::declval<double>()))> > :
             std::true_type {
     };
 }

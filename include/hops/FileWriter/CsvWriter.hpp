@@ -21,7 +21,10 @@ namespace hops {
         void write(const std::string &description, const std::vector<std::string> &records) const override;
 
         // TODO add to interface
-        void write(const std::string &description, const Eigen::MatrixXd &matrix);
+        void write(const std::string &description, const Eigen::MatrixXd &vector);
+
+        // TODO add to interface
+        void write(const std::string &description, const Eigen::VectorXd &vector);
 
     private:
         std::string path;

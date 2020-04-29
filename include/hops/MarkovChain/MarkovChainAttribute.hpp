@@ -3,7 +3,6 @@
 
 namespace hops {
     enum class MarkovChainAttribute {
-        FISHER_WEIGHT,
         STEP_SIZE,
         PARALLEL_TEMPERING_COLDNESS,
         PARALLEL_TEMPERING_EXCHANGE_PROBABILITY

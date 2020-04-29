@@ -15,8 +15,6 @@ namespace hops {
         MatrixType A;
         VectorType b;
         VectorType startingPoint;
-        MatrixType N;
-        VectorType shift;
 
         MatrixType roundedA;
         VectorType roundedb;

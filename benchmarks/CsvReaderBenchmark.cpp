@@ -10,6 +10,7 @@ constexpr const int numberOfIterationsPerSample = 1;
 template<typename ModelFiles>
 using PolytopeSpace = PolytopeSpaceFixture<ModelFiles, Eigen::MatrixXd, Eigen::VectorXd>;
 
-BASELINE(readRecon3D, CHR, numberOfSamples, numberOfIterationsPerSample) {
-    PolytopeSpace<Recon3D> polytopeSpaceFixture;
+// TODO benchmark sparse vs dense csmala
+BASELINE(reade_coli_core, CHR, numberOfSamples, numberOfIterationsPerSample) {
+    PolytopeSpace<e_coli_core_files> polytopeSpaceFixture;
 }
