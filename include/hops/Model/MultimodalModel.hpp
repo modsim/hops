@@ -21,7 +21,7 @@ namespace hops {
 
         typename MatrixType::Scalar calculateNegativeLogLikelihood(const VectorType &x) const {
             return std::apply(
-                    [&x](auto &&... args) {
+                    [&x](auto &... args) {
                         return -std::log(((1. / std::tuple_size<decltype(modelComponents)>::value *
                                            std::exp(-args.calculateNegativeLogLikelihood(x))) + ...));
                     },
@@ -30,16 +30,18 @@ namespace hops {
 
         MatrixType calculateExpectedFisherInformation(const VectorType &x) const {
             return std::apply(
-                    [&x](auto &&... args) {
-                        return ((args.calculateExpectedFisherInformation(x)) + ...);
+                    [&x](auto &... args) {
+                        // MatrixType required to prevent std::bad_alloc in debug mode
+                        return MatrixType(((args.calculateExpectedFisherInformation(x)) + ...));
                     },
                     modelComponents);
         }
 
         VectorType calculateLogLikelihoodGradient(const VectorType &x) const {
             return std::apply(
-                    [&x](auto &&... args) {
-                        return ((args.calculateLogLikelihoodGradient(x)) + ...);
+                    [&x](auto &... args) {
+                        // VectorType required to prevent std::bad_alloc in debug mode
+                        return VectorType(((args.calculateLogLikelihoodGradient(x)) + ...));
                     },
                     modelComponents);
         }

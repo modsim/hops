@@ -5,11 +5,12 @@
 #include <random>
 
 namespace hops {
-    template<typename Model>
-    class CSmMALAProposal {
+
+    template<typename Model, typename Matrix>
+    class CSmMALAProposal : public Model {
     private:
     public:
-        using MatrixType = typename Model::MatrixType;
+        using MatrixType = Matrix;
         using VectorType = typename Model::VectorType;
         using StateType = typename Model::VectorType;
 
@@ -43,7 +44,7 @@ namespace hops {
 
     private:
         StateType calculateTruncatedGradient(StateType x);
-        Model model;
+
         MatrixType A;
         VectorType b;
 
@@ -64,17 +65,17 @@ namespace hops {
         typename MatrixType::Scalar covarianceFactor;
 
         std::normal_distribution<typename MatrixType::Scalar> normalDistribution{0., 1.};
-        DikinEllipsoidCalculator <MatrixType, VectorType> dikinEllipsoidCalculator;
+        DikinEllipsoidCalculator<MatrixType, VectorType> dikinEllipsoidCalculator;
 
         Eigen::LLT<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>> solver;
     };
 
-    template<typename Model>
-    CSmMALAProposal<Model>::CSmMALAProposal(const Model &model,
-                                            MatrixType A,
-                                            VectorType b,
-                                            VectorType currentState) :
-            model(model),
+    template<typename Model, typename Matrix>
+    CSmMALAProposal<Model, Matrix>::CSmMALAProposal(const Model &model,
+                                                    MatrixType A,
+                                                    VectorType b,
+                                                    VectorType currentState) :
+            Model(model),
             A(std::move(A)),
             b(std::move(b)),
             dikinEllipsoidCalculator(this->A, this->b) {
@@ -83,8 +84,8 @@ namespace hops {
         proposal = state;
     }
 
-    template<typename Model>
-    void CSmMALAProposal<Model>::propose(RandomNumberGenerator &randomNumberGenerator) {
+    template<typename Model, typename Matrix>
+    void CSmMALAProposal<Model, Matrix>::propose(RandomNumberGenerator &randomNumberGenerator) {
         for (long i = 0; i < proposal.rows(); ++i) {
             proposal(i) = normalDistribution(randomNumberGenerator);
         }
@@ -92,10 +93,10 @@ namespace hops {
                    covarianceFactor * stateCholeskyOfMetric.template triangularView<Eigen::Lower>().solve(proposal);
     }
 
-    template<typename Model>
-    void CSmMALAProposal<Model>::acceptProposal() {
+    template<typename Model, typename Matrix>
+    void CSmMALAProposal<Model, Matrix>::acceptProposal() {
         state.swap(proposal);
-        if(((A * state - b).array() > 0 ).any()) {
+        if (((A * state - b).array() > 0).any()) {
             throw std::runtime_error("Current state is outside of polytope!");
         }
         driftedState.swap(driftedProposal);
@@ -104,16 +105,17 @@ namespace hops {
         stateLikelihood = proposalLikelihood;
     }
 
-    template<typename Model>
-    typename CSmMALAProposal<Model>::MatrixType::Scalar CSmMALAProposal<Model>::calculateLogAcceptanceProbability() {
+    template<typename Model, typename Matrix>
+    typename CSmMALAProposal<Model, Matrix>::MatrixType::Scalar
+    CSmMALAProposal<Model, Matrix>::calculateLogAcceptanceProbability() {
         bool isProposalInteriorPoint = ((A * proposal - b).array() <= 0).all();
         if (!isProposalInteriorPoint) {
             return -std::numeric_limits<typename MatrixType::Scalar>::infinity();
         }
 
-        proposalLikelihood = model.calculateNegativeLogLikelihood(proposal);
+        proposalLikelihood = Model::calculateNegativeLogLikelihood(proposal);
         proposalCholeskyOfMetric = solver.compute(
-                        fisherWeight * model.calculateExpectedFisherInformation(proposal)
+                        fisherWeight * Model::calculateExpectedFisherInformation(proposal)
                         + (1 - fisherWeight) * dikinEllipsoidCalculator.calculateDikinEllipsoid(proposal))
                 .matrixL();
         proposalLogSqrtDeterminant = proposalCholeskyOfMetric.diagonal().array().log().sum();
@@ -133,24 +135,22 @@ namespace hops {
         );
     }
 
-    template<typename Model>
-    typename CSmMALAProposal<Model>::StateType
-    CSmMALAProposal<Model>::getState() const {
+    template<typename Model, typename Matrix>
+    typename CSmMALAProposal<Model, Matrix>::StateType
+    CSmMALAProposal<Model, Matrix>::getState() const {
         return state;
     }
 
-    template<typename Model>
-    void CSmMALAProposal<Model>::setState(StateType newState) {
+    template<typename Model, typename Matrix>
+    void CSmMALAProposal<Model, Matrix>::setState(StateType newState) {
         state.swap(newState);
         stateCholeskyOfMetric = solver.compute(
-                        fisherWeight * model.calculateExpectedFisherInformation(state) +
+                        fisherWeight * Model::calculateExpectedFisherInformation(state) +
                         (1 - fisherWeight) * dikinEllipsoidCalculator.calculateDikinEllipsoid(state))
                 .matrixL();
         stateLogSqrtDeterminant = stateCholeskyOfMetric.diagonal().array().log().sum();
-        stateLikelihood = model.calculateNegativeLogLikelihood(state);
+        stateLikelihood = Model::calculateNegativeLogLikelihood(state);
 
-        // TODO here there is an error! instead of solving tiwce solving once should suffice,
-        // since product of Lower trinagular matrices is lower triangular matrix
         driftedState = state + 0.5 * std::pow(covarianceFactor, 2) *
                                stateCholeskyOfMetric.template triangularView<Eigen::Lower>().solve(
                                        stateCholeskyOfMetric.transpose().template triangularView<Eigen::Lower>().solve(
@@ -159,41 +159,42 @@ namespace hops {
                                );
     }
 
-    template<typename Model>
-    typename CSmMALAProposal<Model>::StateType
-    CSmMALAProposal<Model>::getProposal() const {
+    template<typename Model, typename Matrix>
+    typename CSmMALAProposal<Model, Matrix>::StateType
+    CSmMALAProposal<Model, Matrix>::getProposal() const {
         return proposal;
     }
 
-    template<typename Model>
-    typename CSmMALAProposal<Model>::MatrixType::Scalar CSmMALAProposal<Model>::getStepSize() const {
+    template<typename Model, typename Matrix>
+    typename CSmMALAProposal<Model, Matrix>::MatrixType::Scalar CSmMALAProposal<Model, Matrix>::getStepSize() const {
         return stepSize;
     }
 
-    template<typename Model>
-    void CSmMALAProposal<Model>::setStepSize(typename MatrixType::Scalar newStepSize) {
+    template<typename Model, typename Matrix>
+    void CSmMALAProposal<Model, Matrix>::setStepSize(typename MatrixType::Scalar newStepSize) {
         stepSize = newStepSize;
         geometricFactor = A.cols() / (2 * stepSize);
         covarianceFactor = std::sqrt(stepSize / A.cols());
     }
 
-    template<typename Model>
-    typename CSmMALAProposal<Model>::StateType CSmMALAProposal<Model>::calculateTruncatedGradient(StateType x) {
-        StateType gradient = model.calculateLogLikelihoodGradient(x);
+    template<typename Model, typename Matrix>
+    typename CSmMALAProposal<Model, Matrix>::StateType
+    CSmMALAProposal<Model, Matrix>::calculateTruncatedGradient(StateType x) {
+        StateType gradient = Model::calculateLogLikelihoodGradient(x);
         double norm = gradient.norm();
-        if(norm > 1) {
+        if (norm > 1) {
             gradient /= norm;
         }
         return gradient;
     }
 
-    template <typename Model>
-    double CSmMALAProposal<Model>::getNegativeLogLikelihoodOfCurrentState() {
+    template<typename Model, typename Matrix>
+    double CSmMALAProposal<Model, Matrix>::getNegativeLogLikelihoodOfCurrentState() {
         return stateLikelihood;
     }
 
-    template<typename Model>
-    std::string CSmMALAProposal<Model>::getName() {
+    template<typename Model, typename Matrix>
+    std::string CSmMALAProposal<Model, Matrix>::getName() {
         return "CSmMALA";
     }
 }

@@ -24,7 +24,7 @@ namespace hops {
 
         void acceptProposal();
 
-        [[nodiscard]] typename MatrixType::Scalar calculateLogAcceptanceProbability();
+        typename MatrixType::Scalar calculateLogAcceptanceProbability();
 
         StateType getState() const;
 
@@ -49,7 +49,7 @@ namespace hops {
         Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic> stateCholeskyOfDikinEllipsoid;
         Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic> proposalCholeskyOfDikinEllipsoid;
 
-        typename MatrixType::Scalar stepSize;
+        typename MatrixType::Scalar stepSize = 0.075; // value  from dikin walk publication
         typename MatrixType::Scalar geometricFactor;
         typename MatrixType::Scalar covarianceFactor;
 
@@ -88,7 +88,7 @@ namespace hops {
     template<typename MatrixType, typename VectorType>
     typename MatrixType::Scalar
     DikinProposal<MatrixType, VectorType>::calculateLogAcceptanceProbability() {
-        bool isProposalInteriorPoint = ((A * proposal - b).array() <= 0).all();
+        bool isProposalInteriorPoint = ((A * proposal - b).array() < 0).all();
         if (!isProposalInteriorPoint) {
             return -std::numeric_limits<typename MatrixType::Scalar>::infinity();
         }

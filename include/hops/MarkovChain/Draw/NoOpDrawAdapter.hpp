@@ -10,6 +10,10 @@ namespace hops {
     public:
         explicit NoOpDrawAdapter(const MarkovChainProposer &markovChainImpl) : MarkovChainProposer(markovChainImpl) {}
 
+        constexpr double getAcceptanceRate() {
+            return 1.;
+        }
+
         void draw(RandomNumberGenerator &randomNumberGenerator) {
             MarkovChainProposer::propose(randomNumberGenerator);
             if constexpr(IsAcceptProposalAvailable<MarkovChainProposer>::value) {

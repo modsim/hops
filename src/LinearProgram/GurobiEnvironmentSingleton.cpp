@@ -12,6 +12,7 @@ const hops::GurobiEnvironmentSingleton::GurobiEnvironment &hops::GurobiEnvironme
 }
 
 hops::GurobiEnvironmentSingleton::GurobiEnvironmentSingleton() : environment(true) {
+    // Gurobi will write to cout. Prepending something helps identifying origin of output.
     std::cout << "Gurobi: " << std::flush;
     environment.start();
     environment.set(GRB_IntParam_LogToConsole, 0);

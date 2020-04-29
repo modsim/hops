@@ -1,95 +1,120 @@
 #include <Eigen/SparseCore>
 #include <hops/FileReader/CsvReader.hpp>
 #include <hops/FileWriter/FileWriterFactory.hpp>
+#include <hops/LinearProgram/LinearProgramFactory.hpp>
 #include <hops/MarkovChain/MarkovChainFactory.hpp>
-#include <hops/MarkovChain/Recorder/StateRecorder.hpp>
-#include <hops/MarkovChain/Draw/MetropolisHastingsFilter.hpp>
 #include <hops/MarkovChain/Proposal/ChordStepDistributions.hpp>
-#include <hops/MarkovChain/Proposal/DikinProposal.hpp>
 #include <hops/Model/ModelMixin.hpp>
 #include <hops/Model/MultivariateGaussianModel.hpp>
-#include <hops/MarkovChain/Proposal/CSmMALAProposal.hpp>
-#include <hops/MarkovChain/Proposal/HitAndRunProposal.hpp>
-#include <utility>
-
-template<typename MarkovChainProposer>
-std::unique_ptr<hops::MarkovChain>
-wrapMarkovChainProposer(const MarkovChainProposer &markovChainProposer,
-                        double stepSize) {
-    auto mc = hops::MarkovChainAdapter(
-            hops::TimestampRecorder(
-                    hops::StateRecorder(
-                            hops::MetropolisHastingsFilter(
-                                    markovChainProposer
-                            )
-                    )
-            )
-    );
-    mc.setStepSize(stepSize);
-    return std::make_unique<decltype(mc)>(mc);
-}
+#include <hops/MarkovChain/AcceptanceRateTuner.hpp>
+#include <hops/PolytopePreprocessing/NormalizePolytope.hpp>
 
 int main(int argc, char **argv) {
-    for (int i = 1; i < argc; ++i) {
-        std::cout << "arg " << argv[i] << std::endl;
-    }
-    std::string Afile(argv[1]);
-    std::string bfile(argv[2]);
-    std::string sfile(argv[3]);
-    std::string Nfile(argv[4]);
-    std::string Tfile(argv[5]);
-    std::string shiftfile(argv[6]);
-    std::string meanfile(argv[7]);
-    std::string chainName(argv[8]);
-    double stepSize = std::stod(argv[9]);
+    std::string modelDirectory(argv[1]);
+    std::string modelName(argv[2]);
+    std::string chainName(argv[3]);
+    std::cout << "model directory " << modelDirectory << std::endl;
+    std::cout << "model name " << modelName << std::endl;
+    std::cout << "chain name " << chainName << std::endl;
+
+    // TODO fix paths for for windows
+    std::string Afile = modelDirectory + "/" + modelName + "/A_" + modelName + "_unrounded.csv";
+    std::string Tfile = modelDirectory + "/" + modelName + "/T_" + modelName + "_rounded.csv";
+    std::string bfile = modelDirectory + "/" + modelName + "/b_" + modelName + "_unrounded.csv";
+    std::string meanFile = modelDirectory + "/" + modelName + "/start_" + modelName + "_unrounded.csv";
+
+    std::cout << "A file " << Afile << std::endl;
+    std::cout << "b file " << bfile << std::endl;
 
     auto A = hops::CsvReader::readMatrix<Eigen::SparseMatrix<double>>(Afile);
+    auto roundingTransformation = hops::CsvReader::readMatrix<Eigen::SparseMatrix<double>>(Tfile);
     auto b = hops::CsvReader::readVector<Eigen::VectorXd>(bfile);
-    auto s = hops::CsvReader::readVector<Eigen::VectorXd>(sfile);
-    auto N = hops::CsvReader::readMatrix<Eigen::SparseMatrix<double>>(Nfile);
-    auto T = hops::CsvReader::readMatrix<Eigen::SparseMatrix<double>>(Tfile);
-    auto shift = hops::CsvReader::readVector<Eigen::VectorXd>(shiftfile);
-    auto mean = hops::CsvReader::readVector<Eigen::VectorXd>(meanfile);
+    auto mean = hops::CsvReader::readVector<Eigen::VectorXd>(meanFile);
+    Eigen::MatrixXd denseA = A;
+    hops::normalizePolytope(denseA, b);
+    A = denseA.sparseView();
+    A.makeCompressed();
 
-    Eigen::MatrixXd covariance = 0.01 * mean.asDiagonal();
+    Eigen::MatrixXd covariance = 1e-6 * Eigen::VectorXd::Ones(mean.rows()).asDiagonal();
+    hops::MultivariateGaussianModel model(mean, covariance);
 
     std::unique_ptr<hops::MarkovChain> markovChain;
     if (chainName == "DikinWalk") {
-        auto proposer = hops::ModelMixin(hops::DikinProposal(A, b, s),
-                                         hops::MultivariateGaussianModel(mean, covariance));
-        markovChain = wrapMarkovChainProposer(proposer, stepSize);
+        std::unique_ptr<hops::LinearProgram> linearProgram = hops::LinearProgramFactory::createLinearProgram(
+                Eigen::MatrixXd(A),
+                b);
+        markovChain = hops::MarkovChainFactory::createMarkovChain(hops::MarkovChainType::DikinWalk,
+                                                                  A,
+                                                                  b,
+                                                                  linearProgram->calculateChebyshevCenter().optimalParameters,
+                                                                  model,
+                                                                  false);
     } else if (chainName == "CSmMALA") {
-        markovChain = wrapMarkovChainProposer(
-                hops::CSmMALAProposal(hops::MultivariateGaussianModel(mean, covariance), A, b, s),
-                stepSize);
+        std::unique_ptr<hops::LinearProgram> linearProgram = hops::LinearProgramFactory::createLinearProgram(
+                Eigen::MatrixXd(A),
+                b);
+        markovChain = hops::MarkovChainFactory::createMarkovChain(hops::MarkovChainType::CSmMALA,
+                                                                  A,
+                                                                  b,
+                                                                  linearProgram->calculateChebyshevCenter().optimalParameters,
+                                                                  model,
+                                                                  false);
     } else if (chainName == "CHRR") {
-        auto proposer = hops::ModelMixin(
-                hops::StateTransformation(
-                        hops::CoordinateHitAndRunProposal<Eigen::MatrixXd, Eigen::VectorXd, hops::GaussianStepDistribution<double>>(
-                                A, b, s),
-                        hops::Transformation<Eigen::MatrixXd, Eigen::VectorXd>(N, shift)),
-                hops::MultivariateGaussianModel(mean, covariance)
-        );
-        markovChain = wrapMarkovChainProposer(proposer, stepSize);
+        std::unique_ptr<hops::LinearProgram> linearProgram = hops::LinearProgramFactory::createLinearProgram(
+                Eigen::MatrixXd(A * roundingTransformation),
+                b);
+        markovChain = hops::MarkovChainFactory::createMarkovChain<Eigen::MatrixXd, Eigen::VectorXd, decltype(model)>(
+                hops::MarkovChainType::CoordinateHitAndRun,
+                Eigen::MatrixXd(A * roundingTransformation),
+                b,
+                linearProgram->calculateChebyshevCenter().optimalParameters,
+                roundingTransformation,
+                Eigen::VectorXd::Zero(roundingTransformation.rows()),
+                model,
+                false);
     } else if (chainName == "HRR") {
-        auto proposer = hops::ModelMixin(
-                hops::StateTransformation(
-                        hops::HitAndRunProposal<Eigen::MatrixXd, Eigen::VectorXd, hops::GaussianStepDistribution<double>>(
-                                A, b, s),
-                        hops::Transformation<Eigen::MatrixXd, Eigen::VectorXd>(N, shift)),
-                hops::MultivariateGaussianModel(mean, covariance)
-        );
-        markovChain = wrapMarkovChainProposer(proposer, stepSize);
+        std::unique_ptr<hops::LinearProgram> linearProgram = hops::LinearProgramFactory::createLinearProgram(
+                Eigen::MatrixXd(A * roundingTransformation),
+                b);
+        markovChain = hops::MarkovChainFactory::createMarkovChain<Eigen::MatrixXd, Eigen::VectorXd, decltype(model)>(
+                hops::MarkovChainType::HitAndRun,
+                Eigen::MatrixXd(A * roundingTransformation),
+                b,
+                linearProgram->calculateChebyshevCenter().optimalParameters,
+                roundingTransformation,
+                Eigen::VectorXd::Zero(roundingTransformation.rows()),
+                model,
+                false);
     } else {
         std::cerr << "No chain with chainname " << chainName << std::endl;
         std::exit(1);
     }
 
-    auto fileWriter = hops::FileWriterFactory::createFileWriter(markovChain->getName(), hops::FileWriterType::Csv);
     hops::RandomNumberGenerator randomNumberGenerator((std::random_device()()));
-    long thinning = mean.rows() * 100;
+
+    float upperLimitAcceptanceRate = chainName == "CSmMALA" ? 0.65 : 0.3;
+    float lowerLimitAcceptanceRate = chainName == "CSmMALA" ? 0.3 : 0.20;
+    double lowerLimitStepSize = 1e-10;
+    double upperLimitStepSize = (chainName == "HRR" || chainName == "CHRR" ) ? 1e6 :  1;
+    size_t iterationsToTestStepSize = 100 * A.cols();
+    size_t maxIterations = 10000 * A.cols();
+
+    bool isTuned = hops::AcceptanceRateTuner::tune(markovChain.get(),
+                                                   randomNumberGenerator,
+                                                   {lowerLimitAcceptanceRate,
+                                                    upperLimitAcceptanceRate,
+                                                    lowerLimitStepSize,
+                                                    upperLimitStepSize,
+                                                    iterationsToTestStepSize,
+                                                    maxIterations});
+    std::cout << "isTuned: " << isTuned << std::endl;
+    std::cout << "current step size: " << markovChain->getAttribute(hops::MarkovChainAttribute::STEP_SIZE) << std::endl;
+
+    auto fileWriter = hops::FileWriterFactory::createFileWriter(modelName + "_" + markovChain->getName(),
+                                                                hops::FileWriterType::Csv);
+    long thinning = A.cols() * 100;
     long numberOfSamples = 1000;
-    for (int i = 0; i < 50; ++i) {
+    for (int i = 0; i < 1000; ++i) {
         markovChain->draw(randomNumberGenerator, numberOfSamples, thinning);
         markovChain->writeHistory(fileWriter.get());
         markovChain->clearHistory();

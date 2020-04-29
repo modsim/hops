@@ -3,6 +3,8 @@
 
 #include <Eigen/Cholesky>
 #include <Eigen/Core>
+#include <Eigen/Dense>
+#include <hops/FileWriter/CsvWriter.hpp>
 
 namespace hops {
     template<typename MatrixType, typename VectorType>
@@ -33,16 +35,12 @@ namespace hops {
 
         Eigen::LLT<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>> solver(dikinEllipsoid);
         if (solver.info() != Eigen::Success) {
-            Eigen::LDLT<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>> semiPositiveDefiniteCholeskySolver(
+            Eigen::SelfAdjointEigenSolver<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic> > es(
                     dikinEllipsoid);
-            if (semiPositiveDefiniteCholeskySolver.info() != Eigen::Success) {
-                throw std::runtime_error(
-                        std::string("Error in cholesky factorization of dikin ellipsoid. Solver status: ") +
-                        std::to_string(solver.info())
-                );
-            }
-            return semiPositiveDefiniteCholeskySolver.vectorD().cwiseAbs().cwiseSqrt().asDiagonal() *
-                   Eigen::MatrixXd(semiPositiveDefiniteCholeskySolver.matrixL());
+
+            Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic> V = es.eigenvectors();
+            Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, 1> Dv = es.eigenvalues();
+            return V * Dv.cwiseInverse().cwiseSqrt().asDiagonal() * V.transpose();
         } else {
             return solver.matrixL();
         }
@@ -51,7 +49,14 @@ namespace hops {
     template<typename MatrixType, typename VectorType>
     Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>
     DikinEllipsoidCalculator<MatrixType, VectorType>::calculateDikinEllipsoid(const VectorType &x) {
-        return A.transpose() * ((b - A * x).array().pow(2).inverse().matrix().asDiagonal()) * A;
+        Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, 1> inv_slack = (this->b -
+                                                                                   this->A * x).cwiseInverse();
+
+        Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic> halfDikin =
+                inv_slack.asDiagonal() * this->A;
+        Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic> dikin =
+                halfDikin.transpose() * halfDikin;
+        return dikin;
     }
 }
 

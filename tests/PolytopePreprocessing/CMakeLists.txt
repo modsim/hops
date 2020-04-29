@@ -1,5 +1,6 @@
 set(TEST_SOURCES
         MaximumVolumeEllipsoidTest.cpp
+        NormalizePolytopeTest.cpp
         )
 
 foreach (TEST_SOURCE ${TEST_SOURCES})

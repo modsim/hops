@@ -58,7 +58,7 @@ namespace {
 
         hops::MultimodalModel multimodalModel(std::make_tuple(model1, model2));
 
-        auto evaluationPoint = Eigen::VectorXd::Ones(2);
+        Eigen::VectorXd evaluationPoint = Eigen::VectorXd::Ones(2);
 
         Eigen::MatrixXd actualExpectedFisherInformation = multimodalModel.calculateExpectedFisherInformation(
                 evaluationPoint);
@@ -72,7 +72,7 @@ namespace {
 
         hops::MultimodalModel multimodalModel(std::make_tuple(model1, model2));
 
-        auto evaluationPoint = Eigen::VectorXd::Ones(2);
+        Eigen::VectorXd evaluationPoint = Eigen::VectorXd::Ones(2);
 
         Eigen::VectorXd actualLogLikelihoodGradient = multimodalModel.calculateLogLikelihoodGradient(evaluationPoint);
         EXPECT_EQ(actualLogLikelihoodGradient, expectedLogLikelihoodGradient);

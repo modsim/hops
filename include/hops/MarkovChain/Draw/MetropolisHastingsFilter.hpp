@@ -2,6 +2,7 @@
 #define HOPS_METROPOLISHASTINGSFILTER_HPP
 
 #include <hops/FileWriter/FileWriter.hpp>
+#include <hops/MarkovChain/Recorder/IsClearRecordsAvailable.hpp>
 #include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
 #include <random>
 
@@ -16,8 +17,17 @@ namespace hops {
 
         double getAcceptanceRate();
 
-        long numberOfProposals = 0;
+        void clearRecords() {
+            numberOfProposals = 0;
+            numberOfAcceptedProposals = 0;
+            if constexpr(IsClearRecordsAvailable<MarkovChainProposer>::value) {
+                MarkovChainProposer::clearRecords();
+            }
+        }
+
+    private:
         long numberOfAcceptedProposals = 0;
+        long numberOfProposals = 0;
         std::uniform_real_distribution<double> uniformRealDistribution;
     };
 

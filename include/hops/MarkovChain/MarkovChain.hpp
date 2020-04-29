@@ -2,6 +2,7 @@
 #define HOPS_MARKOVCHAIN_HPP
 
 #include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
+#include "MarkovChainAttribute.hpp"
 
 namespace hops {
     class FileWriter;
@@ -27,7 +28,7 @@ namespace hops {
          * @brief Writes all stored chain history using the fileWriter.
          * @param fileWriter
          */
-        virtual void writeHistory(const FileWriter * fileWriter) = 0;
+        virtual void writeHistory(const FileWriter *fileWriter) = 0;
 
         /**
          * @brief Deletes all stored chain history.
@@ -36,9 +37,11 @@ namespace hops {
 
         virtual std::string getName() = 0;
 
-        // TODO
-//        virtual void setStepSize() = 0;
-//        virtual get setStepSize() = 0;
+        virtual void setAttribute(MarkovChainAttribute markovChainAttribute, double value) = 0;
+
+        virtual double getAttribute(MarkovChainAttribute markovChainAttribute) = 0;
+
+        virtual double getAcceptanceRate() = 0;
 
         virtual ~MarkovChain() {}
     };

@@ -39,7 +39,7 @@ namespace hops {
 
     template<typename MarkovChainProposer, typename ModelImpl>
     double ModelMixin<MarkovChainProposer, ModelImpl>::calculateLogAcceptanceProbability() {
-        proposalNegativeLogLikelihood = ModelMixin::calculateNegativeLogLikelihood(MarkovChainProposer::getProposal());
+        proposalNegativeLogLikelihood = ModelImpl::calculateNegativeLogLikelihood(MarkovChainProposer::getProposal());
         double acceptanceProbability = stateNegativeLogLikelihood - proposalNegativeLogLikelihood;
         if constexpr(IsCalculateLogAcceptanceProbabilityAvailable<MarkovChainProposer>::value) {
            acceptanceProbability += MarkovChainProposer::calculateLogAcceptanceProbability();
