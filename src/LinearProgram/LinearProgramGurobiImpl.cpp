@@ -140,17 +140,22 @@ hops::LinearProgramGurobiImpl::removeRedundantConstraints(double tolerance) {
             coefficients[j] = A.coeff(i, j);
         }
         constraintLHS.addTerms(coefficients, &variables[0], A.cols());
-        auto temporaryConstraint = model->addConstr(constraintLHS, GRB_LESS_EQUAL, b(i) + 10);
-        model->update();
-        auto solution = solve(A.row(i));
-        model->remove(temporaryConstraint);
-        model->update();
-
-        if (solution.status != LinearProgramStatus::OPTIMAL || solution.objectiveValue + tolerance > b(i)) {
-            model->addConstr(constraintLHS, GRB_LESS_EQUAL, b(i), "row_" + std::to_string(i));
+        try {
+            auto temporaryConstraint = model->addConstr(constraintLHS, GRB_LESS_EQUAL, b(i) + 10);
             model->update();
-        } else {
-            constraintsToRemove.emplace_back(i);
+            auto solution = solve(A.row(i));
+            model->remove(temporaryConstraint);
+            model->update();
+
+            if (solution.status != LinearProgramStatus::OPTIMAL || solution.objectiveValue + tolerance > b(i)) {
+                model->addConstr(constraintLHS, GRB_LESS_EQUAL, b(i), "row_" + std::to_string(i));
+                model->update();
+            } else {
+                constraintsToRemove.emplace_back(i);
+            }
+        }
+        catch (GRBException &e) {
+            std::cerr << "error code " << e.getErrorCode() << ": " << e.getMessage() << std::endl;
         }
     }
 

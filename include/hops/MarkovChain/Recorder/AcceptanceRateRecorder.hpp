@@ -9,7 +9,7 @@
 
 namespace hops {
     template<typename MarkovChainImpl>
-    class AcceptanceRateRecorder {
+    class AcceptanceRateRecorder : public MarkovChainImpl {
     public:
         explicit AcceptanceRateRecorder(const MarkovChainImpl &markovChainImpl) : MarkovChainImpl(markovChainImpl) {}
 
@@ -22,7 +22,6 @@ namespace hops {
 
         void storeRecord() {
             records.emplace_back(MarkovChainImpl::getAcceptanceRate());
-
             if constexpr(IsStoreRecordAvailable<MarkovChainImpl>::value) {
                 MarkovChainImpl::storeRecord();
             }
