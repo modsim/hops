@@ -12,6 +12,7 @@
 #include "LinearProgram/LinearProgramGurobiImpl.hpp"
 #include "LinearProgram/LinearProgramSolution.hpp"
 #include "LinearProgram/LinearProgramStatus.hpp"
+#include "MarkovChain/AcceptanceRateTuner.hpp"
 #include "MarkovChain/Draw/IsAcceptProposalAvailable.hpp"
 #include "MarkovChain/Draw/IsCalculateLogAcceptanceProbabilityAvailable.hpp"
 #include "MarkovChain/Draw/MetropolisHastingsFilter.hpp"

@@ -12,6 +12,7 @@
 #include <hops/MarkovChain/Proposal/CSmMALAProposal.hpp>
 #include <hops/MarkovChain/Proposal/DikinProposal.hpp>
 #include <hops/MarkovChain/Proposal/HitAndRunProposal.hpp>
+#include <hops/MarkovChain/Recorder/AcceptanceRateRecorder.hpp>
 #include <hops/MarkovChain/Recorder/StateRecorder.hpp>
 #include <hops/MarkovChain/Recorder/TimestampRecorder.hpp>
 #include <hops/MarkovChain/StateTransformation.hpp>
@@ -319,9 +320,11 @@ namespace hops {
                 if constexpr(IsSetColdnessAvailable<MarkovChainImpl>::value) {
                     auto mc = MarkovChainAdapter(
                             ParallelTempering(
-                                    TimestampRecorder(
-                                            StateRecorder(
-                                                    markovChainImpl
+                                    AcceptanceRateRecorder(
+                                            TimestampRecorder(
+                                                    StateRecorder(
+                                                            markovChainImpl
+                                                    )
                                             )
                                     )
                             )
@@ -332,9 +335,11 @@ namespace hops {
                 }
             } else {
                 auto mc = MarkovChainAdapter(
-                        TimestampRecorder(
-                                StateRecorder(
-                                        markovChainImpl
+                        AcceptanceRateRecorder(
+                                TimestampRecorder(
+                                        StateRecorder(
+                                                markovChainImpl
+                                        )
                                 )
                         )
                 );
