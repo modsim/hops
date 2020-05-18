@@ -35,12 +35,7 @@ namespace hops {
 
         Eigen::LLT<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>> solver(dikinEllipsoid);
         if (solver.info() != Eigen::Success) {
-            Eigen::SelfAdjointEigenSolver<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic> > es(
-                    dikinEllipsoid);
-
-            Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic> V = es.eigenvectors();
-            Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, 1> Dv = es.eigenvalues();
-            return V * Dv.cwiseInverse().cwiseSqrt().asDiagonal() * V.transpose();
+            throw std::runtime_error("Error in Dikin Ellipsoid");
         } else {
             return solver.matrixL();
         }

@@ -52,6 +52,7 @@ namespace hops {
         typename MatrixType::Scalar stepSize = 0.075; // value  from dikin walk publication
         typename MatrixType::Scalar geometricFactor;
         typename MatrixType::Scalar covarianceFactor;
+        constexpr static typename MatrixType::Scalar boundaryCushion = 1e-10;
 
         std::normal_distribution<typename MatrixType::Scalar> normalDistribution{0., 1.};
         DikinEllipsoidCalculator<MatrixType, VectorType> dikinEllipsoidCalculator;
@@ -88,7 +89,7 @@ namespace hops {
     template<typename MatrixType, typename VectorType>
     typename MatrixType::Scalar
     DikinProposal<MatrixType, VectorType>::calculateLogAcceptanceProbability() {
-        bool isProposalInteriorPoint = ((A * proposal - b).array() < 0).all();
+        bool isProposalInteriorPoint = ((A * proposal - b).array() < -boundaryCushion).all();
         if (!isProposalInteriorPoint) {
             return -std::numeric_limits<typename MatrixType::Scalar>::infinity();
         }

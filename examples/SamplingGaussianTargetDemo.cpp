@@ -1,166 +1,135 @@
+#include <Eigen/SparseCore>
 #include <hops/FileReader/CsvReader.hpp>
 #include <hops/FileWriter/FileWriterFactory.hpp>
+#include <hops/LinearProgram/LinearProgramFactory.hpp>
 #include <hops/MarkovChain/MarkovChainFactory.hpp>
-#include <hops/MarkovChain/Recorder/StateRecorder.hpp>
-#include <hops/MarkovChain/Draw/MetropolisHastingsFilter.hpp>
 #include <hops/MarkovChain/Proposal/ChordStepDistributions.hpp>
-#include <hops/MarkovChain/Proposal/DikinProposal.hpp>
 #include <hops/Model/ModelMixin.hpp>
 #include <hops/Model/MultivariateGaussianModel.hpp>
-#include <hops/MarkovChain/Proposal/CSmMALAProposal.hpp>
-#include <hops/MarkovChain/Proposal/HitAndRunProposal.hpp>
+#include <hops/MarkovChain/AcceptanceRateTuner.hpp>
+#include <hops/PolytopePreprocessing/NormalizePolytope.hpp>
 
-int main() {
-    auto A = hops::CsvReader::readMatrix<Eigen::MatrixXd>("../resources/simplex_64D/A_simplex_64D_unrounded.csv");
-    auto b = hops::CsvReader::readVector<Eigen::VectorXd>("../resources/simplex_64D/b_simplex_64D_unrounded.csv");
-    auto s = hops::CsvReader::readVector<Eigen::VectorXd>("../resources/simplex_64D/start_simplex_64D_unrounded.csv");
+using RealType = double;
 
-    auto Arounded = hops::CsvReader::readMatrix<Eigen::MatrixXd>("../resources/simplex_64D/A_simplex_64D_rounded.csv");
-    auto Nrounded = hops::CsvReader::readMatrix<Eigen::MatrixXd>("../resources/simplex_64D/N_simplex_64D_rounded.csv");
-    auto Trounded = hops::CsvReader::readMatrix<Eigen::MatrixXd>("../resources/simplex_64D/T_simplex_64D_rounded.csv");
-    auto brounded = hops::CsvReader::readVector<Eigen::VectorXd>("../resources/simplex_64D/b_simplex_64D_rounded.csv");
-    auto srounded = hops::CsvReader::readVector<Eigen::VectorXd>(
-            "../resources/simplex_64D/start_simplex_64D_rounded.csv");
-    auto shiftrounded = hops::CsvReader::readVector<Eigen::VectorXd>(
-            "../resources/simplex_64D/p_shift_simplex_64D_rounded.csv");
+int main(int argc, char **argv) {
+    std::string modelDirectory(argv[1]);
+    std::string modelName(argv[2]);
+    std::string chainName(argv[3]);
+    std::cout << "model directory " << modelDirectory << std::endl;
+    std::cout << "model name " << modelName << std::endl;
+    std::cout << "chain name " << chainName << std::endl;
 
-    auto fileWriter1 = hops::FileWriterFactory::createFileWriter("chain1", hops::FileWriterType::Csv);
-    auto fileWriter2 = hops::FileWriterFactory::createFileWriter("chain2", hops::FileWriterType::Csv);
-    auto fileWriter3 = hops::FileWriterFactory::createFileWriter("chain3", hops::FileWriterType::Csv);
-    auto fileWriter4 = hops::FileWriterFactory::createFileWriter("chain4", hops::FileWriterType::Csv);
-    auto fileWriter5 = hops::FileWriterFactory::createFileWriter("chain5", hops::FileWriterType::Csv);
-    auto fileWriter6 = hops::FileWriterFactory::createFileWriter("chain6", hops::FileWriterType::Csv);
+    // TODO fix paths for for windows
+    std::string Afile = modelDirectory + "/" + modelName + "/A_" + modelName + "_unrounded.csv";
+    std::string Tfile = modelDirectory + "/" + modelName + "/T_" + modelName + "_rounded.csv";
+    std::string bfile = modelDirectory + "/" + modelName + "/b_" + modelName + "_unrounded.csv";
+    std::string meanFile = modelDirectory + "/" + modelName + "/start_" + modelName + "_unrounded.csv";
 
-    hops::RandomNumberGenerator randomNumberGenerator(42);
+    std::cout << "A file " << Afile << std::endl;
+    std::cout << "b file " << bfile << std::endl;
 
-    const Eigen::VectorXd &mean = s;
-    Eigen::MatrixXd covariance = 0.05 * Eigen::MatrixXd::Identity(mean.rows(), mean.rows());
+    Eigen::SparseMatrix<RealType> A = hops::CsvReader::readMatrix<Eigen::SparseMatrix<double>>(
+            Afile).cast<RealType>();
+    Eigen::SparseMatrix<RealType> roundingTransformation = hops::CsvReader::readMatrix<Eigen::SparseMatrix<double>>(
+            Tfile).cast<RealType>();
+    Eigen::Matrix<RealType, Eigen::Dynamic, 1> b = hops::CsvReader::readVector<Eigen::Matrix<double, Eigen::Dynamic, 1>>(
+            bfile).cast<RealType>();
+    Eigen::Matrix<RealType, Eigen::Dynamic, 1> mean = hops::CsvReader::readVector<Eigen::Matrix<double, Eigen::Dynamic, 1>>(
+            meanFile).cast<RealType>();
+    Eigen::Matrix<RealType, Eigen::Dynamic, Eigen::Dynamic> denseA = A;
+    hops::normalizePolytope(denseA, b);
+    A = denseA.sparseView();
+    A.makeCompressed();
 
-    auto markovChain1 = hops::MarkovChainAdapter(
-            hops::StateRecorder(
-                    hops::MetropolisHastingsFilter(
-                            hops::ModelMixin(
-                                    hops::DikinProposal(
-                                            A, b, s
-                                    ),
-                                    hops::MultivariateGaussianModel(mean, covariance)
-                            )
-                    )
-            )
-    );
-    markovChain1.setStepSize(3. / 40);
+    Eigen::Matrix<RealType, Eigen::Dynamic, Eigen::Dynamic> covariance =
+            1e-6 * Eigen::Matrix<RealType, Eigen::Dynamic, 1>::Ones(mean.rows()).asDiagonal();
+    hops::MultivariateGaussianModel model(mean, covariance);
 
-    auto markovChain2 = hops::MarkovChainAdapter(
-            hops::StateRecorder(
-                    hops::MetropolisHastingsFilter(
-                            hops::CSmMALAProposal(
-                                    hops::MultivariateGaussianModel(mean, covariance), A, b, s)
-                    )
-            )
-    );
-    markovChain2.setStepSize(3. / 40);
+    std::unique_ptr<hops::MarkovChain> markovChain;
+    if (chainName == "DikinWalk") {
+        std::unique_ptr<hops::LinearProgram> linearProgram = hops::LinearProgramFactory::createLinearProgram(
+                Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>(A.cast<double>()),
+                b.cast<double>());
+        Eigen::Matrix<RealType, Eigen::Dynamic, 1> startingPoint = linearProgram->calculateChebyshevCenter().optimalParameters.cast<RealType>();
 
-    auto markovChain3 = hops::MarkovChainAdapter(
-            hops::StateRecorder(
-                    hops::MetropolisHastingsFilter(
-                            hops::ModelMixin(
-                                    hops::StateTransformation(
-                                            hops::HitAndRunProposal<
-                                                    Eigen::MatrixXd,
-                                                    Eigen::VectorXd,
-                                                    hops::GaussianStepDistribution<double>>(
-                                                    Arounded,
-                                                    brounded,
-                                                    srounded),
-                                            hops::Transformation(Nrounded, shiftrounded)),
-                                    hops::MultivariateGaussianModel(mean, covariance))
-                    )
-            )
-    );
-    markovChain3.setStepSize(3. / 40);
+        markovChain = hops::MarkovChainFactory::createMarkovChain(hops::MarkovChainType::DikinWalk,
+                                                                  A,
+                                                                  b,
+                                                                  startingPoint,
+                                                                  model,
+                                                                  false);
+    } else if (chainName == "CSmMALA") {
+        std::unique_ptr<hops::LinearProgram> linearProgram = hops::LinearProgramFactory::createLinearProgram(
+                Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>(A.cast<double>()),
+                b.cast<double>());
+        Eigen::Matrix<RealType, Eigen::Dynamic, 1> startingPoint = linearProgram->calculateChebyshevCenter().optimalParameters.cast<RealType>();
+        markovChain = hops::MarkovChainFactory::createMarkovChain(hops::MarkovChainType::CSmMALA,
+                                                                  A,
+                                                                  b,
+                                                                  startingPoint,
+                                                                  model,
+                                                                  false);
+    } else if (chainName == "CHRR") {
+        std::unique_ptr<hops::LinearProgram> linearProgram = hops::LinearProgramFactory::createLinearProgram(
+                Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>((A * roundingTransformation).cast<double>()),
+                b.cast<double>());
+        Eigen::Matrix<RealType, Eigen::Dynamic, 1> startingPoint = linearProgram->calculateChebyshevCenter().optimalParameters.cast<RealType>();
+        markovChain = hops::MarkovChainFactory::createMarkovChain<Eigen::Matrix<RealType, Eigen::Dynamic, Eigen::Dynamic>, decltype(b), decltype(model)>(
+                hops::MarkovChainType::CoordinateHitAndRun,
+                Eigen::Matrix<RealType, Eigen::Dynamic, Eigen::Dynamic>(A * roundingTransformation),
+                b,
+                startingPoint,
+                roundingTransformation,
+                decltype(startingPoint)::Zero(roundingTransformation.rows()),
+                model,
+                false);
+    } else if (chainName == "HRR") {
+        std::unique_ptr<hops::LinearProgram> linearProgram = hops::LinearProgramFactory::createLinearProgram(
+                Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>((A * roundingTransformation).cast<double>()),
+                b.cast<double>());
+        Eigen::Matrix<RealType, Eigen::Dynamic, 1> startingPoint = linearProgram->calculateChebyshevCenter().optimalParameters.cast<RealType>();
+        markovChain = hops::MarkovChainFactory::createMarkovChain<Eigen::Matrix<RealType, Eigen::Dynamic, Eigen::Dynamic>, decltype(b), decltype(model)>(
+                hops::MarkovChainType::HitAndRun,
+                Eigen::Matrix<RealType, Eigen::Dynamic, Eigen::Dynamic>(A * roundingTransformation),
+                b,
+                startingPoint,
+                roundingTransformation,
+                decltype(startingPoint)::Zero(roundingTransformation.rows()),
+                model,
+                false);
+    } else {
+        std::cerr << "No chain with chainname " << chainName << std::endl;
+        std::exit(1);
+    }
 
-    auto markovChain4 = hops::MarkovChainAdapter(
-            hops::StateRecorder(
-                    hops::MetropolisHastingsFilter(
-                            hops::ModelMixin(
-                                    hops::StateTransformation(
-                                            hops::CoordinateHitAndRunProposal<
-                                                    Eigen::MatrixXd,
-                                                    Eigen::VectorXd,
-                                                    hops::GaussianStepDistribution<double>>(
-                                                    Arounded,
-                                                    brounded,
-                                                    srounded),
-                                            hops::Transformation(Nrounded, shiftrounded)),
-                                    hops::MultivariateGaussianModel(mean, covariance))
-                    )
-            )
-    );
-    markovChain4.setStepSize(3. / 40);
+    hops::RandomNumberGenerator randomNumberGenerator((std::random_device()()));
 
-    auto markovChain5 = hops::MarkovChainAdapter(
-            hops::StateRecorder(
-                    hops::MetropolisHastingsFilter(
-                            hops::ModelMixin(
-                                    hops::StateTransformation(
-                                            hops::HitAndRunProposal<
-                                                    Eigen::MatrixXd,
-                                                    Eigen::VectorXd,
-                                                    hops::UniformStepDistribution<double>>(
-                                                    Arounded,
-                                                    brounded,
-                                                    srounded),
-                                            hops::Transformation(Nrounded, shiftrounded)),
-                                    hops::MultivariateGaussianModel(mean, covariance))
-                    )
-            )
-    );
-    markovChain5.setStepSize(3. / 40);
+    float upperLimitAcceptanceRate = chainName == "CSmMALA" ? 0.65 : 0.3;
+    float lowerLimitAcceptanceRate = chainName == "CSmMALA" ? 0.3 : 0.20;
+    double lowerLimitStepSize = 1e-10;
+    double upperLimitStepSize = (chainName == "HRR" || chainName == "CHRR") ? 1e6 : 1;
+    size_t iterationsToTestStepSize = 100 * A.cols();
+    size_t maxIterations = 10000 * A.cols();
 
-    auto markovChain6 = hops::MarkovChainAdapter(
-            hops::StateRecorder(
-                    hops::MetropolisHastingsFilter(
-                            hops::ModelMixin(
-                                    hops::StateTransformation(
-                                            hops::CoordinateHitAndRunProposal<
-                                                    Eigen::MatrixXd,
-                                                    Eigen::VectorXd,
-                                                    hops::UniformStepDistribution<double>>(
-                                                    Arounded,
-                                                    brounded,
-                                                    srounded),
-                                            hops::Transformation(Nrounded, shiftrounded)),
-                                    hops::MultivariateGaussianModel(mean, covariance))
-                    )
-            )
-    );
-    markovChain6.setStepSize(3. / 40);
+    bool isTuned = hops::AcceptanceRateTuner::tune(markovChain.get(),
+                                                   randomNumberGenerator,
+                                                   {lowerLimitAcceptanceRate,
+                                                    upperLimitAcceptanceRate,
+                                                    lowerLimitStepSize,
+                                                    upperLimitStepSize,
+                                                    iterationsToTestStepSize,
+                                                    maxIterations});
+    std::cout << "isTuned: " << isTuned << std::endl;
+    std::cout << "current step size: " << markovChain->getAttribute(hops::MarkovChainAttribute::STEP_SIZE) << std::endl;
 
-    long thinning = 256;
-    long numberOfSamples = 10000;
-    long startEpoch = std::chrono::duration_cast<std::chrono::milliseconds>(
-            std::chrono::high_resolution_clock::now().time_since_epoch()
-    ).count();
-    markovChain1.draw(randomNumberGenerator, numberOfSamples, thinning);
-    markovChain2.draw(randomNumberGenerator, numberOfSamples, thinning);
-    markovChain3.draw(randomNumberGenerator, numberOfSamples, thinning);
-    markovChain4.draw(randomNumberGenerator, numberOfSamples, thinning);
-    markovChain5.draw(randomNumberGenerator, numberOfSamples, thinning);
-    markovChain6.draw(randomNumberGenerator, numberOfSamples, thinning);
-    long endEpoch = std::chrono::duration_cast<std::chrono::milliseconds>(
-            std::chrono::high_resolution_clock::now().time_since_epoch()
-    ).count();
-    std::cout << "Sampling took " << static_cast<double>(endEpoch - startEpoch) / 1000
-              << " seconds, that's "
-              << static_cast<double>(endEpoch - startEpoch) / static_cast<double>(numberOfSamples * thinning * 1000)
-              << " s per sample"
-              << std::endl;
-
-    markovChain1.writeHistory(fileWriter1.get());
-    markovChain2.writeHistory(fileWriter2.get());
-    markovChain3.writeHistory(fileWriter3.get());
-    markovChain4.writeHistory(fileWriter4.get());
-    markovChain5.writeHistory(fileWriter5.get());
-    markovChain6.writeHistory(fileWriter6.get());
+    auto fileWriter = hops::FileWriterFactory::createFileWriter(modelName + "_" + markovChain->getName(),
+                                                                hops::FileWriterType::Csv);
+    long thinning = A.cols() * 10;
+    long numberOfSamples = 100;
+    for (int i = 0; i < 1000; ++i) {
+        markovChain->draw(randomNumberGenerator, numberOfSamples, thinning);
+        markovChain->writeHistory(fileWriter.get());
+        markovChain->clearHistory();
+    }
 }
 

@@ -1,10 +1,12 @@
 #ifndef HOPS_COORDINATEHITANDRUNPROPOSAL_HPP
 #define HOPS_COORDINATEHITANDRUNPROPOSAL_HPP
 
+#include <mpi.h>
 #include "ChordStepDistributions.hpp"
 #include <hops/MarkovChain/IsSetStepSizeAvailable.hpp>
 #include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
 #include <random>
+#include <hops/FileWriter/CsvWriter.hpp>
 
 // TODO overrelaxed
 
@@ -38,7 +40,8 @@ namespace hops {
 
         [[nodiscard]] typename MatrixType::Scalar calculateLogAcceptanceProbability() {
             return chordStepDistribution.calculateInverseNormalizationConstant(0, backwardDistance, forwardDistance)
-                   - chordStepDistribution.calculateInverseNormalizationConstant(0, backwardDistance - step, forwardDistance - step);
+                   - chordStepDistribution.calculateInverseNormalizationConstant(0, backwardDistance - step,
+                                                                                 forwardDistance - step);
         }
 
         std::string getName();
@@ -115,8 +118,7 @@ namespace hops {
             typename MatrixType::Scalar stepSize) {
         if constexpr (IsSetStepSizeAvailable<ChordStepDistribution>::value) {
             chordStepDistribution.setStepSize(stepSize);
-        }
-        else {
+        } else {
             throw std::runtime_error("Step size not available.");
         }
     }

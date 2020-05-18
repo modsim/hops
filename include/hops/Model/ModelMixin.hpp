@@ -21,11 +21,12 @@ namespace hops {
             stateNegativeLogLikelihood = ModelImpl::calculateNegativeLogLikelihood(MarkovChainProposer::getState());
         }
 
-                void acceptProposal();
+        void acceptProposal();
 
-                double calculateLogAcceptanceProbability();
+        double calculateLogAcceptanceProbability();
 
-                double getNegativeLogLikelihoodOfCurrentState();
+        double getNegativeLogLikelihoodOfCurrentState();
+
     private:
         double stateNegativeLogLikelihood;
         double proposalNegativeLogLikelihood;
@@ -39,10 +40,14 @@ namespace hops {
 
     template<typename MarkovChainProposer, typename ModelImpl>
     double ModelMixin<MarkovChainProposer, ModelImpl>::calculateLogAcceptanceProbability() {
-        proposalNegativeLogLikelihood = ModelImpl::calculateNegativeLogLikelihood(MarkovChainProposer::getProposal());
-        double acceptanceProbability = stateNegativeLogLikelihood - proposalNegativeLogLikelihood;
+        double acceptanceProbability = 0;
         if constexpr(IsCalculateLogAcceptanceProbabilityAvailable<MarkovChainProposer>::value) {
-           acceptanceProbability += MarkovChainProposer::calculateLogAcceptanceProbability();
+            acceptanceProbability += MarkovChainProposer::calculateLogAcceptanceProbability();
+        }
+        if (std::isfinite(acceptanceProbability)) {
+            proposalNegativeLogLikelihood = ModelImpl::calculateNegativeLogLikelihood(
+                    MarkovChainProposer::getProposal());
+            acceptanceProbability += stateNegativeLogLikelihood - proposalNegativeLogLikelihood;
         }
         return acceptanceProbability;
     }

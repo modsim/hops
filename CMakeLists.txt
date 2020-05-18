@@ -6,6 +6,18 @@ cmake_minimum_required(VERSION 3.14)
 project(hops)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules/")
 
+
+########################################################################################################################
+# MSVC stuff
+########################################################################################################################
+if (CMAKE_GENERATOR MATCHES "Visual Studio")
+    add_definitions(-D_USE_MATH_DEFINES)
+    add_compile_options("/Za")
+endif ()
+
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+
+
 ########################################################################################################################
 # Build Parameters
 ########################################################################################################################
