@@ -23,9 +23,7 @@ set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 # Build Parameters
 ########################################################################################################################
 
-# TODO replace by standard path and check if env is required
-#set(ENV{MKLROOT} "/home/jadebeck/intel/compilers_and_libraries/linux/mkl" CACHE PATH "Path to installed mkl directory.")
-#set(MKL_ROOT_DIR "/home/jadebeck/intel/compilers_and_libraries/linux/mkl" CACHE PATH "Path to installed mkl directory.")
+set(MKL_ROOT_DIR "~/intel/compilers_and_libraries/linux/mkl" CACHE PATH "Path to installed mkl directory.")
 set(MKL_USE_interface lp64)
 
 ########################################################################################################################
@@ -46,7 +44,8 @@ set(CMAKE_C_FLAGS "${CMAKE_FLAGS} ${MPI_FLAGS}")
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MPI_CXX_FLAGS}")
 if(CMAKE_COMPILER_IS_GNUCXX)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra -Wall -g")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra -Wall")
+    set(CMAKE_CXX_FLAGS_DEBUG "-g")
 endif()
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${MPI_EXE_LINKER_FLAGS}")
 include(CheckCXXCompilerFlag)
@@ -73,7 +72,7 @@ endif ()
 
 if (NOT ${CMAKE_BUILD_TYPE} STREQUAL "Debug")
     message(STATUS "Disabling Runtime checks: Using Release mode for hops and Eigen")
-    add_definitions(-DNDEBUG)
+     add_definitions(-DNDEBUG)
 else ()
     message(STATUS "Enabling Runtime checks.")
 endif (NOT ${CMAKE_BUILD_TYPE} STREQUAL "Debug")

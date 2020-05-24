@@ -48,11 +48,12 @@ namespace {
             interiorPoint(i) = 0;
         }
 
-        auto actualDikinEllipsoidLowerFactor = dikinEllipsoidCalculator.calculateCholeskyFactorOfDikinEllipsoid(
+        auto [choleskyWasSuccessful, actualDikinEllipsoidLowerFactor] = dikinEllipsoidCalculator.calculateCholeskyFactorOfDikinEllipsoid(
                 interiorPoint);
         Eigen::MatrixXd actualDikinEllipsoid =
                 actualDikinEllipsoidLowerFactor * actualDikinEllipsoidLowerFactor.transpose();
 
+        EXPECT_TRUE(choleskyWasSuccessful);
         EXPECT_NEAR((actualDikinEllipsoid - expectedDikinEllipsoid).norm(), 0, 1e-15);
     }
 
@@ -107,11 +108,12 @@ namespace {
             interiorPoint(i) = 1. / 8;
         }
 
-        auto actualDikinEllipsoidLowerFactor = dikinEllipsoidCalculator.calculateCholeskyFactorOfDikinEllipsoid(
+        auto [choleskyWasSuccessful , actualDikinEllipsoidLowerFactor] = dikinEllipsoidCalculator.calculateCholeskyFactorOfDikinEllipsoid(
                 interiorPoint);
         Eigen::MatrixXd actualDikinEllipsoid =
                 actualDikinEllipsoidLowerFactor * actualDikinEllipsoidLowerFactor.transpose();
 
+        EXPECT_TRUE(choleskyWasSuccessful);
         EXPECT_NEAR((actualDikinEllipsoid - expectedDikinEllipsoid).norm(), 0, 1e-10);
     }
 }

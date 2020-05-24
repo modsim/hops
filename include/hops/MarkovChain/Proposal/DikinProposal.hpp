@@ -94,7 +94,12 @@ namespace hops {
             return -std::numeric_limits<typename MatrixType::Scalar>::infinity();
         }
 
-        proposalCholeskyOfDikinEllipsoid = dikinEllipsoidCalculator.calculateCholeskyFactorOfDikinEllipsoid(proposal);
+        auto choleskyResult = dikinEllipsoidCalculator.calculateCholeskyFactorOfDikinEllipsoid(proposal);
+        if (!choleskyResult.first) {
+            return -std::numeric_limits<typename MatrixType::Scalar>::infinity();
+        }
+        proposalCholeskyOfDikinEllipsoid = std::move(choleskyResult.second);
+
         proposalLogSqrtDeterminant = proposalCholeskyOfDikinEllipsoid.diagonal().array().log().sum();
         VectorType stateDifference = state - proposal;
 
@@ -114,7 +119,11 @@ namespace hops {
     template<typename MatrixType, typename VectorType>
     void DikinProposal<MatrixType, VectorType>::setState(StateType newState) {
         state.swap(newState);
-        stateCholeskyOfDikinEllipsoid = dikinEllipsoidCalculator.calculateCholeskyFactorOfDikinEllipsoid(state);
+        auto choleskyResult = dikinEllipsoidCalculator.calculateCholeskyFactorOfDikinEllipsoid(state);
+        if (!choleskyResult.first) {
+            throw std::runtime_error("Could not calculate cholesky factorization for newState.");
+        }
+        stateCholeskyOfDikinEllipsoid = std::move(choleskyResult.second);
         stateLogSqrtDeterminant = stateCholeskyOfDikinEllipsoid.diagonal().array().log().sum();
     }
 
