@@ -79,10 +79,10 @@ namespace hops {
         Eigen::Matrix<RealType, Eigen::Dynamic, Eigen::Dynamic> maximumVolumeEllipsoid;
         Eigen::Matrix<RealType, Eigen::Dynamic, 1> center;
 
-        bool converged = false;
         size_t iterations = 0;
         RealType currentError = 0;
         RealType tolerance = 0;
+        bool converged = false;
     };
 }
 

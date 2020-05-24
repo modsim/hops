@@ -1,4 +1,5 @@
 #include <Eigen/SparseCore>
+#include <iostream>
 #include <hops/FileReader/CsvReader.hpp>
 #include <hops/FileWriter/FileWriterFactory.hpp>
 #include <hops/LinearProgram/LinearProgramFactory.hpp>
@@ -12,6 +13,15 @@
 using RealType = double;
 
 int main(int argc, char **argv) {
+    if (argc != 4) {
+        std::cout << "Usage: SamplingGaussianTargetDemo working_dir model_name chain_type" << std::endl
+                  << "Example: ../../resources/ e_coli_core CHRR" << std::endl << std::endl
+                  << "Arguments:" << std::endl
+                  << "working_dir\t\t" << "directory containing the directory with the model." << std::endl
+                  << "model_name\t\t" << "name of model" << std::endl
+                  << "chain_type\t\t" << "CHRR | HRR | DikinWalk | CSmMALA" << std::endl;
+        exit(0);
+    }
     std::string modelDirectory(argv[1]);
     std::string modelName(argv[2]);
     std::string chainName(argv[3]);
@@ -19,7 +29,6 @@ int main(int argc, char **argv) {
     std::cout << "model name " << modelName << std::endl;
     std::cout << "chain name " << chainName << std::endl;
 
-    // TODO fix paths for for windows
     std::string Afile = modelDirectory + "/" + modelName + "/A_" + modelName + "_unrounded.csv";
     std::string Tfile = modelDirectory + "/" + modelName + "/T_" + modelName + "_rounded.csv";
     std::string bfile = modelDirectory + "/" + modelName + "/b_" + modelName + "_unrounded.csv";
@@ -47,54 +56,44 @@ int main(int argc, char **argv) {
 
     std::unique_ptr<hops::MarkovChain> markovChain;
     if (chainName == "DikinWalk") {
-        std::unique_ptr<hops::LinearProgram> linearProgram = hops::LinearProgramFactory::createLinearProgram(
-                Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>(A.cast<double>()),
-                b.cast<double>());
-        Eigen::Matrix<RealType, Eigen::Dynamic, 1> startingPoint = linearProgram->calculateChebyshevCenter().optimalParameters.cast<RealType>();
-
         markovChain = hops::MarkovChainFactory::createMarkovChain(hops::MarkovChainType::DikinWalk,
                                                                   A,
                                                                   b,
-                                                                  startingPoint,
+                                                                  mean,
                                                                   model,
                                                                   false);
     } else if (chainName == "CSmMALA") {
-        std::unique_ptr<hops::LinearProgram> linearProgram = hops::LinearProgramFactory::createLinearProgram(
-                Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>(A.cast<double>()),
-                b.cast<double>());
-        Eigen::Matrix<RealType, Eigen::Dynamic, 1> startingPoint = linearProgram->calculateChebyshevCenter().optimalParameters.cast<RealType>();
         markovChain = hops::MarkovChainFactory::createMarkovChain(hops::MarkovChainType::CSmMALA,
                                                                   A,
                                                                   b,
-                                                                  startingPoint,
+                                                                  mean,
                                                                   model,
                                                                   false);
     } else if (chainName == "CHRR") {
-        std::unique_ptr<hops::LinearProgram> linearProgram = hops::LinearProgramFactory::createLinearProgram(
-                Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>((A * roundingTransformation).cast<double>()),
-                b.cast<double>());
-        Eigen::Matrix<RealType, Eigen::Dynamic, 1> startingPoint = linearProgram->calculateChebyshevCenter().optimalParameters.cast<RealType>();
+        std::string roundedStartingPointFile = modelDirectory + "/" + modelName + "/start_" + modelName + "_rounded.csv";
+        Eigen::Matrix<RealType, Eigen::Dynamic, 1> roundedStartingPoint = hops::CsvReader::readVector<Eigen::Matrix<double, Eigen::Dynamic, 1>>(
+                roundedStartingPointFile).cast<RealType>();
+
         markovChain = hops::MarkovChainFactory::createMarkovChain<Eigen::Matrix<RealType, Eigen::Dynamic, Eigen::Dynamic>, decltype(b), decltype(model)>(
                 hops::MarkovChainType::CoordinateHitAndRun,
                 Eigen::Matrix<RealType, Eigen::Dynamic, Eigen::Dynamic>(A * roundingTransformation),
                 b,
-                startingPoint,
+                roundedStartingPoint,
                 roundingTransformation,
-                decltype(startingPoint)::Zero(roundingTransformation.rows()),
+                decltype(roundedStartingPoint)::Zero(roundingTransformation.rows()),
                 model,
                 false);
     } else if (chainName == "HRR") {
-        std::unique_ptr<hops::LinearProgram> linearProgram = hops::LinearProgramFactory::createLinearProgram(
-                Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>((A * roundingTransformation).cast<double>()),
-                b.cast<double>());
-        Eigen::Matrix<RealType, Eigen::Dynamic, 1> startingPoint = linearProgram->calculateChebyshevCenter().optimalParameters.cast<RealType>();
+        std::string roundedStartingPointFile = modelDirectory + "/" + modelName + "/start_" + modelName + "_rounded.csv";
+        Eigen::Matrix<RealType, Eigen::Dynamic, 1> roundedStartingPoint = hops::CsvReader::readVector<Eigen::Matrix<double, Eigen::Dynamic, 1>>(
+                roundedStartingPointFile).cast<RealType>();
         markovChain = hops::MarkovChainFactory::createMarkovChain<Eigen::Matrix<RealType, Eigen::Dynamic, Eigen::Dynamic>, decltype(b), decltype(model)>(
                 hops::MarkovChainType::HitAndRun,
                 Eigen::Matrix<RealType, Eigen::Dynamic, Eigen::Dynamic>(A * roundingTransformation),
                 b,
-                startingPoint,
+                roundedStartingPoint,
                 roundingTransformation,
-                decltype(startingPoint)::Zero(roundingTransformation.rows()),
+                decltype(roundedStartingPoint)::Zero(roundingTransformation.rows()),
                 model,
                 false);
     } else {

@@ -5,24 +5,39 @@
 #include <hops/MarkovChain/Recorder/StateRecorder.hpp>
 #include <hops/MarkovChain/StateTransformation.hpp>
 #include <hops/MarkovChain/Proposal/CoordinateHitAndRunProposal.hpp>
-#include <hops/MarkovChain/Proposal/HitAndRunProposal.hpp>
-#include <hops/MarkovChain/Proposal/DikinProposal.hpp>
 #include <hops/Transformation/Transformation.hpp>
 #include <hops/MarkovChain/Draw/NoOpDrawAdapter.hpp>
-#include <hops/MarkovChain/Draw/MetropolisHastingsFilter.hpp>
 
-int main() {
-    auto A = hops::CsvReader::readMatrix<Eigen::MatrixXd>("../resources/simplex_64D/A_simplex_64D_rounded.csv");
-    auto N = hops::CsvReader::readMatrix<Eigen::MatrixXd>("../resources/simplex_64D/N_simplex_64D_rounded.csv");
-    auto b = hops::CsvReader::readVector<Eigen::VectorXd>("../resources/simplex_64D/b_simplex_64D_rounded.csv");
-    auto s = hops::CsvReader::readVector<Eigen::VectorXd>("../resources/simplex_64D/start_simplex_64D_rounded.csv");
-    auto shift = hops::CsvReader::readVector<Eigen::VectorXd>(
-            "../resources/simplex_64D/p_shift_simplex_64D_rounded.csv");
-    auto A2 = hops::CsvReader::readMatrix<Eigen::MatrixXd>("../resources/simplex_64D/A_simplex_64D_unrounded.csv");
-    auto b2 = hops::CsvReader::readVector<Eigen::VectorXd>("../resources/simplex_64D/b_simplex_64D_unrounded.csv");
-    auto s2 = hops::CsvReader::readVector<Eigen::VectorXd>("../resources/simplex_64D/start_simplex_64D_unrounded.csv");
+int main(int argc, char **argv) {
+    if(argc!= 3) {
+        throw std::runtime_error("Requires model name and random seed as argument.");
+    }
+    std::string modelName = std::string(argv[1]);
+    std::string Afile = "A_" + std::string(argv[1]) + "_rounded.csv";
+    std::string bfile = "b_" + std::string(argv[1]) + "_rounded.csv";
+    std::string startfile = "start_" + std::string(argv[1]) + "_rounded.csv";
+    std::string Nfile = "N_" + std::string(argv[1]) + "_rounded.csv";
+    std::string p_shiftfile = "p_shift_" + std::string(argv[1]) + "_rounded.csv";
+    std::string stringSeed = std::string(argv[2]);
 
-    auto markovChain1 = hops::MarkovChainAdapter(
+
+    std::cout << "Sampling model: " << modelName << std::endl;
+    std::cout << "prerounded A: " << Afile << std::endl;
+    std::cout << "prerounded b: " << bfile << std::endl;
+    std::cout << "prerounded start: " << startfile << std::endl;
+    std::cout << "prerounded N: " << Nfile << std::endl;
+    std::cout << "prerounded p_shift: " << p_shiftfile << std::endl;
+    std::cout << "seed: " << stringSeed << std::endl;
+    auto A = hops::CsvReader::readMatrix<Eigen::MatrixXd>(Afile);
+    auto N = hops::CsvReader::readMatrix<Eigen::MatrixXd>(Nfile);
+    auto b = hops::CsvReader::readVector<Eigen::VectorXd>(bfile);
+    auto s = hops::CsvReader::readVector<Eigen::VectorXd>(startfile);
+    auto shift = hops::CsvReader::readVector<Eigen::VectorXd>(p_shiftfile);
+    int seed = std::stoi(stringSeed);
+
+    hops::RandomNumberGenerator randomNumberGenerator(seed);
+
+    auto markovChain = hops::MarkovChainAdapter(
             hops::NoOpDrawAdapter(
                     hops::StateRecorder(
                             hops::StateTransformation(
@@ -35,38 +50,9 @@ int main() {
             )
     );
 
-    auto markovChain2 = hops::MarkovChainAdapter(
-            hops::NoOpDrawAdapter(
-                    hops::StateRecorder(
-                            hops::StateTransformation(
-                                    hops::HitAndRunProposal(
-                                            A,
-                                            b,
-                                            s),
-                                    hops::Transformation(N, shift))
-                    )
-            )
-    );
 
-    auto markovChain3 = hops::MarkovChainAdapter(
-            hops::StateRecorder(
-                    hops::MetropolisHastingsFilter(
-                            hops::DikinProposal(
-                                    A2,
-                                    b2,
-                                    s2)
-                    )
-            )
-    );
-
-
-    hops::RandomNumberGenerator randomNumberGenerator(42);
-
-    markovChain1.draw(randomNumberGenerator, 10000, 64);
-    markovChain2.draw(randomNumberGenerator, 10000, 64);
-    markovChain3.draw(randomNumberGenerator, 10000, 64);
-
-    markovChain1.writeHistory(hops::FileWriterFactory::createFileWriter("chrr", hops::FileWriterType::Csv).get());
-    markovChain2.writeHistory(hops::FileWriterFactory::createFileWriter("hrr", hops::FileWriterType::Csv).get());
-    markovChain3.writeHistory(hops::FileWriterFactory::createFileWriter("dikin", hops::FileWriterType::Csv).get());
+        markovChain.draw(randomNumberGenerator, 10000, A.cols() * 200);
+        markovChain.writeHistory(
+                hops::FileWriterFactory::createFileWriter(std::string(argv[1]) + stringSeed, hops::FileWriterType::Csv).get());
+        markovChain.clearHistory();
 }

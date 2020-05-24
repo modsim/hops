@@ -2,6 +2,8 @@
 # GTest download and configuration
 ########################################################################################################################
 
+set(gtest_disable_pthreads ON CACHE BOOL "" FORCE)
+
 # Download and unpack googletest at configure time
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt.in googletest-download/CMakeLists.txt)
 execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
@@ -11,7 +13,7 @@ if (result)
     message(FATAL_ERROR "CMake step for googletest failed: ${result}")
 endif ()
 execute_process(COMMAND ${CMAKE_COMMAND} --build .
-        RESULT_VARIABLE result
+        RESULT_VARIABLE resul
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download)
 if (result)
     message(FATAL_ERROR "Build step for googletest failed: ${result}")
@@ -29,6 +31,13 @@ add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
         ${CMAKE_CURRENT_BINARY_DIR}/googletest-build
         EXCLUDE_FROM_ALL)
 
+########################################################################################################################
+# Run all tests target
+########################################################################################################################
+
+add_executable(runTests runTests.cpp)
+target_include_directories(runTests PUBLIC ../include ${CMAKE_CURRENT_BINARY_DIR}/googletest-src/googletest/include)
+target_link_libraries(runTests hops gtest_main gtest)
 
 ########################################################################################################################
 # Test subdirectories

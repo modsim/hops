@@ -1,7 +1,11 @@
-#include <hops/PolytopePreprocessing/MaximumVolumeEllipsoid.hpp>
+#define _USE_MATH_DEFINES
+
+#include <cmath>
 #include <Eigen/Dense>
 #include <Eigen/LU>
 #include <Eigen/SparseQR>
+#include <hops/PolytopePreprocessing/MaximumVolumeEllipsoid.hpp>
+#include <iostream>
 
 template<typename Derived>
 std::ostream &operator<<(std::ostream &out, const hops::MaximumVolumeEllipsoid<Derived> &maximumVolumeEllipsoid) {
@@ -35,7 +39,7 @@ hops::MaximumVolumeEllipsoid<RealType>::applyRoundingTransformation(Eigen::Matri
 
 template<typename RealType>
 RealType hops::MaximumVolumeEllipsoid<RealType>::calculateVolume() const {
-    const RealType halfDim = static_cast<double>(roundingTransformation.cols()) * 0.5;
+    const RealType halfDim = static_cast<RealType>(roundingTransformation.cols() * 0.5);
     return std::pow(M_PI, halfDim) / std::tgamma(halfDim + 1.0) * roundingTransformation.diagonal().prod();
 }
 
@@ -89,12 +93,12 @@ hops::MaximumVolumeEllipsoid<RealType>::construct(const Eigen::Matrix<RealType, 
     const RealType minmu = 1e-8;
     const RealType tau0 = 0.75;
 
-    const int m = Ain.rows();
-    const int n = Ain.cols();
+    const typename Eigen::Matrix<RealType, Eigen::Dynamic, Eigen::Dynamic>::Index m = Ain.rows();
+    const typename Eigen::Matrix<RealType, Eigen::Dynamic, Eigen::Dynamic>::Index n = Ain.cols();
     const Eigen::Matrix<RealType, Eigen::Dynamic, 1> b = Eigen::Matrix<RealType, Eigen::Dynamic, 1>::Ones(m);
     const RealType bnrm = bin.norm();
 
-    const int rank = Ain.colPivHouseholderQr().rank();
+    const long rank = Ain.colPivHouseholderQr().rank();
     if (rank < n) {
         throw std::runtime_error("Algorithm needs full column rank, because A^T * A has to be invertible");
     }
@@ -194,15 +198,16 @@ hops::MaximumVolumeEllipsoid<RealType>::construct(const Eigen::Matrix<RealType, 
         Eigen::Matrix<RealType, Eigen::Dynamic, 1> dz = R3Dy - z.cwiseProduct(dyDy);
 
         RealType minA = 1.0;
-        RealType ax = -1.0 / std::min(static_cast<RealType>(-0.5), (-Adx.cwiseProduct(bmAx)).minCoeff());
+        RealType tempMin = -0.5;
+        RealType ax = -1.0 / std::min(tempMin, (-Adx.cwiseProduct(bmAx)).minCoeff());
         if (ax <= minA) {
             minA = ax;
         }
-        RealType ay = -1.0 / std::min(static_cast<RealType>(-0.5), dyDy.minCoeff());
+        RealType ay = -1.0 / std::min(tempMin, dyDy.minCoeff());
         if (ay <= minA) {
             minA = ay;
         }
-        RealType az = -1.0 / std::min(static_cast<RealType>(-0.5), (dz.cwiseQuotient(z)).minCoeff());
+        RealType az = -1.0 / std::min(tempMin, (dz.cwiseQuotient(z)).minCoeff());
         if (az <= minA) {
             minA = az;
         }
@@ -229,17 +234,8 @@ hops::MaximumVolumeEllipsoid<RealType> hops::MaximumVolumeEllipsoid<RealType>::c
         size_t maximumNumberOfIterationsToRun,
         RealType tolerance) {
     std::unique_ptr<LinearProgram> linearProgram;
-    // TODO clean up, by letting factory check if it can create any linear program
-    try {
-        linearProgram = LinearProgramFactory::createLinearProgram(A.template cast<double>(),
-                                                                  b.template cast<double>(),
-                                                                  LinearProgramSolver::GUROBI);
-    }
-    catch (std::exception &e) {
-        linearProgram = LinearProgramFactory::createLinearProgram(A.template cast<double>(),
-                                                                  b.template cast<double>(),
-                                                                  LinearProgramSolver::CLP);
-    }
+    linearProgram = LinearProgramFactory::createLinearProgram(A.template cast<double>(),
+                                                              b.template cast<double>());
     Eigen::VectorXd startingPoint = linearProgram->calculateChebyshevCenter().optimalParameters;
     return MaximumVolumeEllipsoid<RealType>::construct(A,
                                                        b,

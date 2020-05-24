@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
-#include <hops/MarkovChain/AcceptanceRateTuner.hpp>
 #include <cmath>
+#include <Eigen/Core> // Won't  compile on windows without this include
+#include <hops/MarkovChain/AcceptanceRateTuner.hpp>
 #include <hops/MarkovChain/MarkovChainAdapter.hpp>
 #include <hops/MarkovChain/Draw/MetropolisHastingsFilter.hpp>
 #include <hops/MarkovChain/Recorder/StateRecorder.hpp>

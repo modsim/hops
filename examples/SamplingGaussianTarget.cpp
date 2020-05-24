@@ -3,11 +3,10 @@
 #include <hops/FileWriter/FileWriterFactory.hpp>
 #include <hops/LinearProgram/LinearProgramFactory.hpp>
 #include <hops/MarkovChain/MarkovChainFactory.hpp>
-#include <hops/MarkovChain/Proposal/ChordStepDistributions.hpp>
-#include <hops/Model/ModelMixin.hpp>
 #include <hops/Model/MultivariateGaussianModel.hpp>
 #include <hops/MarkovChain/AcceptanceRateTuner.hpp>
 #include <hops/PolytopePreprocessing/NormalizePolytope.hpp>
+#include <iostream>
 
 using RealType = double;
 

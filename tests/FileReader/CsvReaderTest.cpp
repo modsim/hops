@@ -297,13 +297,4 @@ namespace {
 
         EXPECT_TRUE((actualResult - expectedResult).norm() <= 0);
     }
-
-    TEST(CsvReader, readRecon2v04) {
-        auto actualResult = hops::CsvReader::readMatrix<Eigen::MatrixXd>(
-                "../../resources/Recon2.v04/A_Recon2.v04_unrounded.csv");
-
-        for (long i = 0; i < actualResult.cols(); ++i) {
-            EXPECT_TRUE((actualResult.col(i).array() != 0).any());
-        }
-    }
 }

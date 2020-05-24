@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <Eigen/Core>
 #include <hops/MarkovChain/MarkovChainFactory.hpp>
 
 namespace {
@@ -191,65 +192,6 @@ namespace {
         EXPECT_TRUE(markovChain != nullptr);
     }
 
-    TEST_F(MarkovChainFactory, createNonUniformCoordinateHitAndRunWithParallelTempering) {
-        bool useParallelTempering = true;
-
-        std::unique_ptr<hops::MarkovChain> markovChain;
-        EXPECT_NO_THROW(
-                markovChain = hops::MarkovChainFactory::createMarkovChain(
-                        hops::MarkovChainType::CoordinateHitAndRun,
-                        A,
-                        b,
-                        startingPoint,
-                        model,
-                        useParallelTempering)
-        );
-        EXPECT_TRUE(markovChain != nullptr);
-    }
-
-    TEST_F(MarkovChainFactory, createNonUniformCSmMALAWithParallelTempering) {
-        bool useParallelTempering = true;
-
-        std::unique_ptr<hops::MarkovChain> markovChain;
-        EXPECT_NO_THROW(
-                markovChain = hops::MarkovChainFactory::createMarkovChain(
-                        hops::MarkovChainType::CSmMALA, A, b, startingPoint, model, useParallelTempering)
-        );
-        EXPECT_TRUE(markovChain != nullptr);
-    }
-
-    TEST_F(MarkovChainFactory, createNonUniformDikinWalkWithParallelTempering) {
-        bool useParallelTempering = true;
-
-        std::unique_ptr<hops::MarkovChain> markovChain;
-        EXPECT_NO_THROW(
-                markovChain = hops::MarkovChainFactory::createMarkovChain(
-                        hops::MarkovChainType::DikinWalk,
-                        A,
-                        b,
-                        startingPoint,
-                        model,
-                        useParallelTempering)
-        );
-        EXPECT_TRUE(markovChain != nullptr);
-    }
-
-    TEST_F(MarkovChainFactory, createNonUniformHitAndRunWithParallelTempering) {
-        bool useParallelTempering = false;
-
-        std::unique_ptr<hops::MarkovChain> markovChain;
-        EXPECT_NO_THROW(
-                markovChain = hops::MarkovChainFactory::createMarkovChain(
-                        hops::MarkovChainType::HitAndRun,
-                        A,
-                        b,
-                        startingPoint,
-                        model,
-                        useParallelTempering)
-        );
-        EXPECT_TRUE(markovChain != nullptr);
-    }
-
     TEST_F(MarkovChainFactory, createNonUniformCoordinateHitAndRunRounded) {
         bool useParallelTempering = false;
 
@@ -314,6 +256,66 @@ namespace {
         EXPECT_TRUE(markovChain != nullptr);
     }
 
+#ifdef HOPS_MPI_SUPPORTED
+
+    TEST_F(MarkovChainFactory, createNonUniformCoordinateHitAndRunWithParallelTempering) {
+        bool useParallelTempering = true;
+
+        std::unique_ptr<hops::MarkovChain> markovChain;
+        EXPECT_NO_THROW(
+                markovChain = hops::MarkovChainFactory::createMarkovChain(
+                        hops::MarkovChainType::CoordinateHitAndRun,
+                        A,
+                        b,
+                        startingPoint,
+                        model,
+                        useParallelTempering)
+        );
+        EXPECT_TRUE(markovChain != nullptr);
+    }
+
+    TEST_F(MarkovChainFactory, createNonUniformCSmMALAWithParallelTempering) {
+        bool useParallelTempering = true;
+
+        std::unique_ptr<hops::MarkovChain> markovChain;
+        EXPECT_NO_THROW(
+                markovChain = hops::MarkovChainFactory::createMarkovChain(
+                        hops::MarkovChainType::CSmMALA, A, b, startingPoint, model, useParallelTempering)
+        );
+        EXPECT_TRUE(markovChain != nullptr);
+    }
+
+    TEST_F(MarkovChainFactory, createNonUniformDikinWalkWithParallelTempering) {
+        bool useParallelTempering = true;
+
+        std::unique_ptr<hops::MarkovChain> markovChain;
+        EXPECT_NO_THROW(
+                markovChain = hops::MarkovChainFactory::createMarkovChain(
+                        hops::MarkovChainType::DikinWalk,
+                        A,
+                        b,
+                        startingPoint,
+                        model,
+                        useParallelTempering)
+        );
+        EXPECT_TRUE(markovChain != nullptr);
+    }
+
+    TEST_F(MarkovChainFactory, createNonUniformHitAndRunWithParallelTempering) {
+        bool useParallelTempering = false;
+
+        std::unique_ptr<hops::MarkovChain> markovChain;
+        EXPECT_NO_THROW(
+                markovChain = hops::MarkovChainFactory::createMarkovChain(
+                        hops::MarkovChainType::HitAndRun,
+                        A,
+                        b,
+                        startingPoint,
+                        model,
+                        useParallelTempering)
+        );
+        EXPECT_TRUE(markovChain != nullptr);
+    }
     TEST_F(MarkovChainFactory, createNonUniformCoordinateHitAndRunRoundedWithParallelTempering) {
         bool useParallelTempering = true;
 
@@ -378,4 +380,5 @@ namespace {
         );
         EXPECT_TRUE(markovChain != nullptr);
     }
+#endif //HOPS_MPI_SUPPORTED
 }

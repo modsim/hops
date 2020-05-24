@@ -8,6 +8,7 @@
 
 /**
  * @brief Run with mpiexec
+ * @details not supported on windows
  * @return
  */
 int main() {

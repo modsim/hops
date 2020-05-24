@@ -1,8 +1,8 @@
 #ifndef HOPS_MULTIVARIATEGAUSSIANMODEL_HPP
 #define HOPS_MULTIVARIATEGAUSSIANMODEL_HPP
 
-#include <boost/math/constants/constants.hpp>
-#include <cmath>
+#define _USE_MATH_DEFINES
+#include <math.h>
 #include <Eigen/Cholesky>
 #include <Eigen/Core>
 #include <Eigen/LU>
@@ -46,8 +46,8 @@ namespace hops {
         Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic> inverseMatrixL = matrixL.inverse();
         inverseCovariance = inverseMatrixL * inverseMatrixL.transpose();
 
-        logNormalizationConstant = -static_cast<double>(this->mean.rows()) / 2 *
-                                   std::log(2 * boost::math::constants::pi<typename MatrixType::Scalar>())
+        logNormalizationConstant = -static_cast<typename MatrixType::Scalar>(this->mean.rows()) / 2 *
+                                   std::log(2 * M_PI)
                                    - matrixL.diagonal().array().log().sum();
     }
 

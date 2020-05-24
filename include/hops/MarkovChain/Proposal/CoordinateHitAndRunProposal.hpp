@@ -1,7 +1,6 @@
 #ifndef HOPS_COORDINATEHITANDRUNPROPOSAL_HPP
 #define HOPS_COORDINATEHITANDRUNPROPOSAL_HPP
 
-#include <mpi.h>
 #include "ChordStepDistributions.hpp"
 #include <hops/MarkovChain/IsSetStepSizeAvailable.hpp>
 #include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
