@@ -12,7 +12,7 @@ namespace hops {
     public:
         DikinEllipsoidCalculator(MatrixType A, VectorType b);
 
-        Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>
+        std::pair<bool, Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>>
         calculateCholeskyFactorOfDikinEllipsoid(const VectorType &x);
 
         Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>
@@ -28,17 +28,14 @@ namespace hops {
             A(std::move(A)), b(std::move(b)) {}
 
     template<typename MatrixType, typename VectorType>
-    Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>
+    std::pair<bool, Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>>
     DikinEllipsoidCalculator<MatrixType, VectorType>::calculateCholeskyFactorOfDikinEllipsoid(const VectorType &x) {
         Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic> dikinEllipsoid =
                 calculateDikinEllipsoid(x);
 
         Eigen::LLT<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>> solver(dikinEllipsoid);
-        if (solver.info() != Eigen::Success) {
-            throw std::runtime_error("Error in Dikin Ellipsoid");
-        } else {
-            return solver.matrixL();
-        }
+        bool successful = solver.info() == Eigen::Success;
+        return std::make_pair(successful, solver.matrixL());
     }
 
     template<typename MatrixType, typename VectorType>

@@ -45,54 +45,37 @@ int main(int argc, char **argv) {
             bfile).cast<RealType>();
     Eigen::Matrix<RealType, Eigen::Dynamic, 1> mean = hops::CsvReader::readVector<Eigen::Matrix<double, Eigen::Dynamic, 1>>(
             meanFile).cast<RealType>();
-    Eigen::Matrix<RealType, Eigen::Dynamic, Eigen::Dynamic> denseA = A;
-    hops::normalizePolytope(denseA, b);
-    A = denseA.sparseView();
-    A.makeCompressed();
 
     Eigen::Matrix<RealType, Eigen::Dynamic, Eigen::Dynamic> covariance =
-            1e-6 * Eigen::Matrix<RealType, Eigen::Dynamic, 1>::Ones(mean.rows()).asDiagonal();
+            1e-4 * Eigen::Matrix<RealType, Eigen::Dynamic, 1>::Ones(mean.rows()).asDiagonal();
     hops::MultivariateGaussianModel model(mean, covariance);
 
     std::unique_ptr<hops::MarkovChain> markovChain;
-    if (chainName == "DikinWalk") {
-        markovChain = hops::MarkovChainFactory::createMarkovChain(hops::MarkovChainType::DikinWalk,
+    if (chainName == "DikinWalk" || chainName == "CSmMALA") {
+        hops::MarkovChainType chainType =
+                chainName == "DikinWalk" ? hops::MarkovChainType::DikinWalk : hops::MarkovChainType::CSmMALA;
+        markovChain = hops::MarkovChainFactory::createMarkovChain(chainType,
                                                                   A,
                                                                   b,
                                                                   mean,
                                                                   model,
                                                                   false);
-    } else if (chainName == "CSmMALA") {
-        markovChain = hops::MarkovChainFactory::createMarkovChain(hops::MarkovChainType::CSmMALA,
-                                                                  A,
-                                                                  b,
-                                                                  mean,
-                                                                  model,
-                                                                  false);
-    } else if (chainName == "CHRR") {
-        std::string roundedStartingPointFile = modelDirectory + "/" + modelName + "/start_" + modelName + "_rounded.csv";
-        Eigen::Matrix<RealType, Eigen::Dynamic, 1> roundedStartingPoint = hops::CsvReader::readVector<Eigen::Matrix<double, Eigen::Dynamic, 1>>(
-                roundedStartingPointFile).cast<RealType>();
+    } else if (chainName == "CHRR" || chainName == "HRR") {
+        hops::MarkovChainType chainType =
+                chainName == "HRR" ? hops::MarkovChainType::HitAndRun : hops::MarkovChainType::CoordinateHitAndRun;
+
+        // Assumes rounding transformation (the result of a cholesky decomposition) is stored as lower diagonal L of LLT and not UUT
+        Eigen::Matrix<RealType, Eigen::Dynamic, 1> roundedStartingPoint = Eigen::Matrix<RealType, Eigen::Dynamic, Eigen::Dynamic>(
+                roundingTransformation)
+                .template triangularView<Eigen::Lower>().solve(mean);
+
 
         markovChain = hops::MarkovChainFactory::createMarkovChain<Eigen::Matrix<RealType, Eigen::Dynamic, Eigen::Dynamic>, decltype(b), decltype(model)>(
-                hops::MarkovChainType::CoordinateHitAndRun,
+                chainType,
                 Eigen::Matrix<RealType, Eigen::Dynamic, Eigen::Dynamic>(A * roundingTransformation),
                 b,
                 roundedStartingPoint,
-                roundingTransformation,
-                decltype(roundedStartingPoint)::Zero(roundingTransformation.rows()),
-                model,
-                false);
-    } else if (chainName == "HRR") {
-        std::string roundedStartingPointFile = modelDirectory + "/" + modelName + "/start_" + modelName + "_rounded.csv";
-        Eigen::Matrix<RealType, Eigen::Dynamic, 1> roundedStartingPoint = hops::CsvReader::readVector<Eigen::Matrix<double, Eigen::Dynamic, 1>>(
-                roundedStartingPointFile).cast<RealType>();
-        markovChain = hops::MarkovChainFactory::createMarkovChain<Eigen::Matrix<RealType, Eigen::Dynamic, Eigen::Dynamic>, decltype(b), decltype(model)>(
-                hops::MarkovChainType::HitAndRun,
-                Eigen::Matrix<RealType, Eigen::Dynamic, Eigen::Dynamic>(A * roundingTransformation),
-                b,
-                roundedStartingPoint,
-                roundingTransformation,
+                Eigen::Matrix<RealType, Eigen::Dynamic, Eigen::Dynamic>(roundingTransformation),
                 decltype(roundedStartingPoint)::Zero(roundingTransformation.rows()),
                 model,
                 false);
@@ -106,9 +89,11 @@ int main(int argc, char **argv) {
     float upperLimitAcceptanceRate = chainName == "CSmMALA" ? 0.65 : 0.3;
     float lowerLimitAcceptanceRate = chainName == "CSmMALA" ? 0.3 : 0.20;
     double lowerLimitStepSize = 1e-10;
-    double upperLimitStepSize = (chainName == "HRR" || chainName == "CHRR") ? 1e6 : 1;
-    size_t iterationsToTestStepSize = 100 * A.cols();
+    double upperLimitStepSize = 1;
+    size_t iterationsToTestStepSize = 10 * A.cols();
     size_t maxIterations = 10000 * A.cols();
+    markovChain->draw(randomNumberGenerator, 1, 10000);
+    markovChain->clearHistory();
 
     bool isTuned = hops::AcceptanceRateTuner::tune(markovChain.get(),
                                                    randomNumberGenerator,
@@ -120,12 +105,13 @@ int main(int argc, char **argv) {
                                                     maxIterations});
     std::cout << "isTuned: " << isTuned << std::endl;
     std::cout << "current step size: " << markovChain->getAttribute(hops::MarkovChainAttribute::STEP_SIZE) << std::endl;
+    markovChain->clearHistory();
 
-    auto fileWriter = hops::FileWriterFactory::createFileWriter(modelName + "_" + markovChain->getName(),
+    auto fileWriter = hops::FileWriterFactory::createFileWriter(modelName + "_" + markovChain->getName() + "_demo",
                                                                 hops::FileWriterType::Csv);
-    long thinning = A.cols() * 10;
+    long thinning = A.cols() * 100;
     long numberOfSamples = 100;
-    for (int i = 0; i < 1000; ++i) {
+    for (int i = 0; i < 100; ++i) {
         markovChain->draw(randomNumberGenerator, numberOfSamples, thinning);
         markovChain->writeHistory(fileWriter.get());
         markovChain->clearHistory();
