@@ -13,13 +13,14 @@ namespace hops {
         GUROBI,
     };
 
+#if defined(HOPS_CLP_FOUND) && defined(HOPS_GUROBI_FOUND)
+
     class LinearProgramFactory {
     public:
         template<typename Derived1, typename Derived2>
         static std::unique_ptr<LinearProgram> createLinearProgram(
                 const Eigen::MatrixBase<Derived1> &A,
                 const Eigen::MatrixBase<Derived2> &b,
-                // TODO set default by checking what's available
                 LinearProgramSolver solver = LinearProgramSolver::GUROBI) {
             switch (solver) {
                 case LinearProgramSolver::CLP: {
@@ -31,6 +32,50 @@ namespace hops {
             }
         }
     };
+
+#elif defined(HOPS_CLP_FOUND)
+
+    class LinearProgramFactory {
+    public:
+        template<typename Derived1, typename Derived2>
+        static std::unique_ptr<LinearProgram> createLinearProgram(
+                const Eigen::MatrixBase<Derived1> &A,
+                const Eigen::MatrixBase<Derived2> &b,
+                LinearProgramSolver solver = LinearProgramSolver::CLP) {
+            return std::make_unique<LinearProgramClpImpl>(A, b);
+        }
+    };
+
+#elif defined(HOPS_GUROBI_FOUND)
+
+    class LinearProgramFactory {
+    public:
+        template<typename Derived1, typename Derived2>
+        static std::unique_ptr<LinearProgram> createLinearProgram(
+                const Eigen::MatrixBase<Derived1> &A,
+                const Eigen::MatrixBase<Derived2> &b,
+                LinearProgramSolver solver = LinearProgramSolver::GUROBI) {
+            return std::make_unique<LinearProgramGurobiImpl>(A, b);
+        }
+    }
+
+};
+
+#else
+
+    class LinearProgramFactory {
+    public:
+        template<typename Derived1, typename Derived2>
+        static std::unique_ptr<LinearProgram> createLinearProgram(
+                const Eigen::MatrixBase<Derived1> &A,
+                const Eigen::MatrixBase<Derived2> &b,
+                LinearProgramSolver solver = LinearProgramSolver::CLP) {
+            throw std::runtime_error("No linear program solver was found.");
+        }
+    };
+
+#endif //HOPS_CLP_FOUND && HOPS_GUROBI_FOUND
+
 }
 
 #endif //HOPS_LINEARPROGRAMFACTORY_HPP

@@ -125,8 +125,9 @@ namespace {
         EXPECT_LE(maxErrorE2, 1e-10);
     }
 
+#if HOPS_CLP_FOUND || HOPS_GUROBI_FOUND
     TEST(MaximumVolumeEllipsoid, testDifferentStartingPointForEcoli) {
-        const int maximumNumberOfIterationsToRun = 20000;
+        const int maximumNumberOfIterationsToRun = 30000;
         Eigen::MatrixXd A = createEcoliMatrix();
         Eigen::VectorXd b = createEcoliVector();
         Eigen::VectorXd start = createEcoliStart();
@@ -163,55 +164,7 @@ namespace {
                    maximumVolumeEllipsoid2.getRoundingTransformation())
                           .lpNorm<Eigen::Infinity>(), 0.05);
     }
-
-    // TODO why does this test take forever
-//    TEST(MaximumVolumeEllipsoid, rounde_coli_core) {
-//        auto A_e_coli_core_rounded = hops::CsvReader::readMatrix<Eigen::MatrixXd>(
-//                "../../resources/e_coli_core/A_e_coli_core_rounded.csv");
-//        auto b_e_coli_core_rounded = hops::CsvReader::readVector<Eigen::VectorXd>(
-//                "../../resources/e_coli_core/b_e_coli_core_rounded.csv");
-//        auto expectedRoundingTransformation = hops::CsvReader::readMatrix<Eigen::MatrixXd>(
-//                "../../resources/e_coli_core/T_e_coli_core_rounded.csv");
-//
-//        auto A_e_coli_core = hops::CsvReader::readMatrix<Eigen::MatrixXd>(
-//                "../../resources/e_coli_core/A_e_coli_core_unrounded.csv");
-//        auto b_e_coli_core = hops::CsvReader::readVector<Eigen::VectorXd>(
-//                "../../resources/e_coli_core/b_e_coli_core_unrounded.csv");
-//
-//        auto maximumVolumeEllipsoid = hops::MaximumVolumeEllipsoid<double>::construct(
-//                A_e_coli_core,
-//                b_e_coli_core,
-//                1000,
-//                1e-3);
-//
-//        EXPECT_TRUE(maximumVolumeEllipsoid.hasConverged());
-//        std::cout << (maximumVolumeEllipsoid.getRoundingTransformation() -  expectedRoundingTransformation) << std::endl;
-//        std::cout << maximumVolumeEllipsoid.getRoundingTransformation()(1, 1)  << std::endl;
-//        std::cout << expectedRoundingTransformation(1, 1)  << std::endl;
-//        std::cout << (maximumVolumeEllipsoid.getRoundingTransformation() -  expectedRoundingTransformation).minCoeff() << std::endl;
-//        EXPECT_LE((maximumVolumeEllipsoid.getRoundingTransformation() - expectedRoundingTransformation).norm(), 1e-2);
-//    }
-//
-// TODO this test takes too long as long as we don't start with sparse systems
-//    TEST(MaximumVolumeEllipsoid, compareRoundingOfiJO1366ToCobraToolbox) {
-//        auto expectedRoundingTransformation = hops::CsvReader::readMatrix<Eigen::MatrixXd>(
-//                "../../resources/iAT_PLT_636/T_iAT_PLT_636_rounded.csv");
-//
-//        auto A_iAT_PLT_636 = hops::CsvReader::readMatrix<Eigen::MatrixXd>(
-//                "../../resources/iAT_PLT_636/A_iAT_PLT_636_unrounded.csv");
-//        auto b_iAT_PLT_636 = hops::CsvReader::readVector<Eigen::VectorXd>(
-//                "../../resources/iAT_PLT_636/b_iAT_PLT_636_unrounded.csv");
-//
-//        auto maximumVolumeEllipsoid = hops::MaximumVolumeEllipsoid<double>::construct(
-//                A_iAT_PLT_636,
-//                b_iAT_PLT_636,
-//                50,
-//                1e-6);
-//
-//        std::cout << "current error is " << maximumVolumeEllipsoid.getCurrentError() << std::endl;
-//        EXPECT_TRUE(maximumVolumeEllipsoid.hasConverged());
-//        EXPECT_LE((maximumVolumeEllipsoid.getRoundingTransformation() - expectedRoundingTransformation.transpose()).norm(), 1e-2);
-//    }
+#endif //HOPS_CLP_FOUND || HOPS_GUROBI_FOUND
 
     Eigen::MatrixXd createEcoliMatrix() {
         Eigen::MatrixXd A(81, 27);
@@ -292,8 +245,6 @@ namespace {
                 -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -1, -0, -0,
                 -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -1, -0,
                 -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -0, -1;
-//                Eigen::MatrixXd::Identity(27, 27),
-//                -Eigen::MatrixXd::Identity(27, 27);
 
         return A;
     }

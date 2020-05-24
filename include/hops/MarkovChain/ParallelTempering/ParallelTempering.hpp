@@ -1,11 +1,13 @@
 #ifndef HOPS_PARALLELTEMPERING_HPP
 #define HOPS_PARALLELTEMPERING_HPP
 
+#ifdef HOPS_MPI_SUPPORTED
+
 #include <hops/FileWriter/FileWriter.hpp>
 #include <hops/MarkovChain/Recorder/IsStoreRecordAvailable.hpp>
 #include <hops/MarkovChain/Recorder/IsWriteRecordsToFileAvailable.hpp>
 #include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
-#include <mpi/mpi.h>
+#include <mpi.h>
 #include <random>
 
 namespace hops {
@@ -165,5 +167,27 @@ namespace hops {
         MPI_Comm communicator;
     };
 }
+
+#else
+
+namespace hops {
+    /**
+     * @brief Mixin for adding parallel tempering to Markov chains. Requires MPI.
+     * @tparam MarkovChainImpl A class that has the ColdnessAttribute and its Recorders mixed in.
+     */
+    template<typename MarkovChainImpl>
+    class ParallelTempering : public MarkovChainImpl {
+    public:
+        ParallelTempering(const MarkovChainImpl &markovChainImpl // NOLINT(cppcoreguidelines-pro-type-member-init)
+                          ) : MarkovChainImpl(markovChainImpl) {
+            throw std::runtime_error("MPI not supported on current platform");
+        }
+        ParallelTempering(const MarkovChainImpl &markovChainImpl, // NOLINT(cppcoreguidelines-pro-type-member-init)
+                          double) : MarkovChainImpl(markovChainImpl) {
+            throw std::runtime_error("MPI not supported on current platform");
+        }
+    };
+}
+#endif //HOPS_MPI_SUPPORTED
 
 #endif //HOPS_PARALLELTEMPERING_HPP

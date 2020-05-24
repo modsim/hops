@@ -24,7 +24,7 @@ namespace {
     }
 
     TEST(CsvWriterImpl, writeFloats) {
-        std::vector<float> data{1.25, 5.513, 8.35};
+        std::vector<float> data{1.25f, 5.513f, 8.35f};
         std::string expectedOutput = "1.25\n5.513\n8.35\n";
 
         std::ostringstream actualOutput;
@@ -56,10 +56,10 @@ namespace {
     TEST(CsvWriterImpl, writeEigenFloatVectors) {
         std::vector<Eigen::VectorXf> data;
         Eigen::VectorXf v1(3);
-        v1 << 1.1,5.6,3.14;
+        v1 << 1.1f,5.6f,3.14f;
         data.emplace_back(v1);
         Eigen::VectorXf v2(1);
-        v2 << -1.1;
+        v2 << -1.1f;
         data.emplace_back(v2);
         std::string expectedOutput = "1.1,5.6,3.14\n-1.1\n";
 

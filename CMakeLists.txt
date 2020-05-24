@@ -3,8 +3,9 @@
 ########################################################################################################################
 
 cmake_minimum_required(VERSION 3.14)
+set(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")
 project(hops)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules/")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
 
 
 ########################################################################################################################
@@ -31,7 +32,7 @@ set(MKL_USE_interface lp64)
 # Set Options
 ########################################################################################################################
 
-option(HOPS_BENCHMARKS "Enables compilation of Benchmarks (Requires Celero). Use -DHOPS_BENCHMARKS=OFF to disable." ON)
+option(HOPS_BENCHMARKS "Enables compilation of Benchmarks (Requires Celero). Use -DHOPS_BENCHMARKS=ON to enable." OFF)
 option(HOPS_DOCS "Enables generation of documentation. Use -DHOPS_DOCS=OFF to disable." ON)
 option(HOPS_EXAMPLES "Enables compilation of Examples. Use -DHOPS_EXAMPLES=OFF to disable." ON)
 option(HOPS_TESTS "Enables compilation of unit tests. Use -DHOPS_TESTS=OFF to disable." ON)
@@ -41,17 +42,28 @@ option(HOPS_TESTS "Enables compilation of unit tests. Use -DHOPS_TESTS=OFF to di
 ########################################################################################################################
 
 # TODO update to target_compile_feature and target_compile_option
+set(CMAKE_C_FLAGS "${CMAKE_FLAGS} ${MPI_FLAGS}")
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS "-Wall -Wextra")
-set(CMAKE_CXX_FLAGS_DEBUG "-g")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MPI_CXX_FLAGS}")
+if(CMAKE_COMPILER_IS_GNUCXX)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra -Wall -g")
+endif()
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${MPI_EXE_LINKER_FLAGS}")
 include(CheckCXXCompilerFlag)
 CHECK_CXX_COMPILER_FLAG("-march=native" COMPILER_SUPPORTS_MARCH_NATIVE)
 if (COMPILER_SUPPORTS_MARCH_NATIVE)
     message(STATUS "Adding compiler flag march=native")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
 else ()
-    message(WARNING "compiler does not support flag march=native")
+    message(WARNING "compiler does not support flag -march=native")
+endif ()
+CHECK_CXX_COMPILER_FLAG("-O3" COMPILER_SUPPORTS_O3)
+if (COMPILER_SUPPORTS_MARCH_NATIVE)
+    message(STATUS "Adding compiler flag -O3")
+    set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+else ()
+    message(STATUS "Adding compiler flag -O2")
+    set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 endif ()
 
 
@@ -182,3 +194,4 @@ install(DIRECTORY include/ DESTINATION include/ FILES_MATCHING PATTERN "*.hpp")
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/hops/hops.hpp DESTINATION include/hops)
 install(TARGETS hops EXPORT hops-config LIBRARY DESTINATION "lib")
 install(EXPORT hops-config DESTINATION "lib" CONFIGURATIONS RELEASE)
+
