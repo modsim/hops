@@ -18,7 +18,6 @@ int main(int argc, char **argv) {
     std::cout << "model name " << modelName << std::endl;
     std::cout << "chain name " << chainName << std::endl;
 
-    // TODO fix paths for for windows
     std::string Afile = modelDirectory + "/" + modelName + "/A_" + modelName + "_unrounded.csv";
     std::string Tfile = modelDirectory + "/" + modelName + "/T_" + modelName + "_rounded.csv";
     std::string bfile = modelDirectory + "/" + modelName + "/b_" + modelName + "_unrounded.csv";

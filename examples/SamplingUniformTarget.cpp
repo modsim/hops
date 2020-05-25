@@ -8,9 +8,31 @@
 #include <hops/Transformation/Transformation.hpp>
 #include <hops/MarkovChain/Draw/NoOpDrawAdapter.hpp>
 
+/**
+ * @details Samples a model uniformly using CHRR.
+ * @param argc
+ * @param argv
+ * @return
+ */
 int main(int argc, char **argv) {
-    if(argc!= 3) {
-        throw std::runtime_error("Requires model name and random seed as argument.");
+    if (argc != 5) {
+        std::cout << "Usage: SamplingUniformTarget model_name numberOfSamples ThinningFactor random_seed" << std::endl
+                  << "Output will be stored in the directory ${model_name}${random_seed}" << std::endl
+                  << "Example: SamplingUniformTarget e_coli_core 42" << std::endl << std::endl
+                  << "Note that in this example the files have to be in the current working directory" << std::endl
+                  << "A_e_coli_core_rounded.csv\twhich is the A from Ax<b" << std::endl
+                  << "b_e_coli_core_rounded.csv\twhich is the b from Ax<b" << std::endl
+                  << "start_e_coli_core_rounded.csv\twhich is an interior point of Ax<b" << std::endl
+                  << "N_e_coli_core_rounded.csv\twhich is the unrounding transformation x = Ny+shift" << std::endl
+                  << "p_shift_e_coli_core_rounded.csv\twhich is the shift for the unrounding transformation x = Ny+shift"
+                  << std::endl << std::endl
+                  << "Arguments:" << std::endl
+                  << "model_name\t\t" << "name of model" << std::endl
+                  << "numberOfSamples\t\t" << "how many samples to draw" << std::endl
+                  << "thinningFactor\t\t" << "the total thinning is the number of dimensions times the thinning factor"
+                  << std::endl
+                  << "random_seed\t\t" << "seed for rng" << std::endl;
+        exit(0);
     }
     std::string modelName = std::string(argv[1]);
     std::string Afile = "A_" + std::string(argv[1]) + "_rounded.csv";
@@ -18,7 +40,9 @@ int main(int argc, char **argv) {
     std::string startfile = "start_" + std::string(argv[1]) + "_rounded.csv";
     std::string Nfile = "N_" + std::string(argv[1]) + "_rounded.csv";
     std::string p_shiftfile = "p_shift_" + std::string(argv[1]) + "_rounded.csv";
-    std::string stringSeed = std::string(argv[2]);
+    long numberOfSamples = std::stol(argv[2]);
+    long thinningFactor = std::stol(argv[3]);
+    std::string stringSeed = std::string(argv[4]);
 
 
     std::cout << "Sampling model: " << modelName << std::endl;
@@ -51,8 +75,9 @@ int main(int argc, char **argv) {
     );
 
 
-        markovChain.draw(randomNumberGenerator, 10000, A.cols() * 200);
-        markovChain.writeHistory(
-                hops::FileWriterFactory::createFileWriter(std::string(argv[1]) + stringSeed, hops::FileWriterType::Csv).get());
-        markovChain.clearHistory();
+    markovChain.draw(randomNumberGenerator, numberOfSamples, A.cols() * thinningFactor);
+    markovChain.writeHistory(
+            hops::FileWriterFactory::createFileWriter(std::string(argv[1]) + stringSeed,
+                                                      hops::FileWriterType::Csv).get());
+    markovChain.clearHistory();
 }
