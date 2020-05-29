@@ -1,7 +1,6 @@
 set(GUROBI_ENABLE ON)
 
 find_package(GUROBI)
-find_package(CLP)
 
 if (GUROBI_FOUND)
     target_compile_definitions(hops PUBLIC HOPS_GUROBI_FOUND)
@@ -11,6 +10,7 @@ if (GUROBI_FOUND)
     target_sources(hops PRIVATE GurobiEnvironmentSingleton.cpp LinearProgramGurobiImpl.cpp)
 endif ()
 
+find_package(CLP)
 if (CLP_FOUND)
     target_compile_definitions(hops PUBLIC HOPS_CLP_FOUND)
     target_include_directories(hops PUBLIC ${CLP_INCLUDE_DIRS})

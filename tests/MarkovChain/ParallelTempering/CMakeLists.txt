@@ -12,9 +12,10 @@ endforeach (TEST_SOURCE)
 
 find_package(MPI)
 
-if(MPI_Found)
+if(MPI_FOUND)
+    message(STATUS "Adding tests that require MPI.")
     add_executable(ParallelTemperingTest ParallelTemperingTest.cpp)
     target_include_directories(ParallelTemperingTest PUBLIC ../../../include ${MPI_INCLUDE_PATH})
     target_link_libraries(ParallelTemperingTest hops gtest gtest_main ${MPI_LIBRARIES})
     add_test(NAME ParallelTemperingTest COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 3 ${CMAKE_CURRENT_BINARY_DIR}/ParallelTemperingTest)
-endif(MPI_Found)
+endif(MPI_FOUND)
