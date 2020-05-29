@@ -42,7 +42,8 @@ namespace {
     TEST(ParallelTempering, assertCorrectNumberOfProcessesAreRun) {
         int expectedNumberOfProcesses = 3; // Defined in CMakeLists.txt
         MarkovChainMock markovChainMock;
-        hops::ParallelTempering parallelTempering( hops::ColdnessAttribute(markovChainMock), 0.00005);
+        hops::ColdnessAttribute mockWithColdness(markovChainMock);
+        hops::ParallelTempering parallelTempering( mockWithColdness, 0.00005);
         MPI_Comm TEST_COMMUNICATOR;
         MPI_Comm_dup(MPI_COMM_WORLD, &TEST_COMMUNICATOR);
         int world_size;
@@ -52,7 +53,8 @@ namespace {
 
     TEST(ParallelTempering, shouldSetChainTemperaturesCorrectly) {
         MarkovChainMock markovChainMock;
-        hops::ParallelTempering parallelTempering(hops::ColdnessAttribute(markovChainMock), 0.00005);
+        hops::ColdnessAttribute mockWithColdness(markovChainMock);
+        hops::ParallelTempering parallelTempering( mockWithColdness, 0.00005);
         MPI_Comm TEST_COMMUNICATOR;
         MPI_Comm_dup(MPI_COMM_WORLD, &TEST_COMMUNICATOR);
         int size;
@@ -64,7 +66,8 @@ namespace {
 
     TEST(ParallelTempering, shouldProposeExchance_RngStateRemainsInSync) {
         MarkovChainMock markovChainMock;
-        hops::ParallelTempering parallelTempering(hops::ColdnessAttribute(markovChainMock), 1);
+        hops::ColdnessAttribute mockWithColdness(markovChainMock);
+        hops::ParallelTempering parallelTempering( mockWithColdness, 1);
         MPI_Comm TEST_COMMUNICATOR;
         MPI_Comm_dup(MPI_COMM_WORLD, &TEST_COMMUNICATOR);
         int world_size;
@@ -91,7 +94,8 @@ namespace {
 
     TEST(ParallelTempering, processesAgreeOnExchangePair_test) {
         MarkovChainMock markovChainMock;
-        hops::ParallelTempering parallelTempering(hops::ColdnessAttribute(markovChainMock), 0.05);
+        hops::ColdnessAttribute mockWithColdness(markovChainMock);
+        hops::ParallelTempering parallelTempering( mockWithColdness, 0.05);
 
         MPI_Comm TEST_COMMUNICATOR;
         MPI_Comm_dup(MPI_COMM_WORLD, &TEST_COMMUNICATOR);
@@ -126,7 +130,8 @@ namespace {
 
     TEST(ParallelTempering, processesAgreeOnExchangeProbability_test) {
         MarkovChainMock markovChainMock;
-        hops::ParallelTempering parallelTempering(hops::ColdnessAttribute(markovChainMock), 0.5);
+        hops::ColdnessAttribute mockWithColdness(markovChainMock);
+        hops::ParallelTempering parallelTempering( mockWithColdness, 0.5);
 
         MPI_Comm TEST_COMMUNICATOR;
         MPI_Comm_dup(MPI_COMM_WORLD, &TEST_COMMUNICATOR);
@@ -187,12 +192,12 @@ namespace {
             if (exchangePair.first == world_rank || exchangePair.second == world_rank) {
                 int otherChainRank = world_rank == exchangePair.first ? exchangePair.second : exchangePair.first;
 
-                auto actual = parallelTempering.getState();
+                Eigen::VectorXd actual = parallelTempering.getState();
                 MPI_Sendrecv_replace(actual.data(), actual.size(), MPI_DOUBLE, otherChainRank, 0, otherChainRank, 0,
                                      TEST_COMMUNICATOR, MPI_STATUS_IGNORE);
 
                 parallelTempering.exchangeStates(otherChainRank);
-                auto expected = parallelTempering.getState();
+                Eigen::VectorXd expected = parallelTempering.getState();
                 EXPECT_EQ(actual, expected);
             }
         }
@@ -231,3 +236,4 @@ namespace {
         MPI_Barrier(TEST_COMMUNICATOR);
     }
 }
+

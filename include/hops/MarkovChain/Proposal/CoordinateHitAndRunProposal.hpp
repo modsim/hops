@@ -118,6 +118,7 @@ namespace hops {
         if constexpr (IsSetStepSizeAvailable<ChordStepDistribution>::value) {
             chordStepDistribution.setStepSize(stepSize);
         } else {
+            (void)stepSize;
             throw std::runtime_error("Step size not available.");
         }
     }

@@ -10,7 +10,7 @@ find_package(PkgConfig)
 # dependency. As a result, if you only do `sudo apt-get install
 # coinor-clp-dev`, you will not have `libbz2-dev` installed and dReal
 # won't compile since it can't find `-lbz2`.
-find_package(BZip2 QUIET)
+find_package(BZip2 REQUIRED)
 if(BZip2_FOUND)
     if(APPLE)
         if(EXISTS /usr/local/include/clp)

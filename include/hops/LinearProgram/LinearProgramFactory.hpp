@@ -42,7 +42,14 @@ namespace hops {
                 const Eigen::MatrixBase<Derived1> &A,
                 const Eigen::MatrixBase<Derived2> &b,
                 LinearProgramSolver solver = LinearProgramSolver::CLP) {
-            return std::make_unique<LinearProgramClpImpl>(A, b);
+            switch (solver) {
+                case LinearProgramSolver::CLP: {
+                    return std::make_unique<LinearProgramClpImpl>(A, b);
+                }
+                default: {
+                    throw std::runtime_error("Linear program solver was not found.");
+                }
+            }
         }
     };
 
@@ -55,7 +62,14 @@ namespace hops {
                 const Eigen::MatrixBase<Derived1> &A,
                 const Eigen::MatrixBase<Derived2> &b,
                 LinearProgramSolver solver = LinearProgramSolver::GUROBI) {
-            return std::make_unique<LinearProgramGurobiImpl>(A, b);
+            switch (solver) {
+                case LinearProgramSolver::GUROBI: {
+                    return std::make_unique<LinearProgramGurobiImpl>(A, b);
+                }
+                default: {
+                    throw std::runtime_error("Linear program solver was not found.");
+                }
+            }
         }
     }
 
@@ -70,6 +84,9 @@ namespace hops {
                 const Eigen::MatrixBase<Derived1> &A,
                 const Eigen::MatrixBase<Derived2> &b,
                 LinearProgramSolver solver = LinearProgramSolver::CLP) {
+            (void)A;
+            (void)b;
+            (void)solver;
             throw std::runtime_error("No linear program solver was found.");
         }
     };
