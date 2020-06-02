@@ -19,7 +19,7 @@ int main(int argc, char **argv) {
         std::cout << "Usage: SamplingUniformTarget model_name numberOfSamples ThinningFactor random_seed" << std::endl
                   << "Output will be stored in the directory ${model_name}${random_seed}" << std::endl
                   << "Example: SamplingUniformTarget e_coli_core 42" << std::endl << std::endl
-                  << "Note that in this example the files have to be in the current working directory" << std::endl
+                  << "Note that in this example the following files have to be in the current working directory" << std::endl
                   << "A_e_coli_core_rounded.csv\twhich is the A from Ax<b" << std::endl
                   << "b_e_coli_core_rounded.csv\twhich is the b from Ax<b" << std::endl
                   << "start_e_coli_core_rounded.csv\twhich is an interior point of Ax<b" << std::endl
