@@ -1,4 +1,5 @@
 set(TEST_SOURCES
+        ModelMixinTest.cpp
         MultimodalModelTest.cpp
         MultivariateGaussianModelTest.cpp
         )
