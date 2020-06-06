@@ -37,6 +37,9 @@ add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
 
 add_executable(runTests runTests.cpp)
 target_include_directories(runTests PUBLIC ../include ${CMAKE_CURRENT_BINARY_DIR}/googletest-src/googletest/include)
+# exclude coverage measurements, as they don't count lines correctly.
+#target_compile_options(runTests  PUBLIC -fprofile-arcs -ftest-coverage)
+#target_link_options(runTests  PUBLIC -fprofile-arcs -ftest-coverage)
 target_link_libraries(runTests hops gtest_main gtest)
 
 ########################################################################################################################

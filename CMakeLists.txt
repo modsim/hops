@@ -7,7 +7,6 @@ set(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")
 project(hops)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
 
-
 ########################################################################################################################
 # MSVC stuff
 ########################################################################################################################
@@ -17,7 +16,6 @@ if (CMAKE_GENERATOR MATCHES "Visual Studio")
 endif ()
 
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
-
 
 ########################################################################################################################
 # Build Parameters

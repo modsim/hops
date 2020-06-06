@@ -1,6 +1,7 @@
 #ifndef HOPS_MODELMIXIN_HPP
 #define HOPS_MODELMIXIN_HPP
 
+#include <cmath>
 #include <hops/MarkovChain/Draw/IsCalculateLogAcceptanceProbabilityAvailable.hpp>
 #include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
 
