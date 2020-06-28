@@ -57,7 +57,8 @@ namespace hops {
          * @param description Description to attach to the records.
          * @param records
          */
-        virtual void write(const std::string &description, const std::vector<Eigen::Matrix<long double, Eigen::Dynamic, 1>> &records) const = 0;
+        virtual void write(const std::string &description,
+                           const std::vector<Eigen::Matrix<long double, Eigen::Dynamic, 1>> &records) const = 0;
 
         /**
          * @brief Writes records.
@@ -65,6 +66,21 @@ namespace hops {
          * @param records
          */
         virtual void write(const std::string &description, const std::vector<std::string> &records) const = 0;
+
+        /**
+         * @brief Writes a single matrix in double precision.
+         * @param description
+         * @param matrix
+         */
+        virtual void write(const std::string &description, const Eigen::MatrixXd &matrix) const = 0;
+
+        /**
+         * @brief Writes a single vector in double precision.
+         * @param description
+         * @param matrix
+         */
+        virtual void write(const std::string &description, const Eigen::VectorXd &vector) const = 0;
+
     };
 }
 
