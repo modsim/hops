@@ -1,11 +1,17 @@
-find_package(HDF5 COMPONENTS C CXX)
+find_package(HDF5 COMPONENTS C CXX REQUIRED)
 
-if (${HDF_FOUND})
-    # TODO add definition hdf5 found
+if (HDF5_FOUND)
+    message(STATUS "Found HDF5 libraries.")
     target_include_directories(hops PUBLIC ${HDF5_INCLUDE_DIRS})
     target_link_libraries(hops PUBLIC ${HDF5_LIBRARIES})
+    # Set definition for code
+    target_compile_definitions(hops PRIVATE HOPS_HDF5_FOUND)
+    # Set definition for cmake
+    set_target_properties(hops PROPERTIES HOPS_HDF5_FOUND TRUE)
 
     target_sources(hops PRIVATE Hdf5Writer.cpp)
+else ()
+    message(STATUS "HDF5 libraries not found. Continuing without HDF5 support.")
 endif ()
 
 target_sources(hops
