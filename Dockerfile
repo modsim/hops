@@ -26,7 +26,7 @@ RUN mkdir cmake-build-debug
 RUN mkdir cmake-build-release
 
 WORKDIR /home/cmake-build-debug
-RUN cmake .. -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu
+RUN cmake ..
 RUN make -j4
 RUN make test ARGS=j4
 
