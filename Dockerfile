@@ -31,6 +31,6 @@ RUN make -j4
 RUN make test ARGS=j4
 
 WORKDIR /home/cmake-build-release
-RUN cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu
+RUN cmake .. -DCMAKE_BUILD_TYPE=Release
 RUN make -j4
 RUN make test ARGS=j4
