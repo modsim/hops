@@ -6,7 +6,9 @@ cmake_minimum_required(VERSION 3.14)
 set(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")
 project(hops)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
+
 if (UNIX)
+    message(STATUS "Adjusting CMAKE_PREFIX_PATH on UNIX for CLP")
     list(APPEND CMAKE_PREFIX_PATH /usr/lib/x85_64-linux-gnu)
 endif (UNIX)
 

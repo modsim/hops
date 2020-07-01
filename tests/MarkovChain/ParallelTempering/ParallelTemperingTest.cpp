@@ -3,8 +3,6 @@
 #include <hops/MarkovChain/ParallelTempering/ParallelTempering.hpp>
 #include <hops/MarkovChain/ParallelTempering/ColdnessAttribute.hpp>
 
-// TODO add test that exchange probability is correct
-
 namespace {
     class MarkovChainMock {
     public:

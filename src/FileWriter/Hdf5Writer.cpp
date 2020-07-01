@@ -77,7 +77,7 @@ namespace {
 hops::Hdf5Writer::Hdf5Writer(std::string path) : path(std::move(path)) {
     Hdf5Writer::path += ".h5";
     /* Turn off error handling permanently */
-    H5Eset_auto(NULL, NULL, NULL);
+    H5Eset_auto1(NULL, NULL);
     fileId = H5Fcreate(Hdf5Writer::path.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
     if (fileId < 0) {
         throw std::runtime_error("Error creating or opening HDF5File " + path + ".");
