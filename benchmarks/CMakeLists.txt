@@ -1,10 +1,7 @@
 find_package(Celero REQUIRED)
 
 set(BENCHMARK_SOURCES
-        CSmMALABenchmark.cpp
         CsvReaderBenchmark.cpp
-        MCMCBenchmark.cpp
-        #SamplingModelsBenchmark.cpp
         )
 
 foreach (BENCHMARK_SOURCE ${BENCHMARK_SOURCES})

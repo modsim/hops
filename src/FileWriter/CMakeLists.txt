@@ -1,4 +1,4 @@
-find_package(HDF5 COMPONENTS C CXX REQUIRED)
+find_package(HDF5 COMPONENTS C CXX)
 
 if (HDF5_FOUND)
     message(STATUS "Found HDF5 libraries.")
