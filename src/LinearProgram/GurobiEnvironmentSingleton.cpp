@@ -1,0 +1,27 @@
+#ifdef HOPS_GUROBI_FOUND
+
+#include <hops/LinearProgram/GurobiEnvironmentSingleton.hpp>
+
+hops::GurobiEnvironmentSingleton &hops::GurobiEnvironmentSingleton::getInstance() {
+    static GurobiEnvironmentSingleton instance;
+    return instance;
+}
+
+const hops::GurobiEnvironmentSingleton::GurobiEnvironment &hops::GurobiEnvironmentSingleton::getGurobiEnvironment() {
+    return environment;
+}
+
+hops::GurobiEnvironmentSingleton::GurobiEnvironmentSingleton() : environment(true) {
+    // Gurobi will write to cout. Prepending something helps identifying origin of output.
+    std::cout << "Gurobi: " << std::flush;
+    environment.start();
+    environment.set(GRB_IntParam_LogToConsole, 0);
+    environment.set(GRB_IntParam_ScaleFlag, 2);
+    environment.set(GRB_IntParam_NumericFocus, 3);
+    environment.set(GRB_IntParam_Quad, 1);
+    environment.set(GRB_DoubleParam_FeasibilityTol, 1e-9);
+    environment.set(GRB_DoubleParam_OptimalityTol, 1e-9);
+    environment.set(GRB_DoubleParam_MarkowitzTol, 0.999);
+}
+
+#endif //HOPS_GUROBI_FOUND

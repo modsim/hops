@@ -1,0 +1,71 @@
+>> PlateletRaw = readCbModel('iAT_PLT_636.mat')
+
+PlateletRaw = 
+
+  struct with fields:
+
+              S: [738×1008 double]
+           mets: {738×1 cell}
+              b: [738×1 double]
+         csense: [738×1 char]
+           rxns: {1008×1 cell}
+             lb: [1008×1 double]
+             ub: [1008×1 double]
+              c: [1008×1 double]
+      osenseStr: 'max'
+          genes: {636×1 cell}
+          rules: {1008×1 cell}
+    metFormulas: {738×1 cell}
+       metNames: {738×1 cell}
+        grRules: {1008×1 cell}
+     rxnGeneMat: [1008×636 double]
+       rxnNames: {1008×1 cell}
+     subSystems: {1008×1 cell}
+    description: 'iAT_PLT_636.mat'
+        modelID: 'iAT_PLT_636'
+
+>> [sample, PlateletUnrounded] = chrrSampler(PlateletRaw, 1, 1, 0);
+Checking for width 0 facets...
+Currently (P.A, P.b) are in 1008 dimensions
+Checking for width 0 facets...
+Found 0 degenerate reactions, adding them to the equality subspace.
+> In preprocess (line 169)
+  In chrrSampler (line 110) 
+Warning: Rank deficient, rank = 719, tol =  2.442139e-10. 
+Now in 289 dimensions after restricting
+Removed 2016 zero rows
+Preconditioning A with gmscale
+Rounding...
+Generating samples...
+Warning: MATLAB has disabled some advanced graphics rendering features by
+switching to software OpenGL. For more information, click here. 
+>> [sample, PlateletRounded] = chrrSampler(PlateletRaw, 1, 1, 1);
+Checking for width 0 facets...
+Currently (P.A, P.b) are in 1008 dimensions
+Checking for width 0 facets...
+Found 0 degenerate reactions, adding them to the equality subspace.
+> In preprocess (line 169)
+  In chrrSampler (line 110) 
+Warning: Rank deficient, rank = 719, tol =  2.442139e-10. 
+Now in 289 dimensions after restricting
+Removed 2016 zero rows
+Preconditioning A with gmscale
+Rounding...
+Iteration 1: reg=1.0e-04, ellipsoid vol=Inf, longest axis=4.1e+02, shortest axis=1.7e+00, x0 dist to bdry=6.3e+00, time=1.8e+00 seconds
+Iteration 2: reg=1.0e-05, ellipsoid vol=6.2e+261, longest axis=8.3e+02, shortest axis=3.7e-01, x0 dist to bdry=1.6e+00, time=2.2e+00 seconds
+Iteration 3: reg=1.0e-06, ellipsoid vol=2.4e+112, longest axis=2.7e+02, shortest axis=2.9e-01, x0 dist to bdry=1.5e+00, time=2.1e+00 seconds
+  Converged!
+Iteration 4: reg=1.0e-07, ellipsoid vol=3.7e+82, longest axis=8.2e+01, shortest axis=8.2e-01, x0 dist to bdry=1.3e+00, time=1.8e+01 seconds
+Maximum volume ellipsoid found, and the origin is inside the transformed polytope.
+Generating samples...
+>> csvwrite('A_iAT_PLT_636_unrounded.csv', PlatetUnrounded.A)
+Undefined variable "PlatetUnrounded" or class "PlatetUnrounded.A".
+ 
+Did you mean:
+>> csvwrite('A_iAT_PLT_636_unrounded.csv', PlateletUnrounded.A)
+>> csvwrite('b_iAT_PLT_636_unrounded.csv', PlateletUnrounded.b)
+>> csvwrite('b_iAT_PLT_636_rounded.csv', PlateletRounded.b)
+>> csvwrite('A_iAT_PLT_636_rounded.csv', PlateletRounded.A)
+>> csvwrite('A_iAT_PLT_636_roundingTransformT.csv', PlateletRounded.T)
+>> csvwrite('A_iAT_PLT_636_roundingTransformp_shift.csv', PlateletRounded.p_shift)
+>> csvwrite('A_iAT_PLT_636_roundingTransformN.csv', PlateletRounded.N)

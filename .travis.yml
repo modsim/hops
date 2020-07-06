@@ -1,0 +1,29 @@
+dist: bionic
+sudo: true
+
+language: cpp
+
+compiler:
+  - gcc
+
+before_install:
+  - sudo apt-get update
+  - sudo apt-get install -y apt-utils
+  - sudo apt-get install -y build-essential software-properties-common cmake
+  - sudo apt-get install -y libeigen3-dev liblpsolve55-dev lp-solve
+  - sudo apt-get install -y libxerces-c-dev libhdf5-dev  doxygen libncurses5-dev libsuitesparse-dev 
+  - sudo apt-get install -y libcr-dev libsbml5-dev mich libmpic-dev git bzip2 libbz2-dev
+  - sudo apt-get install -y openmpi-bin openmpi-common openssh-client openssh-server libopenmpi-dev
+
+script:
+  - mkdir -p cmake-build-debug
+  - cd cmake-build-debug
+  - cmake -DHOPS_BENCHMARKS=OFF ..
+  - make
+  - travis_wait 30 make test
+  - cd .. 
+  - mkdir -p cmake-build-release
+  - cd cmake-build-release
+  - cmake -DCMAKE_BUILD_TYPE=Release -DHOPS_BENCHMARKS=OFF ..
+  - make
+  - travis_wait 30 make test
