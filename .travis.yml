@@ -15,25 +15,17 @@ before_install:
   - sudo apt-get install -y libsbml5-dev mpich libmpich-dev git bzip2 libbz2-dev libsbml5-dev
   - sudo apt-get install -y openmpi-bin openmpi-common libopenmpi-dev
   - sudo apt-get install -y coinor-clp coinor-libclp-dev
-  - sudo apt remove --purge cmake
-  - hash -r
-  - wget https://github.com/Kitware/CMake/releases/download/v3.16.5/cmake-3.16.5.tar.gz
-  - tar -zxvf cmake-3.16.5.tar.gz
-  - cd cmake-3.16.5
-  - ./bootstrap
-  - make
-  - sudo make install
-  - cd ..
+  - sudo snap install cmake --classic
 
 script:
   - mkdir -p cmake-build-debug
   - cd cmake-build-debug
-  - cmake -DHOPS_BENCHMARKS=OFF ..
+  - /snap/cmake/current/bin/cmake -DHOPS_BENCHMARKS=OFF ..
   - make
   - travis_wait 30 make test
   - cd .. 
   - mkdir -p cmake-build-release
   - cd cmake-build-release
-  - cmake -DCMAKE_BUILD_TYPE=Release -DHOPS_BENCHMARKS=OFF ..
+  - /snap/cmake/current/bin/cmake -DCMAKE_BUILD_TYPE=Release -DHOPS_BENCHMARKS=OFF ..
   - make
   - travis_wait 30 make test
