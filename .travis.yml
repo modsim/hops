@@ -9,13 +9,21 @@ compiler:
 before_install:
   - sudo apt-get update -y
   - sudo apt-get install -y apt-utils
-  - sudo apt-get install -y build-essential software-properties-common
+  - sudo apt-get install -y build-essential software-properties-common libssl-dev
   - sudo apt-get install -y libeigen3-dev liblpsolve55-dev lp-solve libncursesw5-dev
   - sudo apt-get install -y libxerces-c-dev libhdf5-dev  doxygen libncurses5-dev libsuitesparse-dev 
   - sudo apt-get install -y libsbml5-dev mpich libmpich-dev git bzip2 libbz2-dev libsbml5-dev
   - sudo apt-get install -y openmpi-bin openmpi-common libopenmpi-dev
   - sudo apt-get install -y coinor-clp coinor-libclp-dev
-  - sudo snap install cmake --classic
+  - sudo apt remove --purge cmake
+  - hash -r
+  - wget https://github.com/Kitware/CMake/releases/download/v3.16.5/cmake-3.16.5.tar.gz
+  - tar -zxvf cmake-3.16.5.tar.gz
+  - cd cmake-3.16.5
+  - ./bootstrap
+  - make
+  - sudo make install
+  - cd ..
 
 script:
   - mkdir -p cmake-build-debug
