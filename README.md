@@ -2,7 +2,7 @@
 
 The **H**ighly **O**ptimized **P**olytope **S**ampling toolbox is an open-source C++17
 library for efficient and scalable MCMC algorithms for sampling convex-constrained spaces possibly
-equipped with arbitrary target functions
+equipped with arbitrary target functions.
 
 ## Installation
 
@@ -56,5 +56,5 @@ See the examples directory for demonstrations on how to use the library.
 
     ```-DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu```
 
-* In case something went wrong fetching the git lfs content, try
+* In case something went wrong fetching the git lfs content, try:
 	```git lfs pull```
