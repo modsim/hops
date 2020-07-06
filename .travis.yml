@@ -1,6 +1,10 @@
 dist: focal
 sudo: true
 
+env:
+  global:
+    - MAKEFLAGS="-j 2"
+
 language: cpp
 
 compiler:
@@ -12,8 +16,7 @@ before_install:
   - sudo apt-get install -y build-essential software-properties-common libssl-dev
   - sudo apt-get install -y libeigen3-dev liblpsolve55-dev lp-solve libncursesw5-dev
   - sudo apt-get install -y libxerces-c-dev libhdf5-dev  doxygen libncurses5-dev libsuitesparse-dev 
-  - sudo apt-get install -y libsbml5-dev mpich libmpich-dev git bzip2 libbz2-dev libsbml5-dev
-  - sudo apt-get install -y openmpi-bin openmpi-common libopenmpi-dev
+  - sudo apt-get install -y libsbml5-dev git bzip2 libbz2-dev libsbml5-dev
   - sudo apt-get install -y coinor-clp coinor-libclp-dev
   - sudo snap install cmake --classic
 
