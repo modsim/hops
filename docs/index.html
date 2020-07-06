@@ -62,7 +62,10 @@ $(function() {
 <div class="title">The HOPS toolbox </div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p>The **H**ighly **O**ptimized **P**olytope **S**ampling toolbox is an open-source C++17 library for efficient and scalable MCMC algorithms for sampling convex-constrained spaces possibly equipped with arbitrary target functions</p>
+<div class="textblock"><p><a href="https://travis-ci.org/modsim/hops"></a></p>
+<p>The *H*ighly *O*ptimized *P*olytope *S*ampling toolbox is an open-source C++17 library for efficient and scalable MCMC algorithms for sampling convex-constrained spaces possibly equipped with arbitrary target functions.</p>
+<h2>Documentation</h2>
+<p>See <a href="https://modsim.github.io/hops/">https://modsim.github.io/hops/</a>.</p>
 <h2>Installation</h2>
 <p>HOPS uses CMake as build system. See the Dockerfile for a demonstration on installing HOPS and its dependencies on Ubuntu 20.4.</p>
 <h3>CMake options</h3>
@@ -73,7 +76,8 @@ $(function() {
 <li>HOPS_TESTS (default ON) - Enables compilation of unit tests. Use -DHOPS_TESTS=OFF to disable.</li>
 </ul>
 <p>When building HOPS with Tests, an internet connection is required in order to fetch Googletest (<a href="https://github.com/google/googletest">https://github.com/google/googletest</a>).</p>
-<p>#### Install on Linux: </p><div class="fragment"><div class="line"># Create directory for out-of-source build</div><div class="line">$ mkdir cmake-build-release</div><div class="line">$ cd cmake-build-release</div><div class="line"># Run cmake</div><div class="line">$ cmake .. -DCMAKE_BUILD_TYPE=Release</div><div class="line"># Build HOPS</div><div class="line">$ make </div><div class="line"># Run Tests</div><div class="line">$ make test</div><div class="line"># Alternatively run tests by calling runTests</div><div class="line"># cd tests</div><div class="line">$ ./runTests</div><div class="line">$ cd ..</div><div class="line"># Install</div><div class="line">$ sudo make install</div></div><!-- fragment --><h4>Install on Windows 10:</h4>
+<h4>Install on Linux:</h4>
+<div class="fragment"><div class="line"># Create directory for out-of-source build</div><div class="line">$ mkdir cmake-build-release</div><div class="line">$ cd cmake-build-release</div><div class="line"># Run cmake</div><div class="line">$ cmake .. -DCMAKE_BUILD_TYPE=Release</div><div class="line"># Build HOPS</div><div class="line">$ make </div><div class="line"># Run Tests</div><div class="line">$ make test</div><div class="line"># Alternatively run tests by calling runTests</div><div class="line"># cd tests</div><div class="line">$ ./runTests</div><div class="line">$ cd ..</div><div class="line"># Install</div><div class="line">$ sudo make install</div></div><!-- fragment --><h4>Install on Windows 10:</h4>
 <p>Use an IDE (e.g. CLion) to parse the project and its CMakeLists.txt.</p>
 <h2>Examples</h2>
 <p>See the examples directory for demonstrations on how to use the library.</p>
@@ -88,7 +92,7 @@ $(function() {
 <li><p class="startli">If you run into trouble finding CLP on Linux (e.g. Ubuntu 20.04), try extending the cmake prefix path:</p>
 <p class="startli"><code>-DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu</code></p>
 </li>
-<li>In case something went wrong fetching the git lfs content, try <code>git lfs pull</code> </li>
+<li>In case something went wrong fetching the git lfs content, try: <code>git lfs pull</code> </li>
 </ul>
 </div></div><!-- contents -->
 <!-- start footer part -->

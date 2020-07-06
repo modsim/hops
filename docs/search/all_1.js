@@ -1,4 +1,15 @@
 var searchData=
 [
-  ['the_20hops_20toolbox',['The HOPS toolbox',['../index.html',1,'']]]
+  ['a',['A',['../classhops_1_1LinearProgram.html#aad998c3dd06550afdd3d0ed81b180038',1,'hops::LinearProgram']]],
+  ['acceptanceraterecorder',['AcceptanceRateRecorder',['../classhops_1_1AcceptanceRateRecorder.html',1,'hops::AcceptanceRateRecorder&lt; MarkovChainImpl &gt;'],['../classhops_1_1AcceptanceRateRecorder.html#a61ef7160343e5aa98375b7ec41628b8a',1,'hops::AcceptanceRateRecorder::AcceptanceRateRecorder()']]],
+  ['acceptanceraterecorder_2ehpp',['AcceptanceRateRecorder.hpp',['../AcceptanceRateRecorder_8hpp.html',1,'']]],
+  ['acceptanceratetuner',['AcceptanceRateTuner',['../classhops_1_1AcceptanceRateTuner.html',1,'hops::AcceptanceRateTuner'],['../classhops_1_1AcceptanceRateTuner.html#a2c2f742a79627fc6a74cefed8cb2fb20',1,'hops::AcceptanceRateTuner::AcceptanceRateTuner()']]],
+  ['acceptanceratetuner_2ecpp',['AcceptanceRateTuner.cpp',['../AcceptanceRateTuner_8cpp.html',1,'']]],
+  ['acceptanceratetuner_2ehpp',['AcceptanceRateTuner.hpp',['../AcceptanceRateTuner_8hpp.html',1,'']]],
+  ['acceptproposal',['acceptProposal',['../classhops_1_1CoordinateHitAndRunProposal.html#a03a348ae052770770d5f2bedaba4e01c',1,'hops::CoordinateHitAndRunProposal::acceptProposal()'],['../classhops_1_1DikinProposal.html#a910dd8bff870bf73796ce04a2fe3be4e',1,'hops::DikinProposal::acceptProposal()'],['../classhops_1_1HitAndRunProposal.html#a8f710633e029c3529f5f09c87499e881',1,'hops::HitAndRunProposal::acceptProposal()'],['../classhops_1_1ModelMixin.html#a635a26f3520af9b31bf9af7a731ce453',1,'hops::ModelMixin::acceptProposal()']]],
+  ['addboxconstraintstounconstraineddimensions',['addBoxConstraintsToUnconstrainedDimensions',['../classhops_1_1LinearProgram.html#a6d4d7307ef7e9c0b25e89b7291672348',1,'hops::LinearProgram::addBoxConstraintsToUnconstrainedDimensions()'],['../classhops_1_1LinearProgramClpImpl.html#afe932ecf50d22737537030a03a0191d7',1,'hops::LinearProgramClpImpl::addBoxConstraintsToUnconstrainedDimensions()'],['../classhops_1_1LinearProgramGurobiImpl.html#a5d7a9a2ca34e6a8405adea9482c12b73',1,'hops::LinearProgramGurobiImpl::addBoxConstraintsToUnconstrainedDimensions()']]],
+  ['addwithcarry',['addwithcarry',['../namespacepcg__extras.html#ac23d032636438f75339b13608b0f7e62',1,'pcg_extras']]],
+  ['advance',['advance',['../classpcg__detail_1_1engine.html#a12d3653cfe490a59f7ce55d028f1a7e0',1,'pcg_detail::engine::advance(itype state, itype delta, itype cur_mult, itype cur_plus)'],['../classpcg__detail_1_1engine.html#ad825cdb944e1a8c9e58e1b20dcbdf042',1,'pcg_detail::engine::advance(itype delta)'],['../classpcg__detail_1_1extended.html#ad917a2241597772e81668695c18ab2bb',1,'pcg_detail::extended::advance()']]],
+  ['apply',['apply',['../classhops_1_1Transformation.html#a9aa9b5b632137e9372bead21ac7e7e63',1,'hops::Transformation']]],
+  ['applyroundingtransformation',['applyRoundingTransformation',['../classhops_1_1MaximumVolumeEllipsoid.html#abb884f0a0ea6e873add9e23361daf42f',1,'hops::MaximumVolumeEllipsoid']]]
 ];

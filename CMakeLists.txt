@@ -129,6 +129,10 @@ if (HOPS_DOCS)
     else ()
         message(STATUS "Enabled Doxygen documentation. Use -DHOPS_DOCS=OFF to disable.")
         set(DOCUMENTATION_DIR "docs")
+
+        set(HEADER_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include/hops")
+        set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
+
         set(doxy_main_page "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
         set(doxyfile_in "${CMAKE_CURRENT_SOURCE_DIR}/docs/Doxyfile.in")
         set(doxyfile "${CMAKE_CURRENT_BINARY_DIR}/docs/Doxyfile")

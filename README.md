@@ -2,9 +2,13 @@
 
 [![Build Status](https://travis-ci.org/modsim/hops.svg?branch=master)](https://travis-ci.org/modsim/hops)
 
-The **H**ighly **O**ptimized **P**olytope **S**ampling toolbox is an open-source C++17
+The *H*ighly *O*ptimized *P*olytope *S*ampling toolbox is an open-source C++17
 library for efficient and scalable MCMC algorithms for sampling convex-constrained spaces possibly
 equipped with arbitrary target functions.
+
+## Documentation
+
+See https://modsim.github.io/hops/.
 
 ## Installation
 
@@ -13,14 +17,15 @@ See the Dockerfile for a demonstration on installing HOPS and its dependencies o
 
 ### CMake options
 
-* HOPS_BENCHMARKS (default OFF) - Enables compilation of Benchmarks (Requires Celero). Use -DHOPS_BENCHMARKS=ON to enable.
-* HOPS_DOCS (default ON) - Enables generation of documentation. Use -DHOPS_DOCS=OFF to disable. (This creates the Doxygen file from which the docs have to be generated)
-* HOPS_EXAMPLES (default ON) - Enables compilation of Examples. Use -DHOPS_EXAMPLES=OFF to disable.
-* HOPS_TESTS (default ON) - Enables compilation of unit tests. Use -DHOPS_TESTS=OFF to disable.
+* HOPS\_BENCHMARKS (default OFF) - Enables compilation of Benchmarks (Requires Celero). Use -DHOPS\_BENCHMARKS=ON to enable.
+* HOPS\_DOCS (default ON) - Enables generation of documentation. Use -DHOPS\_DOCS=OFF to disable. (This creates the Doxygen file from which the docs have to be generated)
+* HOPS\_EXAMPLES (default ON) - Enables compilation of Examples. Use -DHOPS\_EXAMPLES=OFF to disable.
+* HOPS\_TESTS (default ON) - Enables compilation of unit tests. Use -DHOPS\_TESTS=OFF to disable.
 
 When building HOPS with Tests, an internet connection is required in order to fetch Googletest (https://github.com/google/googletest).
 
 #### Install on Linux:
+
 ```
 # Create directory for out-of-source build
 $ mkdir cmake-build-release

@@ -1,0 +1,4 @@
+<map id="hops::FileWriter" name="hops::FileWriter">
+<area shape="rect" id="node2" href="$classhops_1_1CsvWriter.html" title="{hops::CsvWriter\n||+ CsvWriter()\l+ write()\l+ write()\l+ write()\l+ write()\l+ write()\l+ write()\l+ write()\l+ write()\l+ write()\l+ write()\l}" alt="" coords="5,285,123,509"/>
+<area shape="rect" id="node3" href="$classhops_1_1Hdf5Writer.html" title="Beware of strange behaviours that originate from underlying HDF5 C&#45;API. " alt="" coords="147,277,269,516"/>
+</map>

@@ -1,0 +1,4 @@
+<map id="hops::LinearProgram" name="hops::LinearProgram">
+<area shape="rect" id="node2" href="$classhops_1_1LinearProgramClpImpl.html" title="{hops::LinearProgramClpImpl\n||+ LinearProgramClpImpl()\l+ solve()\l+ removeRedundantConstraints()\l+ calculateChebyshevCenter()\l+ calculateUnconstrainedDimensions()\l+ addBoxConstraintsToUnconstrained\lDimensions()\l}" alt="" coords="5,277,252,443"/>
+<area shape="rect" id="node3" href="$classhops_1_1LinearProgramGurobiImpl.html" title="{hops::LinearProgramGurobiImpl\n||+ LinearProgramGurobiImpl()\l+ solve()\l+ removeRedundantConstraints()\l+ calculateChebyshevCenter()\l+ calculateUnconstrainedDimensions()\l+ addBoxConstraintsToUnconstrained\lDimensions()\l}" alt="" coords="276,277,523,443"/>
+</map>
