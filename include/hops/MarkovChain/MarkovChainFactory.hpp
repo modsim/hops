@@ -9,6 +9,7 @@
 #include <hops/MarkovChain/ParallelTempering/ColdnessAttribute.hpp>
 #include <hops/MarkovChain/ParallelTempering/ParallelTempering.hpp>
 #include <hops/MarkovChain/Proposal/CoordinateHitAndRunProposal.hpp>
+#include <hops/MarkovChain/Proposal/CSmMALAProposal.hpp>
 #include <hops/MarkovChain/Proposal/DikinProposal.hpp>
 #include <hops/MarkovChain/Proposal/HitAndRunProposal.hpp>
 #include <hops/MarkovChain/Recorder/AcceptanceRateRecorder.hpp>
@@ -175,6 +176,15 @@ namespace hops {
                             useParallelTempering
                     );
                 }
+                case MarkovChainType::CSmMALA: {
+                    return addRecordersAndAdapter(
+                            MetropolisHastingsFilter(
+                                    CSmMALAProposal(ColdnessAttribute(model), inequalityLhs, inequalityRhs,
+                                                    startingPoint)
+                            ),
+                            useParallelTempering
+                    );
+                }
                 case MarkovChainType::DikinWalk : {
                     return addRecordersAndAdapter(
                             MetropolisHastingsFilter(
@@ -250,6 +260,9 @@ namespace hops {
                             ),
                             useParallelTempering
                     );
+                }
+                case MarkovChainType::CSmMALA: {
+                    throw std::runtime_error("CSmMALA not supported for rounded spaces. Use unrouded spaces.");
                 }
                 case MarkovChainType::DikinWalk : {
                     return addRecordersAndAdapter(
