@@ -1,10 +1,12 @@
 # The HOPS toolbox
 
-[![Build Status](https://travis-ci.org/modsim/hops.svg?branch=master)](https://travis-ci.org/modsim/hops)
-
 The *H*ighly *O*ptimized *P*olytope *S*ampling toolbox is an open-source C++17
 library for efficient and scalable MCMC algorithms for sampling convex-constrained spaces possibly
 equipped with arbitrary target functions.
+
+## Build Status
+
+See https://travis-ci.org/github/modsim/hops, as currently the travis-ci badge is not correctly updated.
 
 ## Documentation
 
