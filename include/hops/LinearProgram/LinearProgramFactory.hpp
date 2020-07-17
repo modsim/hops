@@ -71,9 +71,7 @@ namespace hops {
                 }
             }
         }
-    }
-
-};
+    };
 
 #else
 
