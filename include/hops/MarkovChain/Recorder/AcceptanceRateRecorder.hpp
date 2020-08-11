@@ -14,7 +14,7 @@ namespace hops {
         explicit AcceptanceRateRecorder(const MarkovChainImpl &markovChainImpl) : MarkovChainImpl(markovChainImpl) {}
 
         void writeRecordsToFile(const FileWriter *const fileWriter) const {
-            fileWriter->write("acceptance rates", records);
+            fileWriter->write("acceptanceRates", records);
             if constexpr(IsWriteRecordsToFileAvailable<MarkovChainImpl>::value) {
                 MarkovChainImpl::writeRecordsToFile(fileWriter);
             }

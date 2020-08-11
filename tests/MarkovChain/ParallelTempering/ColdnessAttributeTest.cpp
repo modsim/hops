@@ -100,16 +100,16 @@ namespace {
         public:
             using VectorType = Eigen::VectorXd;
 
-            [[maybe_unused]] double calculateNegativeLogLikelihood(const VectorType &) {
+            [[maybe_unused]] typename VectorType::Scalar calculateNegativeLogLikelihood(const VectorType &) {
                 return -1000;
             }
         } modelMock;
 
-        hops::ColdnessAttribute markovChainWithColdnessAttribute(modelMock, 0.25);
+        hops::ColdnessAttribute modelWithColdnessAttribute(modelMock, 0.25);
 
 
         hops::ColdnessAttribute<ModelMock>::VectorType mockState = Eigen::VectorXd::Zero(1);
-        double actualNegativeLogLikelihood = markovChainWithColdnessAttribute.calculateNegativeLogLikelihood(mockState);
+        double actualNegativeLogLikelihood = modelWithColdnessAttribute.calculateNegativeLogLikelihood(mockState);
         EXPECT_EQ(actualNegativeLogLikelihood, expectedNegativeLogLikelihood);
     }
 }

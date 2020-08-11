@@ -7,6 +7,7 @@ set(TEST_SOURCES
         IsGetColdnessAvailableTest.cpp
         IsGetExchangeAttemptProbabilityAvailableTest.cpp
         IsGetStepSizeAvailableTest.cpp
+        IsResetAcceptanceRateAvailableTest.cpp
         IsSetColdnessAvailableTest.cpp
         IsSetExchangeAttemptProbabilityAvailableTest.cpp
         IsSetStepSizeAvailableTest.cpp

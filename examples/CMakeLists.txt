@@ -1,8 +1,6 @@
 set(EXAMPLE_SOURCES
         SamplingUniformTargetDemo.cpp
-        SamplingGaussianTarget.cpp
         SamplingGaussianTargetDemo.cpp
-        SamplingUniformTarget.cpp
         )
 
 if(HOPS_MPI_SUPPORTED)

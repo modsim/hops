@@ -4,7 +4,6 @@
 #include "pcg-cpp/pcg_random.hpp"
 
 namespace hops {
-    // TODO consider moving randomNumberGenerator directory into markov chain
     using RandomNumberGenerator = pcg64;
 }
 

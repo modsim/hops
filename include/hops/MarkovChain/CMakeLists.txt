@@ -3,6 +3,7 @@ target_sources(hops PRIVATE
         IsGetColdnessAvailable.hpp
         IsGetExchangeAttemptProbabilityAvailable.hpp
         IsGetStepSizeAvailable.hpp
+        IsResetAcceptanceRateAvailable.hpp
         IsSetColdnessAvailable.hpp
         IsSetExchangeAttemptProbabilityAvailable.hpp
         IsSetStepSizeAvailable.hpp

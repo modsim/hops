@@ -70,6 +70,7 @@ bool hops::AcceptanceRateTuner::tune(
     double stepSize = markovChain->getAttribute(MarkovChainAttribute::STEP_SIZE);
     while (currentCase(currentAcceptanceRate, parameters) != Case::ACCEPTANCE_RATE_GOOD) {
         markovChain->clearHistory();
+        markovChain->resetAcceptanceRate();
         if (iterationsCount > parameters.maximumTotalIterations) {
             return false;
         }
