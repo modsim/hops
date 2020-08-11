@@ -68,6 +68,9 @@ namespace hops {
             b(std::move(b_)),
             state(std::move(currentState_)) {
         slacks = this->b - this->A * this->state;
+        if(!(slacks.array() >= 0).all()) {
+            throw std::runtime_error("Starting Point is outside of Polytope.");
+        }
     }
 
     template<typename MatrixType, typename VectorType, typename ChordStepDistribution>

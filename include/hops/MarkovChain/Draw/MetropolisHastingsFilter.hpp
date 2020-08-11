@@ -3,6 +3,7 @@
 
 #include <hops/FileWriter/FileWriter.hpp>
 #include <hops/MarkovChain/Recorder/IsClearRecordsAvailable.hpp>
+#include <hops/MarkovChain/Recorder/IsAppendToLatestMetropolisHastingsInfoRecordAvailable.hpp>
 #include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
 #include <random>
 
@@ -17,9 +18,9 @@ namespace hops {
 
         double getAcceptanceRate();
 
+        void resetAcceptanceRate();
+
         void clearRecords() {
-            numberOfProposals = 0;
-            numberOfAcceptedProposals = 0;
             if constexpr(IsClearRecordsAvailable<MarkovChainProposer>::value) {
                 MarkovChainProposer::clearRecords();
             }
@@ -37,10 +38,24 @@ namespace hops {
         numberOfProposals++;
         double acceptanceChance = std::log(uniformRealDistribution(randomNumberGenerator));
         double acceptanceProbability = MarkovChainProposer::calculateLogAcceptanceProbability();
+        // TODO add logging acceptanceProbability
         if (acceptanceChance < acceptanceProbability) {
             MarkovChainProposer::acceptProposal();
             numberOfAcceptedProposals++;
+            if constexpr(IsAppendToLatestMetropolisHastingsInfoRecordAvailable<MarkovChainProposer>::value) {
+                MarkovChainProposer::appendToLatestMetropolisHastingsInfoRecord("(acceptance)");
+            }
+        } else {
+            if constexpr(IsAppendToLatestMetropolisHastingsInfoRecordAvailable<MarkovChainProposer>::value) {
+                MarkovChainProposer::appendToLatestMetropolisHastingsInfoRecord("(rejection)");
+            }
         }
+    }
+
+    template<typename MarkovChainProposer>
+    void MetropolisHastingsFilter<MarkovChainProposer>::resetAcceptanceRate() {
+        numberOfAcceptedProposals = 0;
+        numberOfProposals = 0;
     }
 
     template<typename MarkovChainProposer>

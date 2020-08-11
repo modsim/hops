@@ -61,6 +61,9 @@ namespace hops {
             state(std::move(currentState_)) {
         slacks = this->b - this->A * this->state;
         updateDirection = state;
+        if(!(slacks.array() >= 0).all()) {
+            throw std::runtime_error("Starting Point is outside of Polytope.");
+        }
     }
 
     template<typename MatrixType, typename VectorType, typename ChordStepDistribution>
@@ -76,6 +79,9 @@ namespace hops {
         backwardDistance = 1. / inverseDistances.minCoeff();
         assert(backwardDistance < 0 && forwardDistance > 0);
         assert(((b - A * state).array() >= 0).all());
+        if(!((b - A * state).array() >= 0).all()) {
+            std::cerr << "error" << std::endl;
+        }
 
         step = chordStepDistribution.draw(randomNumberGenerator, backwardDistance, forwardDistance);
         proposal = state + updateDirection * step;

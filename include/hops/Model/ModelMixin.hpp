@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include <hops/MarkovChain/Draw/IsCalculateLogAcceptanceProbabilityAvailable.hpp>
+#include <hops/MarkovChain/Recorder/IsStoreMetropolisHastingsInfoRecordAvailable.hpp>
 #include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
 
 namespace hops {
@@ -49,6 +50,17 @@ namespace hops {
             proposalNegativeLogLikelihood = ModelImpl::calculateNegativeLogLikelihood(
                     MarkovChainProposer::getProposal());
             acceptanceProbability += stateNegativeLogLikelihood - proposalNegativeLogLikelihood;
+            if constexpr(IsStoreMetropolisHastingsInfoRecordAvailable<MarkovChainProposer>::value) {
+                MarkovChainProposer::storeMetropolisHastingsInfoRecord("likelihood");
+            } else if constexpr(IsStoreMetropolisHastingsInfoRecordAvailable<ModelImpl>::value) {
+                ModelImpl::storeMetropolisHastingsInfoRecord("likelihood");
+            }
+        } else {
+            if constexpr(IsStoreMetropolisHastingsInfoRecordAvailable<MarkovChainProposer>::value) {
+                MarkovChainProposer::storeMetropolisHastingsInfoRecord("polytope");
+            } else if constexpr(IsStoreMetropolisHastingsInfoRecordAvailable<ModelImpl>::value) {
+                ModelImpl::storeMetropolisHastingsInfoRecord("polytope");
+            }
         }
         return acceptanceProbability;
     }

@@ -29,7 +29,6 @@ namespace hops {
          * @details Clears Markov chain history.
          * @param markovChain
          * @param parameters
-         * size_t indiciation number of iterations used and the tuned MarkovChain
          * @return true if markov chain is tuned
          */
         static bool

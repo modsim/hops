@@ -8,6 +8,7 @@
 #include <vector>
 
 namespace hops {
+
     template<typename MarkovChainImpl>
     class StateRecorder : public MarkovChainImpl {
     public:
@@ -37,7 +38,6 @@ namespace hops {
     private:
         std::vector<typename MarkovChainImpl::StateType> records;
     };
-
 }
 
 #endif //HOPS_STATERECORDER_HPP

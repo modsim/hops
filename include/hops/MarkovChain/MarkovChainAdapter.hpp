@@ -5,6 +5,7 @@
 #include "IsGetColdnessAvailable.hpp"
 #include "IsGetExchangeAttemptProbabilityAvailable.hpp"
 #include "IsGetStepSizeAvailable.hpp"
+#include "IsResetAcceptanceRateAvailable.hpp"
 #include "IsSetColdnessAvailable.hpp"
 #include "IsSetExchangeAttemptProbabilityAvailable.hpp"
 #include "IsSetStepSizeAvailable.hpp"
@@ -48,6 +49,14 @@ namespace hops {
 
         double getAcceptanceRate() override {
             return MarkovChainImpl::getAcceptanceRate();
+        }
+
+        void resetAcceptanceRate() override {
+            if constexpr(IsResetAcceptanceRateAvailable<MarkovChainImpl>::value) {
+                MarkovChainImpl::resetAcceptanceRate();
+            } else {
+                throw std::runtime_error("No acceptance rate to reset.");
+            }
         }
 
         void setAttribute(MarkovChainAttribute markovChainAttribute, double value) override {

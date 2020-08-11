@@ -6,6 +6,7 @@ namespace hops {
         BallWalk,
         CoordinateHitAndRun,
         CSmMALA,
+        CSmMALANoGradient,
         DikinWalk,
         HitAndRun,
     };
