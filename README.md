@@ -7,6 +7,8 @@ The **H**ighly **O**ptimized **P**olytope **S**ampling toolbox is an open-source
 library for efficient and scalable MCMC algorithms for sampling convex-constrained spaces possibly
 equipped with arbitrary target functions.
 
+For details and benchmarks see the application note https://doi.org/10.1093/bioinformatics/btaa872.
+
 ## Documentation
 
 See https://modsim.github.io/hops/.
