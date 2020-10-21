@@ -1,12 +1,11 @@
 # The HOPS toolbox
 
-The *H*ighly *O*ptimized *P*olytope *S*ampling toolbox is an open-source C++17
+[![Build Status](https://travis-ci.org/modsim/hops.svg?branch=master)](https://travis-ci.org/modsim/hops)
+
+
+The **H**ighly **O**ptimized **P**olytope **S**ampling toolbox is an open-source C++17
 library for efficient and scalable MCMC algorithms for sampling convex-constrained spaces possibly
 equipped with arbitrary target functions.
-
-## Build Status
-
-See https://travis-ci.org/github/modsim/hops, as currently the travis-ci badge is not correctly updated.
 
 ## Documentation
 
@@ -50,6 +49,19 @@ $ sudo make install
 
 Use an IDE (e.g. CLion) to parse the project and its CMakeLists.txt.
 
+
+#### Git lfs
+
+The csv files in the resources directory are stored using *git lfs*, because they are too large to efficiently store with git.
+Without pulling the csv files with *git lfs*, some tests will fail.
+
+Install *git lfs* and pull the csv files with
+
+```
+$ git lfs pull
+```
+
+See https://www.atlassian.com/git/tutorials/git-lfs for more information.
 
 ## Examples
 See the examples directory for demonstrations on how to use the library.
