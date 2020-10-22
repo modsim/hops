@@ -3,3 +3,6 @@ cmake-build*/
 .vs
 out
 CMakeSettings.json
+.clangd
+compile_commands.json
+.*.sw*
