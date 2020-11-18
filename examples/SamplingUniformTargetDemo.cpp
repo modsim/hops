@@ -29,7 +29,7 @@ int main(int argc, char **argv) {
             "how many samples to generate into output file",
             "applies number of parameters times thinning factor as thinning",
             "name of directory that results will be written to",
-            "CHRR | HRR | DikinWalk"
+            "CHRR | HRR | DikinWalk | BallWalk"
     };
 
     if (argc != 8) {
@@ -101,8 +101,9 @@ int main(int argc, char **argv) {
                                                                   A,
                                                                   b,
                                                                   start);
-    } else if (chainName == "CHRR" || chainName == "HRR") {
+    } else if (chainName == "BallWalk" || chainName == "CHRR" || chainName == "HRR") {
         hops::MarkovChainType chainType =
+                chainName == "BallWalk" ? hops::MarkovChainType::BallWalk :
                 chainName == "HRR" ? hops::MarkovChainType::HitAndRun : hops::MarkovChainType::CoordinateHitAndRun;
 
         // Assumes rounding transformation (the result of a cholesky decomposition) is stored as lower diagonal L of LLT and not UUT
@@ -130,20 +131,18 @@ int main(int argc, char **argv) {
 
     try {
         bool isTuned = false;
-        double upperLimitAcceptanceRate = 0.235;
-        double lowerLimitAcceptanceRate = 0.225;
+        double upperLimitAcceptanceRate = 0.24;
+        double lowerLimitAcceptanceRate = 0.22;
 
         double lowerLimitStepSize = 1e-10;
-        double upperLimitStepSize = 1;
-        //Counts how often markov chain could be tuned in a row
-        int countIsTuned = 0;
+        double upperLimitStepSize = 2;
         // Limits how long a single tuning run should last
         size_t iterationsToTestStepSize = 10 * A.cols();
-        size_t maxIterations = 50 * A.cols();
+        size_t maxIterations = 10000 * iterationsToTestStepSize;
 
         // Tuning loop
-        for (int i = 0; (i < 10) && (countIsTuned < 5); ++i) {
-            markovChain->draw(randomNumberGenerator, 1, 3 * numberOfSamples);
+        for (int i = 0; i < 2; ++i) {
+            markovChain->draw(randomNumberGenerator, 1, 1000);
             markovChain->setAttribute(hops::MarkovChainAttribute::STEP_SIZE, 1);
 
             isTuned = hops::AcceptanceRateTuner::tune(markovChain.get(),
@@ -154,7 +153,7 @@ int main(int argc, char **argv) {
                                                        upperLimitStepSize,
                                                        iterationsToTestStepSize,
                                                        maxIterations});
-            markovChain->draw(randomNumberGenerator, 1, 3 * numberOfSamples);
+            markovChain->draw(randomNumberGenerator, 1, 1000);
 
             std::cout << "step size at end of loop " << std::endl <<
                       markovChain->getAttribute(hops::MarkovChainAttribute::STEP_SIZE) << std::endl <<
@@ -163,7 +162,6 @@ int main(int argc, char **argv) {
 
             markovChain->resetAcceptanceRate();
             markovChain->clearHistory();
-            countIsTuned = isTuned * (countIsTuned + 1);
         }
 
         Eigen::VectorXd stepSize(1);

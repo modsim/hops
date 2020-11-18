@@ -125,8 +125,9 @@ int main(int argc, char **argv) {
                                                                   start,
                                                                   model,
                                                                   false);
-    } else if (chainName == "CHRR" || chainName == "HRR") {
+    } else if (chainName == "BallWalk" || chainName == "CHRR" || chainName == "HRR") {
         hops::MarkovChainType chainType =
+                chainName == "BallWalk" ? hops::MarkovChainType::BallWalk :
                 chainName == "HRR" ? hops::MarkovChainType::HitAndRun : hops::MarkovChainType::CoordinateHitAndRun;
 
         // Assumes rounding transformation (the result of a cholesky decomposition) is stored as lower diagonal L of LLT and not UUT
@@ -156,23 +157,24 @@ int main(int argc, char **argv) {
 
 
     try {
-        double upperLimitAcceptanceRate = 0.235;
-        double lowerLimitAcceptanceRate = 0.225;
+        double upperLimitAcceptanceRate = 0.24;
+        double lowerLimitAcceptanceRate = 0.22;
 
-        double lowerLimitStepSize = 1e-10;
-        double upperLimitStepSize = 10;
+        double lowerLimitStepSize = 1e-16;
+        double upperLimitStepSize = 2;
 
         // Counts how often markov chain could be tuned in a row
         bool isTuned = false;
-        int countIsTuned = 0;
         // Limits how long a single tuning run should last
-        size_t iterationsToTestStepSize = 100 * A.cols();
-        size_t maxIterations = 10000 * A.cols();
+        size_t iterationsToTestStepSize = 20 * A.cols();
+        size_t maxIterations = 20000 * A.cols();
 
         // Tuning loop
-        for (int i = 0; (i < 2) && (countIsTuned < 5); ++i) {
-            markovChain->draw(randomNumberGenerator, 1, 1000);
+        for (int i = 0; i < 2; ++i) {
+            markovChain->draw(randomNumberGenerator, 1, 2000);
             markovChain->setAttribute(hops::MarkovChainAttribute::STEP_SIZE, 1);
+            markovChain->resetAcceptanceRate();
+            markovChain->clearHistory();
 
             isTuned = hops::AcceptanceRateTuner::tune(markovChain.get(),
                                                       randomNumberGenerator,
@@ -188,11 +190,10 @@ int main(int argc, char **argv) {
                       markovChain->getAttribute(hops::MarkovChainAttribute::STEP_SIZE) << std::endl <<
                       "acceptance rate " << std::endl <<
                       markovChain->getAcceptanceRate() << std::endl;
-            markovChain->draw(randomNumberGenerator, 1, 1000);
+            markovChain->draw(randomNumberGenerator, 1, 2000);
 
             markovChain->resetAcceptanceRate();
             markovChain->clearHistory();
-            countIsTuned = isTuned * (countIsTuned + 1);
         }
         dynamic_cast<const hops::CsvWriter *>(fileWriter.get())->write("tuningStatus",
                                                                        {"1 for success, 0 for failure"});
