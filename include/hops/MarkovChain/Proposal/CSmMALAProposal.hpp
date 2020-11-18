@@ -81,6 +81,9 @@ namespace hops {
             }
             sqrtInvMetric = solver.operatorInverseSqrt();
             logSqrtDeterminant = 0.5 * solver.eigenvalues().array().log().sum();
+            if((solver.eigenvalues().array() <= 0).any()) {
+                throw std::runtime_error("Metric not positive-definite");
+            }
         }
     }
 
@@ -122,7 +125,7 @@ namespace hops {
     template<typename Model, typename Matrix>
     typename CSmMALAProposal<Model, Matrix>::MatrixType::Scalar
     CSmMALAProposal<Model, Matrix>::calculateLogAcceptanceProbability() {
-        bool isProposalInteriorPoint = ((A * proposal - b).array() <= 0).all();
+        bool isProposalInteriorPoint = ((A * proposal - b).array() < 0).all();
         if (!isProposalInteriorPoint) {
             if constexpr(IsStoreMetropolisHastingsInfoRecordAvailable<Model>::value) {
                 Model::storeMetropolisHastingsInfoRecord("polytope");

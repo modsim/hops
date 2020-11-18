@@ -117,7 +117,7 @@ namespace hops {
     template<typename Model, typename Matrix>
     typename CSmMALANoGradientProposal<Model, Matrix>::MatrixType::Scalar
     CSmMALANoGradientProposal<Model, Matrix>::calculateLogAcceptanceProbability() {
-        bool isProposalInteriorPoint = ((A * proposal - b).array() <= 0).all();
+        bool isProposalInteriorPoint = ((A * proposal - b).array() < 0).all();
         if (!isProposalInteriorPoint) {
             if constexpr(IsStoreMetropolisHastingsInfoRecordAvailable<Model>::value) {
                 Model::storeMetropolisHastingsInfoRecord("polytope");

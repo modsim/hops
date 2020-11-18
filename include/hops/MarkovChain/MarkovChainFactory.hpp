@@ -45,7 +45,7 @@ namespace hops {
             switch (type) {
                 case MarkovChainType::BallWalk : {
                     return addRecordersAndAdapter(
-                            NoOpDrawAdapter(
+                            MetropolisHastingsFilter(
                                     BallWalkProposal(
                                             Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>(
                                                     inequalityLhs), inequalityRhs, startingPoint)
@@ -107,7 +107,7 @@ namespace hops {
             switch (type) {
                 case MarkovChainType::BallWalk : {
                     return addRecordersAndAdapter(
-                            NoOpDrawAdapter(
+                            MetropolisHastingsFilter(
                                     StateTransformation(
                                             BallWalkProposal(
                                                     Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>(
@@ -190,16 +190,18 @@ namespace hops {
             switch (type) {
                 case MarkovChainType::BallWalk : {
                     return addRecordersAndAdapter(
-                        MetropolisHastingsFilter(
-                            ModelMixin(
-                                BallWalkProposal<
-                                        Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
-                                        decltype(inequalityRhs)
-                                    >(inequalityLhs, inequalityRhs, startingPoint),
-                                ColdnessAttribute(model)
-                            )
-                        ),
-                        useParallelTempering
+                            NegativeLogLikelihoodRecorder(
+                                    MetropolisHastingsFilter(
+                                            ModelMixin(
+                                                    BallWalkProposal<
+                                                            Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
+                                                            decltype(inequalityRhs)
+                                                    >(inequalityLhs, inequalityRhs, startingPoint),
+                                                    ColdnessAttribute(model)
+                                            )
+                                    )
+                            ),
+                            useParallelTempering
                     );
                 }
                 case MarkovChainType::CoordinateHitAndRun : {
@@ -307,24 +309,24 @@ namespace hops {
             switch (type) {
                 case MarkovChainType::BallWalk : {
                     return addRecordersAndAdapter(
-                        MetropolisHastingsFilter(
-                            ModelMixin(
-                                StateTransformation(
-                                    CoordinateHitAndRunProposal<
-                                         Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
-                                        decltype(roundedInequalityRhs),
-                                        GaussianStepDistribution<typename decltype(roundedInequalityRhs)::Scalar>
-                                    >(
-                                        roundedInequalityLhs,
-                                        roundedInequalityRhs,
-                                        startingPoint
-                                    ),
-                                    Transformation(unroundingTransformation, unroundingShift)
-                                ),
-                                ColdnessAttribute(model)
-                            )
-                        ),
-                        useParallelTempering
+                            NegativeLogLikelihoodRecorder(
+                                    MetropolisHastingsFilter(
+                                            ModelMixin(
+                                                    StateTransformation(
+                                                            BallWalkProposal<
+                                                                    Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
+                                                                    decltype(roundedInequalityRhs)>(
+                                                                    roundedInequalityLhs,
+                                                                    roundedInequalityRhs,
+                                                                    startingPoint
+                                                            ),
+                                                            Transformation(unroundingTransformation, unroundingShift)
+                                                    ),
+                                                    ColdnessAttribute(model)
+                                            )
+                                    )
+                            ),
+                            useParallelTempering
                     );
                 }
                 case MarkovChainType::CoordinateHitAndRun : {
@@ -352,7 +354,8 @@ namespace hops {
                     throw std::runtime_error("CSmMALA not supported for rounded spaces. Use unrouded spaces.");
                 }
                 case MarkovChainType::CSmMALANoGradient: {
-                    throw std::runtime_error("CSmMALANoGradient not supported for rounded spaces. Use unrouded spaces.");
+                    throw std::runtime_error(
+                            "CSmMALANoGradient not supported for rounded spaces. Use unrouded spaces.");
                 }
                 case MarkovChainType::DikinWalk : {
                     return addRecordersAndAdapter(
