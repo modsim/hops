@@ -37,7 +37,7 @@ int main(int argc, char **argv) {
     };
 
     if (argc != 9) {
-        std::cout << argc << "Usage: ";
+        std::cout << "Usage: ";
         size_t maxArgumentNamesWidth = 0;
         for (const auto &argumentName: argumentNames) {
             std::cout << argumentName << " ";
