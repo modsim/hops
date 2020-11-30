@@ -1,6 +1,0 @@
-configure_file(A_crown_1-13C_sim_data_rounded.csv ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
-configure_file(T_crown_1-13C_sim_data_rounded.csv ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
-configure_file(p_shift_crown_1-13C_sim_data_rounded.csv ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
-configure_file(start_crown_1-13C_sim_data_rounded.csv ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
-configure_file(b_crown_1-13C_sim_data_rounded.csv ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
-configure_file(covariance_crown_1-13C_sim_data.csv ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)

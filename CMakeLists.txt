@@ -129,12 +129,16 @@ if (HOPS_DOCS)
     else ()
         message(STATUS "Enabled Doxygen documentation. Use -DHOPS_DOCS=OFF to disable.")
         set(DOCUMENTATION_DIR "docs")
+
+	set(DOXYGEN_DIR_1 "${CMAKE_CURRENT_SOURCE_DIR}/include/hops")
+	set(DOXYGEN_DIR_2 "${CMAKE_CURRENT_SOURCE_DIR}/src")
+
         set(doxy_main_page "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
         set(doxyfile_in "${CMAKE_CURRENT_SOURCE_DIR}/docs/Doxyfile.in")
         set(doxyfile "${CMAKE_CURRENT_BINARY_DIR}/docs/Doxyfile")
         configure_file(${doxyfile_in} ${doxyfile} @ONLY)
         add_custom_target(docs
-                COMMAND ${DOXYGEN_EXECUTABLE} ${doxyfile} && make -C ${CMAKE_CURRENT_BINARY_DIR}/docs/latex
+                COMMAND ${DOXYGEN_EXECUTABLE} ${doxyfile}
                 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
                 COMMENT "Generating API docs with Doxygen"
                 VERBATIM

@@ -2,6 +2,7 @@ set(TEST_SOURCES
         ModelMixinTest.cpp
         MultimodalModelTest.cpp
         MultivariateGaussianModelTest.cpp
+        RosenbrockModelTest.cpp
         )
 
 foreach (TEST_SOURCE ${TEST_SOURCES})
