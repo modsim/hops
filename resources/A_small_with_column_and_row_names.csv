@@ -1,3 +1,6 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:c8b61f624d698a5b74061a33d252bfb0656f3154ee6343047c90a545bf7ea631
-size 95
+  , y0,y1,y2,y3
+x0,1.5, 1, 1, 1
+x1, -1, 0, 0, 0
+x2,  0,-1, 0, 0
+x3,  0, 0,-1, 0
+x4,  0, 0, 0,-1

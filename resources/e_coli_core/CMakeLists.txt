@@ -10,7 +10,3 @@ configure_file(start_e_coli_core_rounded.csv ${CMAKE_CURRENT_BINARY_DIR} COPYONL
 configure_file(start_e_coli_core_unrounded.csv ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
 configure_file(T_e_coli_core_rounded.csv ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
 configure_file(e_coli_core.xml ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
-configure_file(S_e_coli_core.csv ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
-configure_file(lb_e_coli_core.csv ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
-configure_file(ub_e_coli_core.csv ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
-configure_file(covariance_e_coli_core.csv ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)

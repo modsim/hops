@@ -23,21 +23,21 @@ namespace hops {
 
         RosenbrockModel(double scaleParameter, VectorType shiftParameter);
 
-        typename MatrixType::Scalar computeNegativeLogLikelihood(const VectorType &x) const;
+        typename MatrixType::Scalar calculateNegativeLogLikelihood(const VectorType &x) const;
 
-        MatrixType computeHessian(const VectorType &x) const;
+        MatrixType calculateHessian(const VectorType &x) const;
 
-        VectorType computeLogLikelihoodGradient(const VectorType &x) const;
+        VectorType calculateLogLikelihoodGradient(const VectorType &x) const;
 
         /**
-         * @brief Actually this computes the softmax of the hessian instead of the
+         * @brief Actually this calculates the softmax of the hessian instead of the
          * the expected fisher information is intractable for this model.
          * @details See 10.1007/978-3-642-40020-9_35
          * @return
          */
-        MatrixType computeExpectedFisherInformation(const VectorType &x) const {
-            MatrixType hessian = computeHessian(x);
-//            // regularization should be between 0 and infinity. This value is guessed for now.
+        MatrixType calculateExpectedFisherInformation(const VectorType &x) const {
+            MatrixType hessian = calculateHessian(x);
+            // regularization should be between 0 and infinity. This value is guessed for now.
             double regularization = 1. / hessian.maxCoeff();
             MatrixType expPositive = (regularization * hessian).exp();
             MatrixType expNegative = (-regularization * hessian).exp();
@@ -62,7 +62,7 @@ namespace hops {
 
     template<typename MatrixType, typename VectorType>
     typename MatrixType::Scalar
-    RosenbrockModel<MatrixType, VectorType>::computeNegativeLogLikelihood(const VectorType &x) const {
+    RosenbrockModel<MatrixType, VectorType>::calculateNegativeLogLikelihood(const VectorType &x) const {
         if (x.rows() != numberOfDimensions) {
             throw std::runtime_error("Input x has wrong number of rows.");
         }
@@ -77,7 +77,7 @@ namespace hops {
 
     template<typename MatrixType, typename VectorType>
     MatrixType
-    RosenbrockModel<MatrixType, VectorType>::computeHessian(const VectorType &x) const {
+    RosenbrockModel<MatrixType, VectorType>::calculateHessian(const VectorType &x) const {
         MatrixType observedFisherInformation(x.rows(), x.rows());
 
         for (long i = 0; i < shiftParameter.rows(); ++i) {
@@ -93,7 +93,7 @@ namespace hops {
 
     template<typename MatrixType, typename VectorType>
     VectorType
-    RosenbrockModel<MatrixType, VectorType>::computeLogLikelihoodGradient(const VectorType &x) const {
+    RosenbrockModel<MatrixType, VectorType>::calculateLogLikelihoodGradient(const VectorType &x) const {
         VectorType gradient(x.rows());
         for (long i = 0; i < shiftParameter.rows(); ++i) {
             gradient(2 * i) = scaleParameter * (4 * 100 * (x(2 * i + 1) - std::pow(x(2 * i), 2)) * (-2 * x(2 * i)) +
