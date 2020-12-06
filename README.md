@@ -1,4 +1,5 @@
 # The HOPS toolbox
+![pipeline status](https://jugit.fz-juelich.de/fluxomics/hops/badges/master/pipeline.svg)](https://jugit.fz-juelich.de/fluxomics/hops/-/commits/master)
 
 The **H**ighly **O**ptimized **P**olytope **S**ampling toolbox is an open-source C++17
 library for efficient and scalable MCMC algorithms for sampling convex-constrained spaces possibly
@@ -49,6 +50,10 @@ See the examples directory for demonstrations on how to use the library.
 * g++
 * Clang
 * Microsoft Visual C++
+
+## CI
+
+The Dockerfile.gitlab-ci is used in .gitlab-ci.yml. Check the CI settings on the gitlab server for details.
 
 ## Troubleshooting
 
