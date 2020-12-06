@@ -1,0 +1,48 @@
+image: jugit-registry.fz-juelich.de/fluxomics/hops 
+
+stages:
+  - build
+  - test
+
+build-debug:
+  stage: build
+  script:
+  - mkdir cmake-build-debug && cd cmake-build-debug && CXX=clang++ CC=clang cmake .. -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu -DCMAKE_BUILD_TYPE=Release -DHOPS_BENCHMARK=off && make -j2 && cd -
+  artifacts:
+    paths:
+      - cmake-build-debug
+    expire_in: 2 days
+
+build-release:
+  stage: build
+  script:
+  - mkdir cmake-build-release && cd cmake-build-release && CXX=clang++ CC=clang cmake .. -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu -DCMAKE_BUILD_TYPE=Release -DHOPS_BENCHMARK=off && make -j2 && cd -
+  artifacts:
+    paths:
+      - cmake-build-release
+    expire_in: 2 days
+
+test-debug:
+  stage: test
+  script:
+  - cd cmake-build-debug/tests && ./runTests --gtest_output="xml:report-debug.xml" && cd -
+  - ls cmake-build-debug/tests/*
+
+  artifacts:
+    when: always
+    reports:
+      junit: cmake-build-debug/tests/report-debug.xml
+    expire_in: 10 weeks
+
+test-release:
+  stage: test
+  script:
+  - cd cmake-build-release/tests && ./runTests --gtest_output="xml:report-release.xml" && cd -
+  - ls cmake-build-release/tests/*
+
+  artifacts:
+    when: always
+    reports:
+      junit: cmake-build-release/tests/report-release.xml
+    expire_in: 10 weeks
+
