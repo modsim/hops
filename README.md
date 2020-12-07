@@ -1,5 +1,6 @@
 # The HOPS toolbox
-![pipeline status](https://jugit.fz-juelich.de/fluxomics/hops/badges/master/pipeline.svg)
+[![pipeline status](https://jugit.fz-juelich.de/fluxomics/hops/badges/master/pipeline.svg)](https://jugit.fz-juelich.de/fluxomics/hops/-/commits/master)
+
 
 The **H**ighly **O**ptimized **P**olytope **S**ampling toolbox is an open-source C++17
 library for efficient and scalable MCMC algorithms for sampling convex-constrained spaces possibly
