@@ -8,7 +8,7 @@
 #include <hops/MarkovChain/Proposal/ChordStepDistributions.hpp>
 #include <hops/Model/MultivariateGaussianModel.hpp>
 #include <hops/MarkovChain/AcceptanceRateTuner.hpp>
-#include <hops/PolytopePreprocessing/NormalizePolytope.hpp>
+#include <hops/Polytope/NormalizePolytope.hpp>
 #include <hops/MarkovChain/Recorder/MetropolisHastingsInfoRecorder.hpp>
 
 using RealType = double;
@@ -33,7 +33,7 @@ int main(int argc, char **argv) {
             "how many samples to generate into output file",
             "applies number of parameters times thinning factor as thinning",
             "name of directory that results will be written to",
-            "CHRR | HRR | DikinWalk | CSmMALA | CSmMALANoGradient"
+            "CHRR | CSmMALA | CSmMALANoGradient | DikinWalk | HRR"
     };
 
     if (argc != 9) {
@@ -110,22 +110,54 @@ int main(int argc, char **argv) {
             covarianceFile).cast<RealType>();
     auto parameterNames = hops::CsvReader::readVector<std::vector<std::string>>(parameterNamesFile);
 
+
+//    Eigen::MatrixXd tempA(A.rows() + 2*A.cols(), A.cols());
+//    tempA << Eigen::MatrixXd(A),
+//            Eigen::MatrixXd::Ones(A.cols(), A.cols()),
+//            -Eigen::MatrixXd::Ones(A.cols(), A.cols());
+//    A = tempA.sparseView();
+//
+//    Eigen::VectorXd tempB(b.rows() + 2*A.cols());
+//    tempB << b, 100*Eigen::VectorXd::Ones(A.cols()), -100*Eigen::VectorXd::Zero(A.cols());
+//    b = tempB;
+
+    auto unboundDims = hops::LinearProgramGurobiImpl(A, b).calculateUnconstrainedDimensions();
+    for (const auto &u: unboundDims) {
+        std::cout << "dim " << u << " is unbound." << std::endl;
+    }
+
     auto model = hops::MetropolisHastingsInfoRecorder(hops::MultivariateGaussianModel(mean, covariance));
+    hops::MarkovChainType chainType;
+    if (chainName == "BallWalk") {
+        chainType = hops::MarkovChainType::BallWalk;
+    } else if (chainName == "CHRR") {
+        chainType = hops::MarkovChainType::CoordinateHitAndRun;
+    } else if (chainName == "CSmMALA") {
+        chainType = hops::MarkovChainType::CSmMALA;
+    } else if (chainName == "CSmMALAOld") {
+        chainType = hops::MarkovChainType::CSmMALAOld;
+    } else if (chainName == "CSmMALANoGradient") {
+        chainType = hops::MarkovChainType::CSmMALANoGradient;
+    } else if (chainName == "DikinWalk") {
+        chainType = hops::MarkovChainType::DikinWalk;
+    } else if (chainName == "DikinWalkOld") {
+        chainType = hops::MarkovChainType::DikinWalkOld;
+    } else if (chainName == "HRR") {
+        chainType = hops::MarkovChainType::HitAndRun;
+    } else {
+        throw std::runtime_error("");
+    }
 
     std::unique_ptr<hops::MarkovChain> markovChain;
-    if (chainName == "DikinWalk" || chainName == "CSmMALA" || chainName == "CSmMALANoGradient") {
-        hops::MarkovChainType chainType =
-                chainName == "DikinWalk" ? hops::MarkovChainType::DikinWalk :
-                chainName == "CSmMALA" ? hops::MarkovChainType::CSmMALA
-                                       : hops::MarkovChainType::CSmMALANoGradient;
-
+    if (chainType == hops::MarkovChainType::CSmMALA || chainType == hops::MarkovChainType::CSmMALAOld ||
+        chainType == hops::MarkovChainType::DikinWalk || chainType == hops::MarkovChainType::DikinWalkOld) {
         markovChain = hops::MarkovChainFactory::createMarkovChain(chainType,
                                                                   A,
                                                                   b,
                                                                   start,
                                                                   model,
                                                                   false);
-    } else if (chainName == "BallWalk" || chainName == "CHRR" || chainName == "HRR") {
+    } else if (chainType == hops::MarkovChainType::BallWalk || chainType == hops::MarkovChainType::HitAndRun || chainType == hops::MarkovChainType::CoordinateHitAndRun) {
         hops::MarkovChainType chainType =
                 chainName == "BallWalk" ? hops::MarkovChainType::BallWalk :
                 chainName == "HRR" ? hops::MarkovChainType::HitAndRun : hops::MarkovChainType::CoordinateHitAndRun;
@@ -153,21 +185,21 @@ int main(int argc, char **argv) {
 
     auto fileWriter = hops::FileWriterFactory::createFileWriter(
             outputName + "_" + modelName + "_" + markovChain->getName(),
-            hops::FileWriterType::Csv);
+            hops::FileWriterType::Hdf5);
 
 
     try {
-        double upperLimitAcceptanceRate = 0.24;
-        double lowerLimitAcceptanceRate = 0.22;
+        double upperLimitAcceptanceRate = 0.25;
+        double lowerLimitAcceptanceRate = 0.20;
 
-        double lowerLimitStepSize = 1e-16;
-        double upperLimitStepSize = 2;
+        double lowerLimitStepSize = 1e-1;
+        double upperLimitStepSize = 1;
 
         // Counts how often markov chain could be tuned in a row
         bool isTuned = false;
         // Limits how long a single tuning run should last
-        size_t iterationsToTestStepSize = 20 * A.cols();
-        size_t maxIterations = 20000 * A.cols();
+        size_t iterationsToTestStepSize = 300;
+        size_t maxIterations = 200 * iterationsToTestStepSize;
 
         // Tuning loop
         for (int i = 0; i < 2; ++i) {
@@ -216,8 +248,9 @@ int main(int argc, char **argv) {
 
 
     long thinning = A.cols() * thinningFactor;
-    markovChain->draw(randomNumberGenerator, numberOfSamples, thinning);
-    markovChain->writeHistory(fileWriter.get());
-    markovChain->clearHistory();
+    for (long i = 0; i < numberOfSamples; i += 1000) {
+        markovChain->draw(randomNumberGenerator, 1000, thinning);
+        markovChain->writeHistory(fileWriter.get());
+    }
 }
 

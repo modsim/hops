@@ -31,6 +31,8 @@ if ( GUROBI_ENABLE )
 
         find_library(GUROBI_LIBRARY
                 NAMES gurobi
+                gurobi903
+                gurobi90
                 gurobi91
                 gurobi9
                 gurobi81

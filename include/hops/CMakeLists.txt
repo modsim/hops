@@ -5,7 +5,7 @@ add_subdirectory(FileWriter)
 add_subdirectory(LinearProgram)
 add_subdirectory(MarkovChain)
 add_subdirectory(Model)
-add_subdirectory(PolytopePreprocessing)
+add_subdirectory(Polytope)
 add_subdirectory(RandomNumberGenerator)
 add_subdirectory(Transformation)
 

@@ -116,7 +116,6 @@ namespace {
                         N,
                         shift)
         );
-        EXPECT_TRUE(markovChain != nullptr);
     }
 
     TEST_F(MarkovChainFactory, createUniformHitAndRunRounded) {
@@ -223,19 +222,11 @@ namespace {
     TEST_F(MarkovChainFactory, createNonUniformDikinWalkRounded) {
         bool useParallelTempering = false;
 
-        std::unique_ptr<hops::MarkovChain> markovChain;
-        EXPECT_NO_THROW(
-                markovChain = hops::MarkovChainFactory::createMarkovChain(
-                        hops::MarkovChainType::DikinWalk,
-                        A,
-                        b,
-                        startingPoint,
-                        N,
-                        shift,
-                        model,
-                        useParallelTempering)
+        EXPECT_THROW(
+                hops::MarkovChainFactory::createMarkovChain(
+                        hops::MarkovChainType::DikinWalk, A, b, startingPoint, N, shift, model, useParallelTempering),
+                std::runtime_error
         );
-        EXPECT_TRUE(markovChain != nullptr);
     }
 
     TEST_F(MarkovChainFactory, createNonUniformHitAndRunRounded) {
@@ -348,19 +339,11 @@ namespace {
     TEST_F(MarkovChainFactory, createNonUniformDikinWalkRoundedWithParallelTempering) {
         bool useParallelTempering = true;
 
-        std::unique_ptr<hops::MarkovChain> markovChain;
-        EXPECT_NO_THROW(
-                markovChain = hops::MarkovChainFactory::createMarkovChain(
-                        hops::MarkovChainType::DikinWalk,
-                        A,
-                        b,
-                        startingPoint,
-                        N,
-                        shift,
-                        model,
-                        useParallelTempering)
+        EXPECT_THROW(
+                hops::MarkovChainFactory::createMarkovChain(
+                        hops::MarkovChainType::DikinWalk, A, b, startingPoint, N, shift, model, useParallelTempering),
+                std::runtime_error
         );
-        EXPECT_TRUE(markovChain != nullptr);
     }
 
     TEST_F(MarkovChainFactory, createNonUniformHitAndRunRoundedWithParallelTempering) {

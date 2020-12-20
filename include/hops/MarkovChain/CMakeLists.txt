@@ -6,6 +6,7 @@ target_sources(hops PRIVATE
         IsResetAcceptanceRateAvailable.hpp
         IsSetColdnessAvailable.hpp
         IsSetExchangeAttemptProbabilityAvailable.hpp
+        IsSetFisherWeightAvailable.hpp
         IsSetStepSizeAvailable.hpp
         MarkovChain.hpp
         MarkovChainAdapter.hpp

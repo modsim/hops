@@ -1,1 +1,0 @@
-target_sources(hops PRIVATE MaximumVolumeEllipsoid.cpp)

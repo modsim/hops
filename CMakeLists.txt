@@ -8,8 +8,8 @@ project(hops)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
 
 if (UNIX)
-    message(STATUS "Adjusting CMAKE_PREFIX_PATH on UNIX for CLP")
-    list(APPEND CMAKE_PREFIX_PATH /usr/lib/x85_64-linux-gnu)
+    message(STATUS "Adjusting CMAKE_PREFIX_PATH on UNIX for CLP and others")
+    list(APPEND CMAKE_PREFIX_PATH /usr/lib/x86_64-linux-gnu)
 endif (UNIX)
 
 ########################################################################################################################
@@ -59,14 +59,8 @@ if (COMPILER_SUPPORTS_MARCH_NATIVE)
 else ()
     message(WARNING "compiler does not support flag -march=native")
 endif ()
-CHECK_CXX_COMPILER_FLAG("-O3" COMPILER_SUPPORTS_O3)
-if (COMPILER_SUPPORTS_MARCH_NATIVE)
-    message(STATUS "Adding compiler flag -O3")
-    set(CMAKE_CXX_FLAGS_RELEASE "-O3")
-else ()
-    message(STATUS "Adding compiler flag -O2")
-    set(CMAKE_CXX_FLAGS_RELEASE "-O2")
-endif ()
+message(STATUS "Adding compiler flag -O2")
+set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 
 
 ########################################################################################################################
@@ -102,7 +96,7 @@ endif (MKL_LIBRARY_DIR)
 # HOPS
 ########################################################################################################################
 
-add_library(hops STATIC "")
+add_library(hops STATIC "" include/hops/Polytope/SimplexFactory.hpp)
 target_include_directories(hops PUBLIC ${EIGEN3_INCLUDE_DIR})
 
 if (MKL_INCLUDE_DIR)

@@ -27,14 +27,8 @@ namespace hops {
     template<typename MatrixType, typename VectorType>
     Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>
     DikinEllipsoidCalculator<MatrixType, VectorType>::calculateDikinEllipsoid(const VectorType &x) const {
-        Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, 1> inv_slack = (this->b -
-                                                                                   this->A * x).cwiseInverse();
-
-        Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic> halfDikin =
-                inv_slack.asDiagonal() * this->A;
-        Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic> dikin =
-                halfDikin.transpose() * halfDikin;
-        return dikin;
+        auto inv_slack = (this->b - this->A * x).array().pow(2).inverse().matrix().asDiagonal();
+        return this->A.transpose() * inv_slack * A;
     }
 }
 

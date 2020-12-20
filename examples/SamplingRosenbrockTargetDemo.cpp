@@ -7,7 +7,7 @@
 #include <hops/MarkovChain/MarkovChainFactory.hpp>
 #include <hops/MarkovChain/Proposal/ChordStepDistributions.hpp>
 #include <hops/MarkovChain/AcceptanceRateTuner.hpp>
-#include <hops/PolytopePreprocessing/NormalizePolytope.hpp>
+#include <hops/Polytope/NormalizePolytope.hpp>
 #include <hops/Model/RosenbrockModel.hpp>
 
 int main(int argc, char **argv) {
@@ -29,7 +29,7 @@ int main(int argc, char **argv) {
             "CHRR | HRR | DikinWalk | CSmMALA | CSmMALANoGradient"
     };
 
-    if (argc != argumentNames.size() + 1) {
+    if (static_cast<size_t>(argc) != argumentNames.size() + 1) {
         std::cout << "Usage: ";
         size_t maxArgumentNamesWidth = 0;
         for (const auto &argumentName: argumentNames) {

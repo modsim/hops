@@ -7,7 +7,7 @@
 #include <hops/MarkovChain/MarkovChainFactory.hpp>
 #include <hops/MarkovChain/Proposal/ChordStepDistributions.hpp>
 #include <hops/MarkovChain/AcceptanceRateTuner.hpp>
-#include <hops/PolytopePreprocessing/NormalizePolytope.hpp>
+#include <hops/Polytope/NormalizePolytope.hpp>
 
 using RealType = double;
 
