@@ -1,12 +1,25 @@
 #ifndef HOPS_CSMMALA_HPP
 #define HOPS_CSMMALA_HPP
 
+#include <Eigen/Eigenvalues>
 #include <hops/MarkovChain/Proposal/DikinProposal.hpp>
 #include <hops/MarkovChain/Recorder/IsStoreMetropolisHastingsInfoRecordAvailable.hpp>
 #include <hops/MarkovChain/Recorder/IsAddMessageAvailabe.hpp>
 #include <random>
 
 namespace hops {
+    namespace CSmMALAProposalDetails {
+        template<typename MatrixType>
+        void calculateMetricInfoForCSmMALAWithSvd(const MatrixType &metric,
+                                                  MatrixType &sqrtInvMetric,
+                                                  double &logSqrtDeterminant) {
+            Eigen::BDCSVD<MatrixType> solver(metric, Eigen::ComputeFullU);
+            sqrtInvMetric = solver.matrixU() * solver.singularValues().cwiseInverse().cwiseSqrt().asDiagonal() *
+                            solver.matrixU().adjoint();
+            logSqrtDeterminant = 0.5 * solver.singularValues().array().log().sum();
+        }
+    }
+
     template<typename Model, typename Matrix>
     class CSmMALAProposal : public Model {
     public:
@@ -38,6 +51,8 @@ namespace hops {
 
         void setStepSize(typename MatrixType::Scalar newStepSize);
 
+        void setFisherWeight(typename MatrixType::Scalar newFisherWeight);
+
         double getNegativeLogLikelihoodOfCurrentState();
 
         std::string getName();
@@ -62,7 +77,7 @@ namespace hops {
         Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic> proposalMetric;
 
         typename MatrixType::Scalar stepSize;
-        static constexpr const typename MatrixType::Scalar fisherWeight = .5;
+        typename MatrixType::Scalar fisherWeight = .5;
         typename MatrixType::Scalar geometricFactor;
         typename MatrixType::Scalar covarianceFactor;
 
@@ -70,24 +85,8 @@ namespace hops {
         DikinEllipsoidCalculator <MatrixType, VectorType> dikinEllipsoidCalculator;
     };
 
-    namespace {
-        template<typename MatrixType>
-        void calculateMetricInfoForCSmMALA(const MatrixType &metric,
-                                           MatrixType &sqrtInvMetric,
-                                           double &logSqrtDeterminant) {
-            Eigen::SelfAdjointEigenSolver<MatrixType> solver(metric);
-            if (solver.info() != Eigen::Success) {
-                throw std::runtime_error("SelfAdjointEigenSolver failed.");
-            }
-            sqrtInvMetric = solver.operatorInverseSqrt();
-            logSqrtDeterminant = 0.5 * solver.eigenvalues().array().log().sum();
-            if((solver.eigenvalues().array() <= 0).any()) {
-                throw std::runtime_error("Metric not positive-definite");
-            }
-        }
-    }
-
-    template<typename Model, typename Matrix>
+    template<typename Model,
+            typename Matrix>
     CSmMALAProposal<Model, Matrix>::CSmMALAProposal(const Model &model,
                                                     MatrixType A,
                                                     VectorType b,
@@ -96,13 +95,19 @@ namespace hops {
             A(std::move(A)),
             b(std::move(b)),
             dikinEllipsoidCalculator(this->A, this->b) {
+        stateMetric = Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>::Zero(
+                currentState.rows(), currentState.rows());
+        proposalMetric = Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>::Zero(
+                currentState.rows(), currentState.rows());
         setState(currentState);
         setStepSize(1.);
         proposal = state;
     }
 
-    template<typename Model, typename Matrix>
-    void CSmMALAProposal<Model, Matrix>::propose(RandomNumberGenerator &randomNumberGenerator) {
+    template<typename Model,
+            typename Matrix>
+    void CSmMALAProposal<Model, Matrix>::propose(
+            RandomNumberGenerator &randomNumberGenerator) {
         for (long i = 0; i < proposal.rows(); ++i) {
             proposal(i) = normalDistribution(randomNumberGenerator);
         }
@@ -112,9 +117,6 @@ namespace hops {
     template<typename Model, typename Matrix>
     void CSmMALAProposal<Model, Matrix>::acceptProposal() {
         state.swap(proposal);
-        if (((A * state - b).array() > 0).any()) {
-            throw std::runtime_error("Current state is outside of polytope!");
-        }
         driftedState.swap(driftedProposal);
         stateSqrtInvMetric.swap(proposalSqrtInvMetric);
         stateMetric.swap(proposalMetric);
@@ -136,12 +138,20 @@ namespace hops {
             Model::storeMetropolisHastingsInfoRecord("likelihood");
         }
 
-        auto dikinEllipsoid = dikinEllipsoidCalculator.calculateDikinEllipsoid(proposal);
         // Important: calculate gradient before fisher info or else x3cflux2 will throw
         StateType gradient = calculateTruncatedGradient(proposal);
-        auto fisherInformation = Model::calculateExpectedFisherInformation(proposal);
-        proposalMetric = fisherWeight * fisherInformation + (1 - fisherWeight) * dikinEllipsoid;
-        calculateMetricInfoForCSmMALA(proposalMetric, proposalSqrtInvMetric, proposalLogSqrtDeterminant);
+        proposalMetric.setZero();
+        if (fisherWeight != 0) {
+            auto fisherInformation = Model::calculateExpectedFisherInformation(proposal);
+            proposalMetric += fisherWeight * fisherInformation;
+        }
+        if (fisherWeight != 1) {
+            auto dikinEllipsoid = dikinEllipsoidCalculator.calculateDikinEllipsoid(proposal);
+            proposalMetric += (1 - fisherWeight) * dikinEllipsoid;
+
+        }
+        CSmMALAProposalDetails::calculateMetricInfoForCSmMALAWithSvd(proposalMetric, proposalSqrtInvMetric,
+                                                                     proposalLogSqrtDeterminant);
         driftedProposal = proposal +
                           0.5 * std::pow(covarianceFactor, 2) * proposalSqrtInvMetric * proposalSqrtInvMetric *
                           gradient;
@@ -167,12 +177,20 @@ namespace hops {
     template<typename Model, typename Matrix>
     void CSmMALAProposal<Model, Matrix>::setState(StateType newState) {
         state.swap(newState);
-        auto dikinEllipsoid = dikinEllipsoidCalculator.calculateDikinEllipsoid(state);
         // Important: calculate gradient before fisher info or else x3cflux2 will throw
         StateType gradient = calculateTruncatedGradient(state);
-        auto fisherInformation = Model::calculateExpectedFisherInformation(state);
-        stateMetric = fisherWeight * fisherInformation + (1 - fisherWeight) * dikinEllipsoid;
-        calculateMetricInfoForCSmMALA(stateMetric, stateSqrtInvMetric, stateLogSqrtDeterminant);
+        stateMetric.setZero();
+        if (fisherWeight != 0) {
+            auto fisherInformation = Model::calculateExpectedFisherInformation(state);
+            stateMetric += fisherWeight * fisherInformation;
+        }
+        if (fisherWeight != 1) {
+            auto dikinEllipsoid = dikinEllipsoidCalculator.calculateDikinEllipsoid(state);
+            stateMetric += (1 - fisherWeight) * dikinEllipsoid;
+        }
+        CSmMALAProposalDetails::calculateMetricInfoForCSmMALAWithSvd(stateMetric,
+                                                                     stateSqrtInvMetric,
+                                                                     stateLogSqrtDeterminant);
         driftedState = state + 0.5 * std::pow(covarianceFactor, 2) * stateSqrtInvMetric * stateSqrtInvMetric *
                                gradient;
         stateNegativeLogLikelihood = Model::calculateNegativeLogLikelihood(state);
@@ -195,6 +213,17 @@ namespace hops {
         stepSize = newStepSize;
         geometricFactor = A.cols() / (2 * stepSize * stepSize);
         covarianceFactor = stepSize / std::sqrt(A.cols());
+        setState(state);
+    }
+
+    template<typename Model, typename Matrix>
+    void CSmMALAProposal<Model, Matrix>::setFisherWeight(
+            typename MatrixType::Scalar newFisherWeight) {
+        if (fisherWeight > 1 || fisherWeight < 0) {
+            throw std::runtime_error("fisherWeigth should be in [0, 1].");
+        }
+        fisherWeight = newFisherWeight;
+        setState(state);
     }
 
     template<typename Model, typename Matrix>
@@ -212,7 +241,7 @@ namespace hops {
     CSmMALAProposal<Model, Matrix>::calculateTruncatedGradient(StateType x) {
         StateType gradient = Model::calculateLogLikelihoodGradient(x);
         double norm = gradient.norm();
-        if (norm > 1) {
+        if (norm != 0) {
             gradient /= norm;
         }
         return gradient;

@@ -10,6 +10,7 @@ set(TEST_SOURCES
         IsResetAcceptanceRateAvailableTest.cpp
         IsSetColdnessAvailableTest.cpp
         IsSetExchangeAttemptProbabilityAvailableTest.cpp
+        IsSetFisherWeightAvailableTest.cpp
         IsSetStepSizeAvailableTest.cpp
         MarkovChainFactoryTest.cpp
         )

@@ -358,23 +358,8 @@ namespace hops {
                             "CSmMALANoGradient not supported for rounded spaces. Use unrouded spaces.");
                 }
                 case MarkovChainType::DikinWalk : {
-                    return addRecordersAndAdapter(
-                            NegativeLogLikelihoodRecorder(
-                                    MetropolisHastingsFilter(
-                                            ModelMixin(
-                                                    StateTransformation(
-                                                            DikinProposal(
-                                                                    roundedInequalityLhs,
-                                                                    roundedInequalityRhs,
-                                                                    startingPoint),
-                                                            Transformation(unroundingTransformation, unroundingShift)
-                                                    ),
-                                                    ColdnessAttribute(model)
-                                            )
-                                    )
-                            ),
-                            useParallelTempering
-                    );
+                    throw std::runtime_error(
+                            "DikinWalk not supported for rounded spaces (it is slower). Use unrouded spaces.");
                 }
                 case MarkovChainType::HitAndRun: {
                     return addRecordersAndAdapter(

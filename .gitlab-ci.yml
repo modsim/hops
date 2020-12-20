@@ -7,7 +7,7 @@ stages:
 build-debug:
   stage: build
   script:
-  - mkdir cmake-build-debug && cd cmake-build-debug && CXX=clang++ CC=clang cmake .. -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu -DCMAKE_BUILD_TYPE=Release -DHOPS_BENCHMARK=off && make -j2 && cd -
+  - mkdir cmake-build-debug && cd cmake-build-debug && CXX=clang++ CC=clang cmake .. -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu -DCMAKE_BUILD_TYPE=Release -DHOPS_BENCHMARKS=off && make -j2 && cd -
   artifacts:
     paths:
       - cmake-build-debug
@@ -16,7 +16,7 @@ build-debug:
 build-release:
   stage: build
   script:
-  - mkdir cmake-build-release && cd cmake-build-release && CXX=clang++ CC=clang cmake .. -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu -DCMAKE_BUILD_TYPE=Release -DHOPS_BENCHMARK=off && make -j2 && cd -
+  - mkdir cmake-build-release && cd cmake-build-release && CXX=clang++ CC=clang cmake .. -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu -DCMAKE_BUILD_TYPE=Release -DHOPS_BENCHMARKS=off && make -j2 && cd -
   artifacts:
     paths:
       - cmake-build-release
@@ -26,7 +26,6 @@ test-debug:
   stage: test
   script:
   - cd cmake-build-debug/tests && ./runTests --gtest_output="xml:report-debug.xml" && cd -
-  - ls cmake-build-debug/tests/*
 
   artifacts:
     when: always
@@ -38,7 +37,6 @@ test-release:
   stage: test
   script:
   - cd cmake-build-release/tests && ./runTests --gtest_output="xml:report-release.xml" && cd -
-  - ls cmake-build-release/tests/*
 
   artifacts:
     when: always

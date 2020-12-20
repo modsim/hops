@@ -1,5 +1,6 @@
 set(EXAMPLE_SOURCES
         SamplingGaussianTargetDemo.cpp
+        SamplingGaussianSimplexDemo.cpp
         SamplingRosenbrockTargetDemo.cpp
         SamplingUniformTargetDemo.cpp
         )

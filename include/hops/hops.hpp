@@ -56,8 +56,8 @@
 #include "Model/MultimodalModel.hpp"
 #include "Model/MultivariateGaussianModel.hpp"
 
-#include "PolytopePreprocessing/MaximumVolumeEllipsoid.hpp"
-#include "PolytopePreprocessing/NormalizePolytope.hpp"
+#include "Polytope/MaximumVolumeEllipsoid.hpp"
+#include "Polytope/NormalizePolytope.hpp"
 
 #include "RandomNumberGenerator/RandomNumberGenerator.hpp"
 

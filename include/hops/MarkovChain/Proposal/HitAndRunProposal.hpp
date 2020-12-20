@@ -74,14 +74,14 @@ namespace hops {
         }
         updateDirection.normalize();
 
+        //  Resets slacks if numeric error is too large
+        if((slacks.array() < 0).any()) {
+            slacks = b - A * HitAndRunProposal::state;
+        }
         inverseDistances = (A * updateDirection).cwiseQuotient(slacks);
         forwardDistance = 1. / inverseDistances.maxCoeff();
         backwardDistance = 1. / inverseDistances.minCoeff();
         assert(backwardDistance < 0 && forwardDistance > 0);
-        assert(((b - A * state).array() >= 0).all());
-        if(!((b - A * state).array() >= 0).all()) {
-            std::cerr << "error" << std::endl;
-        }
 
         step = chordStepDistribution.draw(randomNumberGenerator, backwardDistance, forwardDistance);
         proposal = state + updateDirection * step;
