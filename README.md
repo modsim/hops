@@ -8,7 +8,7 @@ library for efficient and scalable MCMC algorithms for sampling convex-constrain
 equipped with arbitrary target functions.
 
 For details and benchmarks see the application note https://doi.org/10.1093/bioinformatics/btaa872.
-Test data from the application note is downloadable at doi:10.26165/JUELICH-DATA/YXLFKJ.
+Test data from the application note is downloadable at https://doi.org/10.26165/JUELICH-DATA/YXLFKJ.
 
 ## Documentation
 
