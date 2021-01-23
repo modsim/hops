@@ -1,5 +1,7 @@
 var searchData=
 [
-  ['w',['w',['../classpcg__extras_1_1uint__x4.html#a83cbeedc8e529c660c4a4c26be1a7825',1,'pcg_extras::uint_x4']]],
-  ['wa',['wa',['../classpcg__extras_1_1uint__x4.html#a54e6f9da6e35d0ef34a7cc597027d586',1,'pcg_extras::uint_x4']]]
+  ['objectivevalue_1837',['objectiveValue',['../structhops_1_1LinearProgramSolution.html#ae65a28fca5469af692935c1b792c1b38',1,'hops::LinearProgramSolution']]],
+  ['offset_1838',['offset',['../structHighFive_1_1CompoundType_1_1member__def.html#a7fe8f7fc11e223445033f75b25435612',1,'HighFive::CompoundType::member_def']]],
+  ['optimalparameters_1839',['optimalParameters',['../structhops_1_1LinearProgramSolution.html#a7aea9c25e4d840c3241e809ee2e404df',1,'hops::LinearProgramSolution']]],
+  ['otherwise_1840',['OTHERWISE',['../LICENSE_8txt.html#a3469e2ff8d890052b182a9271c20c9ab',1,'LICENSE.txt']]]
 ];

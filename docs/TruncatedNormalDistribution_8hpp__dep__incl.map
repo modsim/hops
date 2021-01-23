@@ -1,7 +1,8 @@
 <map id="TruncatedNormalDistribution.hpp" name="TruncatedNormalDistribution.hpp">
-<area shape="rect" id="node2" href="$ChordStepDistributions_8hpp.html" title="ChordStepDistributions.hpp" alt="" coords="156,80,339,107"/>
-<area shape="rect" id="node3" href="$hops_8hpp.html" title="hops.hpp" alt="" coords="215,304,290,331"/>
-<area shape="rect" id="node4" href="$CoordinateHitAndRunProposal_8hpp.html" title="CoordinateHitAndRunProposal.hpp" alt="" coords="31,155,256,181"/>
-<area shape="rect" id="node6" href="$HitAndRunProposal_8hpp.html" title="HitAndRunProposal.hpp" alt="" coords="281,155,443,181"/>
-<area shape="rect" id="node5" href="$MarkovChainFactory_8hpp.html" title="MarkovChainFactory.hpp" alt="" coords="169,229,337,256"/>
+<area shape="rect" id="node1" title=" " alt="" coords="215,5,454,32"/>
+<area shape="rect" id="node2" href="$ChordStepDistributions_8hpp.html" title=" " alt="" coords="167,80,367,107"/>
+<area shape="rect" id="node3" href="$hops_8hpp.html" title=" " alt="" coords="231,304,313,331"/>
+<area shape="rect" id="node4" href="$CoordinateHitAndRunProposal_8hpp.html" title=" " alt="" coords="31,155,278,181"/>
+<area shape="rect" id="node6" href="$HitAndRunProposal_8hpp.html" title=" " alt="" coords="302,155,477,181"/>
+<area shape="rect" id="node5" href="$MarkovChainFactory_8hpp.html" title=" " alt="" coords="181,229,363,256"/>
 </map>

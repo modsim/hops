@@ -20,6 +20,10 @@ namespace hops {
             }
         }
 
+        const std::vector<typename MarkovChainImpl::StateType> &getStateRecords() const {
+            return records;
+        }
+
         void storeRecord() {
             records.emplace_back(MarkovChainImpl::getState());
             if constexpr(IsStoreRecordAvailable<MarkovChainImpl>::value) {

@@ -1,4 +1,5 @@
 <map id="hops::FileWriter" name="hops::FileWriter">
-<area shape="rect" id="node2" href="$classhops_1_1CsvWriter.html" title="{hops::CsvWriter\n||+ CsvWriter()\l+ write()\l+ write()\l+ write()\l+ write()\l+ write()\l+ write()\l+ write()\l+ write()\l+ write()\l+ write()\l}" alt="" coords="5,285,123,509"/>
-<area shape="rect" id="node3" href="$classhops_1_1Hdf5Writer.html" title="Beware of strange behaviours that originate from underlying HDF5 C&#45;API. " alt="" coords="147,277,269,516"/>
+<area shape="rect" id="node1" title=" " alt="" coords="83,5,205,200"/>
+<area shape="rect" id="node2" href="$classhops_1_1CsvWriter.html" title=" " alt="" coords="5,255,131,450"/>
+<area shape="rect" id="node3" href="$classhops_1_1Hdf5Writer.html" title="Warning: This writer can not append to existing datasets." alt="" coords="155,248,287,457"/>
 </map>

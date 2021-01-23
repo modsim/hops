@@ -1,0 +1,30 @@
+#define BOOST_TEST_MODULE IsStoreRecordAvailableTestSuite
+#define BOOST_TEST_DYN_LINK
+
+#include <boost/test/included/unit_test.hpp>
+#include <hops/MarkovChain/Recorder/IsStoreRecordAvailable.hpp>
+
+BOOST_AUTO_TEST_SUITE(IsStoreRecordAvailable)
+    BOOST_AUTO_TEST_CASE( WhenStoreRecordIsNotAvailable) {
+        BOOST_CHECK(hops::IsStoreRecordAvailable<double>::value == false);
+    }
+
+    BOOST_AUTO_TEST_CASE( WhenStoreRecordHasWrongSignature) {
+        class RecorderMock {
+        public:
+            void storeRecord(double);
+        };
+
+        BOOST_CHECK(hops::IsStoreRecordAvailable<RecorderMock>::value == false);
+    }
+
+    BOOST_AUTO_TEST_CASE( WhenStoreRecordIsAvailable) {
+        class RecorderMock {
+        public:
+            void storeRecord();
+        };
+
+        BOOST_CHECK(hops::IsStoreRecordAvailable<RecorderMock>::value);
+    }
+
+BOOST_AUTO_TEST_SUITE_END()

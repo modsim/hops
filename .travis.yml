@@ -13,22 +13,28 @@ compiler:
 before_install:
   - sudo apt-get update -y
   - sudo apt-get install -y apt-utils
-  - sudo apt-get install -y build-essential software-properties-common libssl-dev
-  - sudo apt-get install -y libeigen3-dev liblpsolve55-dev lp-solve libncursesw5-dev
-  - sudo apt-get install -y libxerces-c-dev libhdf5-dev  doxygen libncurses5-dev libsuitesparse-dev 
-  - sudo apt-get install -y libsbml5-dev git bzip2 libbz2-dev libsbml5-dev
-  - sudo apt-get install -y coinor-clp coinor-libclp-dev
-  - sudo snap install cmake --classic
+  - sudo apt-get install -y build-essential 
+  - sudo apt-get install -y software-properties-common 
+  - sudo apt-get install -y cmake 
+  - sudo apt-get install -y libeigen3-dev
+  - sudo apt-get install -y libhdf5-dev
+  - sudo apt-get install -y doxygen 
+  - sudo apt-get install -y libsbml5-dev
+  - sudo apt-get install -y libmpich-dev
+  - sudo apt-get install -y libbz2-dev
+  - sudo apt-get install -y coinor-libclp-dev 
+  - sudo apt-get install -y libboost-all-dev 
 
 script:
+  - /usr/bin/mpiexec --help
   - mkdir -p cmake-build-debug
   - cd cmake-build-debug
-  - /snap/cmake/current/bin/cmake -DHOPS_BENCHMARKS=OFF ..
+  - cmake .. -DCMAKE_BUILD_TYPE=Debug -DHOPS_BENCHMARKS=OFF -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu
   - make
   - travis_wait 30 make test
   - cd .. 
   - mkdir -p cmake-build-release
   - cd cmake-build-release
-  - /snap/cmake/current/bin/cmake -DCMAKE_BUILD_TYPE=Release -DHOPS_BENCHMARKS=OFF ..
+  - cmake .. -DCMAKE_BUILD_TYPE=Release -DHOPS_BENCHMARKS=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu
   - make
   - travis_wait 30 make test

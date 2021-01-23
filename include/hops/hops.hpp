@@ -9,11 +9,8 @@
 #include "FileWriter/FileWriterType.hpp"
 #include "FileWriter/Hdf5Writer.hpp"
 
-#include "LinearProgram/GurobiEnvironmentSingleton.hpp"
 #include "LinearProgram/LinearProgram.hpp"
-#include "LinearProgram/LinearProgramClpImpl.hpp"
 #include "LinearProgram/LinearProgramFactory.hpp"
-#include "LinearProgram/LinearProgramGurobiImpl.hpp"
 #include "LinearProgram/LinearProgramSolution.hpp"
 #include "LinearProgram/LinearProgramStatus.hpp"
 

@@ -1,11 +1,12 @@
 <map id="LinearProgramStatus.hpp" name="LinearProgramStatus.hpp">
-<area shape="rect" id="node2" href="$LinearProgramSolution_8hpp.html" title="LinearProgramSolution.hpp" alt="" coords="495,80,674,107"/>
-<area shape="rect" id="node4" href="$hops_8hpp.html" title="hops.hpp" alt="" coords="494,453,568,480"/>
-<area shape="rect" id="node3" href="$LinearProgram_8hpp.html" title="LinearProgram.hpp" alt="" coords="306,155,436,181"/>
-<area shape="rect" id="node5" href="$LinearProgramClpImpl_8hpp.html" title="LinearProgramClpImpl.hpp" alt="" coords="178,229,354,256"/>
-<area shape="rect" id="node6" href="$LinearProgramFactory_8hpp.html" title="LinearProgramFactory.hpp" alt="" coords="206,304,381,331"/>
-<area shape="rect" id="node9" href="$LinearProgramGurobiImpl_8hpp.html" title="LinearProgramGurobiImpl.hpp" alt="" coords="378,229,572,256"/>
-<area shape="rect" id="node10" href="$LinearProgram_8cpp.html" title="LinearProgram.cpp" alt="" coords="23,229,154,256"/>
-<area shape="rect" id="node7" href="$MaximumVolumeEllipsoid_8hpp.html" title="MaximumVolumeEllipsoid.hpp" alt="" coords="195,379,392,405"/>
-<area shape="rect" id="node8" href="$MaximumVolumeEllipsoid_8cpp.html" title="MaximumVolumeEllipsoid.cpp" alt="" coords="195,453,392,480"/>
+<area shape="rect" id="node1" title=" " alt="" coords="5,5,192,32"/>
+<area shape="rect" id="node2" href="$LinearProgramSolution_8hpp.html" title=" " alt="" coords="67,80,266,107"/>
+<area shape="rect" id="node4" href="$hops_8hpp.html" title=" " alt="" coords="91,453,173,480"/>
+<area shape="rect" id="node3" href="$LinearProgram_8hpp.html" title=" " alt="" coords="182,155,327,181"/>
+<area shape="rect" id="node5" href="$LinearProgramFactory_8hpp.html" title=" " alt="" coords="222,304,413,331"/>
+<area shape="rect" id="node8" href="$LinearProgramClpImpl_8hpp.html" title=" " alt="" coords="220,229,415,256"/>
+<area shape="rect" id="node9" href="$LinearProgramGurobiImpl_8hpp.html" title=" " alt="" coords="439,229,657,256"/>
+<area shape="rect" id="node10" href="$LinearProgram_8cpp.html" title=" " alt="" coords="681,229,825,256"/>
+<area shape="rect" id="node6" href="$MaximumVolumeEllipsoid_8hpp.html" title=" " alt="" coords="220,379,441,405"/>
+<area shape="rect" id="node7" href="$MaximumVolumeEllipsoid_8cpp.html" title=" " alt="" coords="221,453,441,480"/>
 </map>

@@ -1,6 +1,12 @@
 <map id="FileWriterFactory.cpp" name="FileWriterFactory.cpp">
-<area shape="rect" id="node2" href="$FileWriterFactory_8hpp.html" title="hops/FileWriter/FileWriter\lFactory.hpp" alt="" coords="255,80,426,121"/>
-<area shape="rect" id="node7" href="$FileWriterType_8hpp.html" title="hops/FileWriter/FileWriter\lType.hpp" alt="" coords="398,169,569,211"/>
-<area shape="rect" id="node9" href="$CsvWriter_8hpp.html" title="hops/FileWriter/CsvWriter.hpp" alt="" coords="32,87,231,114"/>
-<area shape="rect" id="node3" href="$FileWriter_8hpp.html" title="hops/FileWriter/FileWriter.hpp" alt="" coords="35,177,230,203"/>
+<area shape="rect" id="node1" title=" " alt="" coords="390,5,547,32"/>
+<area shape="rect" id="node2" href="$FileWriterFactory_8hpp.html" title=" " alt="" coords="491,80,676,121"/>
+<area shape="rect" id="node7" href="$FileWriterType_8hpp.html" title=" " alt="" coords="639,169,824,211"/>
+<area shape="rect" id="node9" href="$CsvWriter_8hpp.html" title=" " alt="" coords="5,87,220,114"/>
+<area shape="rect" id="node10" href="$Hdf5Writer_8hpp.html" title=" " alt="" coords="244,87,467,114"/>
+<area shape="rect" id="node3" href="$FileWriter_8hpp.html" title=" " alt="" coords="249,177,462,203"/>
+<area shape="rect" id="node5" title=" " alt="" coords="455,259,514,285"/>
+<area shape="rect" id="node8" title=" " alt="" coords="537,177,614,203"/>
+<area shape="rect" id="node4" title=" " alt="" coords="223,259,315,285"/>
+<area shape="rect" id="node6" title=" " alt="" coords="339,259,401,285"/>
 </map>

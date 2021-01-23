@@ -20,6 +20,10 @@ namespace hops {
             }
         };
 
+        [[nodiscard]] std::vector<double> getAcceptanceRateRecords() const {
+            return records;
+        }
+
         void storeRecord() {
             records.emplace_back(MarkovChainImpl::getAcceptanceRate());
             if constexpr(IsStoreRecordAvailable<MarkovChainImpl>::value) {

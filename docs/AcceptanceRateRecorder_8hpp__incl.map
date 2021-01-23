@@ -1,6 +1,11 @@
 <map id="AcceptanceRateRecorder.hpp" name="AcceptanceRateRecorder.hpp">
-<area shape="rect" id="node2" href="$FileWriter_8hpp.html" title="hops/FileWriter/FileWriter.hpp" alt="" coords="45,169,240,196"/>
-<area shape="rect" id="node6" href="$IsClearRecordsAvailable_8hpp.html" title="hops/MarkovChain/Recorder\l/IsClearRecordsAvailable.hpp" alt="" coords="352,80,547,121"/>
-<area shape="rect" id="node8" href="$IsStoreRecordAvailable_8hpp.html" title="hops/MarkovChain/Recorder\l/IsStoreRecordAvailable.hpp" alt="" coords="571,80,759,121"/>
-<area shape="rect" id="node9" href="$IsWriteRecordsToFileAvailable_8hpp.html" title="hops/MarkovChain/Recorder\l/IsWriteRecordsToFileAvailable.hpp" alt="" coords="97,80,327,121"/>
+<area shape="rect" id="node1" title=" " alt="" coords="113,5,326,32"/>
+<area shape="rect" id="node2" href="$FileWriter_8hpp.html" title=" " alt="" coords="45,169,258,196"/>
+<area shape="rect" id="node5" title=" " alt="" coords="5,244,68,271"/>
+<area shape="rect" id="node6" href="$IsClearRecordsAvailable_8hpp.html" title=" " alt="" coords="367,80,578,121"/>
+<area shape="rect" id="node8" href="$IsStoreRecordAvailable_8hpp.html" title=" " alt="" coords="603,80,807,121"/>
+<area shape="rect" id="node9" href="$IsWriteRecordsToFileAvailable_8hpp.html" title=" " alt="" coords="95,80,343,121"/>
+<area shape="rect" id="node3" title=" " alt="" coords="191,244,283,271"/>
+<area shape="rect" id="node4" title=" " alt="" coords="107,244,166,271"/>
+<area shape="rect" id="node7" title=" " alt="" coords="427,169,519,196"/>
 </map>

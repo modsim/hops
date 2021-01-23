@@ -43,11 +43,6 @@ void hops::CsvWriter::write(const std::string &description, const std::vector<lo
     internal::CsvWriterImpl::writeOneDimensionalRecords(out, records);
 }
 
-void hops::CsvWriter::write(const std::string &description, const std::vector<long double> &records) const {
-    auto out = createOutputStream(CsvWriter::path, description, this->outputPrecision);
-    internal::CsvWriterImpl::writeOneDimensionalRecords(out, records);
-}
-
 void hops::CsvWriter::write(const std::string &description, const std::vector<Eigen::VectorXf> &records) const {
     auto out = createOutputStream(CsvWriter::path, description, this->outputPrecision);
     internal::CsvWriterImpl::writeEigenVectorRecords(out, records);
@@ -57,13 +52,6 @@ void hops::CsvWriter::write(const std::string &description, const std::vector<Ei
     auto out = createOutputStream(CsvWriter::path, description, this->outputPrecision);
     internal::CsvWriterImpl::writeEigenVectorRecords(out, records);
 }
-
-void hops::CsvWriter::write(const std::string &description,
-                            const std::vector<Eigen::Matrix<long double, Eigen::Dynamic, 1>> &records) const {
-    auto out = createOutputStream(CsvWriter::path, description, this->outputPrecision);
-    internal::CsvWriterImpl::writeEigenVectorRecords(out, records);
-}
-
 
 void hops::CsvWriter::write(const std::string &description, const std::vector<std::string> &records) const {
     auto out = createOutputStream(CsvWriter::path, description, this->outputPrecision);

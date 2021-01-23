@@ -9,7 +9,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
 
 if (UNIX)
     message(STATUS "Adjusting CMAKE_PREFIX_PATH on UNIX for CLP")
-    list(APPEND CMAKE_PREFIX_PATH /usr/lib/x85_64-linux-gnu)
+    list(APPEND CMAKE_PREFIX_PATH /usr/lib/x86_64-linux-gnu)
 endif (UNIX)
 
 ########################################################################################################################
@@ -42,7 +42,6 @@ option(HOPS_TESTS "Enables compilation of unit tests. Use -DHOPS_TESTS=OFF to di
 # C++-Compiler Settings
 ########################################################################################################################
 
-# TODO update to target_compile_feature and target_compile_option
 set(CMAKE_C_FLAGS "${CMAKE_FLAGS} ${MPI_FLAGS}")
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MPI_CXX_FLAGS}")
@@ -102,17 +101,17 @@ endif (MKL_LIBRARY_DIR)
 # HOPS
 ########################################################################################################################
 
-add_library(hops STATIC "")
+add_library(hops STATIC "" include/hops/FileReader/Hdf5Reader.hpp)
 target_include_directories(hops PUBLIC ${EIGEN3_INCLUDE_DIR})
 
 if (MKL_INCLUDE_DIR)
-    target_include_directories(hops PUBLIC ${MKL_INCLUDE_DIR})
+  target_include_directories(hops PRIVATE ${MKL_INCLUDE_DIR})
 endif (MKL_INCLUDE_DIR)
 if (MKL_LIBRARY_DIR)
-    target_link_directories(hops PUBLIC ${MKL_LIBRARY_DIR})
+  target_link_directories(hops PRIVATE ${MKL_LIBRARY_DIR})
 endif (MKL_LIBRARY_DIR)
 if (MKL_LIBRARIES)
-    target_link_libraries(hops PUBLIC ${MKL_LIBRARIES})
+  target_link_libraries(hops PRIVATE ${MKL_LIBRARIES})
 endif (MKL_LIBRARIES)
 
 add_subdirectory(include)
@@ -165,7 +164,7 @@ endif ()
 
 if (HOPS_EXAMPLES)
     message(STATUS "Enabled compilation of examples. Use -DHOPS_EXAMPLES=OFF to disable.")
-    add_subdirectory(examples)
+    add_subdirectory(bin)
 else ()
     message(STATUS "Disabled compilation of examples. Use -DHOPS_EXAMPLES=ON to enable.")
 endif ()
@@ -188,7 +187,7 @@ endif ()
 ########################################################################################################################
 
 if (HOPS_BENCHMARKS OR HOPS_EXAMPLES OR HOPS_TESTS)
-    message(STATUS "Copying resources.")
+    message(STATUS "Copying resources")
     add_subdirectory(resources)
 endif ()
 
@@ -198,6 +197,7 @@ endif ()
 
 install(DIRECTORY include/ DESTINATION include/ FILES_MATCHING PATTERN "*.hpp")
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/hops/hops.hpp DESTINATION include/hops)
+install(TARGETS hops-sampler DESTINATION bin/)
 install(TARGETS hops EXPORT hops-config LIBRARY DESTINATION "lib")
 install(EXPORT hops-config DESTINATION "lib" CONFIGURATIONS RELEASE)
 

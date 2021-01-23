@@ -1,10 +1,11 @@
 <map id="LinearProgramSolution.hpp" name="LinearProgramSolution.hpp">
-<area shape="rect" id="node2" href="$LinearProgram_8hpp.html" title="LinearProgram.hpp" alt="" coords="322,80,453,107"/>
-<area shape="rect" id="node3" href="$hops_8hpp.html" title="hops.hpp" alt="" coords="418,379,493,405"/>
-<area shape="rect" id="node4" href="$LinearProgramClpImpl_8hpp.html" title="LinearProgramClpImpl.hpp" alt="" coords="29,155,205,181"/>
-<area shape="rect" id="node5" href="$LinearProgramFactory_8hpp.html" title="LinearProgramFactory.hpp" alt="" coords="156,229,331,256"/>
-<area shape="rect" id="node8" href="$LinearProgramGurobiImpl_8hpp.html" title="LinearProgramGurobiImpl.hpp" alt="" coords="383,155,578,181"/>
-<area shape="rect" id="node9" href="$LinearProgram_8cpp.html" title="LinearProgram.cpp" alt="" coords="229,155,359,181"/>
-<area shape="rect" id="node6" href="$MaximumVolumeEllipsoid_8hpp.html" title="MaximumVolumeEllipsoid.hpp" alt="" coords="145,304,342,331"/>
-<area shape="rect" id="node7" href="$MaximumVolumeEllipsoid_8cpp.html" title="MaximumVolumeEllipsoid.cpp" alt="" coords="145,379,342,405"/>
+<area shape="rect" id="node1" title=" " alt="" coords="434,5,633,32"/>
+<area shape="rect" id="node2" href="$LinearProgram_8hpp.html" title=" " alt="" coords="381,80,526,107"/>
+<area shape="rect" id="node3" href="$hops_8hpp.html" title=" " alt="" coords="546,379,628,405"/>
+<area shape="rect" id="node4" href="$LinearProgramFactory_8hpp.html" title=" " alt="" coords="256,229,446,256"/>
+<area shape="rect" id="node7" href="$LinearProgramClpImpl_8hpp.html" title=" " alt="" coords="23,155,218,181"/>
+<area shape="rect" id="node8" href="$LinearProgramGurobiImpl_8hpp.html" title=" " alt="" coords="242,155,460,181"/>
+<area shape="rect" id="node9" href="$LinearProgram_8cpp.html" title=" " alt="" coords="484,155,628,181"/>
+<area shape="rect" id="node5" href="$MaximumVolumeEllipsoid_8hpp.html" title=" " alt="" coords="290,304,511,331"/>
+<area shape="rect" id="node6" href="$MaximumVolumeEllipsoid_8cpp.html" title=" " alt="" coords="290,379,510,405"/>
 </map>

@@ -7,5 +7,6 @@ add_subdirectory(MarkovChain)
 add_subdirectory(Model)
 add_subdirectory(PolytopePreprocessing)
 add_subdirectory(RandomNumberGenerator)
+add_subdirectory(thirdparty)
 add_subdirectory(Transformation)
 

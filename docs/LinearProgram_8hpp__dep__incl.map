@@ -1,9 +1,10 @@
 <map id="LinearProgram.hpp" name="LinearProgram.hpp">
-<area shape="rect" id="node2" href="$hops_8hpp.html" title="hops.hpp" alt="" coords="62,304,137,331"/>
-<area shape="rect" id="node3" href="$LinearProgramClpImpl_8hpp.html" title="LinearProgramClpImpl.hpp" alt="" coords="36,80,212,107"/>
-<area shape="rect" id="node4" href="$LinearProgramFactory_8hpp.html" title="LinearProgramFactory.hpp" alt="" coords="160,155,335,181"/>
-<area shape="rect" id="node7" href="$LinearProgramGurobiImpl_8hpp.html" title="LinearProgramGurobiImpl.hpp" alt="" coords="286,80,481,107"/>
-<area shape="rect" id="node8" href="$LinearProgram_8cpp.html" title="LinearProgram.cpp" alt="" coords="505,80,636,107"/>
-<area shape="rect" id="node5" href="$MaximumVolumeEllipsoid_8hpp.html" title="MaximumVolumeEllipsoid.hpp" alt="" coords="149,229,346,256"/>
-<area shape="rect" id="node6" href="$MaximumVolumeEllipsoid_8cpp.html" title="MaximumVolumeEllipsoid.cpp" alt="" coords="161,304,358,331"/>
+<area shape="rect" id="node1" title=" " alt="" coords="121,5,267,32"/>
+<area shape="rect" id="node2" href="$hops_8hpp.html" title=" " alt="" coords="5,304,87,331"/>
+<area shape="rect" id="node3" href="$LinearProgramFactory_8hpp.html" title=" " alt="" coords="99,155,289,181"/>
+<area shape="rect" id="node6" href="$LinearProgramClpImpl_8hpp.html" title=" " alt="" coords="97,80,291,107"/>
+<area shape="rect" id="node7" href="$LinearProgramGurobiImpl_8hpp.html" title=" " alt="" coords="316,80,533,107"/>
+<area shape="rect" id="node8" href="$LinearProgram_8cpp.html" title=" " alt="" coords="558,80,702,107"/>
+<area shape="rect" id="node4" href="$MaximumVolumeEllipsoid_8hpp.html" title=" " alt="" coords="97,229,318,256"/>
+<area shape="rect" id="node5" href="$MaximumVolumeEllipsoid_8cpp.html" title=" " alt="" coords="111,304,331,331"/>
 </map>

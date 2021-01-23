@@ -1,7 +1,4 @@
 var searchData=
 [
-  ['_7efilewriter',['~FileWriter',['../classhops_1_1FileWriter.html#ad8b34556068719ce40a5326d458f7f71',1,'hops::FileWriter']]],
-  ['_7ehdf5writer',['~Hdf5Writer',['../classhops_1_1Hdf5Writer.html#a4d2a66ee37c81b75ea559b568ad547d0',1,'hops::Hdf5Writer']]],
-  ['_7elinearprogram',['~LinearProgram',['../classhops_1_1LinearProgram.html#ae959c2e730eb4d9e1ef283cd513bf07b',1,'hops::LinearProgram']]],
-  ['_7emarkovchain',['~MarkovChain',['../classhops_1_1MarkovChain.html#a1dc9ef9105e2e8e978c8893788cb11e6',1,'hops::MarkovChain']]]
+  ['vectors_5fto_5fsingle_5fbuffer_1763',['vectors_to_single_buffer',['../namespaceHighFive_1_1details.html#aa420ee7df4c3026cc904a8ce0bdf0560',1,'HighFive::details::vectors_to_single_buffer(const std::vector&lt; T &gt; &amp;vec_single_dim, const std::vector&lt; size_t &gt; &amp;dims, const size_t current_dim, std::vector&lt; T &gt; &amp;buffer)'],['../namespaceHighFive_1_1details.html#a7b837022379eecf7d0d1b94aa24b640b',1,'HighFive::details::vectors_to_single_buffer(const std::vector&lt; T &gt; &amp;vec_multi_dim, const std::vector&lt; size_t &gt; &amp;dims, size_t current_dim, std::vector&lt; U &gt; &amp;buffer)'],['../namespaceHighFive_1_1details.html#a60cff2259c53d3ea01e95ac6878955f6',1,'HighFive::details::vectors_to_single_buffer(const std::vector&lt; Eigen::Matrix&lt; T, M, N &gt;&gt; &amp;vec, const std::vector&lt; size_t &gt; &amp;dims, const size_t current_dim, std::vector&lt; T &gt; &amp;buffer)']]]
 ];

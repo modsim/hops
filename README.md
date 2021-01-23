@@ -14,6 +14,15 @@ Test data from the application note is downloadable at https://doi.org/10.26165/
 
 See https://modsim.github.io/hops/.
 
+## Cloning from Github
+
+HOPS contains git submodules that point to third-party libraries.
+For this reason, HOPS should be fetched recursively:
+
+```
+git clone git@github.com:modsim/hops.git --recursive
+```
+
 ## Installation
 
 HOPS uses CMake as build system.  

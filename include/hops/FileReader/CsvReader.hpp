@@ -14,7 +14,7 @@ namespace hops {
         static VectorType readVector(const std::string &file);
 
         template<typename MatrixType>
-        static MatrixType readMatrix(const std::string &file, bool hasColumnAndRowNames=false);
+        static MatrixType readMatrix(const std::string &file, bool hasColumnAndRowNames = false);
     };
 }
 
