@@ -13,7 +13,10 @@ VectorType hops::CsvReader::readVector(const std::string &file) {
     while (std::getline(fileStream, line)) {
         auto const position = line.find_last_of(',');
         std::string cell = line.substr(position + 1);
-        cells.push_back(cell);
+        // skip empty cells
+        if (cell != "") {
+            cells.push_back(cell);
+        }
     }
 
     size_t startIndex = 0;
