@@ -41,7 +41,7 @@ namespace {
 
         double actualValue = rosenbrockModel.calculateNegativeLogLikelihood(evaluationPoint);
 
-        EXPECT_DOUBLE_EQ(actualValue, expectedValue);
+        EXPECT_NEAR(actualValue, expectedValue, 1e-10);
     }
 
     TEST(RosenbrockModel, calculateNegativeLogLikelihoodWithShift) {
@@ -69,7 +69,7 @@ namespace {
 
         double actualValue = rosenbrockModel.calculateNegativeLogLikelihood(evaluationPoint);
 
-        EXPECT_DOUBLE_EQ(actualValue, expectedValue);
+        EXPECT_NEAR(actualValue, expectedValue, 1e-8);
     }
 
     TEST(RosenbrockModel, calculateLogLikelihoodGradientAtStationaryPoint) {
@@ -86,7 +86,7 @@ namespace {
         Eigen::VectorXd actualValue = rosenbrockModel.calculateLogLikelihoodGradient(evaluationPoint);
 
         for (long i = 0; i < expectedValue.rows(); ++i) {
-            EXPECT_DOUBLE_EQ(actualValue(i), expectedValue(i));
+            EXPECT_NEAR(actualValue(i), expectedValue(i), 1e-10);
         }
     }
 
