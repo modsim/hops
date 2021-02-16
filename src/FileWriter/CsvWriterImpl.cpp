@@ -22,9 +22,6 @@ template void
 hops::internal::CsvWriterImpl::writeOneDimensionalRecords(std::ostream &out, const std::vector<double> &records);
 
 template void
-hops::internal::CsvWriterImpl::writeOneDimensionalRecords(std::ostream &out, const std::vector<long double> &records);
-
-template void
 hops::internal::CsvWriterImpl::writeOneDimensionalRecords(std::ostream &out, const std::vector<std::string> &records);
 
 
@@ -43,7 +40,3 @@ hops::internal::CsvWriterImpl::writeEigenVectorRecords(std::ostream &out, const 
 
 template void
 hops::internal::CsvWriterImpl::writeEigenVectorRecords(std::ostream &out, const std::vector<Eigen::VectorXd> &records);
-
-template void
-hops::internal::CsvWriterImpl::writeEigenVectorRecords(std::ostream &out,
-                                                       const std::vector<Eigen::Matrix<long double, Eigen::Dynamic, 1>> &records);

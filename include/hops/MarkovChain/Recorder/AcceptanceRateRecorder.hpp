@@ -14,11 +14,15 @@ namespace hops {
         explicit AcceptanceRateRecorder(const MarkovChainImpl &markovChainImpl) : MarkovChainImpl(markovChainImpl) {}
 
         void writeRecordsToFile(const FileWriter *const fileWriter) const {
-            fileWriter->write("acceptanceRates", records);
+            fileWriter->write("acceptance rates", records);
             if constexpr(IsWriteRecordsToFileAvailable<MarkovChainImpl>::value) {
                 MarkovChainImpl::writeRecordsToFile(fileWriter);
             }
         };
+
+        [[nodiscard]] std::vector<double> getAcceptanceRateRecords() const {
+            return records;
+        }
 
         void storeRecord() {
             records.emplace_back(MarkovChainImpl::getAcceptanceRate());

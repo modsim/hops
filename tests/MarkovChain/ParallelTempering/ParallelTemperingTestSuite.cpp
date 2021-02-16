@@ -47,9 +47,7 @@ BOOST_AUTO_TEST_SUITE(ParallelTempering)
         int expectedNumberOfProcesses = 3; // Defined in CMakeLists.txt
         MarkovChainMock markovChainMock;
         hops::ColdnessAttribute mockWithColdness(markovChainMock);
-        hops::ParallelTempering parallelTempering(mockWithColdness,
-                                                  hops::RandomNumberGenerator(0),
-                                                  0.00005);
+        hops::ParallelTempering parallelTempering(mockWithColdness, 0.00005);
         MPI_Comm TEST_COMMUNICATOR;
         MPI_Comm_dup(MPI_COMM_WORLD, &TEST_COMMUNICATOR);
         int world_size;
@@ -60,9 +58,7 @@ BOOST_AUTO_TEST_SUITE(ParallelTempering)
     BOOST_AUTO_TEST_CASE(shouldSetChainTemperaturesCorrectly) {
         MarkovChainMock markovChainMock;
         hops::ColdnessAttribute mockWithColdness(markovChainMock);
-        hops::ParallelTempering parallelTempering(mockWithColdness,
-                                                  hops::RandomNumberGenerator(0),
-                                                  0.00005);
+        hops::ParallelTempering parallelTempering(mockWithColdness, 0.00005);
         MPI_Comm TEST_COMMUNICATOR;
         MPI_Comm_dup(MPI_COMM_WORLD, &TEST_COMMUNICATOR);
         int size;
@@ -75,11 +71,7 @@ BOOST_AUTO_TEST_SUITE(ParallelTempering)
     BOOST_AUTO_TEST_CASE(shouldProposeExchance_RngStateRemainsInSync) {
         MarkovChainMock markovChainMock;
         hops::ColdnessAttribute mockWithColdness(markovChainMock);
-        hops::RandomNumberGenerator sharedRandomNumberGenerator(42);
-        hops::RandomNumberGenerator checkPoint = sharedRandomNumberGenerator;
-        hops::ParallelTempering parallelTempering(mockWithColdness,
-                                                  sharedRandomNumberGenerator,
-                                                  1);
+        hops::ParallelTempering parallelTempering(mockWithColdness, 1);
         MPI_Comm TEST_COMMUNICATOR;
         MPI_Comm_dup(MPI_COMM_WORLD, &TEST_COMMUNICATOR);
         int world_size;
@@ -87,8 +79,10 @@ BOOST_AUTO_TEST_SUITE(ParallelTempering)
         int world_rank;
         MPI_Comm_rank(TEST_COMMUNICATOR, &world_rank);
         MPI_Barrier(TEST_COMMUNICATOR);
+        hops::RandomNumberGenerator sharedRandomNumberGenerator(42);
+        hops::RandomNumberGenerator checkPoint = sharedRandomNumberGenerator;
 
-        while (!parallelTempering.shouldProposeExchange()) {}
+        while (!parallelTempering.shouldProposeExchange(sharedRandomNumberGenerator)) {}
 
         double expectedRngState = sharedRandomNumberGenerator - checkPoint;
         double actualRngState = expectedRngState;
@@ -105,10 +99,7 @@ BOOST_AUTO_TEST_SUITE(ParallelTempering)
     BOOST_AUTO_TEST_CASE(processesAgreeOnExchangePair_test) {
         MarkovChainMock markovChainMock;
         hops::ColdnessAttribute mockWithColdness(markovChainMock);
-        hops::RandomNumberGenerator sharedRandomNumberGenerator(42);
-        hops::ParallelTempering parallelTempering(mockWithColdness,
-                                                  sharedRandomNumberGenerator,
-                                                  0.05);
+        hops::ParallelTempering parallelTempering(mockWithColdness, 0.05);
 
         MPI_Comm TEST_COMMUNICATOR;
         MPI_Comm_dup(MPI_COMM_WORLD, &TEST_COMMUNICATOR);
@@ -118,10 +109,12 @@ BOOST_AUTO_TEST_SUITE(ParallelTempering)
         MPI_Comm_rank(TEST_COMMUNICATOR, &world_rank);
         MPI_Barrier(TEST_COMMUNICATOR);
 
+        hops::RandomNumberGenerator sharedRandomNumberGenerator(42);
 
         MPI_Barrier(TEST_COMMUNICATOR);
         for (int i = 0; i < 10; ++i) {
-            std::pair<int, int> exchangePair = parallelTempering.generateChainPairForExchangeProposal();
+            std::pair<int, int> exchangePair = parallelTempering.generateChainPairForExchangeProposal(
+                    sharedRandomNumberGenerator);
             int rngStateSend[] = {exchangePair.first, exchangePair.second};
             int rngStateRecv[2];
             int recvFromRank = (world_rank - 1) >= 0 ? world_rank - 1 : world_size - 1;
@@ -142,10 +135,7 @@ BOOST_AUTO_TEST_SUITE(ParallelTempering)
     BOOST_AUTO_TEST_CASE(processesAgreeOnExchangeProbability_test) {
         MarkovChainMock markovChainMock;
         hops::ColdnessAttribute mockWithColdness(markovChainMock);
-        hops::RandomNumberGenerator sharedRandomNumberGenerator(42);
-        hops::ParallelTempering parallelTempering(mockWithColdness,
-                                                  sharedRandomNumberGenerator,
-                                                  0.5);
+        hops::ParallelTempering parallelTempering(mockWithColdness, 0.5);
 
         MPI_Comm TEST_COMMUNICATOR;
         MPI_Comm_dup(MPI_COMM_WORLD, &TEST_COMMUNICATOR);
@@ -154,10 +144,13 @@ BOOST_AUTO_TEST_SUITE(ParallelTempering)
         int world_rank;
         MPI_Comm_rank(TEST_COMMUNICATOR, &world_rank);
 
+        hops::RandomNumberGenerator sharedRandomNumberGenerator(42);
+
         MPI_Barrier(TEST_COMMUNICATOR);
 
         for (int i = 0; i < 10; ++i) {
-            std::pair<int, int> exchangePair = parallelTempering.generateChainPairForExchangeProposal();
+            std::pair<int, int> exchangePair = parallelTempering.generateChainPairForExchangeProposal(
+                    sharedRandomNumberGenerator);
             if (exchangePair.first == world_rank || exchangePair.second == world_rank) {
                 int otherChainRank = world_rank == exchangePair.first ? exchangePair.second : exchangePair.first;
 
@@ -167,7 +160,7 @@ BOOST_AUTO_TEST_SUITE(ParallelTempering)
                 MPI_Irecv(&actualAcceptanceProbability, 1, MPI_DOUBLE, otherChainRank, 0,
                           TEST_COMMUNICATOR, &request);
 
-                double expectedAcceptanceProbability = parallelTempering.computeExchangeAcceptanceProbability(
+                double expectedAcceptanceProbability = parallelTempering.calculateExchangeAcceptanceProbability(
                         otherChainRank);
                 double sendProbability = expectedAcceptanceProbability;
                 MPI_Send(&sendProbability, 1, MPI_DOUBLE, otherChainRank, 0,
@@ -183,10 +176,7 @@ BOOST_AUTO_TEST_SUITE(ParallelTempering)
     BOOST_AUTO_TEST_CASE(processesCanExchangeState_test) {
         MarkovChainMock markovChainMock;
         hops::ColdnessAttribute<MarkovChainMock> markovChainMockWithColdnessAttribute(markovChainMock, 0.5);
-        hops::RandomNumberGenerator sharedRandomNumberGenerator(42);
-        hops::ParallelTempering parallelTempering(markovChainMockWithColdnessAttribute,
-                                                  sharedRandomNumberGenerator,
-                                                  0.5);
+        hops::ParallelTempering parallelTempering(markovChainMockWithColdnessAttribute, 0.5);
 
         MPI_Comm TEST_COMMUNICATOR;
         MPI_Comm_dup(MPI_COMM_WORLD, &TEST_COMMUNICATOR);
@@ -195,11 +185,13 @@ BOOST_AUTO_TEST_SUITE(ParallelTempering)
         int world_rank;
         MPI_Comm_rank(TEST_COMMUNICATOR, &world_rank);
 
+        hops::RandomNumberGenerator sharedRandomNumberGenerator(42);
 
         MPI_Barrier(TEST_COMMUNICATOR);
 
         for (int i = 0; i < 10; ++i) {
-            std::pair<int, int> exchangePair = parallelTempering.generateChainPairForExchangeProposal();
+            std::pair<int, int> exchangePair = parallelTempering.generateChainPairForExchangeProposal(
+                    sharedRandomNumberGenerator);
             if (exchangePair.first == world_rank || exchangePair.second == world_rank) {
                 int otherChainRank = world_rank == exchangePair.first ? exchangePair.second : exchangePair.first;
 
@@ -217,12 +209,7 @@ BOOST_AUTO_TEST_SUITE(ParallelTempering)
     BOOST_AUTO_TEST_CASE(processesStayInSync_test) {
         MarkovChainMock markovChainMock;
         hops::ColdnessAttribute<MarkovChainMock> markovChainMockWithColdnessAttribute(markovChainMock, 0.5);
-        hops::RandomNumberGenerator sharedRandomNumberGenerator(42);
-        hops::RandomNumberGenerator checkPoint = sharedRandomNumberGenerator;
-
-        hops::ParallelTempering parallelTempering(markovChainMockWithColdnessAttribute,
-                                                  sharedRandomNumberGenerator,
-                                                  0.5);
+        hops::ParallelTempering parallelTempering(markovChainMockWithColdnessAttribute, 0.5);
 
         MPI_Comm TEST_COMMUNICATOR;
         MPI_Comm_dup(MPI_COMM_WORLD, &TEST_COMMUNICATOR);
@@ -231,9 +218,12 @@ BOOST_AUTO_TEST_SUITE(ParallelTempering)
         int world_rank;
         MPI_Comm_rank(TEST_COMMUNICATOR, &world_rank);
 
+        hops::RandomNumberGenerator sharedRandomNumberGenerator(42);
+        hops::RandomNumberGenerator checkPoint = sharedRandomNumberGenerator;
+
         MPI_Barrier(TEST_COMMUNICATOR);
         for (int i = 0; i < 10; ++i) {
-            parallelTempering.executeParallelTemperingStep();
+            parallelTempering.executeParallelTemperingStep(sharedRandomNumberGenerator);
         }
 
         double expectedRngState = sharedRandomNumberGenerator - checkPoint;

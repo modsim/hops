@@ -8,7 +8,7 @@ project(hops)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
 
 if (UNIX)
-    message(STATUS "Adjusting CMAKE_PREFIX_PATH on UNIX for CLP and others")
+    message(STATUS "Adjusting CMAKE_PREFIX_PATH on UNIX for CLP")
     list(APPEND CMAKE_PREFIX_PATH /usr/lib/x86_64-linux-gnu)
 endif (UNIX)
 
@@ -35,14 +35,13 @@ set(MKL_USE_interface lp64)
 
 option(HOPS_BENCHMARKS "Enables compilation of Benchmarks (Requires Celero). Use -DHOPS_BENCHMARKS=ON to enable." OFF)
 option(HOPS_DOCS "Enables generation of documentation. Use -DHOPS_DOCS=OFF to disable." ON)
-option(HOPS_EXAMPLES "Enables compilation of Examples. Use -DHOPS_EXAMPLES=OFF to disable." ON)
+option(HOPS_BINARIES "Enables compilation of hops executables. Use -DHOPS_BINARIES=OFF to disable." ON)
 option(HOPS_TESTS "Enables compilation of unit tests. Use -DHOPS_TESTS=OFF to disable." ON)
 
 ########################################################################################################################
 # C++-Compiler Settings
 ########################################################################################################################
 
-# TODO update to target_compile_feature and target_compile_option
 set(CMAKE_C_FLAGS "${CMAKE_FLAGS} ${MPI_FLAGS}")
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MPI_CXX_FLAGS}")
@@ -59,8 +58,14 @@ if (COMPILER_SUPPORTS_MARCH_NATIVE)
 else ()
     message(WARNING "compiler does not support flag -march=native")
 endif ()
-message(STATUS "Adding compiler flag -O2")
-set(CMAKE_CXX_FLAGS_RELEASE "-O2")
+CHECK_CXX_COMPILER_FLAG("-O3" COMPILER_SUPPORTS_O3)
+if (COMPILER_SUPPORTS_MARCH_NATIVE)
+    message(STATUS "Adding compiler flag -O3")
+    set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+else ()
+    message(STATUS "Adding compiler flag -O2")
+    set(CMAKE_CXX_FLAGS_RELEASE "-O2")
+endif ()
 
 
 ########################################################################################################################
@@ -96,17 +101,17 @@ endif (MKL_LIBRARY_DIR)
 # HOPS
 ########################################################################################################################
 
-add_library(hops STATIC "" include/hops/Polytope/SimplexFactory.hpp)
+add_library(hops STATIC "" include/hops/FileReader/Hdf5Reader.hpp)
 target_include_directories(hops PUBLIC ${EIGEN3_INCLUDE_DIR})
 
 if (MKL_INCLUDE_DIR)
-    target_include_directories(hops PRIVATE ${MKL_INCLUDE_DIR})
+  target_include_directories(hops PRIVATE ${MKL_INCLUDE_DIR})
 endif (MKL_INCLUDE_DIR)
 if (MKL_LIBRARY_DIR)
-    target_link_directories(hops PRIVATE ${MKL_LIBRARY_DIR})
+  target_link_directories(hops PRIVATE ${MKL_LIBRARY_DIR})
 endif (MKL_LIBRARY_DIR)
 if (MKL_LIBRARIES)
-    target_link_libraries(hops PRIVATE ${MKL_LIBRARIES})
+  target_link_libraries(hops PRIVATE ${MKL_LIBRARIES})
 endif (MKL_LIBRARIES)
 
 add_subdirectory(include)
@@ -124,15 +129,15 @@ if (HOPS_DOCS)
         message(STATUS "Enabled Doxygen documentation. Use -DHOPS_DOCS=OFF to disable.")
         set(DOCUMENTATION_DIR "docs")
 
-	set(DOXYGEN_DIR_1 "${CMAKE_CURRENT_SOURCE_DIR}/include/hops")
-	set(DOXYGEN_DIR_2 "${CMAKE_CURRENT_SOURCE_DIR}/src")
+        set(HEADER_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include/hops")
+        set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
         set(doxy_main_page "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
         set(doxyfile_in "${CMAKE_CURRENT_SOURCE_DIR}/docs/Doxyfile.in")
         set(doxyfile "${CMAKE_CURRENT_BINARY_DIR}/docs/Doxyfile")
         configure_file(${doxyfile_in} ${doxyfile} @ONLY)
         add_custom_target(docs
-                COMMAND ${DOXYGEN_EXECUTABLE} ${doxyfile}
+                COMMAND ${DOXYGEN_EXECUTABLE} ${doxyfile} && make -C ${CMAKE_CURRENT_BINARY_DIR}/docs/latex
                 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
                 COMMENT "Generating API docs with Doxygen"
                 VERBATIM
@@ -154,14 +159,14 @@ else ()
 endif ()
 
 ########################################################################################################################
-# HOPS_EXAMPLES
+# HOPS_BINARIES
 ########################################################################################################################
 
-if (HOPS_EXAMPLES)
-    message(STATUS "Enabled compilation of examples. Use -DHOPS_EXAMPLES=OFF to disable.")
-    add_subdirectory(examples)
+if (HOPS_BINARIES)
+    message(STATUS "Enabled compilation of executables. Use -DHOPS_BINARIES=OFF to disable.")
+    add_subdirectory(bin)
 else ()
-    message(STATUS "Disabled compilation of examples. Use -DHOPS_EXAMPLES=ON to enable.")
+    message(STATUS "Disabled compilation of executables. Use -DHOPS_BINARIES=ON to enable.")
 endif ()
 
 ########################################################################################################################
@@ -182,7 +187,7 @@ endif ()
 ########################################################################################################################
 
 if (HOPS_BENCHMARKS OR HOPS_EXAMPLES OR HOPS_TESTS)
-    message(STATUS "Copying resources.")
+    message(STATUS "Copying resources")
     add_subdirectory(resources)
 endif ()
 
@@ -192,6 +197,7 @@ endif ()
 
 install(DIRECTORY include/ DESTINATION include/ FILES_MATCHING PATTERN "*.hpp")
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/hops/hops.hpp DESTINATION include/hops)
+install(TARGETS hops-sampler DESTINATION bin/)
 install(TARGETS hops EXPORT hops-config LIBRARY DESTINATION "lib")
 install(EXPORT hops-config DESTINATION "lib" CONFIGURATIONS RELEASE)
 

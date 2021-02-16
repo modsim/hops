@@ -2,8 +2,8 @@
 #define BOOST_TEST_DYN_LINK
 
 #include <boost/test/included/unit_test.hpp>
-#include <Eigen/Core>
 #include <hops/MarkovChain/ParallelTempering/ColdnessAttribute.hpp>
+#include <Eigen/Core>
 
 BOOST_AUTO_TEST_SUITE(ColdnessAttribute)
 
@@ -13,7 +13,6 @@ BOOST_AUTO_TEST_CASE( getColdness) {
         class ModelMock {
         public:
             using VectorType = Eigen::VectorXd;
-            using MatrixType = Eigen::MatrixXd;
         } modelMock;
 
         hops::ColdnessAttribute markovChainWithColdnessAttribute(modelMock, expectedColdness);
@@ -28,7 +27,6 @@ BOOST_AUTO_TEST_CASE( getColdness) {
         class ModelMock {
         public:
             using VectorType = Eigen::VectorXd;
-            using MatrixType = Eigen::MatrixXd;
         } modelMock;
 
         hops::ColdnessAttribute markovChainWithColdnessAttribute(modelMock, 1.);
@@ -45,7 +43,6 @@ BOOST_AUTO_TEST_CASE( getColdness) {
         class ModelMock {
         public:
             using VectorType = Eigen::VectorXd;
-            using MatrixType = Eigen::MatrixXd;
         } modelMock;
 
         hops::ColdnessAttribute markovChainWithColdnessAttribute(modelMock, 1.5);
@@ -60,7 +57,6 @@ BOOST_AUTO_TEST_CASE( getColdness) {
         class ModelMock {
         public:
             using VectorType = Eigen::VectorXd;
-            using MatrixType = Eigen::MatrixXd;
         } modelMock;
 
         hops::ColdnessAttribute markovChainWithColdnessAttribute(modelMock, -1.5);
@@ -75,7 +71,6 @@ BOOST_AUTO_TEST_CASE( getColdness) {
         class ModelMock {
         public:
             using VectorType = Eigen::VectorXd;
-            using MatrixType = Eigen::MatrixXd;
         } modelMock;
 
         hops::ColdnessAttribute markovChainWithColdnessAttribute(modelMock, 1.5);
@@ -92,7 +87,6 @@ BOOST_AUTO_TEST_CASE( getColdness) {
         class ModelMock {
         public:
             using VectorType = Eigen::VectorXd;
-            using MatrixType = Eigen::MatrixXd;
         } modelMock;
 
         hops::ColdnessAttribute markovChainWithColdnessAttribute(modelMock, -1.5);
@@ -103,15 +97,14 @@ BOOST_AUTO_TEST_CASE( getColdness) {
         BOOST_CHECK(actualColdness == expectedColdness);
     }
 
-    BOOST_AUTO_TEST_CASE( computeNegativeLogLikelihood) {
+    BOOST_AUTO_TEST_CASE( calculateNegativeLogLikelihood) {
         double expectedNegativeLogLikelihood = -250;
 
         class ModelMock {
         public:
             using VectorType = Eigen::VectorXd;
-            using MatrixType = Eigen::MatrixXd;
 
-            [[maybe_unused]] double computeNegativeLogLikelihood(const VectorType &) {
+            [[maybe_unused]] double calculateNegativeLogLikelihood(const VectorType &) {
                 return -1000;
             }
         } modelMock;
@@ -120,7 +113,7 @@ BOOST_AUTO_TEST_CASE( getColdness) {
 
 
         hops::ColdnessAttribute<ModelMock>::VectorType mockState = Eigen::VectorXd::Zero(1);
-        double actualNegativeLogLikelihood = markovChainWithColdnessAttribute.computeNegativeLogLikelihood(mockState);
+        double actualNegativeLogLikelihood = markovChainWithColdnessAttribute.calculateNegativeLogLikelihood(mockState);
         BOOST_CHECK(actualNegativeLogLikelihood == expectedNegativeLogLikelihood);
     }
 

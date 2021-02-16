@@ -8,7 +8,6 @@
 #include <vector>
 
 namespace hops {
-
     template<typename MarkovChainImpl>
     class StateRecorder : public MarkovChainImpl {
     public:
@@ -19,6 +18,10 @@ namespace hops {
             if constexpr(IsWriteRecordsToFileAvailable<MarkovChainImpl>::value) {
                 MarkovChainImpl::writeRecordsToFile(fileWriter);
             }
+        }
+
+        const std::vector<typename MarkovChainImpl::StateType> &getStateRecords() const {
+            return records;
         }
 
         void storeRecord() {
@@ -38,6 +41,7 @@ namespace hops {
     private:
         std::vector<typename MarkovChainImpl::StateType> records;
     };
+
 }
 
 #endif //HOPS_STATERECORDER_HPP

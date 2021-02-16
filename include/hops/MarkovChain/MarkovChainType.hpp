@@ -3,13 +3,8 @@
 
 namespace hops {
     enum class MarkovChainType {
-        BallWalk,
         CoordinateHitAndRun,
-        CSmMALA,
-        CSmMALAOld,
-        CSmMALANoGradient,
         DikinWalk,
-        DikinWalkOld,
         HitAndRun,
     };
 }

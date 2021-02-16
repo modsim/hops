@@ -17,6 +17,11 @@ namespace hops {
 
         MultivariateGaussianModel(VectorType mean, MatrixType covariance);
 
+        /**
+         * @brief Evaluates the negative log likelihood for input x.
+         * @param x
+         * @return
+         */
         typename MatrixType::Scalar calculateNegativeLogLikelihood(const VectorType &x) const;
 
         MatrixType calculateExpectedFisherInformation(const VectorType &) const;

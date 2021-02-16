@@ -8,7 +8,7 @@ namespace {
 
     class ModelMock {
     public:
-        static double computeNegativeLogLikelihood(double state) {
+        static double calculateNegativeLogLikelihood(double state) {
             return state;
         }
 
@@ -38,7 +38,7 @@ namespace {
             state = proposal;
         }
 
-        double computeLogAcceptanceProbability() const {
+        double calculateLogAcceptanceProbability() const {
             return state - proposal;
         }
 
@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_SUITE(ModelMixin)
     hops::ModelMixin markovChainWithModelMixedIn(markovChainMock, (ModelMock()));
 
         constexpr const double expectedValue = 2 * (5 - 2);
-        BOOST_CHECK(markovChainWithModelMixedIn.computeLogAcceptanceProbability() == expectedValue);
+        BOOST_CHECK(markovChainWithModelMixedIn.calculateLogAcceptanceProbability() == expectedValue);
     }
 
     BOOST_AUTO_TEST_CASE(testGetNegativeLogLikelihoodOfCurrentStateMultimodalModel) {

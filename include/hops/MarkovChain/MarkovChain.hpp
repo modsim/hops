@@ -9,8 +9,6 @@ namespace hops {
 
     class MarkovChain {
     public:
-        virtual ~MarkovChain() = default;
-
         /**
          * @brief Updates internal state of the chain and stores numberOfSamples samples in memory.
          * @param randomNumberGenerator
@@ -45,7 +43,7 @@ namespace hops {
 
         virtual double getAcceptanceRate() = 0;
 
-        virtual void resetAcceptanceRate() = 0;
+        virtual ~MarkovChain() {}
     };
 }
 

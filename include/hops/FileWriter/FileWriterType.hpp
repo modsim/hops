@@ -3,8 +3,8 @@
 
 namespace hops {
     enum class FileWriterType {
-        Csv,
-        Hdf5,
+        CSV,
+        HDF5,
     };
 }
 

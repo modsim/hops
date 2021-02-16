@@ -3,7 +3,9 @@
 
 #include <boost/test/included/unit_test.hpp>
 #include <Eigen/Core>
-#include <hops/hops.hpp>
+#include <hops/FileReader/CsvReader.hpp>
+#include <hops/FileReader/SbmlModel.hpp>
+#include <hops/FileReader/SbmlReader.hpp>
 
 BOOST_AUTO_TEST_SUITE(SbmlReader)
 

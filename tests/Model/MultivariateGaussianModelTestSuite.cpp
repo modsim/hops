@@ -7,7 +7,7 @@
 
 BOOST_AUTO_TEST_SUITE(MultivariateGaussianModel)
 
-    BOOST_AUTO_TEST_CASE(computeNegativeLogLikelihood) {
+    BOOST_AUTO_TEST_CASE(calculateNegativeLogLikelihood) {
         double expectedValue = 1.98943678865;
         Eigen::VectorXd mean1(2);
         mean1 << -.8, -.8;
@@ -23,13 +23,13 @@ BOOST_AUTO_TEST_SUITE(MultivariateGaussianModel)
         evaluationPoint << 0.8, 0.8;
 
         double actualValue =
-                0.5 * (std::exp(-multivariateGaussianModel1.computeNegativeLogLikelihood(evaluationPoint)) +
-                       std::exp(-multivariateGaussianModel2.computeNegativeLogLikelihood(evaluationPoint)));
+                0.5 * (std::exp(-multivariateGaussianModel1.calculateNegativeLogLikelihood(evaluationPoint)) +
+                       std::exp(-multivariateGaussianModel2.calculateNegativeLogLikelihood(evaluationPoint)));
 
         BOOST_CHECK_CLOSE(actualValue, expectedValue, 1e-2);
     }
 
-    BOOST_AUTO_TEST_CASE(computeLogLikelihoodGradient) {
+    BOOST_AUTO_TEST_CASE(calculateLogLikelihoodGradient) {
         Eigen::VectorXd mean(2);
         mean << -.8, -.8;
         Eigen::MatrixXd covariance(2, 2);
@@ -41,11 +41,11 @@ BOOST_AUTO_TEST_SUITE(MultivariateGaussianModel)
         evaluationPoint1 << 0.8, 0.8;
 
         Eigen::VectorXd evaluationPoint2 =
-                evaluationPoint1 + 1e-5 * multivariateGaussianModel.computeLogLikelihoodGradient(evaluationPoint1);
+                evaluationPoint1 + 1e-5 * multivariateGaussianModel.calculateLogLikelihoodGradient(evaluationPoint1);
 
         // Tests if negative log likelihood decreases in gradient direction, thus checking correct sign of gradient.
-        BOOST_CHECK_GT(multivariateGaussianModel.computeNegativeLogLikelihood(evaluationPoint1),
-                  multivariateGaussianModel.computeNegativeLogLikelihood(evaluationPoint2));
+        BOOST_CHECK_GT(multivariateGaussianModel.calculateNegativeLogLikelihood(evaluationPoint1),
+                  multivariateGaussianModel.calculateNegativeLogLikelihood(evaluationPoint2));
     }
 
 BOOST_AUTO_TEST_SUITE_END()
