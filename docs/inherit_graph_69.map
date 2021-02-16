@@ -1,0 +1,10 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$classhops_1_1MarkovChain.html" title=" " alt="" coords="5,13,152,39"/>
+<area shape="rect" id="node2" href="$classhops_1_1MarkovChainAdapter.html" title=" " alt="" coords="238,5,435,47"/>
+<area shape="rect" id="node3" title=" " alt="" coords="11,175,147,202"/>
+<area shape="rect" id="node4" href="$classhops_1_1AcceptanceRateRecorder.html" title=" " alt="" coords="225,71,449,112"/>
+<area shape="rect" id="node5" href="$classhops_1_1ParallelTempering.html" title="Mixin for adding parallel tempering to Markov chains. Requires MPI." alt="" coords="247,136,426,177"/>
+<area shape="rect" id="node6" href="$classhops_1_1StateRecorder.html" title=" " alt="" coords="253,201,420,243"/>
+<area shape="rect" id="node7" href="$classhops_1_1StateTransformation.html" title="Mixin for undoing transformations to the Markov chain state." alt="" coords="200,267,473,308"/>
+<area shape="rect" id="node8" href="$classhops_1_1TimestampRecorder.html" title=" " alt="" coords="241,332,433,373"/>
+</map>

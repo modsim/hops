@@ -21,6 +21,10 @@ namespace hops {
             }
         };
 
+        [[nodiscard]] std::vector<long> getTimestampRecords() const {
+            return records;
+        }
+
         void storeRecord() {
             records.emplace_back(
                     std::chrono::duration_cast<std::chrono::milliseconds>(

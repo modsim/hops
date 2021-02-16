@@ -3,10 +3,8 @@ target_sources(hops PRIVATE
         IsGetColdnessAvailable.hpp
         IsGetExchangeAttemptProbabilityAvailable.hpp
         IsGetStepSizeAvailable.hpp
-        IsResetAcceptanceRateAvailable.hpp
         IsSetColdnessAvailable.hpp
         IsSetExchangeAttemptProbabilityAvailable.hpp
-        IsSetFisherWeightAvailable.hpp
         IsSetStepSizeAvailable.hpp
         MarkovChain.hpp
         MarkovChainAdapter.hpp

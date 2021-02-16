@@ -10,9 +10,7 @@
 #include "FileWriter/Hdf5Writer.hpp"
 
 #include "LinearProgram/LinearProgram.hpp"
-#include "LinearProgram/LinearProgramClpImpl.hpp"
 #include "LinearProgram/LinearProgramFactory.hpp"
-#include "LinearProgram/LinearProgramGurobiImpl.hpp"
 #include "LinearProgram/LinearProgramSolution.hpp"
 #include "LinearProgram/LinearProgramStatus.hpp"
 
@@ -56,8 +54,8 @@
 #include "Model/MultimodalModel.hpp"
 #include "Model/MultivariateGaussianModel.hpp"
 
-#include "Polytope/MaximumVolumeEllipsoid.hpp"
-#include "Polytope/NormalizePolytope.hpp"
+#include "PolytopePreprocessing/MaximumVolumeEllipsoid.hpp"
+#include "PolytopePreprocessing/NormalizePolytope.hpp"
 
 #include "RandomNumberGenerator/RandomNumberGenerator.hpp"
 

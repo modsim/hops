@@ -1,25 +1,28 @@
-set(TEST_SOURCES CsvReaderTest.cpp)
+set(TEST_SOURCES CsvReaderTestSuite.cpp)
 
-set(sbml_DIR /usr/local/lib/cmake CACHE PATH "Path to sbml-config.cmake. Usually found in /usr/local/cmake or /usr/local/lib/cmake on linux")
+find_package(SBML)
 
-find_package(sbml CONFIG)
+if (${SBML_FOUND})
+    set(TEST_SOURCES ${TEST_SOURCES} SbmlReaderTestSuite.cpp)
+endif ()
 
-if(${SBML_FOUND})
-    set(TEST_SOURCES ${TEST_SOURCES} SbmlReaderTest.cpp)
-endif()
+find_package(HDF5 COMPONENTS C CXX)
+
+if (HDF5_FOUND)
+    set(TEST_SOURCES ${TEST_SOURCES} Hdf5ReaderTestSuite.cpp)
+endif ()
 
 
 foreach (TEST_SOURCE ${TEST_SOURCES})
     get_filename_component(TEST_NAME ${TEST_SOURCE} NAME_WE)
     add_executable(${TEST_NAME} ${TEST_SOURCE})
-    target_sources(runTests PRIVATE ${TEST_NAME})
     target_include_directories(${TEST_NAME} PUBLIC
-            ../../include
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>
+            $<INSTALL_INTERFACE:include/${LIBRARY_NAME}>
             )
-    target_link_libraries(${TEST_NAME}
-            hops
-            gtest
-            gtest_main
-            )
-    gtest_discover_tests(${TEST_NAME})
+
+    target_link_libraries(${TEST_NAME} hops)
+    add_test(NAME ${TEST_NAME}
+            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+            COMMAND ${TEST_NAME} --log_format=XML --log_sink=${PROJECT_BINARY_DIR}/test-reports/${TEST_NAME}.xml --log_level=all --report_level=detailed)
 endforeach (TEST_SOURCE)

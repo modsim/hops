@@ -13,8 +13,7 @@ VectorType hops::CsvReader::readVector(const std::string &file) {
     while (std::getline(fileStream, line)) {
         auto const position = line.find_last_of(',');
         std::string cell = line.substr(position + 1);
-        // skip empty cells
-        if (cell != "") {
+        if (!cell.empty()) {
             cells.push_back(cell);
         }
     }
@@ -31,22 +30,6 @@ VectorType hops::CsvReader::readVector(const std::string &file) {
         result(i - startIndex) = std::stod(cells[i]);
     }
     return result;
-}
-
-template<>
-std::vector<std::string> hops::CsvReader::readVector(const std::string &file) {
-    std::ifstream fileStream(file);
-    if (fileStream.fail()) {
-        throw std::runtime_error("Could not access file: " + file);
-    }
-    std::vector<std::string> lines;
-    std::string line;
-    while (std::getline(fileStream, line)) {
-        auto const position = line.find_last_of(',');
-        std::string cell = line.substr(position + 1);
-        lines.push_back(line);
-    }
-    return lines;
 }
 
 template Eigen::VectorXi hops::CsvReader::readVector(const std::string &file);

@@ -5,10 +5,8 @@
 #include "IsGetColdnessAvailable.hpp"
 #include "IsGetExchangeAttemptProbabilityAvailable.hpp"
 #include "IsGetStepSizeAvailable.hpp"
-#include "IsResetAcceptanceRateAvailable.hpp"
 #include "IsSetColdnessAvailable.hpp"
 #include "IsSetExchangeAttemptProbabilityAvailable.hpp"
-#include "IsSetFisherWeightAvailable.hpp"
 #include "IsSetStepSizeAvailable.hpp"
 
 namespace hops {
@@ -52,22 +50,14 @@ namespace hops {
             return MarkovChainImpl::getAcceptanceRate();
         }
 
-        void resetAcceptanceRate() override {
-            if constexpr(IsResetAcceptanceRateAvailable<MarkovChainImpl>::value) {
-                MarkovChainImpl::resetAcceptanceRate();
-            } else {
-                throw std::runtime_error("No acceptance rate to reset.");
-            }
-        }
-
         void setAttribute(MarkovChainAttribute markovChainAttribute, double value) override {
             switch (markovChainAttribute) {
-                case MarkovChainAttribute::FISHER_WEIGHT: {
-                    if constexpr(IsSetFisherWeightAvailable<MarkovChainImpl>::value) {
-                        MarkovChainImpl::setFisherWeight(value);
+                case MarkovChainAttribute::STEP_SIZE: {
+                    if constexpr(IsSetStepSizeAvailable<MarkovChainImpl>::value) {
+                        MarkovChainImpl::setStepSize(value);
                         break;
                     }
-                    throw std::runtime_error("FISHER_WEIGHT attribute does not exist.");
+                    throw std::runtime_error("STEP_SIZE attribute does not exist.");
                 }
                 case MarkovChainAttribute::PARALLEL_TEMPERING_COLDNESS: {
                     if constexpr(IsSetColdnessAvailable<MarkovChainImpl>::value) {
@@ -83,13 +73,6 @@ namespace hops {
                         break;
                     }
                     throw std::runtime_error("PARALLEL_TEMPERING_EXCHANGE_PROBABILITY attribute does not exist.");
-                }
-                case MarkovChainAttribute::STEP_SIZE: {
-                    if constexpr(IsSetStepSizeAvailable<MarkovChainImpl>::value) {
-                        MarkovChainImpl::setStepSize(value);
-                        break;
-                    }
-                    throw std::runtime_error("STEP_SIZE attribute does not exist.");
                 }
                 default: {
                     throw std::runtime_error("Attribute does not exist.");

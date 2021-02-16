@@ -14,16 +14,11 @@ namespace hops {
 
         void write(const std::string &description, const std::vector<long> &records) const override;
 
-        void write(const std::string &description, const std::vector<long double> &records) const override;
-
         void write(const std::string &description, const std::vector<Eigen::VectorXf> &records) const override;
 
         void write(const std::string &description, const std::vector<Eigen::VectorXd> &records) const override;
 
         void write(const std::string &description, const std::vector<std::string> &records) const override;
-
-        void write(const std::string &description,
-                   const std::vector<Eigen::Matrix<long double, Eigen::Dynamic, 1>> &records) const override;
 
         void write(const std::string &description, const Eigen::MatrixXd &matrix) const override;
 
