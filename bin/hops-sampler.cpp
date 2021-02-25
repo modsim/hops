@@ -54,7 +54,7 @@ std::map<std::string, std::any> parseCommandLineOptions(int argc, char **argv) {
              "0 for no thinning, else thinning will be the Polytope dimensions times the thinning Factor")
             ("random-seed,r",
              boost::program_options::value<int>(),
-             "0 for no thinning, else thinning will be the Polytope dimensions times the thinning Factor")
+             "seed for the random number generator. If not supplied it will be generated from std::random_device()")
             ("rounding,r",
              boost::program_options::value<bool>(),
              "Flag, true to apply rounding and false otherwise (defaults to true).");
