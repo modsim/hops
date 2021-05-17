@@ -2,9 +2,9 @@
 #define HOPS_CSMMALANOGRADIENTPROPOSAL_HPP
 
 #include <Eigen/Eigenvalues>
-#include <hops/MarkovChain/Proposal/DikinProposal.hpp>
-#include <hops/MarkovChain/Recorder/IsStoreMetropolisHastingsInfoRecordAvailable.hpp>
-#include <hops/MarkovChain/Recorder/IsAddMessageAvailabe.hpp>
+#include "DikinProposal.hpp"
+#include "../Recorder/IsStoreMetropolisHastingsInfoRecordAvailable.hpp"
+#include "../Recorder/IsAddMessageAvailabe.hpp"
 #include <random>
 
 namespace hops {

@@ -52,7 +52,6 @@ namespace hops {
 
         [[nodiscard]] RealType getTolerance() const;
 
-        // TODO implement sparse construction for performance reasons
         static MaximumVolumeEllipsoid
         construct(const Eigen::Matrix<RealType, Eigen::Dynamic, Eigen::Dynamic> &A,
                   const Eigen::Matrix<RealType, Eigen::Dynamic, 1> &b,

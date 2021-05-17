@@ -1,18 +1,12 @@
 #include <any>
 #include <boost/program_options.hpp>
-#include <hops/FileReader/CsvReader.hpp>
-#include <hops/FileReader/Hdf5Reader.hpp>
-#include <hops/FileWriter/FileWriterFactory.hpp>
 #include "hops-sampler.hpp"
 
 #ifdef __cpp_lib_filesystem
 #include <filesystem>
 namespace fs = std::filesystem;
 #else
-
 #include <experimental/filesystem>
-#include <hops/PolytopePreprocessing/MaximumVolumeEllipsoid.hpp>
-
 namespace fs = std::experimental::filesystem;
 #endif
 

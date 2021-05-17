@@ -4,7 +4,12 @@ if (MPI_FOUND)
     target_compile_definitions(hops PUBLIC HOPS_MPI_SUPPORTED)
     target_include_directories(hops PUBLIC ${MPI_INCLUDE_PATH})
     target_link_libraries(hops PUBLIC ${MPI_LIBRARIES})
-    target_sources(hops PRIVATE ColdnessAttribute.hpp ParallelTempering.hpp)
-else(MPI_FOUND)
+
+    target_sources(hops PRIVATE
+            ColdnessAttribute.hpp
+            ParallelTempering.hpp
+            )
+
+else (MPI_FOUND)
     message(WARNING "MPI could not be found. Continuing without MPI support.")
 endif (MPI_FOUND)

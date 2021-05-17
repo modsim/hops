@@ -2,12 +2,14 @@
 
 #include <coin/ClpPackedMatrix.hpp>
 #include <coin/ClpSimplex.hpp>
+
 #include <Eigen/Sparse>
+
 #include <hops/LinearProgram/LinearProgramClpImpl.hpp>
 #include <hops/LinearProgram/LinearProgramStatus.hpp>
 
 namespace {
-    hops::LinearProgramStatus parseStatus(int returnCode) {
+    hops::LinearProgramStatus parseClpStatus(int returnCode) {
         switch (returnCode) {
             case 0:
                 return hops::LinearProgramStatus::OPTIMAL;
@@ -97,7 +99,7 @@ hops::LinearProgramSolution hops::LinearProgramClpImpl::solve(const Eigen::Vecto
 
     return LinearProgramSolution(-model.rawObjectiveValue(), // - due to optimization direction internally
                                  Eigen::Map<Eigen::VectorXd>(model.primalColumnSolution(), objective.rows()),
-                                 parseStatus(model.status()));
+                                 parseClpStatus(model.status()));
 }
 
 std::tuple<Eigen::MatrixXd, Eigen::VectorXd> hops::LinearProgramClpImpl::removeRedundantConstraints(double tolerance) {

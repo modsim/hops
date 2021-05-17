@@ -196,7 +196,7 @@ BOOST_AUTO_TEST_SUITE(MarkovchainFactory)
         bool useParallelTempering = false;
         auto fixture = MarkovChainFactoryTestFixture();
         std::unique_ptr<hops::MarkovChain> markovChain;
-        BOOST_CHECK_NO_THROW(
+        BOOST_CHECK_THROW(
                 markovChain = hops::MarkovChainFactory::createMarkovChain(
                         hops::MarkovChainType::DikinWalk,
                         fixture.A,
@@ -205,9 +205,9 @@ BOOST_AUTO_TEST_SUITE(MarkovchainFactory)
                         fixture.N,
                         fixture.shift,
                         fixture.model,
-                        useParallelTempering)
+                        useParallelTempering),
+                std::runtime_error
         );
-        BOOST_CHECK(markovChain != nullptr);
     }
 
     BOOST_AUTO_TEST_CASE(createNonUniformHitAndRunRounded) {
@@ -300,7 +300,7 @@ BOOST_AUTO_TEST_SUITE(MarkovchainFactory)
         bool useParallelTempering = true;
         auto fixture = MarkovChainFactoryTestFixture();
         std::unique_ptr<hops::MarkovChain> markovChain;
-        BOOST_CHECK_NO_THROW(
+        BOOST_CHECK_THROW(
                 markovChain = hops::MarkovChainFactory::createMarkovChain(
                         hops::MarkovChainType::DikinWalk,
                         fixture.A,
@@ -309,9 +309,9 @@ BOOST_AUTO_TEST_SUITE(MarkovchainFactory)
                         fixture.N,
                         fixture.shift,
                         fixture.model,
-                        useParallelTempering)
+                        useParallelTempering),
+                std::runtime_error
         );
-        BOOST_CHECK(markovChain != nullptr);
     }
 
     BOOST_AUTO_TEST_CASE(createNonUniformHitAndRunRoundedWithParallelTempering) {

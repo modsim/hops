@@ -4,17 +4,14 @@
 #include <boost/test/included/unit_test.hpp>
 #include <cmath>
 #include <Eigen/Core>
-#include <hops/MarkovChain/AcceptanceRateTuner.hpp>
-#include <hops/MarkovChain/MarkovChainAdapter.hpp>
-#include <hops/MarkovChain/Draw/MetropolisHastingsFilter.hpp>
-#include <hops/MarkovChain/Recorder/StateRecorder.hpp>
+#include <hops/hops.hpp>
 
 namespace {
     class ProposerMock {
     public:
         explicit ProposerMock(double stepSize) : stepSize(stepSize) {}
 
-        using StateType = double;
+        using StateType = Eigen::VectorXd;
 
         void propose(hops::RandomNumberGenerator) { numberOfStepsTaken++; }
 
@@ -24,7 +21,11 @@ namespace {
             return std::log(1 - stepSize);
         };
 
-        [[nodiscard]] StateType getState() const { return 0; };
+        const std::vector<Eigen::VectorXd> &getStateRecords() {
+            throw 0;
+        }
+
+        [[nodiscard]] StateType getState() const { return Eigen::VectorXd::Zero(1); };
 
         [[nodiscard]] std::string getName() const { return "ProposerMock"; };
 
@@ -62,19 +63,25 @@ BOOST_AUTO_TEST_SUITE(AcceptanceRateTuner)
         size_t iterationsToTestStepSize = 100;
         size_t maxIterations = 1000;
 
-        bool isTuned = hops::AcceptanceRateTuner::tune(markovChain, generator, {lowerLimitAcceptanceRate,
-                                                                                upperLimitAcceptanceRate,
-                                                                                lowerLimitStepSize,
-                                                                                upperLimitStepSize,
-                                                                                iterationsToTestStepSize,
-                                                                                maxIterations});
+        double actualAcceptanceRate = -1;
+        bool isTuned = hops::AcceptanceRateTuner::tune(startingStepSize,
+                                                       actualAcceptanceRate,
+                                                       markovChain,
+                                                       generator,
+                                                       {lowerLimitAcceptanceRate,
+                                                        upperLimitAcceptanceRate,
+                                                        lowerLimitStepSize,
+                                                        upperLimitStepSize,
+                                                        iterationsToTestStepSize,
+                                                        maxIterations});
 
 
-        auto actualAcceptanceRate = markovChain->getAcceptanceRate();
         BOOST_CHECK(isTuned);
         BOOST_CHECK_LE(markovChain->getNumberOfStepsTaken(), maxIterations + iterationsToTestStepSize);
         BOOST_CHECK_LE(actualAcceptanceRate, upperLimitAcceptanceRate);
         BOOST_CHECK_GE(actualAcceptanceRate, lowerLimitAcceptanceRate);
+
+        delete markovChain;
     }
 
     BOOST_AUTO_TEST_CASE(throwsExceptionIfUpperLimitAcceptanceRateIsLessThanLowerLimitAcceptanceRate) {
@@ -104,6 +111,8 @@ BOOST_AUTO_TEST_SUITE(AcceptanceRateTuner)
                                   return std::string(ex.what()) ==
                                          "Parameter error: lowerLimitAcceptanceRate is larger than upperLimitAcceptanceRate";
                               });
+
+        delete markovChain;
     }
 
     BOOST_AUTO_TEST_CASE(throwsExceptionIfUpperLimitStepSizeIsLessThanLowerLimitStepSize) {
@@ -135,6 +144,7 @@ BOOST_AUTO_TEST_SUITE(AcceptanceRateTuner)
                                          "Parameter error: lowerLimitStepSize is larger than upperLimitStepSize";
                               });
 
+        delete markovChain;
     }
 
     BOOST_AUTO_TEST_CASE(throwsExceptionIfIterationsToTestStepSizeIs0) {
@@ -163,8 +173,9 @@ BOOST_AUTO_TEST_SUITE(AcceptanceRateTuner)
                               std::runtime_error,
                               [](auto ex) {
                                   return std::string(ex.what()) ==
-                                          "Parameter error: iterationsToTestStepSize is 0";
+                                         "Parameter error: iterationsToTestStepSize is 0";
                               });
+        delete markovChain;
     }
 
     BOOST_AUTO_TEST_CASE(tuneByIncreasingStepSize) {
@@ -181,7 +192,10 @@ BOOST_AUTO_TEST_SUITE(AcceptanceRateTuner)
         size_t iterationsToTestStepSize = 100;
         size_t maxIterations = 1000;
 
-        bool isTuned = hops::AcceptanceRateTuner::tune(markovChain,
+        double actualAcceptanceRate = -1;
+        bool isTuned = hops::AcceptanceRateTuner::tune(startingStepSize,
+                                                       actualAcceptanceRate,
+                                                       markovChain,
                                                        generator,
                                                        {lowerLimitAcceptanceRate,
                                                         upperLimitAcceptanceRate,
@@ -190,11 +204,12 @@ BOOST_AUTO_TEST_SUITE(AcceptanceRateTuner)
                                                         iterationsToTestStepSize,
                                                         maxIterations});
 
-        auto actualAcceptanceRate = markovChain->getAcceptanceRate();
         BOOST_CHECK(isTuned);
         BOOST_CHECK_LE(markovChain->getNumberOfStepsTaken(), maxIterations + iterationsToTestStepSize);
         BOOST_CHECK_LE(actualAcceptanceRate, upperLimitAcceptanceRate);
         BOOST_CHECK_GE(actualAcceptanceRate, lowerLimitAcceptanceRate);
+
+        delete markovChain;
     }
 
     BOOST_AUTO_TEST_CASE(tuneByDecreasingStepSize) {
@@ -211,7 +226,10 @@ BOOST_AUTO_TEST_SUITE(AcceptanceRateTuner)
         size_t iterationsToTestStepSize = 100;
         size_t maxIterations = 1000;
 
-        bool isTuned = hops::AcceptanceRateTuner::tune(markovChain,
+        double actualAcceptanceRate = -1;
+        bool isTuned = hops::AcceptanceRateTuner::tune(startingStepSize,
+                                                       actualAcceptanceRate,
+                                                       markovChain,
                                                        generator,
                                                        {lowerLimitAcceptanceRate,
                                                         upperLimitAcceptanceRate,
@@ -220,11 +238,12 @@ BOOST_AUTO_TEST_SUITE(AcceptanceRateTuner)
                                                         iterationsToTestStepSize,
                                                         maxIterations});
 
-        auto actualAcceptanceRate = markovChain->getAcceptanceRate();
         BOOST_CHECK(isTuned);
         BOOST_CHECK_LE(markovChain->getNumberOfStepsTaken(), maxIterations + iterationsToTestStepSize);
         BOOST_CHECK_LE(actualAcceptanceRate, upperLimitAcceptanceRate);
         BOOST_CHECK_GE(actualAcceptanceRate, lowerLimitAcceptanceRate);
+
+        delete markovChain;
     }
 
     BOOST_AUTO_TEST_CASE(stopsWhenMaxIterationsAreReached) {
@@ -252,6 +271,8 @@ BOOST_AUTO_TEST_SUITE(AcceptanceRateTuner)
 
         BOOST_CHECK(isNotTuned);
         BOOST_CHECK_LE(markovChain->getNumberOfStepsTaken(), maxIterations + iterationsToTestStepSize);
+
+        delete markovChain;
     }
 
 BOOST_AUTO_TEST_SUITE_END()

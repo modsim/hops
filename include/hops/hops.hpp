@@ -1,4 +1,11 @@
+#include "Diagnostics/IsConstantChain.hpp"
+#include "Diagnostics/Autocorrelation.hpp"
+#include "Diagnostics/EffectiveSampleSize.hpp"
+#include "Diagnostics/PotentialScaleReductionFactor.hpp"
+#include "Diagnostics/ExpectedSquaredJumpDistance.hpp"
+
 #include "FileReader/CsvReader.hpp"
+#include "FileReader/Hdf5Reader.hpp"
 #include "FileReader/SbmlModel.hpp"
 #include "FileReader/SbmlReader.hpp"
 
@@ -30,18 +37,23 @@
 #include "MarkovChain/Proposal/TruncatedNormalDistribution.hpp"
 
 #include "MarkovChain/Recorder/AcceptanceRateRecorder.hpp"
+#include "MarkovChain/Recorder/IsAddMessageAvailabe.hpp"
 #include "MarkovChain/Recorder/IsClearRecordsAvailable.hpp"
+#include "MarkovChain/Recorder/IsStoreMetropolisHastingsInfoRecordAvailable.hpp"
 #include "MarkovChain/Recorder/IsStoreRecordAvailable.hpp"
 #include "MarkovChain/Recorder/IsWriteRecordsToFileAvailable.hpp"
 #include "MarkovChain/Recorder/StateRecorder.hpp"
 #include "MarkovChain/Recorder/TimestampRecorder.hpp"
 
 #include "MarkovChain/AcceptanceRateTuner.hpp"
+#include "MarkovChain/ExpectedSquaredJumpDistanceTuner.hpp"
 #include "MarkovChain/IsGetColdnessAvailable.hpp"
 #include "MarkovChain/IsGetExchangeAttemptProbabilityAvailable.hpp"
 #include "MarkovChain/IsGetStepSizeAvailable.hpp"
+#include "MarkovChain/IsResetAcceptanceRateAvailable.hpp"
 #include "MarkovChain/IsSetColdnessAvailable.hpp"
 #include "MarkovChain/IsSetExchangeAttemptProbabilityAvailable.hpp"
+#include "MarkovChain/IsSetFisherWeightAvailable.hpp"
 #include "MarkovChain/IsSetStepSizeAvailable.hpp"
 #include "MarkovChain/MarkovChain.hpp"
 #include "MarkovChain/MarkovChainAdapter.hpp"
@@ -50,13 +62,47 @@
 #include "MarkovChain/MarkovChainType.hpp"
 #include "MarkovChain/StateTransformation.hpp"
 
+#include "Model/DegenerateMultivariateGaussianModel.hpp"
+#include "Model/DynMultimodalModel.hpp"
 #include "Model/ModelMixin.hpp"
 #include "Model/MultimodalModel.hpp"
 #include "Model/MultivariateGaussianModel.hpp"
+#include "Model/RosenbrockModel.hpp"
+#include "Model/UniformDummyModel.hpp"
 
-#include "PolytopePreprocessing/MaximumVolumeEllipsoid.hpp"
-#include "PolytopePreprocessing/NormalizePolytope.hpp"
+#include "Polytope/MaximumVolumeEllipsoid.hpp"
+#include "Polytope/NormalizePolytope.hpp"
+#include "Polytope/SimplexFactory.hpp"
 
 #include "RandomNumberGenerator/RandomNumberGenerator.hpp"
 
 #include "Transformation/Transformation.hpp"
+
+#include "Utility/ChainData.hpp"
+#include "Utility/Data.hpp"
+#include "Utility/Exceptions.hpp"
+#include "Utility/Problem.hpp"
+#include "Utility/Run.hpp"
+
+#ifdef HOPS_HEADER_ONLY
+
+#include "FileReader/CsvReader.cpp"
+#include "FileReader/Hdf5Reader.cpp"
+#include "FileReader/SbmlReader.cpp"
+
+#include "FileWriter/CsvWriter.cpp"
+#include "FileWriter/CsvWriterImpl.cpp"
+#include "FileWriter/FileWriterFactory.cpp"
+#include "FileWriter/Hdf5Writer.cpp"
+
+#include "LinearProgram/GurobiEnvironmentSingleton.cpp"
+#include "LinearProgram/LinearProgram.cpp"
+#include "LinearProgram/LinearProgramClpImpl.cpp"
+#include "LinearProgram/LinearProgramGurobiImpl.cpp"
+
+#include "MarkovChain/AcceptanceRateTuner.cpp"
+#include "MarkovChain/ExpectedSquaredJumpDistanceTuner.cpp"
+
+#include "Polytope//MaximumVolumeEllipsoid.cpp"
+
+#endif //HOPS_HEADER_ONLY

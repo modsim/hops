@@ -3,7 +3,7 @@
 #include <hops/FileWriter/CsvWriter.hpp>
 #include <hops/FileWriter/Hdf5Writer.hpp>
 
-std::unique_ptr<const hops::FileWriter>
+std::unique_ptr<hops::FileWriter>
 hops::FileWriterFactory::createFileWriter(const std::string &filename, FileWriterType fileWriterType) {
     switch(fileWriterType) {
         case FileWriterType::CSV: {

@@ -1,7 +1,7 @@
 #ifndef HOPS_SBMLREADER_HPP
 #define HOPS_SBMLREADER_HPP
 
-#include <hops/FileReader/SbmlModel.hpp>
+#include "SbmlModel.hpp"
 #include <string>
 #include <vector>
 

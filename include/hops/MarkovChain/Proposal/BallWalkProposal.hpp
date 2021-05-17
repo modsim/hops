@@ -1,11 +1,10 @@
 #ifndef HOPS_BALLWALKPROPOSAL_HPP
 #define HOPS_BALLWALKPROPOSAL_HPP
 
-#include "ChordStepDistributions.hpp"
-#include <hops/MarkovChain/IsSetStepSizeAvailable.hpp>
-#include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
+#include "../IsSetStepSizeAvailable.hpp"
+#include "../../RandomNumberGenerator/RandomNumberGenerator.hpp"
+#include "../../FileWriter/CsvWriter.hpp"
 #include <random>
-#include <hops/FileWriter/CsvWriter.hpp>
 
 namespace hops {
     template<typename MatrixType, typename VectorType>
@@ -59,16 +58,17 @@ namespace hops {
     };
 
     template<typename MatrixType, typename VectorType>
-    BallWalkProposal<MatrixType, VectorType>::BallWalkProposal(
-            MatrixType A_,
-            VectorType b_,
-            VectorType currentState_,
-            typename MatrixType::Scalar stepSize_) :
+    BallWalkProposal<MatrixType, VectorType>::BallWalkProposal(MatrixType A_,
+                                                               VectorType b_,
+                                                               VectorType currentState_,
+                                                               typename MatrixType::Scalar stepSize_) :
             A(std::move(A_)),
             b(std::move(b_)),
             state(std::move(currentState_)),
             proposal(this->state),
-            stepSize(stepSize_) {}
+            stepSize(stepSize_) {
+        // nothing to do
+    }
 
     template<typename MatrixType, typename VectorType>
     void BallWalkProposal<MatrixType, VectorType>::propose(

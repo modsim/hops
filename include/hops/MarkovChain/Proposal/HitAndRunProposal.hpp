@@ -2,8 +2,8 @@
 #define HOPS_HITANDRUNPROPOSAL_HPP
 
 #include "ChordStepDistributions.hpp"
-#include <hops/MarkovChain/IsSetStepSizeAvailable.hpp>
-#include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
+#include "../IsSetStepSizeAvailable.hpp"
+#include "../../RandomNumberGenerator/RandomNumberGenerator.hpp"
 #include <random>
 
 namespace hops {

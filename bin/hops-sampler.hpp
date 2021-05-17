@@ -1,9 +1,7 @@
 #ifndef HOPS_SAMPLERS_HPP
 #define HOPS_SAMPLERS_HPP
 
-#include <hops/MarkovChain/MarkovChainType.hpp>
-#include <hops/MarkovChain/MarkovChainFactory.hpp>
-#include <hops/FileWriter/FileWriterFactory.hpp>
+#include <hops/hops.hpp>
 
 std::vector<Eigen::VectorXd> sampleUniformly(const Eigen::MatrixXd &A,
                                              const Eigen::VectorXd &b,

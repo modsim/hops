@@ -4,7 +4,7 @@
 #include <Eigen/Cholesky>
 #include <Eigen/Core>
 #include <Eigen/Dense>
-#include <hops/FileWriter/CsvWriter.hpp>
+#include "../../FileWriter/CsvWriter.hpp"
 
 namespace hops {
     template<typename MatrixType, typename VectorType>

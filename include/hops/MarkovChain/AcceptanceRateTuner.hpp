@@ -33,11 +33,55 @@ namespace hops {
          * @return true if markov chain is tuned
          */
         static bool
-        tune(MarkovChain *markovChain, RandomNumberGenerator &randomNumberGenerator, const param_type &parameters);
+        tune(MarkovChain *markovChain, 
+             RandomNumberGenerator &randomNumberGenerator, 
+             const param_type &parameters);
+
+        /**
+         * @brief tunes markov chain acceptance rate by nested intervals. The chain is not guaranteed to have converged
+         *        to the specified acceptance rate.
+         * @details Clears Markov chain history.
+         * @param markovChain
+         * @param parameters
+         * @return true if markov chain is tuned
+         */
+        static bool
+        tune(double& stepSize, 
+             double& AcceptanceRate, 
+             MarkovChain *markovChain, 
+             RandomNumberGenerator &randomNumberGenerator, 
+             const param_type &parameters);
+
+        /**
+         * @brief tunes markov chain acceptance rate by nested intervals. The chain is not guaranteed to have converged
+         *        to the specified acceptance rate.
+         * @details Clears Markov chain history.
+         * @param markovChain
+         * @param parameters
+         * @return true if markov chain is tuned
+         */
+        static bool
+        tune(std::vector<std::unique_ptr<MarkovChain>>& markovChain, 
+             std::vector<RandomNumberGenerator>& randomNumberGenerator, 
+             const param_type &parameters);
+
+        /**
+         * @brief tunes markov chain acceptance rate by nested intervals. The chain is not guaranteed to have converged
+         *        to the specified acceptance rate.
+         * @details Clears Markov chain history.
+         * @param markovChain
+         * @param parameters
+         * @return true if markov chain is tuned
+         */
+        static bool
+        tune(double& stepSize, 
+             double& acceptanceRate,
+             std::vector<std::unique_ptr<MarkovChain>>& markovChain, 
+             std::vector<RandomNumberGenerator>& randomNumberGenerator, 
+             const param_type &parameters);
 
         AcceptanceRateTuner() = delete;
     };
 }
-
 
 #endif //HOPS_ACCEPTANCERATETUNER_HPP

@@ -1,0 +1,8 @@
+configure_file(states0.csv ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+configure_file(states1.csv ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+configure_file(states2.csv ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+configure_file(states3.csv ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+configure_file(chain0_states.csv ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+configure_file(chain1_states.csv ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+configure_file(chain2_states.csv ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+configure_file(chain3_states.csv ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
