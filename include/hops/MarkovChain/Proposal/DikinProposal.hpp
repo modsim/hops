@@ -2,8 +2,8 @@
 #define HOPS_DIKINPROPOSAL_HPP
 
 #include <Eigen/LU>
-#include <hops/MarkovChain/Proposal/DikinEllipsoidCalculator.hpp>
-#include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
+#include "DikinEllipsoidCalculator.hpp"
+#include "../../RandomNumberGenerator/RandomNumberGenerator.hpp"
 #include <random>
 
 namespace hops {

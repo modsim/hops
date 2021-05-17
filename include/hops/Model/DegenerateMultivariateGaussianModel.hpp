@@ -17,11 +17,11 @@ namespace hops {
 
         DegenerateMultivariateGaussianModel(VectorType mean, MatrixType covariance, std::vector<long> inactive = std::vector<long>(0));
 
-        typename MatrixType::Scalar computeNegativeLogLikelihood(const VectorType &x) const;
+        typename MatrixType::Scalar calculateNegativeLogLikelihood(const VectorType &x) const;
 
-        MatrixType computeExpectedFisherInformation(const VectorType &) const;
+        MatrixType calculateExpectedFisherInformation(const VectorType &) const;
 
-        VectorType computeLogLikelihoodGradient(const VectorType &x) const;
+        VectorType calculateLogLikelihoodGradient(const VectorType &x) const;
 
     private:
         VectorType mean;
@@ -100,7 +100,7 @@ namespace hops {
 
     template<typename MatrixType, typename VectorType>
     typename MatrixType::Scalar
-    DegenerateMultivariateGaussianModel<MatrixType, VectorType>::computeNegativeLogLikelihood(const VectorType &x) const {
+    DegenerateMultivariateGaussianModel<MatrixType, VectorType>::calculateNegativeLogLikelihood(const VectorType &x) const {
         VectorType _x = x;
         stripInactive(_x);
         return -logNormalizationConstant +
@@ -109,13 +109,13 @@ namespace hops {
 
     template<typename MatrixType, typename VectorType>
     MatrixType
-    DegenerateMultivariateGaussianModel<MatrixType, VectorType>::computeExpectedFisherInformation(const VectorType &) const {
+    DegenerateMultivariateGaussianModel<MatrixType, VectorType>::calculateExpectedFisherInformation(const VectorType &) const {
         return inverseCovariance;
     }
 
     template<typename MatrixType, typename VectorType>
     VectorType
-    DegenerateMultivariateGaussianModel<MatrixType, VectorType>::computeLogLikelihoodGradient(const VectorType &x) const {
+    DegenerateMultivariateGaussianModel<MatrixType, VectorType>::calculateLogLikelihoodGradient(const VectorType &x) const {
         VectorType _x = x;
         stripInactive(_x);
         return -inverseCovariance * (_x - mean);

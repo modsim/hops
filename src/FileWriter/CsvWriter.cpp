@@ -1,16 +1,16 @@
 #include <fstream>
-#include <hops/FileWriter/CsvWriter.hpp>
-#include "hops/FileWriter/CsvWriterImpl.hpp"
 
 #ifdef __cpp_lib_filesystem
 #include <filesystem>
 namespace fs = std::filesystem;
-#else
-
+#else // __cpp_lib_filesystem
 #include <experimental/filesystem>
-
 namespace fs = std::experimental::filesystem;
-#endif
+#endif // __cpp_lib_filesystem
+
+#include <hops/FileWriter/CsvWriter.hpp>
+#include <hops/FileWriter/CsvWriterImpl.hpp>
+
 
 namespace {
     std::ofstream createOutputStream(const std::string &outputPath, const std::string &description, int precision) {
@@ -26,7 +26,6 @@ hops::CsvWriter::CsvWriter(std::string path, int outputPrecision) : path(std::mo
                                                                     outputPrecision(outputPrecision) {
     fs::create_directories(CsvWriter::path);
 }
-
 
 void hops::CsvWriter::write(const std::string &description, const std::vector<float> &records) const {
     auto out = createOutputStream(CsvWriter::path, description, this->outputPrecision);
@@ -78,3 +77,4 @@ void hops::CsvWriter::write(const std::string &description, const Eigen::VectorX
         out << "\n";
     }
 }
+

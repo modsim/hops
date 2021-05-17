@@ -1,7 +1,5 @@
 set(GUROBI_ENABLE ON)
-
 find_package(GUROBI)
-
 if (GUROBI_FOUND)
     target_compile_definitions(hops PUBLIC HOPS_GUROBI_FOUND)
     target_include_directories(hops PUBLIC ${GUROBI_INCLUDE_DIR})
@@ -21,6 +19,5 @@ endif ()
 if (NOT GUROBI_FOUND AND NOT CLP_FOUND)
     message(WARNING "No LP solver configured. This is okay, if you do not require linear programming. Otherwise install gurobi or CLP in order to use the LinearProgram class.")
 endif ()
-
 
 target_sources(hops PRIVATE LinearProgram.cpp)

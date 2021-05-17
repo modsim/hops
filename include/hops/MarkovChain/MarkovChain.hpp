@@ -1,14 +1,23 @@
 #ifndef HOPS_MARKOVCHAIN_HPP
 #define HOPS_MARKOVCHAIN_HPP
 
-#include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
+#include <Eigen/Core>
+#include <memory>
+#include <vector>
+
 #include "MarkovChainAttribute.hpp"
+#include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
+#include <hops/Utility/ChainData.hpp>
+
 
 namespace hops {
     class FileWriter;
 
-    class MarkovChain {
+    template<typename StateType = Eigen::VectorXd>
+    class MarkovChainInterface {
     public:
+        virtual ~MarkovChainInterface() = default;
+
         /**
          * @brief Updates internal state of the chain and stores numberOfSamples samples in memory.
          * @param randomNumberGenerator
@@ -28,7 +37,11 @@ namespace hops {
          * @brief Writes all stored chain history using the fileWriter.
          * @param fileWriter
          */
-        virtual void writeHistory(const FileWriter *fileWriter) = 0;
+        virtual void writeHistory(FileWriter *fileWriter) = 0;
+
+        virtual void installDataObject(ChainData& chainData) = 0;
+        virtual const std::vector<StateType>& getStateRecords() = 0;
+        virtual void reserveStateRecords(long numberOfSamples) = 0;
 
         /**
          * @brief Deletes all stored chain history.
@@ -42,9 +55,9 @@ namespace hops {
         virtual double getAttribute(MarkovChainAttribute markovChainAttribute) = 0;
 
         virtual double getAcceptanceRate() = 0;
-
-        virtual ~MarkovChain() {}
     };
+    
+    typedef MarkovChainInterface<Eigen::VectorXd> MarkovChain;
 }
 
 #endif //HOPS_MARKOVCHAIN_HPP

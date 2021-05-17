@@ -14,6 +14,7 @@ namespace hops {
         std::string what() {
             return message;
         }
+
     private:
         std::string message;
     };

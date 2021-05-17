@@ -1,7 +1,7 @@
 #ifndef HOPS_CHORDSTEPDISTRIBUTIONS_HPP
 #define HOPS_CHORDSTEPDISTRIBUTIONS_HPP
 
-#include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
+#include "../../RandomNumberGenerator/RandomNumberGenerator.hpp"
 #include <random>
 #include <string>
 #include "TruncatedNormalDistribution.hpp"

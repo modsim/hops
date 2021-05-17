@@ -1,6 +1,7 @@
 #ifdef HOPS_GUROBI_FOUND
 
 #include <Eigen/Core>
+
 #include <hops/LinearProgram/LinearProgramGurobiImpl.hpp>
 #include <hops/LinearProgram/GurobiEnvironmentSingleton.hpp>
 
@@ -41,7 +42,7 @@ namespace {
         model->setObjective(objectiveExpression, GRB_MAXIMIZE);
     }
 
-    hops::LinearProgramStatus parseStatus(int returnCode) {
+    hops::LinearProgramStatus parseGurobiStatus(int returnCode) {
         switch (returnCode) {
             case 2: {
                 return hops::LinearProgramStatus::OPTIMAL;
@@ -106,7 +107,7 @@ hops::LinearProgramSolution hops::LinearProgramGurobiImpl::solve(const Eigen::Ve
             for (int i = 0; i < numberOfColumns; ++i) {
                 solution(i) = modelVariables[i].get(GRB_DoubleAttr_X);
             }
-            return LinearProgramSolution(objectiveValue, solution, parseStatus(status));
+            return LinearProgramSolution(objectiveValue, solution, parseGurobiStatus(status));
         } else if (status == GRB_INFEASIBLE) {
             return LinearProgramSolution(std::numeric_limits<double>::quiet_NaN(),
                                          Eigen::VectorXd(),

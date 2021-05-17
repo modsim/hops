@@ -1,30 +1,23 @@
 #ifndef HOPS_RUN_HPP
 #define HOPS_RUN_HPP
 
-#include <hops/LinearProgram/LinearProgramClpImpl.hpp>
-#include <hops/LinearProgram/LinearProgramGurobiImpl.hpp>
-#include <hops/MarkovChain/MarkovChain.hpp>
-#include <hops/MarkovChain/MarkovChainFactory.hpp>
-#include <hops/MarkovChain/MarkovChainType.hpp>
-#include <hops/MarkovChain/Tuning/AcceptanceRateTuner.hpp>
-#include <hops/MarkovChain/Tuning/ExpectedSquaredJumpDistanceTuner.hpp>
-#include <hops/MarkovChain/Tuning/SimpleExpectedSquaredJumpDistanceTuner.hpp>
-#include <hops/Polytope/MaximumVolumeEllipsoid.hpp>
-#include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
-#include <hops/Utility/Data.hpp>
-#include <hops/Utility/Exceptions.hpp>
-#include <hops/Utility/Problem.hpp>
+#include "../LinearProgram/LinearProgramClpImpl.hpp"
+#include "../LinearProgram/LinearProgramGurobiImpl.hpp"
+#include "../MarkovChain/ExpectedSquaredJumpDistanceTuner.hpp"
+#include "../MarkovChain/MarkovChain.hpp"
+#include "../MarkovChain/MarkovChainFactory.hpp"
+#include "../MarkovChain/MarkovChainType.hpp"
+#include "../Polytope/MaximumVolumeEllipsoid.hpp"
+#include "../RandomNumberGenerator/RandomNumberGenerator.hpp"
+#include "Data.hpp"
+#include "Exceptions.hpp"
+#include "Problem.hpp"
 
 #include <Eigen/Core>
 
 #include <memory>
 #include <random>
 #include <stdexcept>
-#include <chrono>
-
-#ifdef _OPENMP
-#include <omp.h>
-#endif 
 
 namespace hops {
     struct NoProposal {
@@ -36,38 +29,29 @@ namespace hops {
     template<typename Model, typename Proposal>
     class RunBase;
 
-
     template<typename Model, typename Proposal>
-    void tune(RunBase<Model, Proposal>& run, AcceptanceRateTuner::param_type& parameters);
-
-    template<typename Model, typename Proposal>
-    void tune(RunBase<Model, Proposal>& run, ExpectedSquaredJumpDistanceTuner::param_type& parameters);
-
-    template<typename Model, typename Proposal>
-    void tune(RunBase<Model, Proposal>& run, SimpleExpectedSquaredJumpDistanceTuner::param_type& parameters);
-
+    void tune(RunBase<Model, Proposal>& run, const ExpectedSquaredJumpDistanceTuner::param_type& parameters);
 
     template<typename Model, typename Proposal>
     class RunBase {
     public:
-        RunBase (MarkovChainType markovChainType,
+        RunBase (MarkovChainType markovChainType = MarkovChainType::HitAndRun,
                  unsigned long numberOfSamples = 1000, 
                  unsigned long numberOfChains = 1) :
                 markovChainType(markovChainType),
                 numberOfChains(numberOfChains), 
                 numberOfSamples(numberOfSamples) {
-            //
+            this->problem = nullptr;
         }
 
         RunBase (const Problem<Model>& problem, 
                  MarkovChainType markovChainType = MarkovChainType::HitAndRun,
                  unsigned long numberOfSamples = 1000, 
                  unsigned long numberOfChains = 1) :
-                problem(problem),
                 markovChainType(markovChainType),
                 numberOfChains(numberOfChains), 
                 numberOfSamples(numberOfSamples) {
-            //
+            this->problem = &problem;
         }
 	
         RunBase (Proposal proposal,
@@ -76,18 +60,17 @@ namespace hops {
                 proposal(proposal),
                 numberOfChains(numberOfChains), 
                 numberOfSamples(numberOfSamples) {
-            //
+            this->problem = nullptr;
         }
 
         RunBase (const Problem<Model>& problem, 
                  Proposal proposal,
                  unsigned long numberOfSamples = 1000, 
                  unsigned long numberOfChains = 1) :
-                problem(problem),
                 proposal(proposal),
                 numberOfChains(numberOfChains), 
                 numberOfSamples(numberOfSamples) {
-            //
+            this->problem = &problem;
         }
 	
 		RunBase() = default;
@@ -125,8 +108,8 @@ namespace hops {
 		void setSamplingUntilConvergence(bool sampleUntilConvergence);
 		bool getSamplingUntilConvergence();
 
-		void setConvergenceThreshold(double convergenceThreshold);
-		double getConvergenceThreshold();
+		void setDiagnosticsThreshold(double diagnosticsThreshold);
+		double getDiagnosticsThreshold();
 
 		void setMaxRepetitions(double maxRepetitions);
 		double getMaxRepetitions();
@@ -137,31 +120,39 @@ namespace hops {
          *
          */
         void init() {
-            // create new data object to not mix up possible previous data
-            data = std::make_shared<Data>(problem.dimension);
-
-            if (!isRandomGeneratorInitialized) {
-            	isRandomGeneratorInitialized = true;
-            	// initialize random number generator for each chain
-            	for (unsigned long i = 0; i < numberOfChains; ++i) {
-            		randomNumberGenerators.push_back(RandomNumberGenerator(randomSeed, i));
-            	}
+            // check if a problem was set. if not, this is not recoverable, thus throw an exception
+            if (!problem) {
+                throw NoProblemProvidedException();
             }
+
+            // create new data object to not mix up possible previous data
+            data = std::make_shared<Data>(problem->dimension);
+
+			if (!isRandomGeneratorInitialized) {
+				isRandomGeneratorInitialized = true;
+				// initialize random number generator for each chain
+				randomNumberGenerators.clear();
+				RandomNumberGenerator rng(randomSeed);
+				std::uniform_int_distribution<unsigned> uniform(std::numeric_limits<unsigned>::min(), std::numeric_limits<unsigned>::max());
+				for (unsigned long i = 0; i < numberOfChains; ++i) {
+					randomNumberGenerators.push_back(RandomNumberGenerator(uniform(rng)));
+				}
+			}
 
             // initialize missing starting points with the chebyshev center or the starting point passed
             // by the problem.
             if (startingPoints.size() < numberOfChains) {
                 Eigen::VectorXd chebyshev;
-                if (!problem.useStartingPoint) {
+                if (!problem->useStartingPoint) {
 #if defined(HOPS_GUROBI_FOUND) || defined(HOPS_CLP_FOUND)
                     try {
-                        LinearProgramGurobiImpl linearProgram(problem.A, problem.b);
-                        chebyshev = linearProgram.computeChebyshevCenter().optimalParameters;
+                        LinearProgramGurobiImpl linearProgram(problem->A, problem->b);
+                        chebyshev = linearProgram.calculateChebyshevCenter().optimalParameters;
 
                     // either std::runtime_error, if Gurobi wasn't found or GRBException if no license
                     } catch (...) { 
-                        LinearProgramClpImpl linearProgram(problem.A, problem.b);
-                        chebyshev = linearProgram.computeChebyshevCenter().optimalParameters;
+                        LinearProgramClpImpl linearProgram(problem->A, problem->b);
+                        chebyshev = linearProgram.calculateChebyshevCenter().optimalParameters;
                     }
 #else
                     throw MissingStartingPointsException(
@@ -173,8 +164,8 @@ namespace hops {
 
                 // initialize all missing starting points
                 for (unsigned long i = startingPoints.size(); i < numberOfChains; ++i) {
-                    if (problem.useStartingPoint) {
-                        startingPoints.push_back(problem.startingPoint);
+                    if (problem->useStartingPoint) {
+                        startingPoints.push_back(problem->startingPoint);
                     } else {
                         startingPoints.push_back(chebyshev);
                     }
@@ -185,7 +176,7 @@ namespace hops {
 			Eigen::MatrixXd roundingTransformation;
 			if (useRounding) {
 				roundingTransformation =
-					hops::MaximumVolumeEllipsoid<double>::construct(problem.A, problem.b, 10000)
+					hops::MaximumVolumeEllipsoid<double>::construct(problem->A, problem->b, 10000)
 					.getRoundingTransformation();
 				// next transform of startingPoint assumes roundingTransformation is lower triangular
 				if (!roundingTransformation.isLowerTriangular()) {
@@ -196,51 +187,57 @@ namespace hops {
             // set up the chains with the problem specifications
             markovChains.resize(numberOfChains);
             for (unsigned long i = 0; i < numberOfChains; ++i) {
-                if (problem.unround) {
+                if (problem->unround) {
 					if constexpr(std::is_same<Proposal, NoProposal>::value) {
                         markovChains[i] = std::move(MarkovChainFactory::createMarkovChain(markovChainType,
-                                                                                          problem.A,
-                                                                                          problem.b,
+                                                                                          problem->A,
+                                                                                          problem->b,
                                                                                           startingPoints[i],
-                                                                                          problem.unroundingTransformation,
-                                                                                          problem.unroundingShift,
-                                                                                          problem.model));
+                                                                                          problem->unroundingTransformation,
+                                                                                          problem->unroundingShift,
+                                                                                          problem->model,
+                                                                                          false));
                     } else {
                         proposal.setState(startingPoints[i]);
                         markovChains[i] = std::move(MarkovChainFactory::createMarkovChain(proposal,
-                                                                                          problem.unroundingTransformation,
-                                                                                          problem.unroundingShift,
-                                                                                          problem.model));
+                                                                                          problem->unroundingTransformation,
+                                                                                          problem->unroundingShift,
+                                                                                          problem->model,
+                                                                                          false));
                     }
                 } else if (useRounding) {
                     Eigen::VectorXd roundedStartingPoint = roundingTransformation.triangularView<Eigen::Lower>().solve(startingPoints[i]);
 					if constexpr(std::is_same<Proposal, NoProposal>::value) {
                         markovChains[i] = std::move(MarkovChainFactory::createMarkovChain(markovChainType,
-                                                                                          Eigen::MatrixXd(problem.A * roundingTransformation),
-                                                                                          problem.b,
+                                                                                          problem->A,
+                                                                                          problem->b,
                                                                                           roundedStartingPoint,
                                                                                           roundingTransformation,
-                                                                                          Eigen::VectorXd(Eigen::VectorXd::Zero(problem.dimension)),
-                                                                                          problem.model));
+                                                                                          Eigen::VectorXd(Eigen::VectorXd::Zero(problem->dimension)),
+                                                                                          problem->model,
+                                                                                          false));
 					} else {
                         proposal.setState(roundedStartingPoint);
                         markovChains[i] = std::move(MarkovChainFactory::createMarkovChain(proposal,
                                                                                           roundingTransformation,
-                                                                                          Eigen::VectorXd(Eigen::VectorXd::Zero(problem.dimension)),
-                                                                                          problem.model));
+                                                                                          Eigen::VectorXd(Eigen::VectorXd::Zero(problem->dimension)),
+                                                                                          problem->model,
+                                                                                          false));
                     }
 				} else {
 					if constexpr(std::is_same<Proposal, NoProposal>::value) {
                         markovChains[i] = std::move(MarkovChainFactory::createMarkovChain(markovChainType,
-                                                                                          problem.A,
-                                                                                          problem.b,
+                                                                                          problem->A,
+                                                                                          problem->b,
                                                                                           startingPoints[i],
-                                                                                          problem.model));
+                                                                                          problem->model,
+                                                                                          false));
 					} else {
                         proposal.setState(startingPoints[i]);
                         markovChains[i] = std::move(
                                 MarkovChainFactory::createMarkovChain<Eigen::MatrixXd, Eigen::VectorXd, Model, Proposal>(proposal,
-                                                                                                                         problem.model));
+                                                                                                                         problem->model,
+                                                                                                                         false));
                     }
                 }
 
@@ -264,7 +261,7 @@ namespace hops {
             // register data object with chains. this sets the pointers in the data
             // object to the chain's data vectors, making the data outlive the chain.
             data->linkWithChains(markovChains);
-            data->setDimension(problem.dimension);
+            data->setDimension(problem->dimension);
 
             isInitialized = true;
         }
@@ -285,29 +282,27 @@ namespace hops {
             }
 
             unsigned long k = 0;
-            double convergenceStatistics = 0;
+            double convergenceDiagnostics = 0;
             do {
-                #pragma omp parallel for
                 for (unsigned long i = 0; i < numberOfChains; ++i) {
                     markovChains[i]->draw(randomNumberGenerators[i], numberOfSamples, thinning);
                 }
-                // end pragma omp parallel for
 
                 if (sampleUntilConvergence && numberOfChains >= 2) {
-                    convergenceStatistics = computePotentialScaleReductionFactor(*data).maxCoeff();
+                    convergenceDiagnostics = computePotentialScaleReductionFactor(*data).minCoeff();
                 }
 
                 //numSeen += conf.numSamples;
                 ++k;
             } while(sampleUntilConvergence &&
                     // if threshold was not met or if psrf is nan, keep going
-                    (convergenceStatistics > convergenceThreshold || std::isnan(convergenceStatistics))  &&
+                    (convergenceDiagnostics > diagnosticsThreshold || std::isnan(convergenceDiagnostics))  &&
                     // though only if we have not yet reached the maximum number of repetitions
                     k < maxRepetitions);
         }
 
     private:
-        Problem<Model> problem;
+        const Problem<Model>* problem = nullptr;
         std::shared_ptr<Data> data = nullptr;
 
         Proposal proposal;
@@ -329,7 +324,7 @@ namespace hops {
         bool useRounding = false;
 
         bool sampleUntilConvergence = false;
-        double convergenceThreshold = 1.05;
+        double diagnosticsThreshold = 1.05;
         unsigned long maxRepetitions = 1;
 
         double stepSize = 1;
@@ -338,9 +333,7 @@ namespace hops {
         double randomSeed = 0;
 
         //friend void tune(RunBase<Model, Proposal>& run, const ExpectedSquaredJumpDistanceTuner::param_type& parameters);
-        friend void tune<>(RunBase& run, AcceptanceRateTuner::param_type& parameters);
-        friend void tune<>(RunBase& run, ExpectedSquaredJumpDistanceTuner::param_type& parameters);
-        friend void tune<>(RunBase& run, SimpleExpectedSquaredJumpDistanceTuner::param_type& parameters);
+        friend void tune<>(RunBase& run, const ExpectedSquaredJumpDistanceTuner::param_type& parameters);
     };
 
     template <typename Model>
@@ -349,12 +342,12 @@ namespace hops {
 	template<typename Model, typename Proposal>
 	void RunBase<Model, Proposal>::setProblem(const Problem<Model>& problem) {
 		this->isInitialized = false;
-		this->problem = problem;
+		this->problem = &problem;
 	}
 
 	template<typename Model, typename Proposal>
 	const Problem<Model>& RunBase<Model, Proposal>::getProblem() {
-		return problem;
+		return *problem;
 	}
 
 
@@ -396,6 +389,7 @@ namespace hops {
 
 	template<typename Model, typename Proposal>
 	void RunBase<Model, Proposal>::setNumberOfSamples(unsigned long numberOfSamples) {
+		this->isInitialized = false;
 		this->numberOfSamples = numberOfSamples;
 	}
 
@@ -407,6 +401,7 @@ namespace hops {
 
 	template<typename Model, typename Proposal>
 	void RunBase<Model, Proposal>::setThinning(unsigned long thinning) {
+		this->isInitialized = false;
 		this->thinning = thinning;
 	}
 
@@ -477,13 +472,13 @@ namespace hops {
 
 
 	template<typename Model, typename Proposal>
-    void RunBase<Model, Proposal>::setConvergenceThreshold(double convergenceThreshold) {
-		this->convergenceThreshold = convergenceThreshold;
+    void RunBase<Model, Proposal>::setDiagnosticsThreshold(double diagnosticsThreshold) {
+		this->diagnosticsThreshold = diagnosticsThreshold;
 	}
 
 	template<typename Model, typename Proposal>
-	double RunBase<Model, Proposal>::getConvergenceThreshold() {
-		return convergenceThreshold;
+	double RunBase<Model, Proposal>::getDiagnosticsThreshold() {
+		return diagnosticsThreshold;
 	}
 
 
@@ -509,82 +504,17 @@ namespace hops {
 	}
 
     template<typename Model, typename Proposal>
-    void tune(RunBase<Model, Proposal>& run, AcceptanceRateTuner::param_type& parameters) {
-        if (!run.isInitialized) {
-            run.init();
-        }
-
-        double tunedStepSize, deltaAcceptanceRate;
-        Eigen::MatrixXd data, posterior;
-        
-        // record tuning time 
-        double time = std::chrono::duration_cast<std::chrono::milliseconds>(
-                std::chrono::high_resolution_clock::now().time_since_epoch()
-        ).count();
-
-        AcceptanceRateTuner::tune(tunedStepSize, 
-                                  deltaAcceptanceRate, 
-                                  run.markovChains, 
-                                  run.randomNumberGenerators, 
-                                  parameters,
-                                  data, 
-                                  posterior);
-
-        time = std::chrono::duration_cast<std::chrono::milliseconds>(
-                std::chrono::high_resolution_clock::now().time_since_epoch()
-        ).count() - time;
-
-
-        for (size_t i = 0; i < run.markovChains.size(); ++i) {
-            try {
-                run.markovChains[i]->setAttribute(hops::MarkovChainAttribute::STEP_SIZE, tunedStepSize);
-            } catch (...) {
-                //
-            }
-        }
-
-        run.stepSize = tunedStepSize;
-        unsigned long totalNumberOfTuningSamples = 
-                run.markovChains.size() * parameters.iterationsToTestStepSize * parameters.posteriorUpdateIterationsNeeded * parameters.pureSamplingIterations; 
-        // reset stored states
-        run.data->reset();
-
-        run.data->setTuningMethod("ThompsonSamplingESJD");
-        run.data->setTotalNumberOfTuningSamples(totalNumberOfTuningSamples);
-        run.data->setTunedStepSize(tunedStepSize); 
-        run.data->setTunedObjectiveValue(deltaAcceptanceRate);
-        run.data->setTotalTuningTimeTaken(time); 
-
-        run.data->setTuningData(data); 
-        run.data->setTuningPosterior(posterior); 
-    }
-
-    template<typename Model, typename Proposal>
-    void tune(RunBase<Model, Proposal>& run, ExpectedSquaredJumpDistanceTuner::param_type& parameters) {
+    void tune(RunBase<Model, Proposal>& run, const ExpectedSquaredJumpDistanceTuner::param_type& parameters) {
         if (!run.isInitialized) {
             run.init();
         }
 
         double tunedStepSize, maximumExpectedSquaredJumpDistance;
-        Eigen::MatrixXd data, posterior;
-        
-        // record tuning time 
-        double time = std::chrono::duration_cast<std::chrono::milliseconds>(
-                std::chrono::high_resolution_clock::now().time_since_epoch()
-        ).count();
-
         ExpectedSquaredJumpDistanceTuner::tune(tunedStepSize, 
                                                maximumExpectedSquaredJumpDistance, 
                                                run.markovChains, 
                                                run.randomNumberGenerators, 
-                                               parameters, 
-                                               data, 
-                                               posterior);
-
-        time = std::chrono::duration_cast<std::chrono::milliseconds>(
-                std::chrono::high_resolution_clock::now().time_since_epoch()
-        ).count() - time;
-
+                                               parameters);
 
         for (size_t i = 0; i < run.markovChains.size(); ++i) {
             try {
@@ -596,67 +526,8 @@ namespace hops {
 
         run.stepSize = tunedStepSize;
         unsigned long totalNumberOfTuningSamples = 
-                run.markovChains.size() * parameters.iterationsToTestStepSize * parameters.posteriorUpdateIterationsNeeded * parameters.pureSamplingIterations; 
-        // reset stored states
-        run.data->reset();
-
-        run.data->setTuningMethod("ThompsonSamplingAcceptanceRate");
-        run.data->setTotalNumberOfTuningSamples(totalNumberOfTuningSamples);
-        run.data->setTunedStepSize(tunedStepSize); 
-        run.data->setTunedObjectiveValue(maximumExpectedSquaredJumpDistance);
-        run.data->setTotalTuningTimeTaken(time); 
-
-        run.data->setTuningData(data); 
-        run.data->setTuningPosterior(posterior); 
-    }
-
-    template<typename Model, typename Proposal>
-    void tune(RunBase<Model, Proposal>& run, SimpleExpectedSquaredJumpDistanceTuner::param_type& parameters) {
-        if (!run.isInitialized) {
-            run.init();
-        }
-
-        double tunedStepSize, maximumExpectedSquaredJumpDistance;
-        Eigen::MatrixXd data, posterior;
-        
-        // record tuning time 
-        double time = std::chrono::duration_cast<std::chrono::milliseconds>(
-                std::chrono::high_resolution_clock::now().time_since_epoch()
-        ).count();
-
-        SimpleExpectedSquaredJumpDistanceTuner::tune(tunedStepSize, 
-                                                      maximumExpectedSquaredJumpDistance, 
-                                                      run.markovChains, 
-                                                      run.randomNumberGenerators, 
-                                                      parameters);
-
-        time = std::chrono::duration_cast<std::chrono::milliseconds>(
-                std::chrono::high_resolution_clock::now().time_since_epoch()
-        ).count() - time;
-
-
-        for (size_t i = 0; i < run.markovChains.size(); ++i) {
-            try {
-                run.markovChains[i]->setAttribute(hops::MarkovChainAttribute::STEP_SIZE, tunedStepSize);
-            } catch (...) {
-                //
-            }
-        }
-
-        run.stepSize = tunedStepSize;
-        unsigned long totalNumberOfTuningSamples = 
-                run.markovChains.size() * parameters.iterationsToTestStepSize * parameters.stepSizeGridSize; 
-        // reset stored states
-        run.data->reset();
-
-        run.data->setTuningMethod("GridSearchESJD");
-        run.data->setTotalNumberOfTuningSamples(totalNumberOfTuningSamples);
-        run.data->setTunedStepSize(tunedStepSize); 
-        run.data->setTunedObjectiveValue(maximumExpectedSquaredJumpDistance);
-        run.data->setTotalTuningTimeTaken(time); 
-
-        run.data->setTuningData(data); 
-        run.data->setTuningPosterior(posterior); 
+                run.markovChains.size() * parameters.iterationsToTestStepSize * parameters.maximumTotalIterations; 
+        run.data->setTuningData(totalNumberOfTuningSamples, tunedStepSize, maximumExpectedSquaredJumpDistance);
     }
 }
 

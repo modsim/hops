@@ -7,4 +7,3 @@ target_sources(hops
         FileWriterType.hpp
         Hdf5Writer.hpp
         )
-

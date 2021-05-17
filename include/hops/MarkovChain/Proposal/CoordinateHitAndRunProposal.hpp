@@ -2,12 +2,10 @@
 #define HOPS_COORDINATEHITANDRUNPROPOSAL_HPP
 
 #include "ChordStepDistributions.hpp"
-#include <hops/MarkovChain/IsSetStepSizeAvailable.hpp>
-#include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
+#include "../IsSetStepSizeAvailable.hpp"
+#include "../../RandomNumberGenerator/RandomNumberGenerator.hpp"
 #include <random>
-#include <hops/FileWriter/CsvWriter.hpp>
-
-// TODO overrelaxed
+#include "../../FileWriter/CsvWriter.hpp"
 
 namespace hops {
     template<typename MatrixType, typename VectorType, typename ChordStepDistribution = UniformStepDistribution<typename MatrixType::Scalar>>

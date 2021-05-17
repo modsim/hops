@@ -14,7 +14,7 @@ namespace hops {
     public:
         using ModelType = Model;
 
-        //Problem() = default;
+        Problem() = default;
 
         Problem(const Model& model) :
                 model(model) {
@@ -46,16 +46,12 @@ namespace hops {
             this->b = b;
         }
 
-        const Eigen::MatrixXd& getA() const {
+        const Eigen::MatrixXd& getA() {
             return this->A;
         }
 
-        const Eigen::VectorXd& getB() const {
+        const Eigen::VectorXd& getB() {
             return this->b;
-        }
-
-        const Model& getModel() const {
-            return this->model;
         }
 
         void setStartingPoint(const Eigen::VectorXd& startingPoint) {
@@ -73,7 +69,7 @@ namespace hops {
         }
 
         void setUnroundingTransformation(const Eigen::MatrixXd& unroundingTransformation) {
-            if (unroundingTransformation.size() > 0) {
+            if (unroundingShift.size() > 0) {
                 this->unroundingTransformation = unroundingTransformation;
                 unround = true;
             } else {

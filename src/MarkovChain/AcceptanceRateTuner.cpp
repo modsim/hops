@@ -1,3 +1,4 @@
+#include <hops/MarkovChain/MarkovChainAttribute.hpp>
 #include <hops/MarkovChain/AcceptanceRateTuner.hpp>
 #include <cmath>
 
@@ -61,13 +62,22 @@ double nextStepSizeToTry(double currentStepSize,
     }
 }
 
-bool hops::AcceptanceRateTuner::tune(
-        MarkovChain *markovChain,
-        RandomNumberGenerator &randomNumberGenerator,
-        const hops::AcceptanceRateTuner::param_type &parameters) {
+bool hops::AcceptanceRateTuner::tune(MarkovChain *markovChain,
+                                     RandomNumberGenerator &randomNumberGenerator,
+                                     const hops::AcceptanceRateTuner::param_type &parameters) {
+    double stepSize = markovChain->getAttribute(MarkovChainAttribute::STEP_SIZE);
+    double acceptanceRate;
+    return tune(stepSize, acceptanceRate, markovChain, randomNumberGenerator, parameters);
+}
+
+
+bool hops::AcceptanceRateTuner::tune(double &stepSize,
+                                     double &acceptanceRate,
+                                     MarkovChain *markovChain,
+                                     RandomNumberGenerator &randomNumberGenerator,
+                                     const hops::AcceptanceRateTuner::param_type &parameters) {
     double currentAcceptanceRate = 0;
     size_t iterationsCount = 0;
-    double stepSize = markovChain->getAttribute(MarkovChainAttribute::STEP_SIZE);
     while (currentCase(currentAcceptanceRate, parameters) != Case::ACCEPTANCE_RATE_GOOD) {
         markovChain->clearHistory();
         if (iterationsCount > parameters.maximumTotalIterations) {
@@ -78,8 +88,49 @@ bool hops::AcceptanceRateTuner::tune(
         stepSize = nextStepSizeToTry(stepSize, currentAcceptanceRate, parameters);
         markovChain->setAttribute(MarkovChainAttribute::STEP_SIZE, stepSize);
     }
+    markovChain->clearHistory();
+    acceptanceRate = currentAcceptanceRate;
     return true;
 }
+
+
+/**
+ * @brief tunes markov chain acceptance rate by nested intervals. The chain is not guaranteed to have converged
+ *        to the specified acceptance rate.
+ * @details Clears Markov chain history.
+ * @param markovChain
+ * @param parameters
+ * @return true if markov chain is tuned
+ */
+bool
+hops::AcceptanceRateTuner::tune(std::vector<std::unique_ptr<hops::MarkovChain>> &markovChain,
+                                std::vector<hops::RandomNumberGenerator> &randomNumberGenerator,
+                                const param_type &parameters) {
+    double stepSize, acceptanceRate;
+    return tune(stepSize, acceptanceRate, markovChain, randomNumberGenerator, parameters);
+}
+
+/**
+ * @brief tunes markov chain acceptance rate by nested intervals. The chain is not guaranteed to have converged
+ *        to the specified acceptance rate.
+ * @details Clears Markov chain history.
+ * @param markovChain
+ * @param parameters
+ * @return true if markov chain is tuned
+ */
+bool
+hops::AcceptanceRateTuner::tune(double &stepSize,
+                                double &acceptanceRate,
+                                std::vector<std::unique_ptr<hops::MarkovChain>> &markovChain,
+                                std::vector<hops::RandomNumberGenerator> &randomNumberGenerator,
+                                const param_type &parameters) {
+    bool tuned = tune(stepSize, acceptanceRate, markovChain[0].get(), randomNumberGenerator[0], parameters);
+    for (auto &chain : markovChain) {
+        chain->setAttribute(hops::MarkovChainAttribute::STEP_SIZE, stepSize);
+    }
+    return tuned;
+}
+
 
 hops::AcceptanceRateTuner::param_type::param_type(double lowerLimitAcceptanceRate, double upperLimitAcceptanceRate,
                                                   double lowerLimitStepSize, double upperLimitStepSize,

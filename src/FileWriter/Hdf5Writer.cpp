@@ -1,7 +1,8 @@
-#include "hops/FileWriter/Hdf5Writer.hpp"
 #include <highfive/H5Easy.hpp>
 #include <highfive/H5File.hpp>
 #include <iostream>
+
+#include "hops/FileWriter/Hdf5Writer.hpp"
 
 hops::Hdf5Writer::Hdf5Writer(std::string path) : path(std::move(path)) {
     Hdf5Writer::path += ".hdf5";

@@ -14,7 +14,7 @@ BOOST_AUTO_TEST_SUITE(RosenbrockModelTestSuite)
         hops::RosenbrockModel rosenbrockModel(scaleParameter, shiftParameter);
         Eigen::VectorXd evaluationPoint = Eigen::VectorXd::Ones(4);
 
-        double actualValue = rosenbrockModel.computeNegativeLogLikelihood(evaluationPoint);
+        double actualValue = rosenbrockModel.calculateNegativeLogLikelihood(evaluationPoint);
 
         BOOST_CHECK_EQUAL(actualValue, expectedValue);
     }
@@ -27,7 +27,7 @@ BOOST_AUTO_TEST_SUITE(RosenbrockModelTestSuite)
         hops::RosenbrockModel rosenbrockModel(scaleParameter, shiftParameter);
         Eigen::VectorXd evaluationPoint = Eigen::VectorXd::Ones(4);
 
-        double actualValue = rosenbrockModel.computeNegativeLogLikelihood(evaluationPoint);
+        double actualValue = rosenbrockModel.calculateNegativeLogLikelihood(evaluationPoint);
 
         BOOST_CHECK_EQUAL(actualValue, expectedValue);
     }
@@ -42,9 +42,9 @@ BOOST_AUTO_TEST_SUITE(RosenbrockModelTestSuite)
         Eigen::VectorXd evaluationPoint(8);
         evaluationPoint << -5, 5 * 5, 1125, 1125 * 1125, 3.14, 3.14 * 3.14, 2.71, 2.71 * 2.71;
 
-        double actualValue = rosenbrockModel.computeNegativeLogLikelihood(evaluationPoint);
+        double actualValue = rosenbrockModel.calculateNegativeLogLikelihood(evaluationPoint);
 
-        BOOST_CHECK_SMALL(actualValue - expectedValue, 1e-11);
+        BOOST_CHECK_CLOSE(actualValue, expectedValue, 0.001);
     }
 
     BOOST_AUTO_TEST_CASE(CalculateNegativeLogLikelihoodWithShift) {
@@ -56,7 +56,7 @@ BOOST_AUTO_TEST_SUITE(RosenbrockModelTestSuite)
         hops::RosenbrockModel rosenbrockModel(scaleParameter, shiftParameter);
         Eigen::VectorXd evaluationPoint = 10 * Eigen::VectorXd::Ones(8);
 
-        double actualValue = rosenbrockModel.computeNegativeLogLikelihood(evaluationPoint);
+        double actualValue = rosenbrockModel.calculateNegativeLogLikelihood(evaluationPoint);
 
         BOOST_CHECK_EQUAL(actualValue, expectedValue);
     }
@@ -70,9 +70,9 @@ BOOST_AUTO_TEST_SUITE(RosenbrockModelTestSuite)
         hops::RosenbrockModel rosenbrockModel(scaleParameter, shiftParameter);
         Eigen::VectorXd evaluationPoint = 10 * Eigen::VectorXd::Ones(8);
 
-        double actualValue = rosenbrockModel.computeNegativeLogLikelihood(evaluationPoint);
+        double actualValue = rosenbrockModel.calculateNegativeLogLikelihood(evaluationPoint);
 
-        BOOST_CHECK_SMALL(actualValue - expectedValue, 1e-11);
+        BOOST_CHECK_CLOSE(actualValue, expectedValue, 0.01);
     }
 
     BOOST_AUTO_TEST_CASE(CalculateLogLikelihoodGradientAtStationaryPoint) {
@@ -86,10 +86,10 @@ BOOST_AUTO_TEST_SUITE(RosenbrockModelTestSuite)
         Eigen::VectorXd evaluationPoint(8);
         evaluationPoint << -5, 5 * 5, 1125, 1125 * 1125, 3.14, 3.14 * 3.14, 2.71, 2.71 * 2.71;
 
-        Eigen::VectorXd actualValue = rosenbrockModel.computeLogLikelihoodGradient(evaluationPoint);
+        Eigen::VectorXd actualValue = rosenbrockModel.calculateLogLikelihoodGradient(evaluationPoint);
 
         for (long i = 0; i < expectedValue.rows(); ++i) {
-            BOOST_CHECK_SMALL(actualValue(i) - expectedValue(i), 1e-11);
+            BOOST_CHECK_CLOSE(actualValue(i), expectedValue(i), 0.001);
         }
     }
 
@@ -104,7 +104,7 @@ BOOST_AUTO_TEST_SUITE(RosenbrockModelTestSuite)
         hops::RosenbrockModel rosenbrockModel(scaleParameter, shiftParameter);
         Eigen::VectorXd evaluationPoint = 10 * Eigen::VectorXd::Ones(8);
 
-        Eigen::VectorXd actualValue = rosenbrockModel.computeLogLikelihoodGradient(evaluationPoint);
+        Eigen::VectorXd actualValue = rosenbrockModel.calculateLogLikelihoodGradient(evaluationPoint);
 
         for (long i = 0; i < expectedValue.rows(); ++i) {
             BOOST_CHECK_EQUAL(actualValue(i), expectedValue(i));
@@ -123,7 +123,7 @@ BOOST_AUTO_TEST_SUITE(RosenbrockModelTestSuite)
         hops::RosenbrockModel rosenbrockModel(scaleParameter, shiftParameter);
         Eigen::VectorXd evaluationPoint = 10 * Eigen::VectorXd::Ones(8);
 
-        Eigen::VectorXd actualValue = rosenbrockModel.computeLogLikelihoodGradient(evaluationPoint);
+        Eigen::VectorXd actualValue = rosenbrockModel.calculateLogLikelihoodGradient(evaluationPoint);
 
         for (long i = 0; i < expectedValue.rows(); ++i) {
             BOOST_CHECK_EQUAL(actualValue(i), expectedValue(i));
@@ -155,14 +155,14 @@ BOOST_AUTO_TEST_SUITE(RosenbrockModelTestSuite)
         Eigen::VectorXd evaluationPoint(6);
         evaluationPoint << -5, 5 * 5, 1125, 1125 * 1125, 3.14, 3.14 * 3.14;
 
-        Eigen::MatrixXd actualValue = rosenbrockModel.computeHessian(evaluationPoint);
+        Eigen::MatrixXd actualValue = rosenbrockModel.calculateHessian(evaluationPoint);
 
         for (long i = 0; i < std::max(actualValue.rows(), expectedValue.rows()); ++i) {
             for (long j = 0; j < std::max(actualValue.cols(), expectedValue.cols()); ++j) {
                 if(std::abs(actualValue(i, j) - expectedValue(i, j)) > 1) {
                    std::cerr << i << ", " << j << std::endl;
                 }
-                BOOST_CHECK_SMALL(actualValue(i, j) - expectedValue(i, j), 1e-11);
+                BOOST_CHECK_SMALL(actualValue(i, j) - expectedValue(i, j), 1e-150);
             }
         }
     }
@@ -193,7 +193,7 @@ BOOST_AUTO_TEST_SUITE(RosenbrockModelTestSuite)
         Eigen::VectorXd evaluationPoint(6);
         evaluationPoint << -5, 5 * 5, 1125, 1125 * 1125, 3.14, 3.14 * 3.14;
 
-        Eigen::MatrixXd actualValue = rosenbrockModel.computeHessian(evaluationPoint);
+        Eigen::MatrixXd actualValue = rosenbrockModel.calculateHessian(evaluationPoint);
 
         for (long i = 0; i < std::max(actualValue.rows(), expectedValue.rows()); ++i) {
             for (long j = 0; j < std::max(actualValue.cols(), expectedValue.cols()); ++j) {

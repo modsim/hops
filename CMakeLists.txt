@@ -37,6 +37,8 @@ option(HOPS_BENCHMARKS "Enables compilation of Benchmarks (Requires Celero). Use
 option(HOPS_DOCS "Enables generation of documentation. Use -DHOPS_DOCS=OFF to disable." ON)
 option(HOPS_BINARIES "Enables compilation of hops executables. Use -DHOPS_BINARIES=OFF to disable." ON)
 option(HOPS_TESTS "Enables compilation of unit tests. Use -DHOPS_TESTS=OFF to disable." ON)
+set(HOPS_LIBRARY_TYPE SHARED CACHE STRING "Type of library to build. Options are HEADER_ONLY, STATIC or SHARED")
+set_property(CACHE HOPS_LIBRARY_TYPE PROPERTY STRINGS HEADER_ONLY STATIC SHARED)
 
 ########################################################################################################################
 # C++-Compiler Settings
@@ -101,21 +103,116 @@ endif (MKL_LIBRARY_DIR)
 # HOPS
 ########################################################################################################################
 
-add_library(hops STATIC "" include/hops/FileReader/Hdf5Reader.hpp)
-target_include_directories(hops PUBLIC ${EIGEN3_INCLUDE_DIR})
+if (HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
+    message(STATUS "Set to header-only installation")
+    add_library(hops INTERFACE)
 
-if (MKL_INCLUDE_DIR)
-  target_include_directories(hops PRIVATE ${MKL_INCLUDE_DIR})
-endif (MKL_INCLUDE_DIR)
-if (MKL_LIBRARY_DIR)
-  target_link_directories(hops PRIVATE ${MKL_LIBRARY_DIR})
-endif (MKL_LIBRARY_DIR)
-if (MKL_LIBRARIES)
-  target_link_libraries(hops PRIVATE ${MKL_LIBRARIES})
-endif (MKL_LIBRARIES)
+    file(COPY include DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+    file(COPY src/FileReader DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/include/hops/)
+    file(COPY src/FileWriter DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/include/hops/)
+    file(COPY src/LinearProgram DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/include/hops/)
+    file(COPY src/MarkovChain DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/include/hops/)
+    file(COPY src/Polytope DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/include/hops/)
 
-add_subdirectory(include)
-add_subdirectory(src)
+    target_compile_definitions(hops INTERFACE HOPS_HEADER_ONLY)
+    target_include_directories(hops INTERFACE ${EIGEN3_INCLUDE_DIR}
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
+            $<INSTALL_INTERFACE:include>
+            )
+    target_include_directories(hops INTERFACE ${EIGEN3_INCLUDE_DIR}
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
+            $<INSTALL_INTERFACE:include>
+            )
+
+    if ((CMAKE_CXX_COMPILER_ID STREQUAL "Clang") OR (CMAKE_CXX_COMPILER_ID STREQUAL "GNU"))
+        target_link_libraries(hops INTERFACE stdc++fs)
+    elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    endif ()
+
+    find_package(HDF5 COMPONENTS C CXX)
+    if (HDF5_FOUND)
+        message(STATUS "Found HDF5 libraries.")
+        target_include_directories(hops INTERFACE ${HDF5_INCLUDE_DIRS})
+        target_link_libraries(hops INTERFACE ${HDF5_LIBRARIES})
+        target_compile_definitions(hops INTERFACE HOPS_HDF5_FOUND)
+    else ()
+        message(STATUS "HDF5 libraries not found. Continuing without HDF5 support.")
+    endif ()
+
+    if (MKL_INCLUDE_DIR)
+        target_include_directories(hops INTERFACE ${MKL_INCLUDE_DIR})
+    endif (MKL_INCLUDE_DIR)
+    if (MKL_LIBRARY_DIR)
+        target_link_directories(hops INTERFACE ${MKL_LIBRARY_DIR})
+    endif (MKL_LIBRARY_DIR)
+    if (MKL_LIBRARIES)
+        target_link_libraries(hops INTERFACE ${MKL_LIBRARIES})
+    endif (MKL_LIBRARIES)
+
+    find_package(MPI)
+    if(MPI_FOUND AND UNIX)
+        message(STATUS "Found MPI.")
+        target_compile_definitions(hops INTERFACE HOPS_MPI_SUPPORTED)
+        target_include_directories(hops INTERFACE ${MPI_INCLUDE_PATH})
+        target_link_libraries(hops INTERFACE ${MPI_LIBRARIES})
+    endif(MPI_FOUND AND UNIX)
+
+    find_package(SBML)
+    if (SBML_FOUND)
+        MESSAGE(STATUS "SBML found.")
+        target_link_libraries(hops INTERFACE sbml)
+        target_compile_definitions(hops INTERFACE HOPS_SBML_FOUND)
+    else ()
+        MESSAGE(STATUS "SBML not found, continuing without.")
+    endif ()
+
+    set(GUROBI_ENABLE ON)
+    find_package(GUROBI)
+    if (GUROBI_FOUND)
+        target_compile_definitions(hops INTERFACE HOPS_GUROBI_FOUND)
+        target_include_directories(hops INTERFACE ${GUROBI_INCLUDE_DIR})
+        # IMPORTANT: Gurobi C++ Libraries have to be listed before Gurobi C Libraries to prevent linker error
+        target_link_libraries(hops INTERFACE ${GUROBI_CXX_LIBRARY} ${GUROBI_LIBRARY})
+    endif ()
+
+    find_package(CLP)
+    if (CLP_FOUND)
+        target_compile_definitions(hops INTERFACE HOPS_CLP_FOUND)
+        target_include_directories(hops INTERFACE ${CLP_INCLUDE_DIRS})
+        target_link_libraries(hops INTERFACE ${CLP_LIBRARIES})
+    endif ()
+
+    if (NOT GUROBI_FOUND AND NOT CLP_FOUND)
+        message(WARNING "No LP solver configured. This is okay, if you do not require linear programming. Otherwise install gurobi or CLP in order to use the LinearProgram class.")
+    endif ()
+
+
+    set(HIGHFIVE_USE_EIGEN ON)
+    set(HIGHFIVE_USE_BOOST ON)
+    set(HIGHFIVE_UNIT_TESTS OFF)
+    set(HIGHFIVE_EXAMPLES OFF)
+
+    add_subdirectory(include/hops/third-party/HighFive)
+    add_dependencies(hops HighFive)
+    target_link_libraries(hops INTERFACE HighFive)
+else()
+    message(STATUS "Set to ${HOPS_LIBRARY_TYPE} library installation")
+    add_library(hops ${HOPS_LIBRARY_TYPE})
+
+    target_include_directories(hops PUBLIC ${EIGEN3_INCLUDE_DIR})
+    add_subdirectory(include)
+    add_subdirectory(src)
+
+    if (MKL_INCLUDE_DIR)
+        target_include_directories(hops PRIVATE ${MKL_INCLUDE_DIR})
+    endif (MKL_INCLUDE_DIR)
+    if (MKL_LIBRARY_DIR)
+        target_link_directories(hops PRIVATE ${MKL_LIBRARY_DIR})
+    endif (MKL_LIBRARY_DIR)
+    if (MKL_LIBRARIES)
+        target_link_libraries(hops PRIVATE ${MKL_LIBRARIES})
+    endif (MKL_LIBRARIES)
+endif()
 
 ########################################################################################################################
 # HOPS_DOCS
@@ -196,7 +293,9 @@ endif ()
 ########################################################################################################################
 
 install(DIRECTORY include/ DESTINATION include/ FILES_MATCHING PATTERN "*.hpp")
+install(DIRECTORY include/ DESTINATION include/ FILES_MATCHING PATTERN "*.cpp")
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/hops/hops.hpp DESTINATION include/hops)
+
 install(TARGETS hops-sampler DESTINATION bin/)
 install(TARGETS hops EXPORT hops-config LIBRARY DESTINATION "lib")
 install(EXPORT hops-config DESTINATION "lib" CONFIGURATIONS RELEASE)

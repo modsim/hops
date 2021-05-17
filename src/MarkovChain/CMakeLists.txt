@@ -1,1 +1,2 @@
 target_sources(hops PRIVATE AcceptanceRateTuner.cpp)
+target_sources(hops PRIVATE ExpectedSquaredJumpDistanceTuner.cpp)

@@ -1,13 +1,16 @@
 #ifndef HOPS_MARKOVCHAINADAPTER_HPP
 #define HOPS_MARKOVCHAINADAPTER_HPP
 
-#include <hops/MarkovChain/MarkovChain.hpp>
+#include "MarkovChain.hpp"
+#include "../Utility/Data.hpp"
+
 #include "IsGetColdnessAvailable.hpp"
 #include "IsGetExchangeAttemptProbabilityAvailable.hpp"
 #include "IsGetStepSizeAvailable.hpp"
 #include "IsSetColdnessAvailable.hpp"
 #include "IsSetExchangeAttemptProbabilityAvailable.hpp"
 #include "IsSetStepSizeAvailable.hpp"
+
 
 namespace hops {
     template<typename MarkovChainImpl>
@@ -34,8 +37,20 @@ namespace hops {
             }
         }
 
-        void writeHistory(const FileWriter *const fileWriter) override {
+        void writeHistory(FileWriter *const fileWriter) override {
             MarkovChainImpl::writeRecordsToFile(fileWriter);
+        }
+
+        void installDataObject(ChainData& chainData) override {
+            MarkovChainImpl::installDataObject(chainData);
+        }
+
+        const std::vector<Eigen::VectorXd>& getStateRecords() override {
+            return MarkovChainImpl::getStateRecords();
+        }
+
+        void reserveStateRecords(long numberOfSamples) override {
+            return MarkovChainImpl::reserveStateRecords(numberOfSamples);
         }
 
         void clearHistory() override {

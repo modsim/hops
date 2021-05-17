@@ -1,10 +1,10 @@
-target_sources(hops PRIVATE CsvReader.cpp Hdf5Reader.cpp)
+target_sources(hops PRIVATE CsvReader.cpp)
 
 find_package(SBML)
 
 if (SBML_FOUND)
-    MESSAGE(STATUS "SBML found")
-    target_link_libraries(hops PUBLIC sbml)
+    MESSAGE(STATUS "SBML found.")
+    target_link_libraries(hops PRIVATE sbml)
     target_sources(hops PRIVATE SbmlReader.cpp)
 else ()
     MESSAGE(STATUS "SBML not found, continuing without.")
