@@ -9,6 +9,7 @@
 #include "IsGetStepSizeAvailable.hpp"
 #include "IsSetColdnessAvailable.hpp"
 #include "IsSetExchangeAttemptProbabilityAvailable.hpp"
+#include "IsSetFisherWeightAvailable.hpp"
 #include "IsSetStepSizeAvailable.hpp"
 
 
@@ -41,11 +42,11 @@ namespace hops {
             MarkovChainImpl::writeRecordsToFile(fileWriter);
         }
 
-        void installDataObject(ChainData& chainData) override {
+        void installDataObject(ChainData &chainData) override {
             MarkovChainImpl::installDataObject(chainData);
         }
 
-        const std::vector<Eigen::VectorXd>& getStateRecords() override {
+        const std::vector<Eigen::VectorXd> &getStateRecords() override {
             return MarkovChainImpl::getStateRecords();
         }
 
@@ -67,6 +68,13 @@ namespace hops {
 
         void setAttribute(MarkovChainAttribute markovChainAttribute, double value) override {
             switch (markovChainAttribute) {
+                case MarkovChainAttribute::FISHER_WEIGHT: {
+                    if constexpr(IsSetFisherWeightAvailable<MarkovChainImpl>::value) {
+                        MarkovChainImpl::setFisherWeight(value);
+                        break;
+                    }
+                    throw std::runtime_error("FISHER_WEIGHT attribute does not exist.");
+                }
                 case MarkovChainAttribute::STEP_SIZE: {
                     if constexpr(IsSetStepSizeAvailable<MarkovChainImpl>::value) {
                         MarkovChainImpl::setStepSize(value);
@@ -96,7 +104,7 @@ namespace hops {
         }
 
         void setState(Eigen::Matrix<double, -1, 1, 0, -1, 1> state) override {
-           MarkovChainImpl::setState(state);
+            MarkovChainImpl::setState(state);
         }
 
         double getAttribute(MarkovChainAttribute markovChainAttribute) override {

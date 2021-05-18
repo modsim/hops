@@ -1,7 +1,7 @@
 #ifndef HOPS_RANDOMNUMBERGENERATOR_HPP
 #define HOPS_RANDOMNUMBERGENERATOR_HPP
 
-#include <hops/third-party/pcg-cpp/pcg_random.hpp>
+#include <hops/Third-party/pcg-cpp/pcg_random.hpp>
 
 namespace hops {
     using RandomNumberGenerator = pcg64;
