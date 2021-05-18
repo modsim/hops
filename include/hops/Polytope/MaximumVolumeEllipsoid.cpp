@@ -138,7 +138,7 @@ hops::MaximumVolumeEllipsoid<RealType>::construct(const Eigen::Matrix<RealType, 
             const Eigen::Matrix<RealType, Eigen::Dynamic, 1> temp = bmAx - h;
             z = temp.cwiseMax(1e-1);
 
-            Q *= t2;
+            Q = t2 * Q;
             Y /= t2;
         }
 

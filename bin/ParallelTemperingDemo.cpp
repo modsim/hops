@@ -51,6 +51,6 @@ int main() {
               << " s per sample"
               << std::endl;
 
-    auto fileWriter = hops::FileWriterFactory::createFileWriter("parallelTemperingDemo", hops::FileWriterType::Csv);
+    auto fileWriter = hops::FileWriterFactory::createFileWriter("parallelTemperingDemo", hops::FileWriterType::CSV);
     markovChain->writeHistory(fileWriter.get());
 }

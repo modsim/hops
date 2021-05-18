@@ -89,6 +89,7 @@ endif (NOT ${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 find_package(Doxygen)
 find_package(Eigen3 REQUIRED)
 find_package(MKL)
+find_package(OpenMP)
 message(STATUS "FOUND MKL ? ${MKL_FOUND}")
 
 ########################################################################################################################
@@ -131,6 +132,16 @@ target_include_directories(hops INTERFACE ${EIGEN3_INCLUDE_DIR}
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
         )
+
+if (OpenMP_CXX_FOUND)
+    target_link_libraries(hops INTERFACE OpenMP::OpenMP_CXX)
+    target_link_libraries(hops ${SCOPE} OpenMP::OpenMP_CXX)
+    target_link_options(hops INTERFACE ${OpenMP_CXX_LIBRARY} ${OpenMP_CXX_FLAGS})
+    target_link_options(hops ${SCOPE} ${OpenMP_CXX_LIBRARY} ${OpenMP_CXX_FLAGS})
+else (OpenMP_CXX_FOUND)
+    message(WARNING "OPENMP not found.")
+endif (OpenMP_CXX_FOUND)
+
 
 add_subdirectory(include)
 

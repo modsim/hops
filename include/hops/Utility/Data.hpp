@@ -22,7 +22,7 @@ namespace hops {
             //
         }
 
-        Data(const std::vector<std::shared_ptr<MarkovChain>> &markovChains, long dimension = 0) : dimension(dimension) {
+        Data(const std::vector<std::shared_ptr<MarkovChain>>& markovChains, long dimension = 0) : dimension(dimension) {
             linkWithChains(markovChains);
         }
 
@@ -30,46 +30,53 @@ namespace hops {
             this->dimension = dimension;
         }
 
-        void linkWithChains(const std::vector<std::shared_ptr<MarkovChain>> &markovChains) {
+        void linkWithChains(const std::vector<std::shared_ptr<MarkovChain>>& markovChains) {
             chains.resize(markovChains.size());
             for (size_t i = 0; i < markovChains.size(); ++i) {
-                markovChains[i]->installDataObject(chains[i]);
+                markovChains[i]->installDataObject(chains[i]); 
             }
         }
 
 
-        std::vector<const std::vector<double> *> getAcceptanceRates() {
-            std::vector<const std::vector<double> *> acceptanceRates(chains.size());
+        std::vector<const std::vector<double>*> getAcceptanceRates() {
+            std::vector<const std::vector<double>*> acceptanceRates(chains.size());
             for (size_t i = 0; i < acceptanceRates.size(); ++i) {
                 acceptanceRates[i] = chains[i].acceptanceRates.get();
             }
             return acceptanceRates;
         }
 
-        std::vector<const std::vector<double> *> getNegativeLogLikelihood() {
-            std::vector<const std::vector<double> *> negativeLogLikelihood(chains.size());
+        std::vector<const std::vector<double>*> getNegativeLogLikelihood() {
+            std::vector<const std::vector<double>*> negativeLogLikelihood(chains.size());
             for (size_t i = 0; i < negativeLogLikelihood.size(); ++i) {
                 negativeLogLikelihood[i] = chains[i].negativeLogLikelihood.get();
             }
             return negativeLogLikelihood;
         }
 
-        std::vector<const std::vector<Eigen::VectorXd> *> getStates() {
-            std::vector<const std::vector<Eigen::VectorXd> *> states(chains.size());
+        std::vector<const std::vector<Eigen::VectorXd>*> getStates() {
+            std::vector<const std::vector<Eigen::VectorXd>*> states(chains.size());
             for (size_t i = 0; i < states.size(); ++i) {
                 states[i] = chains[i].states.get();
             }
             return states;
         }
 
-        std::vector<const std::vector<long> *> getTimestamps() {
-            std::vector<const std::vector<long> *> timestamps(chains.size());
+        std::vector<const std::vector<long>*> getTimestamps() {
+            std::vector<const std::vector<long>*> timestamps(chains.size());
             for (size_t i = 0; i < timestamps.size(); ++i) {
                 timestamps[i] = chains[i].timestamps.get();
             }
             return timestamps;
         }
 
+
+        void computeTotalNumberOfSamples() {
+            totalNumberOfSamples = 0;
+            for (size_t i = 0; i < chains.size(); ++i) {
+                totalNumberOfSamples += chains[i].getStates().size();
+            }
+        }
 
         void computeAcceptanceRate() {
             acceptanceRate = Eigen::VectorXd(chains.size());
@@ -79,53 +86,51 @@ namespace hops {
         }
 
         void computeExpectedSquaredJumpDistance() {
-            std::vector<const std::vector<Eigen::VectorXd> *> states(chains.size());
-            if (!chains.size()) {
-                throw EmptyChainDataException();
-            }
+            std::vector<const std::vector<Eigen::VectorXd>*> states(chains.size());
+			if (!chains.size()) {
+				throw EmptyChainDataException();
+			}
 
             for (size_t i = 0; i < states.size(); ++i) {
                 states[i] = chains[i].states.get();
-                if (!states[i]) {
-                    throw EmptyChainDataException();
-                }
+				if (!states[i]) {
+					throw EmptyChainDataException();
+				}
             }
             std::vector<double> expectedSquaredJumpDistance = ::hops::computeExpectedSquaredJumpDistance(states);
-            this->expectedSquaredJumpDistance = Eigen::Map<Eigen::VectorXd>(expectedSquaredJumpDistance.data(),
-                                                                            chains.size());
+            this->expectedSquaredJumpDistance = Eigen::Map<Eigen::VectorXd>(expectedSquaredJumpDistance.data(), chains.size());
         }
 
         void computeEffectiveSampleSize() {
-            std::vector<const std::vector<Eigen::VectorXd> *> states(chains.size());
-            if (!chains.size()) {
-                throw EmptyChainDataException();
-            }
+            std::vector<const std::vector<Eigen::VectorXd>*> states(chains.size());
+			if (!chains.size()) {
+				throw EmptyChainDataException();
+			}
 
             for (size_t i = 0; i < states.size(); ++i) {
                 states[i] = chains[i].states.get();
-                if (!states[i]) {
-                    throw EmptyChainDataException();
-                }
+				if (!states[i]) {
+					throw EmptyChainDataException();
+				}
             }
             std::vector<double> effectiveSampleSize = ::hops::computeEffectiveSampleSize(states);
             this->effectiveSampleSize = Eigen::Map<Eigen::VectorXd>(effectiveSampleSize.data(), dimension);
         }
 
         void computePotentialScaleReductionFactor() {
-            std::vector<const std::vector<Eigen::VectorXd> *> states(chains.size());
-            if (!chains.size()) {
-                throw EmptyChainDataException();
-            }
+            std::vector<const std::vector<Eigen::VectorXd>*> states(chains.size());
+			if (!chains.size()) {
+				throw EmptyChainDataException();
+			}
 
             for (size_t i = 0; i < states.size(); ++i) {
                 states[i] = chains[i].states.get();
-                if (!states[i]) {
-                    throw EmptyChainDataException();
-                }
+				if (!states[i]) {
+					throw EmptyChainDataException();
+				}
             }
             std::vector<double> potentialScaleReductionFactor = ::hops::computePotentialScaleReductionFactor(states);
-            this->potentialScaleReductionFactor = Eigen::Map<Eigen::VectorXd>(potentialScaleReductionFactor.data(),
-                                                                              dimension);
+            this->potentialScaleReductionFactor = Eigen::Map<Eigen::VectorXd>(potentialScaleReductionFactor.data(), dimension);
         }
 
         void computeTotalTimeTaken() {
@@ -141,26 +146,22 @@ namespace hops {
             }
         }
 
-        void write(const std::string &outputDirectory, bool discardRawData = false,
-                   FileWriterType fileWriterType = FileWriterType::CSV) const {
+        void write(const std::string& outputDirectory, bool discardRawData = false) const {
             if (!discardRawData) {
                 for (size_t i = 0; i < chains.size(); ++i) {
-                    auto fileWriter = FileWriterFactory::createFileWriter(
-                            outputDirectory + "/chain" + std::to_string(i), fileWriterType);
+                    auto fileWriter = FileWriterFactory::createFileWriter(outputDirectory + "/chain" + std::to_string(i), FileWriterType::CSV);
                     chains[i].write(fileWriter.get());
                 }
             }
 
-            auto statisticsWriter = FileWriterFactory::createFileWriter(outputDirectory + "/statistics",
-                                                                        fileWriterType);
+			auto statisticsWriter = FileWriterFactory::createFileWriter(outputDirectory + "/statistics", FileWriterType::CSV);
 
             if (acceptanceRate.size() > 0) {
                 statisticsWriter->write("acceptanceRate", Eigen::MatrixXd(acceptanceRate.transpose()));
             }
 
             if (expectedSquaredJumpDistance.size() > 0) {
-                statisticsWriter->write("expectedSquaredJumpDistance",
-                                        Eigen::MatrixXd(expectedSquaredJumpDistance.transpose()));
+                statisticsWriter->write("expectedSquaredJumpDistance", Eigen::MatrixXd(expectedSquaredJumpDistance.transpose()));
             }
 
             if (effectiveSampleSize.size() > 0) {
@@ -168,44 +169,51 @@ namespace hops {
             }
 
             if (potentialScaleReductionFactor.size() > 0) {
-                statisticsWriter->write("potentialScaleReductionFactor",
-                                        Eigen::MatrixXd(potentialScaleReductionFactor.transpose()));
+                statisticsWriter->write("potentialScaleReductionFactor", Eigen::MatrixXd(potentialScaleReductionFactor.transpose()));
+            }
+
+            if (totalNumberOfSamples > 0) {
+                statisticsWriter->write("totalNumberOfSamples", Eigen::MatrixXd(totalNumberOfSamples * Eigen::MatrixXd::Identity(1,1)));
             }
 
             if (totalTimeTaken.size() > 0) {
                 statisticsWriter->write("totalTimeTaken", Eigen::MatrixXd(totalTimeTaken.transpose()));
             }
 
-            auto tuningWriter = FileWriterFactory::createFileWriter(outputDirectory + "/tuning", fileWriterType);
-
             if (totalNumberOfTuningSamples > 0) {
-                tuningWriter->write("totalNumberOfTuningSamples",
-                                    std::vector<long>{static_cast<long>(totalNumberOfTuningSamples)});
+                auto tuningWriter = FileWriterFactory::createFileWriter(outputDirectory + "/tuning", FileWriterType::CSV);
+                tuningWriter->write("totalNumberOfTuningSamples", std::vector<long>{static_cast<long>(totalNumberOfTuningSamples)});
                 tuningWriter->write("tunedStepSize", std::vector<double>{tunedStepSize});
-                tuningWriter->write("maximumExpectedSquaredJumpDistance",
-                                    std::vector<double>{maximumExpectedSquaredJumpDistance});
+                tuningWriter->write("maximumExpectedSquaredJumpDistance", std::vector<double>{maximumExpectedSquaredJumpDistance});
+                tuningWriter->write("totalTimeTaken", std::vector<double>{totalTuningTimeTaken});
             }
         }
 
-        void setTuningData(unsigned long totalNumberOfTuningSamples, double tunedStepSize,
-                           double maximumExpectedSquaredJumpDistance) {
+        void setTuningData(unsigned long totalNumberOfTuningSamples, 
+                           double tunedStepSize, 
+                           double maximumExpectedSquaredJumpDistance, 
+                           double totalTuningTimeTaken) {
             this->totalNumberOfTuningSamples = totalNumberOfTuningSamples;
             this->tunedStepSize = tunedStepSize;
             this->maximumExpectedSquaredJumpDistance = maximumExpectedSquaredJumpDistance;
+            this->totalTuningTimeTaken = totalTuningTimeTaken;
         }
 
     private:
         std::vector<ChainData> chains;
 
+        double totalNumberOfSamples;
         Eigen::VectorXd acceptanceRate;
         Eigen::VectorXd expectedSquaredJumpDistance;
         Eigen::VectorXd effectiveSampleSize;
         Eigen::VectorXd potentialScaleReductionFactor;
         Eigen::VectorXd totalTimeTaken;
 
+        // tuning data
         unsigned long totalNumberOfTuningSamples = 0;
         double tunedStepSize;
         double maximumExpectedSquaredJumpDistance;
+        double totalTuningTimeTaken;
 
         std::vector<std::vector<double>> sampleVariances;
         std::vector<std::vector<double>> intraChainExpectations;
@@ -213,39 +221,40 @@ namespace hops {
         unsigned long numSeen = 0;
 
         long dimension = 0;
-
-        friend Eigen::VectorXd computeAcceptanceRate(Data &data);
-
-        friend Eigen::VectorXd computeExpectedSquaredJumpDistance(Data &data);
-
-        friend Eigen::VectorXd computeEffectiveSampleSize(Data &data);
-
-        friend Eigen::VectorXd computePotentialScaleReductionFactor(Data &data);
-
-        friend Eigen::VectorXd computeTotalTimeTaken(Data &data);
+        friend Eigen::VectorXd computeAcceptanceRate(Data& data);
+        friend Eigen::VectorXd computeExpectedSquaredJumpDistance(Data& data);
+        friend Eigen::VectorXd computeEffectiveSampleSize(Data& data);
+        friend Eigen::VectorXd computePotentialScaleReductionFactor(Data& data);
+        friend double computeTotalNumberOfSamples(Data& data);
+        friend Eigen::VectorXd computeTotalTimeTaken(Data& data);
     };
 
-    inline Eigen::VectorXd computeAcceptanceRate(Data &data) {
+    inline Eigen::VectorXd computeAcceptanceRate(Data& data) {
         data.computeAcceptanceRate();
         return data.acceptanceRate;
     }
 
-    inline Eigen::VectorXd computeExpectedSquaredJumpDistance(Data &data) {
+    inline Eigen::VectorXd computeExpectedSquaredJumpDistance(Data& data) {
         data.computeExpectedSquaredJumpDistance();
         return data.expectedSquaredJumpDistance;
     }
 
-    inline Eigen::VectorXd computeEffectiveSampleSize(Data &data) {
+    inline Eigen::VectorXd computeEffectiveSampleSize(Data& data) {
         data.computeEffectiveSampleSize();
         return data.effectiveSampleSize;
     }
 
-    inline Eigen::VectorXd computePotentialScaleReductionFactor(Data &data) {
+    inline Eigen::VectorXd computePotentialScaleReductionFactor(Data& data) {
         data.computePotentialScaleReductionFactor();
         return data.potentialScaleReductionFactor;
     }
 
-    inline Eigen::VectorXd computeTotalTimeTaken(Data &data) {
+    inline double computeTotalNumberOfSamples(Data& data) {
+        data.computeTotalNumberOfSamples();
+        return data.totalNumberOfSamples;
+    }
+
+    inline Eigen::VectorXd computeTotalTimeTaken(Data& data) {
         data.computeTotalTimeTaken();
         return data.totalTimeTaken;
     }
