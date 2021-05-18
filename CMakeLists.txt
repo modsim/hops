@@ -232,5 +232,5 @@ install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/hops/hops.hpp DESTINATION incl
 
 install(TARGETS hops-sampler DESTINATION bin/)
 install(TARGETS hops EXPORT hops-config LIBRARY DESTINATION "lib")
-install(EXPORT hops-config DESTINATION "lib" CONFIGURATIONS RELEASE)
+install(EXPORT hops-config DESTINATION "lib")
 

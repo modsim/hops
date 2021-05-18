@@ -62,6 +62,15 @@ namespace hops {
                 VectorType startingPoint
         ) {
             switch (type) {
+                case MarkovChainType::BallWalk : {
+                    return addRecordersAndAdapter(
+                            NoOpDrawAdapter(
+                                    BallWalkProposal(
+                                            Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>(
+                                                    inequalityLhs), inequalityRhs, startingPoint)
+                            )
+                    );
+                }
                 case MarkovChainType::CoordinateHitAndRun : {
                     return addRecordersAndAdapter(
                             NoOpDrawAdapter(
@@ -149,6 +158,20 @@ namespace hops {
                 VectorType unroundingShift
         ) {
             switch (type) {
+                case MarkovChainType::BallWalk : {
+                    return addRecordersAndAdapter(
+                            NoOpDrawAdapter(
+                                    StateTransformation(
+                                            BallWalkProposal(
+                                                    Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>(
+                                                            roundedInequalityLhs),
+                                                    roundedInequalityRhs,
+                                                    startingPoint),
+                                            Transformation(unroundingTransformation, unroundingShift)
+                                    )
+                            )
+                    );
+                }
                 case MarkovChainType::CoordinateHitAndRun : {
                     return addRecordersAndAdapter(
                             NoOpDrawAdapter(
@@ -274,6 +297,19 @@ namespace hops {
             }
 
             switch (type) {
+                case MarkovChainType::BallWalk : {
+                    return addRecordersAndAdapter(
+                            MetropolisHastingsFilter(
+                                    ModelMixin(
+                                            BallWalkProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
+                                                    decltype(inequalityRhs)>(
+                                                    inequalityLhs, inequalityRhs, startingPoint),
+                                            ColdnessAttribute(model)
+                                    )
+                            ),
+                            useParallelTempering
+                    );
+                }
                 case MarkovChainType::CoordinateHitAndRun : {
                     return addRecordersAndAdapter(
                             MetropolisHastingsFilter(
@@ -427,6 +463,24 @@ namespace hops {
             }
 
             switch (type) {
+                case MarkovChainType::BallWalk : {
+                    return addRecordersAndAdapter(
+                            MetropolisHastingsFilter(
+                                    ModelMixin(
+                                            StateTransformation(
+                                                    BallWalkProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
+                                                            decltype(roundedInequalityRhs)>(
+                                                            roundedInequalityLhs,
+                                                            roundedInequalityRhs,
+                                                            startingPoint),
+                                                    Transformation(unroundingTransformation, unroundingShift)
+                                            ),
+                                            ColdnessAttribute(model)
+                                    )
+                            ),
+                            useParallelTempering
+                    );
+                }
                 case MarkovChainType::CoordinateHitAndRun : {
                     return addRecordersAndAdapter(
                             MetropolisHastingsFilter(
