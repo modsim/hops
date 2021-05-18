@@ -95,6 +95,10 @@ namespace hops {
             }
         }
 
+        void setState(Eigen::Matrix<double, -1, 1, 0, -1, 1> state) override {
+           MarkovChainImpl::setState(state);
+        }
+
         double getAttribute(MarkovChainAttribute markovChainAttribute) override {
             switch (markovChainAttribute) {
                 case MarkovChainAttribute::STEP_SIZE: {

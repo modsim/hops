@@ -1,6 +1,6 @@
 find_package(HDF5 COMPONENTS C CXX)
 
-if (HDF5_FOUND)
+if (HDF5_FOUND AND HOPS_HDF5_SUPPORT)
     message(STATUS "Found HDF5 libraries.")
     target_include_directories(hops PUBLIC ${HDF5_INCLUDE_DIRS})
     target_link_libraries(hops PUBLIC ${HDF5_LIBRARIES})

@@ -8,7 +8,7 @@ endif ()
 
 find_package(HDF5 COMPONENTS C CXX)
 
-if (HDF5_FOUND)
+if (HDF5_FOUND AND HOPS_HDF5_SUPPORT)
     set(TEST_SOURCES ${TEST_SOURCES} Hdf5ReaderTestSuite.cpp)
 endif ()
 
