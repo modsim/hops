@@ -19,6 +19,10 @@
 #include <random>
 #include <stdexcept>
 
+#ifdef _OPENMP
+#include <omp.h>
+#endif 
+
 namespace hops {
     struct NoProposal {
         void setState(Eigen::VectorXd) {
@@ -128,16 +132,16 @@ namespace hops {
             // create new data object to not mix up possible previous data
             data = std::make_shared<Data>(problem->dimension);
 
-			if (!isRandomGeneratorInitialized) {
-				isRandomGeneratorInitialized = true;
-				// initialize random number generator for each chain
-				randomNumberGenerators.clear();
-				RandomNumberGenerator rng(randomSeed);
-				std::uniform_int_distribution<unsigned> uniform(std::numeric_limits<unsigned>::min(), std::numeric_limits<unsigned>::max());
-				for (unsigned long i = 0; i < numberOfChains; ++i) {
-					randomNumberGenerators.push_back(RandomNumberGenerator(uniform(rng)));
-				}
-			}
+            if (!isRandomGeneratorInitialized) {
+            	isRandomGeneratorInitialized = true;
+            	// initialize random number generator for each chain
+            	randomNumberGenerators.clear();
+            	RandomNumberGenerator rng(randomSeed);
+            	std::uniform_int_distribution<unsigned> uniform(std::numeric_limits<unsigned>::min(), std::numeric_limits<unsigned>::max());
+            	for (unsigned long i = 0; i < numberOfChains; ++i) {
+            		randomNumberGenerators.push_back(RandomNumberGenerator(uniform(rng)));
+            	}
+            }
 
             // initialize missing starting points with the chebyshev center or the starting point passed
             // by the problem.
@@ -209,7 +213,7 @@ namespace hops {
                     Eigen::VectorXd roundedStartingPoint = roundingTransformation.triangularView<Eigen::Lower>().solve(startingPoints[i]);
 					if constexpr(std::is_same<Proposal, NoProposal>::value) {
                         markovChains[i] = std::move(MarkovChainFactory::createMarkovChain(markovChainType,
-                                                                                          problem->A,
+                                                                                          Eigen::MatrixXd(problem->A * roundingTransformation),
                                                                                           problem->b,
                                                                                           roundedStartingPoint,
                                                                                           roundingTransformation,
@@ -284,12 +288,14 @@ namespace hops {
             unsigned long k = 0;
             double convergenceDiagnostics = 0;
             do {
+                #pragma omp parallel for
                 for (unsigned long i = 0; i < numberOfChains; ++i) {
                     markovChains[i]->draw(randomNumberGenerators[i], numberOfSamples, thinning);
                 }
+                // end pragma omp parallel for
 
                 if (sampleUntilConvergence && numberOfChains >= 2) {
-                    convergenceDiagnostics = computePotentialScaleReductionFactor(*data).minCoeff();
+                    convergenceDiagnostics = computePotentialScaleReductionFactor(*data).maxCoeff();
                 }
 
                 //numSeen += conf.numSamples;
@@ -389,7 +395,6 @@ namespace hops {
 
 	template<typename Model, typename Proposal>
 	void RunBase<Model, Proposal>::setNumberOfSamples(unsigned long numberOfSamples) {
-		this->isInitialized = false;
 		this->numberOfSamples = numberOfSamples;
 	}
 
@@ -401,7 +406,6 @@ namespace hops {
 
 	template<typename Model, typename Proposal>
 	void RunBase<Model, Proposal>::setThinning(unsigned long thinning) {
-		this->isInitialized = false;
 		this->thinning = thinning;
 	}
 
@@ -510,11 +514,22 @@ namespace hops {
         }
 
         double tunedStepSize, maximumExpectedSquaredJumpDistance;
+        
+        // record tuning time 
+        double time = std::chrono::duration_cast<std::chrono::milliseconds>(
+                std::chrono::high_resolution_clock::now().time_since_epoch()
+        ).count();
+
         ExpectedSquaredJumpDistanceTuner::tune(tunedStepSize, 
                                                maximumExpectedSquaredJumpDistance, 
                                                run.markovChains, 
                                                run.randomNumberGenerators, 
                                                parameters);
+
+        time = std::chrono::duration_cast<std::chrono::milliseconds>(
+                std::chrono::high_resolution_clock::now().time_since_epoch()
+        ).count() - time;
+
 
         for (size_t i = 0; i < run.markovChains.size(); ++i) {
             try {
@@ -527,7 +542,9 @@ namespace hops {
         run.stepSize = tunedStepSize;
         unsigned long totalNumberOfTuningSamples = 
                 run.markovChains.size() * parameters.iterationsToTestStepSize * parameters.maximumTotalIterations; 
-        run.data->setTuningData(totalNumberOfTuningSamples, tunedStepSize, maximumExpectedSquaredJumpDistance);
+        // reset stored states
+        run.data->reset();
+        run.data->setTuningData(totalNumberOfTuningSamples, tunedStepSize, maximumExpectedSquaredJumpDistance, time);
     }
 }
 

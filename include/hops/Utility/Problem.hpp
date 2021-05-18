@@ -46,12 +46,16 @@ namespace hops {
             this->b = b;
         }
 
-        const Eigen::MatrixXd& getA() {
+        const Eigen::MatrixXd& getA() const {
             return this->A;
         }
 
-        const Eigen::VectorXd& getB() {
+        const Eigen::VectorXd& getB() const {
             return this->b;
+        }
+
+        const Model& getModel() const {
+            return this->model;
         }
 
         void setStartingPoint(const Eigen::VectorXd& startingPoint) {

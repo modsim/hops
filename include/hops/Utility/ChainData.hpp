@@ -12,43 +12,45 @@
 namespace hops {
     class ChainData {
     public:
-        ChainData() : acceptanceRates(nullptr),
-                      negativeLogLikelihood(nullptr),
-                      states(nullptr),
-                      timestamps(nullptr) {}
+        ChainData () : acceptanceRates(nullptr),
+                       negativeLogLikelihood(nullptr),
+                       states(nullptr),
+                       timestamps(nullptr) {
+            //
+        }
 
 
-        [[nodiscard]] const std::vector<double> &getAcceptanceRates() const {
+        const std::vector<double>& getAcceptanceRates() const {
             if (!acceptanceRates) throw UninitializedDataFieldException("acceptanceRates");
             return *acceptanceRates;
         }
 
-        void setAcceptanceRates(const std::shared_ptr<std::vector<double>> &acceptanceRates) {
+        void setAcceptanceRates(const std::shared_ptr<std::vector<double>>& acceptanceRates) {
             this->acceptanceRates = std::shared_ptr<std::vector<double>>(acceptanceRates);
         }
 
 
-        [[nodiscard]] const std::vector<double> &getNegativeLogLikelihood() const {
+        const std::vector<double>& getNegativeLogLikelihood() const {
             if (!negativeLogLikelihood) throw UninitializedDataFieldException("negativeLogLikelihood");
             return *negativeLogLikelihood;
         }
 
-        void setNegativeLogLikelihood(const std::shared_ptr<std::vector<double>> &negativeLogLikelihood) {
+        void setNegativeLogLikelihood(const std::shared_ptr<std::vector<double>>& negativeLogLikelihood) {
             this->negativeLogLikelihood = std::shared_ptr<std::vector<double>>(negativeLogLikelihood);
         }
 
 
-        [[nodiscard]] const std::vector<Eigen::VectorXd> &getStates() const {
+        const std::vector<Eigen::VectorXd>& getStates() const {
             if (!states) throw UninitializedDataFieldException("states");
             return *states;
         }
 
-        void setStates(const std::shared_ptr<std::vector<Eigen::VectorXd>> &states) {
+        void setStates(const std::shared_ptr<std::vector<Eigen::VectorXd>>& states) {
             this->states = std::shared_ptr<std::vector<Eigen::VectorXd>>(states);
         }
 
 
-        [[nodiscard]] const std::vector<long> &getTimestamps() const {
+        const std::vector<long>& getTimestamps() const {
             if (!timestamps) throw UninitializedDataFieldException("timestamps");
             return *timestamps;
         }
@@ -77,11 +79,22 @@ namespace hops {
         }
 
         void reset() {
-            acceptanceRates->clear();
-            negativeLogLikelihood->clear();
-            states->clear();
-            timestamps->clear();
-        }
+			if (acceptanceRates) {
+                (*acceptanceRates.get()).clear();
+            }
+
+            if (negativeLogLikelihood) {
+                negativeLogLikelihood->clear();
+            }
+
+            if (states) {
+                states->clear();
+            }
+
+            if (timestamps) {
+                timestamps->clear();
+            }
+		}
 
     private:
         std::shared_ptr<std::vector<double>> acceptanceRates;
