@@ -243,6 +243,7 @@ namespace hops {
                     useParallelTempering
             );
         }
+
         /**
          * @brief Creats a Markov chain for sampling the likelihood of a model with the domain of a convex polytope.
          * @tparam MatrixType
@@ -266,9 +267,9 @@ namespace hops {
                 bool useParallelTempering
         ) {
             if constexpr(std::is_same<Model, UniformDummyModel<MatrixType, VectorType>>::value) {
-                return createMarkovChain<MatrixType, VectorType>(type, 
-                                                                 inequalityLhs, 
-                                                                 inequalityRhs, 
+                return createMarkovChain<MatrixType, VectorType>(type,
+                                                                 inequalityLhs,
+                                                                 inequalityRhs,
                                                                  startingPoint);
             }
 
@@ -282,6 +283,19 @@ namespace hops {
                                                     GaussianStepDistribution<typename decltype(inequalityRhs)::Scalar>>(
                                                     inequalityLhs, inequalityRhs, startingPoint),
                                             ColdnessAttribute(model)
+                                    )
+                            ),
+                            useParallelTempering
+                    );
+                }
+                case MarkovChainType::CSmMALA: {
+                    return addRecordersAndAdapter(
+                            NegativeLogLikelihoodRecorder(
+                                    MetropolisHastingsFilter(
+                                            CSmMALAProposal(ColdnessAttribute(model),
+                                                            inequalityLhs,
+                                                            inequalityRhs,
+                                                            startingPoint)
                                     )
                             ),
                             useParallelTempering
@@ -329,7 +343,7 @@ namespace hops {
                     );
                 }
                 default: {
-                    throw std::runtime_error("Type not supported for uniform sampling.");
+                    throw std::runtime_error("Type not supported.");
                 }
             }
         }
@@ -356,7 +370,7 @@ namespace hops {
                 bool useParallelTempering
         ) {
             if constexpr(std::is_same<Model, UniformDummyModel<MatrixType, VectorType>>::value) {
-                return createMarkovChain<MatrixType, VectorType>(proposal, 
+                return createMarkovChain<MatrixType, VectorType>(proposal,
                                                                  unroundingTransformation,
                                                                  unroundingShift);
             }
@@ -376,6 +390,7 @@ namespace hops {
                     useParallelTempering
             );
         }
+
         /**
          * @brief Creats a Markov chain for sampling the likelihood of a model with the domain of a rounded convex polytope.
          * @tparam MatrixType
@@ -403,10 +418,10 @@ namespace hops {
                 bool useParallelTempering
         ) {
             if constexpr(std::is_same<Model, UniformDummyModel<MatrixType, VectorType>>::value) {
-                return createMarkovChain<MatrixType, VectorType>(type, 
-                                                                 roundedInequalityLhs, 
-                                                                 roundedInequalityRhs, 
-                                                                 startingPoint, 
+                return createMarkovChain<MatrixType, VectorType>(type,
+                                                                 roundedInequalityLhs,
+                                                                 roundedInequalityRhs,
+                                                                 startingPoint,
                                                                  unroundingTransformation,
                                                                  unroundingShift);
             }
@@ -430,17 +445,6 @@ namespace hops {
                             ),
                             useParallelTempering
                     );
-                }
-                case MarkovChainType::CSmMALA: {
-                    throw std::runtime_error("CSmMALA not supported for rounded spaces. Use unrouded spaces.");
-                }
-                case MarkovChainType::CSmMALANoGradient: {
-                    throw std::runtime_error(
-                            "CSmMALANoGradient not supported for rounded spaces. Use unrouded spaces.");
-                }
-                case MarkovChainType::DikinWalk : {
-                    throw std::runtime_error(
-                            "DikinWalk not supported for rounded spaces (it is slower). Use unrouded spaces.");
                 }
                 case MarkovChainType::Gaussian : {
                     return addRecordersAndAdapter(

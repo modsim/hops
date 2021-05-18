@@ -39,8 +39,10 @@ namespace hops {
          */
         virtual void writeHistory(FileWriter *fileWriter) = 0;
 
-        virtual void installDataObject(ChainData& chainData) = 0;
-        virtual const std::vector<StateType>& getStateRecords() = 0;
+        virtual void installDataObject(ChainData &chainData) = 0;
+
+        virtual const std::vector<StateType> &getStateRecords() = 0;
+
         virtual void reserveStateRecords(long numberOfSamples) = 0;
 
         /**
@@ -52,11 +54,13 @@ namespace hops {
 
         virtual void setAttribute(MarkovChainAttribute markovChainAttribute, double value) = 0;
 
+        virtual void setState(StateType state) = 0;
+
         virtual double getAttribute(MarkovChainAttribute markovChainAttribute) = 0;
 
         virtual double getAcceptanceRate() = 0;
     };
-    
+
     typedef MarkovChainInterface<Eigen::VectorXd> MarkovChain;
 }
 

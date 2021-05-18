@@ -11,7 +11,7 @@ stages:
 build-header-only-debug:
   stage: build
   script:
-  - mkdir cmake-build-header-only-debug && cd cmake-build-header-only-debug && CXX=clang++ CC=clang cmake .. -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu -DCMAKE_BUILD_TYPE=Release -DHOPS_BENCHMARKS=off -DHOPS_LIBRARY_TYPE=HEADER_ONLY && make -j2 && cd -
+  - mkdir cmake-build-header-only-debug && cd cmake-build-header-only-debug && CXX=clang++ CC=clang cmake .. -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu -DCMAKE_BUILD_TYPE=Release -DHOPS_BENCHMARKS=off -DHOPS_LIBRARY_TYPE=HEADER_ONLY && make -j4 && cd -
   artifacts:
     paths:
       - cmake-build-header-only-debug
@@ -20,7 +20,7 @@ build-header-only-debug:
 build-header-only-release:
   stage: build
   script:
-  - mkdir cmake-build-header-only-release && cd cmake-build-header-only-release && CXX=clang++ CC=clang cmake .. -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu -DCMAKE_BUILD_TYPE=Release -DHOPS_BENCHMARKS=off -DHOPS_LIBRARY_TYPE=HEADER_ONLY && make -j2 && cd -
+  - mkdir cmake-build-header-only-release && cd cmake-build-header-only-release && CXX=clang++ CC=clang cmake .. -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu -DCMAKE_BUILD_TYPE=Release -DHOPS_BENCHMARKS=off -DHOPS_LIBRARY_TYPE=HEADER_ONLY && make -j4 && cd -
   artifacts:
     paths:
       - cmake-build-header-only-release
@@ -29,7 +29,7 @@ build-header-only-release:
 build-debug:
   stage: build
   script:
-  - mkdir cmake-build-debug && cd cmake-build-debug && CXX=clang++ CC=clang cmake .. -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu -DCMAKE_BUILD_TYPE=Release -DHOPS_BENCHMARKS=off && make -j2 && cd -
+  - mkdir cmake-build-debug && cd cmake-build-debug && CXX=clang++ CC=clang cmake .. -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu -DCMAKE_BUILD_TYPE=Release -DHOPS_BENCHMARKS=off && make -j4 && cd -
   artifacts:
     paths:
       - cmake-build-debug
@@ -38,7 +38,7 @@ build-debug:
 build-release:
   stage: build
   script:
-  - mkdir cmake-build-release && cd cmake-build-release && CXX=clang++ CC=clang cmake .. -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu -DCMAKE_BUILD_TYPE=Release -DHOPS_BENCHMARKS=off && make -j2 && cd -
+  - mkdir cmake-build-release && cd cmake-build-release && CXX=clang++ CC=clang cmake .. -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu -DCMAKE_BUILD_TYPE=Release -DHOPS_BENCHMARKS=off && make -j4 && cd -
   artifacts:
     paths:
       - cmake-build-release

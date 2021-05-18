@@ -33,6 +33,7 @@ set(MKL_USE_interface lp64)
 # Set Options
 ########################################################################################################################
 
+option(HOPS_HDF5_SUPPORT "Enables HDF5 support with HighFive. Use -DHOPS_BENCHMARKS=ON to enable." OFF)
 option(HOPS_BENCHMARKS "Enables compilation of Benchmarks (Requires Celero). Use -DHOPS_BENCHMARKS=ON to enable." OFF)
 option(HOPS_DOCS "Enables generation of documentation. Use -DHOPS_DOCS=OFF to disable." ON)
 option(HOPS_BINARIES "Enables compilation of hops executables. Use -DHOPS_BINARIES=OFF to disable." ON)

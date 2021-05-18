@@ -33,6 +33,8 @@ namespace {
             stepSize = newStepSize;
         }
 
+        void setState(Eigen::VectorXd) {};
+
         [[nodiscard]] double getStepSize() const {
             return stepSize;
         }

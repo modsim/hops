@@ -35,8 +35,7 @@ std::map<std::string, std::any> parseCommandLineOptions(int argc, char **argv) {
             ("help,h", "Show help message.")
             ("input-path,i",
              boost::program_options::value<std::string>(),
-             "Either a path to an hdf5 file containing the polytope (as produced by PolyRound)"
-             "or path do directory containing the polytope files in csv format. For an example see the e_coli_core directory in the resources directory.")
+             "Or path do directory containing the polytope files in csv format. For an example see the e_coli_core directory in the resources directory.")
             ("output-path,o",
              boost::program_options::value<std::string>(),
              "Path to outputfile with either .hdf5 or .csv ending.")
@@ -46,7 +45,7 @@ std::map<std::string, std::any> parseCommandLineOptions(int argc, char **argv) {
             ("thinning-factor,t",
              boost::program_options::value<long>(),
              "0 for no thinning, else thinning will be the Polytope dimensions times the thinning Factor")
-            ("random-seed,r",
+            ("random-seed,s",
              boost::program_options::value<int>(),
              "seed for the random number generator. If not supplied it will be generated from std::random_device()")
             ("rounding,r",
@@ -75,44 +74,32 @@ std::map<std::string, std::any> parseCommandLineOptions(int argc, char **argv) {
         Eigen::VectorXd shift;
 
         std::string fileExtension = inputPath.substr(inputPath.find_last_of('.') + 1);
-        if (fileExtension == "hdf5" || fileExtension == "h5") {
-            A = hops::Hdf5Reader::read<decltype(A)>(inputPath, "A");
-            b = hops::Hdf5Reader::read<decltype(b)>(inputPath, "b");
-            transformation = hops::Hdf5Reader::read<decltype(transformation)>(inputPath, "transformation");
-            shift = hops::Hdf5Reader::read<decltype(shift)>(inputPath, "shift");
-            try {
-                start = hops::Hdf5Reader::read<decltype(start)>(inputPath, "start");
-            } catch (...) {
-                start = hops::LinearProgramFactory::createLinearProgram(A,
-                                                                        b)->calculateChebyshevCenter().optimalParameters;
-            }
-        } else {
-            // Assumes input-path is a directory containing csv-files.
-            if (inputPath.back() == fs::path::preferred_separator) {
-                inputPath = inputPath.substr(0, inputPath.size() - 1);
-            }
-            fs::path inputPathImpl(inputPath);
-            std::string modelName = inputPathImpl.filename();
 
-            std::string Afile = inputPathImpl / fs::path("A_" + modelName + "_rounded.csv");
-            std::string bfile = inputPathImpl / fs::path("b_" + modelName + "_rounded.csv");
-            std::string transformFile =
-                    inputPathImpl / fs::path("T_" + modelName + "_rounded.csv");
-            std::string shiftFile =
-                    inputPathImpl / fs::path("shift_" + modelName + "_rounded.csv");
-            std::string startFile =
-                    inputPathImpl / fs::path("start_" + modelName + "_rounded.csv");
+        // Assumes input-path is a directory containing csv-files.
+        if (inputPath.back() == fs::path::preferred_separator) {
+            inputPath = inputPath.substr(0, inputPath.size() - 1);
+        }
+        fs::path inputPathImpl(inputPath);
+        std::string modelName = inputPathImpl.filename();
 
-            A = hops::CsvReader::readMatrix<decltype(A)>(Afile);
-            b = hops::CsvReader::readVector<decltype(b)>(bfile);
-            transformation = hops::CsvReader::readMatrix<decltype(transformation)>(transformFile);
-            shift = hops::CsvReader::readVector<decltype(shift)>(startFile);
-            try {
-                start = hops::CsvReader::readVector<decltype(start)>(startFile);
-            } catch (...) {
-                start = hops::LinearProgramFactory::createLinearProgram(A, b)->calculateChebyshevCenter()
-                        .optimalParameters;
-            }
+        std::string Afile = inputPathImpl / fs::path("A_" + modelName + "_rounded.csv");
+        std::string bfile = inputPathImpl / fs::path("b_" + modelName + "_rounded.csv");
+        std::string transformFile =
+                inputPathImpl / fs::path("T_" + modelName + "_rounded.csv");
+        std::string shiftFile =
+                inputPathImpl / fs::path("shift_" + modelName + "_rounded.csv");
+        std::string startFile =
+                inputPathImpl / fs::path("start_" + modelName + "_rounded.csv");
+
+        A = hops::CsvReader::readMatrix<decltype(A)>(Afile);
+        b = hops::CsvReader::readVector<decltype(b)>(bfile);
+        transformation = hops::CsvReader::readMatrix<decltype(transformation)>(transformFile);
+        shift = hops::CsvReader::readVector<decltype(shift)>(startFile);
+        try {
+            start = hops::CsvReader::readVector<decltype(start)>(startFile);
+        } catch (...) {
+            start = hops::LinearProgramFactory::createLinearProgram(A, b)->calculateChebyshevCenter()
+                    .optimalParameters;
         }
         arguments["A"] = A;
         arguments["b"] = b;
@@ -131,8 +118,6 @@ std::map<std::string, std::any> parseCommandLineOptions(int argc, char **argv) {
         outputPath = fs::path(outputPath).parent_path() / fs::path(outputPath).stem();
         if (fileType == ".csv") {
             fileWriter = hops::FileWriterFactory::createFileWriter(outputPath, hops::FileWriterType::CSV);
-        } else if (fileType == ".hdf5") {
-            fileWriter = hops::FileWriterFactory::createFileWriter(outputPath, hops::FileWriterType::HDF5);
         } else {
             std::cerr << "Wrong output filetype, see --help." << std::endl;
         }

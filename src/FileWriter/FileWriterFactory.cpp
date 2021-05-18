@@ -1,7 +1,6 @@
 #include <hops/FileWriter/FileWriterFactory.hpp>
 #include <hops/FileWriter/FileWriterType.hpp>
 #include <hops/FileWriter/CsvWriter.hpp>
-#include <hops/FileWriter/Hdf5Writer.hpp>
 
 std::unique_ptr<hops::FileWriter>
 hops::FileWriterFactory::createFileWriter(const std::string &filename, FileWriterType fileWriterType) {
@@ -10,7 +9,7 @@ hops::FileWriterFactory::createFileWriter(const std::string &filename, FileWrite
             return std::make_unique<CsvWriter>(filename);
         }
         case FileWriterType::HDF5: {
-            return std::make_unique<Hdf5Writer>(filename);
+            return nullptr;
         }
         default:
             throw std::runtime_error("Invalid Parameter for FileWriterType.");
