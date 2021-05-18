@@ -4,19 +4,15 @@ set(TEST_SOURCES
 
 get_target_property(HOPS_COMPILE_DEFINITIONS hops INTERFACE_COMPILE_DEFINITIONS)
 
-if(HOPS_CLP_FOUND IN_LIST HOPS_COMPILE_DEFINITIONS)
+if (HOPS_CLP_FOUND IN_LIST HOPS_COMPILE_DEFINITIONS)
     message(STATUS "Adding tests for CLP")
-    set(TEST_SOURCES ${TEST_SOURCES}
-            LinearProgramClpImplTestSuite.cpp
-            )
-endif()
+    set(TEST_SOURCES ${TEST_SOURCES} LinearProgramClpImplTestSuite.cpp)
+endif ()
 
-if(HOPS_GUROBI_FOUND IN_LIST HOPS_COMPILE_DEFINITIONS)
+if (HOPS_GUROBI_FOUND IN_LIST HOPS_COMPILE_DEFINITIONS)
     message(STATUS "Adding tests for gurobi")
-    set(TEST_SOURCES ${TEST_SOURCES}
-            LinearProgramGurobiImplTestSuite.cpp
-            )
-endif()
+    set(TEST_SOURCES ${TEST_SOURCES} LinearProgramGurobiImplTestSuite.cpp)
+endif ()
 
 foreach (TEST_SOURCE ${TEST_SOURCES})
     get_filename_component(TEST_NAME ${TEST_SOURCE} NAME_WE)

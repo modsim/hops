@@ -87,13 +87,11 @@
 #ifdef HOPS_HEADER_ONLY
 
 #include "FileReader/CsvReader.cpp"
-#include "FileReader/Hdf5Reader.cpp"
 #include "FileReader/SbmlReader.cpp"
 
 #include "FileWriter/CsvWriter.cpp"
 #include "FileWriter/CsvWriterImpl.cpp"
 #include "FileWriter/FileWriterFactory.cpp"
-#include "FileWriter/Hdf5Writer.cpp"
 
 #include "LinearProgram/GurobiEnvironmentSingleton.cpp"
 #include "LinearProgram/LinearProgram.cpp"
@@ -104,5 +102,10 @@
 #include "MarkovChain/ExpectedSquaredJumpDistanceTuner.cpp"
 
 #include "Polytope//MaximumVolumeEllipsoid.cpp"
+
+#ifdef HOPS_HDF5_SUPPORT
+#include "FileReader/Hdf5Reader.cpp"
+#include "FileWriter/Hdf5Writer.cpp"
+#endif //HOPS_HDF5_SUPPORT
 
 #endif //HOPS_HEADER_ONLY

@@ -3,7 +3,6 @@ set(TEST_SOURCES CsvWriterImplTestSuite.cpp)
 find_package(HDF5 COMPONENTS C CXX)
 
 if (HDF5_FOUND AND HOPS_HDF5_SUPPORT)
-    message(STATUS "Adding Hdf5WriterTest")
     set(TEST_SOURCES ${TEST_SOURCES} Hdf5WriterTestSuite.cpp)
 endif (HDF5_FOUND AND HOPS_HDF5_SUPPORT)
 
