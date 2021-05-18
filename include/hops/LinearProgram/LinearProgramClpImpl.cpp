@@ -130,7 +130,7 @@ std::tuple<Eigen::MatrixXd, Eigen::VectorXd> hops::LinearProgramClpImpl::removeR
     return std::make_tuple(A, b);
 }
 
-hops::LinearProgramSolution hops::LinearProgramClpImpl::computeChebyshevCenter() const {
+hops::LinearProgramSolution hops::LinearProgramClpImpl::calculateChebyshevCenter() const {
     //Extend system by dimension for radius
     const long numberOfRows = A.rows();
     const long numberOfColumns = A.cols();
@@ -153,7 +153,7 @@ hops::LinearProgramSolution hops::LinearProgramClpImpl::computeChebyshevCenter()
     return chebyshevSolution;
 }
 
-std::vector<long> hops::LinearProgramClpImpl::computeUnconstrainedDimensions() const {
+std::vector<long> hops::LinearProgramClpImpl::calculateUnconstrainedDimensions() const {
     std::vector<long> directions;
     for (long i = 0; i < A.cols(); ++i) {
         Eigen::VectorXd objective = Eigen::VectorXd::Zero(A.cols());
@@ -176,7 +176,7 @@ std::vector<long> hops::LinearProgramClpImpl::computeUnconstrainedDimensions() c
 
 std::tuple<Eigen::MatrixXd, Eigen::VectorXd>
 hops::LinearProgramClpImpl::addBoxConstraintsToUnconstrainedDimensions(double lb, double ub) {
-    std::vector<long> unconstrainedDimensions = computeUnconstrainedDimensions();
+    std::vector<long> unconstrainedDimensions = calculateUnconstrainedDimensions();
 
     for (const auto &unconstrainedDimension : unconstrainedDimensions) {
         A.conservativeResize(A.rows() + 1, A.cols());

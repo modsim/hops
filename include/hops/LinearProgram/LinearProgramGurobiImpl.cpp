@@ -63,7 +63,7 @@ namespace {
     }
 }
 
-hops::LinearProgramGurobiImpl::LinearProgramGurobiImpl(const Eigen::MatrixXd &A, const Eigen::VectorXd &b) :
+hops::LinearProgramGurobiImpl::LinearProgramGurobiImpl(const Eigen::MatrixXd &A, Eigen::VectorXd b) :
         LinearProgram(A, b),
         model(std::make_unique<GRBModel>(GRBModel(GurobiEnvironmentSingleton::getInstance().getGurobiEnvironment()))) {
     variables = addVariablesToModel(model.get(), A.cols());
@@ -178,7 +178,7 @@ hops::LinearProgramGurobiImpl::removeRedundantConstraints(double tolerance) {
     return std::make_tuple(A, b);
 }
 
-hops::LinearProgramSolution hops::LinearProgramGurobiImpl::computeChebyshevCenter() const {
+hops::LinearProgramSolution hops::LinearProgramGurobiImpl::calculateChebyshevCenter() const {
     //Extend system by dimension for radius
     const long numberOfRows = A.rows();
     const long numberOfColumns = A.cols();
@@ -201,7 +201,7 @@ hops::LinearProgramSolution hops::LinearProgramGurobiImpl::computeChebyshevCente
     return chebyshevSolution;
 }
 
-std::vector<long> hops::LinearProgramGurobiImpl::computeUnconstrainedDimensions() const {
+std::vector<long> hops::LinearProgramGurobiImpl::calculateUnconstrainedDimensions() const {
     std::vector<long> directions;
     for (long i = 0; i < A.cols(); ++i) {
         Eigen::VectorXd objective = Eigen::VectorXd::Zero(A.cols());
@@ -222,7 +222,7 @@ std::vector<long> hops::LinearProgramGurobiImpl::computeUnconstrainedDimensions(
 
 std::tuple<Eigen::MatrixXd, Eigen::VectorXd>
 hops::LinearProgramGurobiImpl::addBoxConstraintsToUnconstrainedDimensions(double lb, double ub) {
-    std::vector<long> unconstrainedDimensions = computeUnconstrainedDimensions();
+    std::vector<long> unconstrainedDimensions = calculateUnconstrainedDimensions();
 
     for (const auto &unconstrainedDimension : unconstrainedDimensions) {
         A.conservativeResize(A.rows() + 1, A.cols());

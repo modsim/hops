@@ -1,3 +1,0 @@
-[submodule "include/hops/Third-party/HighFive"]
-	path = include/hops/Third-party/HighFive
-	url = https://github.com/BlueBrain/HighFive.git
