@@ -241,7 +241,10 @@ install(DIRECTORY include/ DESTINATION include/ FILES_MATCHING PATTERN "*.hpp")
 install(DIRECTORY include/ DESTINATION include/ FILES_MATCHING PATTERN "*.cpp")
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/hops/hops.hpp DESTINATION include/hops)
 
-install(TARGETS hops-sampler DESTINATION bin/)
+if (HOPS_BINARIES)
+        install(TARGETS hops-sampler DESTINATION bin/)
+endif()
+
 install(TARGETS hops EXPORT hops-config LIBRARY DESTINATION "lib")
 install(EXPORT hops-config DESTINATION "lib")
 
