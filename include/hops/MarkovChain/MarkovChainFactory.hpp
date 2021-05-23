@@ -10,6 +10,7 @@
 #include <hops/MarkovChain/Draw/MetropolisHastingsFilter.hpp>
 #include <hops/MarkovChain/ParallelTempering/ColdnessAttribute.hpp>
 #include <hops/MarkovChain/ParallelTempering/ParallelTempering.hpp>
+#include <hops/MarkovChain/Proposal/AdaptiveMetropolisProposal.hpp>
 #include <hops/MarkovChain/Proposal/BallWalkProposal.hpp>
 #include <hops/MarkovChain/Proposal/CoordinateHitAndRunProposal.hpp>
 #include <hops/MarkovChain/Proposal/CSmMALAProposal.hpp>
@@ -426,6 +427,19 @@ namespace hops {
             }
 
             switch (type) {
+                case MarkovChainType::AdaptiveMetropolis : {
+                    return addRecordersAndAdapter(
+                            MetropolisHastingsFilter(
+                                    ModelMixin(
+                                            AdaptiveMetropolisProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
+                                                    decltype(inequalityRhs)>(
+                                                    inequalityLhs, inequalityRhs, startingPoint),
+                                            ColdnessAttribute(model)
+                                    )
+                            ),
+                            useParallelTempering
+                    );
+                }
                 case MarkovChainType::BallWalk : {
                     return addRecordersAndAdapter(
                             NegativeLogLikelihoodRecorder(
