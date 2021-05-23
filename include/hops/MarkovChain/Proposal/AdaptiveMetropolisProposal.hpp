@@ -45,7 +45,7 @@ namespace hops {
 
         typename MatrixType::Scalar getStepSize() const;
 
-        [[nodiscard]] typename MatrixType::Scalar computeLogAcceptanceProbability(); 
+        [[nodiscard]] typename MatrixType::Scalar calculateLogAcceptanceProbability(); 
 
         std::string getName();
 
@@ -102,13 +102,11 @@ namespace hops {
             b(std::move(b_)),
             state(std::move(currentState_)),
             proposal(this->state),
-            t(0),
+            stepSize(stepSize_),
+            eps(eps_),
             warmUp(warmUp_),
-            stepSize(stepSize_) {
+            t(0) {
         normal = std::normal_distribution<typename MatrixType::Scalar>(0, stepSize);
-
-        // scale down with larger dimensions according to Roberts & Rosenthal, 2001.
-        eps = eps_ / A.cols();
 
         stateMean = state; // actual content is irrelevant as long as dimensions match
 
@@ -133,9 +131,9 @@ namespace hops {
         }
         
         if (t > warmUp) {
-            proposal = state + stateCholeskyOfCovariance * proposal;
+            proposal = state + stateCholeskyOfCovariance.template triangularView<Eigen::Lower>().solve(proposal);
         } else {
-            proposal = state + eps * choleskyOfMaximumVolumeEllipsoid.template triangularView<Eigen::Lower>().solve(proposal);
+            proposal = state + choleskyOfMaximumVolumeEllipsoid.template triangularView<Eigen::Lower>().solve(proposal);
         }
 ;
         ++t; // increment time
@@ -145,20 +143,20 @@ namespace hops {
     void
     AdaptiveMetropolisProposal<MatrixType, VectorType>::acceptProposal() {
         state.swap(proposal);
-        stateCovariance = proposalCovariance;
-        stateCholeskyOfCovariance = proposalCholeskyOfCovariance;
+        stateCovariance = std::move(proposalCovariance);
+        stateCholeskyOfCovariance = std::move(proposalCholeskyOfCovariance);
         stateLogSqrtDeterminant = proposalLogSqrtDeterminant;
     }
 
     template<typename MatrixType, typename VectorType>
     typename MatrixType::Scalar 
-    AdaptiveMetropolisProposal<MatrixType, VectorType>::computeLogAcceptanceProbability() {
+    AdaptiveMetropolisProposal<MatrixType, VectorType>::calculateLogAcceptanceProbability() {
         bool isProposalInteriorPoint = ((A * proposal - b).array() < -boundaryCushion).all();
         if (!isProposalInteriorPoint) {
             return -std::numeric_limits<typename MatrixType::Scalar>::infinity();
         }
 
-        proposalCovariance = updateCovariance(stateCovariance, stateMean, proposal);
+        auto proposalCovariance = updateCovariance(stateCovariance, stateMean, proposal);
         Eigen::LLT<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>> solver(proposalCovariance);
         if (solver.info() != Eigen::Success) {
             return -std::numeric_limits<typename MatrixType::Scalar>::infinity();
