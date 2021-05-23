@@ -304,6 +304,19 @@ namespace hops {
             }
 
             switch (type) {
+                case MarkovChainType::AdaptiveMetropolis : {
+                    return addRecordersAndAdapter(
+                            MetropolisHastingsFilter(
+                                    ModelMixin(
+                                            AdaptiveMetropolisProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
+                                                    decltype(inequalityRhs)>(
+                                                    inequalityLhs, inequalityRhs, startingPoint),
+                                            ColdnessAttribute(model)
+                                    )
+                            ),
+                            useParallelTempering
+                    );
+                }
                 case MarkovChainType::BallWalk : {
                     return addRecordersAndAdapter(
                             NegativeLogLikelihoodRecorder(
