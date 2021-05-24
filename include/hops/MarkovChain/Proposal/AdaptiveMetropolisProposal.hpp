@@ -133,7 +133,7 @@ namespace hops {
         if (t > warmUp) {
             proposal = state + stateCholeskyOfCovariance.template triangularView<Eigen::Lower>().solve(proposal);
         } else {
-            proposal = state + choleskyOfMaximumVolumeEllipsoid.template triangularView<Eigen::Lower>().solve(proposal);
+            proposal = state + 0.01 * choleskyOfMaximumVolumeEllipsoid.template triangularView<Eigen::Lower>().solve(proposal);
         }
 ;
         ++t; // increment time
@@ -143,8 +143,8 @@ namespace hops {
     void
     AdaptiveMetropolisProposal<MatrixType, VectorType>::acceptProposal() {
         state.swap(proposal);
-        stateCovariance = std::move(proposalCovariance);
-        stateCholeskyOfCovariance = std::move(proposalCholeskyOfCovariance);
+        stateCovariance = proposalCovariance;
+        stateCholeskyOfCovariance = proposalCholeskyOfCovariance;
         stateLogSqrtDeterminant = proposalLogSqrtDeterminant;
     }
 
@@ -156,7 +156,7 @@ namespace hops {
             return -std::numeric_limits<typename MatrixType::Scalar>::infinity();
         }
 
-        auto proposalCovariance = updateCovariance(stateCovariance, stateMean, proposal);
+        proposalCovariance = updateCovariance(stateCovariance, stateMean, proposal);
         Eigen::LLT<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>> solver(proposalCovariance);
         if (solver.info() != Eigen::Success) {
             return -std::numeric_limits<typename MatrixType::Scalar>::infinity();
