@@ -133,9 +133,9 @@ namespace hops {
         }
         
         if (t > warmUp) {
-            proposal = state + stateCholeskyOfCovariance.template triangularView<Eigen::Lower>().solve(proposal);
+            proposal = state + stateCholeskyOfCovariance * proposal;
         } else {
-            proposal = state + 0.01 * choleskyOfMaximumVolumeEllipsoid.template triangularView<Eigen::Lower>().solve(proposal);
+            proposal = state + eps * choleskyOfMaximumVolumeEllipsoid.template triangularView<Eigen::Lower>().solve(proposal);
         }
 ;
         ++t; // increment time
