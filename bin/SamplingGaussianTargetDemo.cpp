@@ -5,9 +5,9 @@
 #include <hops/MarkovChain/MarkovChainFactory.hpp>
 #include <hops/Model/MultivariateGaussianModel.hpp>
 #include <hops/MarkovChain/AcceptanceRateTuner.hpp>
-#include <hops/PolytopePreprocessing/NormalizePolytope.hpp>
+#include <hops/Polytope/NormalizePolytope.hpp>
 #include <iostream>
-#include <hops/PolytopePreprocessing/MaximumVolumeEllipsoid.hpp>
+#include <hops/Polytope/MaximumVolumeEllipsoid.hpp>
 
 using RealType = double;
 

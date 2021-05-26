@@ -38,10 +38,10 @@ namespace hops {
         MatrixType calculateExpectedFisherInformation(const VectorType &x) const {
             MatrixType hessian = calculateHessian(x);
 //            // regularization should be between 0 and infinity. This value is guessed for now.
-//            double regularization = 1. / hessian.maxCoeff();
-//            MatrixType expPositive = (regularization * hessian).exp();
-//            MatrixType expNegative = (-regularization * hessian).exp();
-//            hessian = (expPositive + expNegative) * hessian * (expPositive - expNegative).inverse();
+            double regularization = 1. / hessian.maxCoeff();
+            MatrixType expPositive = (regularization * hessian).exp();
+            MatrixType expNegative = (-regularization * hessian).exp();
+            hessian = (expPositive + expNegative) * hessian * (expPositive - expNegative).inverse();
             return hessian;
         }
 

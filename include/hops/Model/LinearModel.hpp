@@ -23,11 +23,11 @@ namespace hops {
          * @param x
          * @return
          */
-        typename MatrixType::Scalar computeNegativeLogLikelihood(const VectorType &x) const;
+        typename MatrixType::Scalar calculateNegativeLogLikelihood(const VectorType &x) const;
 
-        MatrixType computeExpectedFisherInformation(const VectorType &) const;
+        MatrixType calculateExpectedFisherInformation(const VectorType &) const;
 
-        VectorType computeLogLikelihoodGradient(const VectorType &x) const;
+        VectorType calculateLogLikelihoodGradient(const VectorType &x) const;
 
     private:
         VectorType measuredData;
@@ -58,7 +58,7 @@ namespace hops {
 
     template<typename MatrixType, typename VectorType>
     typename MatrixType::Scalar
-    LinearModel<MatrixType, VectorType>::computeNegativeLogLikelihood(const VectorType &x) const {
+    LinearModel<MatrixType, VectorType>::calculateNegativeLogLikelihood(const VectorType &x) const {
         return -logNormalizationConstant +
                0.5 * static_cast<typename MatrixType::Scalar>((linearModel * x - measuredData).transpose() *
                                                               inverseCovariance * (linearModel * x - measuredData));
@@ -66,13 +66,13 @@ namespace hops {
 
     template<typename MatrixType, typename VectorType>
     MatrixType
-    LinearModel<MatrixType, VectorType>::computeExpectedFisherInformation(const VectorType &) const {
+    LinearModel<MatrixType, VectorType>::calculateExpectedFisherInformation(const VectorType &) const {
         return inverseCovariance;
     }
 
     template<typename MatrixType, typename VectorType>
     VectorType
-    LinearModel<MatrixType, VectorType>::computeLogLikelihoodGradient(const VectorType &x) const {
+    LinearModel<MatrixType, VectorType>::calculateLogLikelihoodGradient(const VectorType &x) const {
         return -inverseCovariance * (linearModel*x - measuredData);
     }
 }
