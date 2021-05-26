@@ -115,23 +115,21 @@ if (HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
         target_compile_definitions(hops INTERFACE HOPS_HDF5_SUPPORT)
     endif (HOPS_HDF5_SUPPORT)
 
-else ()
+    target_include_directories(hops INTERFACE ${EIGEN3_INCLUDE_DIR}
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+            $<INSTALL_INTERFACE:include>
+            )
+else (HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
     message(STATUS "Set to ${HOPS_LIBRARY_TYPE} library installation")
     set(SCOPE PRIVATE)
     add_library(hops ${HOPS_LIBRARY_TYPE})
     target_compile_definitions(hops ${SCOPE} HOPS_HDF5_SUPPORT)
 
-    target_include_directories(hops ${SCOPE} ${EIGEN3_INCLUDE_DIR}
+    target_include_directories(hops PUBLIC ${EIGEN3_INCLUDE_DIR}
             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
             $<INSTALL_INTERFACE:include>
             )
-
-endif ()
-
-target_include_directories(hops INTERFACE ${EIGEN3_INCLUDE_DIR}
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<INSTALL_INTERFACE:include>
-        )
+endif (HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
 
 if (OpenMP_CXX_FOUND)
     target_link_libraries(hops INTERFACE OpenMP::OpenMP_CXX)
@@ -242,8 +240,8 @@ install(DIRECTORY include/ DESTINATION include/ FILES_MATCHING PATTERN "*.cpp")
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/hops/hops.hpp DESTINATION include/hops)
 
 if (HOPS_BINARIES)
-        install(TARGETS hops-sampler DESTINATION bin/)
-endif()
+    install(TARGETS hops-sampler DESTINATION bin/)
+endif ()
 
 install(TARGETS hops EXPORT hops-config LIBRARY DESTINATION "lib")
 install(EXPORT hops-config DESTINATION "lib")

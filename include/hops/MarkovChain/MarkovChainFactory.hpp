@@ -299,12 +299,14 @@ namespace hops {
             switch (type) {
                 case MarkovChainType::BallWalk : {
                     return addRecordersAndAdapter(
-                            MetropolisHastingsFilter(
-                                    ModelMixin(
-                                            BallWalkProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
-                                                    decltype(inequalityRhs)>(
-                                                    inequalityLhs, inequalityRhs, startingPoint),
-                                            ColdnessAttribute(model)
+                            NegativeLogLikelihoodRecorder(
+                                    MetropolisHastingsFilter(
+                                            ModelMixin(
+                                                    BallWalkProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
+                                                            decltype(inequalityRhs)>(
+                                                            inequalityLhs, inequalityRhs, startingPoint),
+                                                    ColdnessAttribute(model)
+                                            )
                                     )
                             ),
                             useParallelTempering
@@ -312,13 +314,15 @@ namespace hops {
                 }
                 case MarkovChainType::CoordinateHitAndRun : {
                     return addRecordersAndAdapter(
-                            MetropolisHastingsFilter(
-                                    ModelMixin(
-                                            CoordinateHitAndRunProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
-                                                    decltype(inequalityRhs),
-                                                    GaussianStepDistribution<typename decltype(inequalityRhs)::Scalar>>(
-                                                    inequalityLhs, inequalityRhs, startingPoint),
-                                            ColdnessAttribute(model)
+                            NegativeLogLikelihoodRecorder(
+                                    MetropolisHastingsFilter(
+                                            ModelMixin(
+                                                    CoordinateHitAndRunProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
+                                                            decltype(inequalityRhs),
+                                                            GaussianStepDistribution<typename decltype(inequalityRhs)::Scalar>>(
+                                                            inequalityLhs, inequalityRhs, startingPoint),
+                                                    ColdnessAttribute(model)
+                                            )
                                     )
                             ),
                             useParallelTempering
@@ -339,10 +343,12 @@ namespace hops {
                 }
                 case MarkovChainType::DikinWalk : {
                     return addRecordersAndAdapter(
-                            MetropolisHastingsFilter(
-                                    ModelMixin(
-                                            DikinProposal(inequalityLhs, inequalityRhs, startingPoint),
-                                            ColdnessAttribute(model)
+                            NegativeLogLikelihoodRecorder(
+                                    MetropolisHastingsFilter(
+                                            ModelMixin(
+                                                    DikinProposal(inequalityLhs, inequalityRhs, startingPoint),
+                                                    ColdnessAttribute(model)
+                                            )
                                     )
                             ),
                             useParallelTempering
@@ -366,13 +372,15 @@ namespace hops {
                 }
                 case MarkovChainType::HitAndRun: {
                     return addRecordersAndAdapter(
-                            MetropolisHastingsFilter(
-                                    ModelMixin(
-                                            HitAndRunProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
-                                                    decltype(inequalityRhs),
-                                                    GaussianStepDistribution<typename decltype(inequalityRhs)::Scalar>>(
-                                                    inequalityLhs, inequalityRhs, startingPoint),
-                                            ColdnessAttribute(model)
+                            NegativeLogLikelihoodRecorder(
+                                    MetropolisHastingsFilter(
+                                            ModelMixin(
+                                                    HitAndRunProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
+                                                            decltype(inequalityRhs),
+                                                            GaussianStepDistribution<typename decltype(inequalityRhs)::Scalar>>(
+                                                            inequalityLhs, inequalityRhs, startingPoint),
+                                                    ColdnessAttribute(model)
+                                            )
                                     )
                             ),
                             useParallelTempering
@@ -465,17 +473,19 @@ namespace hops {
             switch (type) {
                 case MarkovChainType::BallWalk : {
                     return addRecordersAndAdapter(
-                            MetropolisHastingsFilter(
-                                    ModelMixin(
-                                            StateTransformation(
-                                                    BallWalkProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
-                                                            decltype(roundedInequalityRhs)>(
-                                                            roundedInequalityLhs,
-                                                            roundedInequalityRhs,
-                                                            startingPoint),
-                                                    Transformation(unroundingTransformation, unroundingShift)
-                                            ),
-                                            ColdnessAttribute(model)
+                            NegativeLogLikelihoodRecorder(
+                                    MetropolisHastingsFilter(
+                                            ModelMixin(
+                                                    StateTransformation(
+                                                            BallWalkProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
+                                                                    decltype(roundedInequalityRhs)>(
+                                                                    roundedInequalityLhs,
+                                                                    roundedInequalityRhs,
+                                                                    startingPoint),
+                                                            Transformation(unroundingTransformation, unroundingShift)
+                                                    ),
+                                                    ColdnessAttribute(model)
+                                            )
                                     )
                             ),
                             useParallelTempering
@@ -483,18 +493,20 @@ namespace hops {
                 }
                 case MarkovChainType::CoordinateHitAndRun : {
                     return addRecordersAndAdapter(
-                            MetropolisHastingsFilter(
-                                    ModelMixin(
-                                            StateTransformation(
-                                                    CoordinateHitAndRunProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
-                                                            decltype(roundedInequalityRhs),
-                                                            GaussianStepDistribution<typename decltype(roundedInequalityRhs)::Scalar>>(
-                                                            roundedInequalityLhs,
-                                                            roundedInequalityRhs,
-                                                            startingPoint),
-                                                    Transformation(unroundingTransformation, unroundingShift)
-                                            ),
-                                            ColdnessAttribute(model)
+                            NegativeLogLikelihoodRecorder(
+                                    MetropolisHastingsFilter(
+                                            ModelMixin(
+                                                    StateTransformation(
+                                                            CoordinateHitAndRunProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
+                                                                    decltype(roundedInequalityRhs),
+                                                                    GaussianStepDistribution<typename decltype(roundedInequalityRhs)::Scalar>>(
+                                                                    roundedInequalityLhs,
+                                                                    roundedInequalityRhs,
+                                                                    startingPoint),
+                                                            Transformation(unroundingTransformation, unroundingShift)
+                                                    ),
+                                                    ColdnessAttribute(model)
+                                            )
                                     )
                             ),
                             useParallelTempering
@@ -524,18 +536,20 @@ namespace hops {
                 }
                 case MarkovChainType::HitAndRun: {
                     return addRecordersAndAdapter(
-                            MetropolisHastingsFilter(
-                                    ModelMixin(
-                                            StateTransformation(
-                                                    HitAndRunProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
-                                                            decltype(roundedInequalityRhs),
-                                                            GaussianStepDistribution<typename decltype(roundedInequalityRhs)::Scalar>>(
-                                                            roundedInequalityLhs,
-                                                            roundedInequalityRhs,
-                                                            startingPoint),
-                                                    Transformation(unroundingTransformation, unroundingShift)
-                                            ),
-                                            ColdnessAttribute(model)
+                            NegativeLogLikelihoodRecorder(
+                                    MetropolisHastingsFilter(
+                                            ModelMixin(
+                                                    StateTransformation(
+                                                            HitAndRunProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
+                                                                    decltype(roundedInequalityRhs),
+                                                                    GaussianStepDistribution<typename decltype(roundedInequalityRhs)::Scalar>>(
+                                                                    roundedInequalityLhs,
+                                                                    roundedInequalityRhs,
+                                                                    startingPoint),
+                                                            Transformation(unroundingTransformation, unroundingShift)
+                                                    ),
+                                                    ColdnessAttribute(model)
+                                            )
                                     )
                             ),
                             useParallelTempering
