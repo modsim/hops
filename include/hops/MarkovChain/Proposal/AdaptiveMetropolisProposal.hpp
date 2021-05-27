@@ -103,10 +103,12 @@ namespace hops {
             state(std::move(currentState_)),
             proposal(this->state),
             stepSize(stepSize_),
-            eps(eps_),
             warmUp(warmUp_),
             t(0) {
         normal = std::normal_distribution<typename MatrixType::Scalar>(0, stepSize);
+
+        // scale down with larger dimensions according to Roberts & Rosenthal, 2001.
+        eps = eps_ / A.cols();
 
         stateMean = state; // actual content is irrelevant as long as dimensions match
 
