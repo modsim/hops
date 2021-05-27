@@ -103,7 +103,7 @@ bool hops::AcceptanceRateTuner::tune(double &stepSize,
  * @return true if markov chain is tuned
  */
 bool
-hops::AcceptanceRateTuner::tune(std::vector<std::unique_ptr<hops::MarkovChain>> &markovChain,
+hops::AcceptanceRateTuner::tune(std::vector<std::shared_ptr<hops::MarkovChain>> &markovChain,
                                 std::vector<hops::RandomNumberGenerator> &randomNumberGenerator,
                                 const param_type &parameters) {
     double stepSize, acceptanceRate;
@@ -121,7 +121,7 @@ hops::AcceptanceRateTuner::tune(std::vector<std::unique_ptr<hops::MarkovChain>> 
 bool
 hops::AcceptanceRateTuner::tune(double &stepSize,
                                 double &acceptanceRate,
-                                std::vector<std::unique_ptr<hops::MarkovChain>> &markovChain,
+                                std::vector<std::shared_ptr<hops::MarkovChain>> &markovChain,
                                 std::vector<hops::RandomNumberGenerator> &randomNumberGenerator,
                                 const param_type &parameters) {
     bool tuned = tune(stepSize, acceptanceRate, markovChain[0].get(), randomNumberGenerator[0], parameters);

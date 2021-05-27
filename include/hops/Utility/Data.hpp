@@ -183,8 +183,16 @@ namespace hops {
             if (totalNumberOfTuningSamples > 0) {
                 auto tuningWriter = FileWriterFactory::createFileWriter(outputDirectory + "/tuning", FileWriterType::CSV);
                 tuningWriter->write("totalNumberOfTuningSamples", std::vector<long>{static_cast<long>(totalNumberOfTuningSamples)});
-                tuningWriter->write("tunedStepSize", std::vector<double>{tunedStepSize});
-                tuningWriter->write("maximumExpectedSquaredJumpDistance", std::vector<double>{maximumExpectedSquaredJumpDistance});
+                tuningWriter->write("stepSize", std::vector<double>{tunedStepSize});
+
+                if (maximumExpectedSquaredJumpDistance >= 0) {
+                    tuningWriter->write("maximumExpectedSquaredJumpDistance", std::vector<double>{maximumExpectedSquaredJumpDistance});
+                }
+
+                if (tunedAcceptanceRate >= 0) {
+                    tuningWriter->write("acceptanceRate", std::vector<double>{tunedAcceptanceRate});
+                }
+
                 tuningWriter->write("totalTimeTaken", std::vector<double>{totalTuningTimeTaken});
             }
         }
@@ -192,10 +200,12 @@ namespace hops {
         void setTuningData(unsigned long totalNumberOfTuningSamples, 
                            double tunedStepSize, 
                            double maximumExpectedSquaredJumpDistance, 
+                           double acceptanceRate, 
                            double totalTuningTimeTaken) {
             this->totalNumberOfTuningSamples = totalNumberOfTuningSamples;
             this->tunedStepSize = tunedStepSize;
             this->maximumExpectedSquaredJumpDistance = maximumExpectedSquaredJumpDistance;
+            this->tunedAcceptanceRate = acceptanceRate;
             this->totalTuningTimeTaken = totalTuningTimeTaken;
         }
 
@@ -213,6 +223,7 @@ namespace hops {
         unsigned long totalNumberOfTuningSamples = 0;
         double tunedStepSize;
         double maximumExpectedSquaredJumpDistance;
+        double tunedAcceptanceRate;
         double totalTuningTimeTaken;
 
         std::vector<std::vector<double>> sampleVariances;
