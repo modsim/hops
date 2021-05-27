@@ -1,26 +1,24 @@
 #ifndef HOPS_RUN_HPP
 #define HOPS_RUN_HPP
 
-#include <hops/LinearProgram/LinearProgramClpImpl.hpp>
-#include <hops/LinearProgram/LinearProgramGurobiImpl.hpp>
-#include <hops/MarkovChain/MarkovChain.hpp>
-#include <hops/MarkovChain/MarkovChainFactory.hpp>
-#include <hops/MarkovChain/MarkovChainType.hpp>
-#include <hops/MarkovChain/Tuning/AcceptanceRateTuner.hpp>
-#include <hops/MarkovChain/Tuning/ExpectedSquaredJumpDistanceTuner.hpp>
-#include <hops/MarkovChain/Tuning/SimpleExpectedSquaredJumpDistanceTuner.hpp>
-#include <hops/Polytope/MaximumVolumeEllipsoid.hpp>
-#include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
-#include <hops/Utility/Data.hpp>
-#include <hops/Utility/Exceptions.hpp>
-#include <hops/Utility/Problem.hpp>
+#include "../LinearProgram/LinearProgramClpImpl.hpp"
+#include "../LinearProgram/LinearProgramGurobiImpl.hpp"
+#include "../MarkovChain/AcceptanceRateTuner.hpp"
+#include "../MarkovChain/ExpectedSquaredJumpDistanceTuner.hpp"
+#include "../MarkovChain/MarkovChain.hpp"
+#include "../MarkovChain/MarkovChainFactory.hpp"
+#include "../MarkovChain/MarkovChainType.hpp"
+#include "../Polytope/MaximumVolumeEllipsoid.hpp"
+#include "../RandomNumberGenerator/RandomNumberGenerator.hpp"
+#include "Data.hpp"
+#include "Exceptions.hpp"
+#include "Problem.hpp"
 
 #include <Eigen/Core>
 
 #include <memory>
 #include <random>
 #include <stdexcept>
-#include <chrono>
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -36,16 +34,11 @@ namespace hops {
     template<typename Model, typename Proposal>
     class RunBase;
 
-
-    template<typename Model, typename Proposal>
-    void tune(RunBase<Model, Proposal>& run, const AcceptanceRateTuner::param_type& parameters);
-
     template<typename Model, typename Proposal>
     void tune(RunBase<Model, Proposal>& run, const ExpectedSquaredJumpDistanceTuner::param_type& parameters);
 
     template<typename Model, typename Proposal>
-    void tune(RunBase<Model, Proposal>& run, const SimpleExpectedSquaredJumpDistanceTuner::param_type& parameters);
-
+    void tune(RunBase<Model, Proposal>& run, const AcceptanceRateTuner::param_type& parameters);
 
     template<typename Model, typename Proposal>
     class RunBase {
@@ -143,8 +136,11 @@ namespace hops {
             if (!isRandomGeneratorInitialized) {
             	isRandomGeneratorInitialized = true;
             	// initialize random number generator for each chain
+            	randomNumberGenerators.clear();
+            	RandomNumberGenerator rng(randomSeed);
+            	std::uniform_int_distribution<unsigned> uniform(std::numeric_limits<unsigned>::min(), std::numeric_limits<unsigned>::max());
             	for (unsigned long i = 0; i < numberOfChains; ++i) {
-            		randomNumberGenerators.push_back(RandomNumberGenerator(randomSeed, i));
+            		randomNumberGenerators.push_back(RandomNumberGenerator(uniform(rng)));
             	}
             }
 
@@ -344,9 +340,8 @@ namespace hops {
         double randomSeed = 0;
 
         //friend void tune(RunBase<Model, Proposal>& run, const ExpectedSquaredJumpDistanceTuner::param_type& parameters);
-        friend void tune<>(RunBase& run, const AcceptanceRateTuner::param_type& parameters);
         friend void tune<>(RunBase& run, const ExpectedSquaredJumpDistanceTuner::param_type& parameters);
-        friend void tune<>(RunBase& run, const SimpleExpectedSquaredJumpDistanceTuner::param_type& parameters);
+        friend void tune<>(RunBase& run, const AcceptanceRateTuner::param_type& parameters);
     };
 
     template <typename Model>
@@ -515,46 +510,6 @@ namespace hops {
 	}
 
     template<typename Model, typename Proposal>
-    void tune(RunBase<Model, Proposal>& run, const AcceptanceRateTuner::param_type& parameters) {
-        if (!run.isInitialized) {
-            run.init();
-        }
-
-        double tunedStepSize, deltaAcceptanceRate;
-        
-        // record tuning time 
-        double time = std::chrono::duration_cast<std::chrono::milliseconds>(
-                std::chrono::high_resolution_clock::now().time_since_epoch()
-        ).count();
-
-        AcceptanceRateTuner::tune(tunedStepSize, 
-                                  deltaAcceptanceRate, 
-                                  run.markovChains, 
-                                  run.randomNumberGenerators, 
-                                  parameters);
-
-        time = std::chrono::duration_cast<std::chrono::milliseconds>(
-                std::chrono::high_resolution_clock::now().time_since_epoch()
-        ).count() - time;
-
-
-        for (size_t i = 0; i < run.markovChains.size(); ++i) {
-            try {
-                run.markovChains[i]->setAttribute(hops::MarkovChainAttribute::STEP_SIZE, tunedStepSize);
-            } catch (...) {
-                //
-            }
-        }
-
-        run.stepSize = tunedStepSize;
-        unsigned long totalNumberOfTuningSamples = 
-                run.markovChains.size() * parameters.iterationsToTestStepSize * parameters.maximumTotalIterations; 
-        // reset stored states
-        run.data->reset();
-        run.data->setTuningData(totalNumberOfTuningSamples, tunedStepSize, -1, {parameters.acceptanceRateTargetValue - deltaAcceptanceRate, parameters.acceptanceRateTargetValue + deltaAcceptanceRate}, time);
-    }
-
-    template<typename Model, typename Proposal>
     void tune(RunBase<Model, Proposal>& run, const ExpectedSquaredJumpDistanceTuner::param_type& parameters) {
         if (!run.isInitialized) {
             run.init();
@@ -591,27 +546,27 @@ namespace hops {
                 run.markovChains.size() * parameters.iterationsToTestStepSize * parameters.maximumTotalIterations; 
         // reset stored states
         run.data->reset();
-        run.data->setTuningData(totalNumberOfTuningSamples, tunedStepSize, maximumExpectedSquaredJumpDistance, {}, time);
+        run.data->setTuningData(totalNumberOfTuningSamples, tunedStepSize, maximumExpectedSquaredJumpDistance, -1, time);
     }
 
     template<typename Model, typename Proposal>
-    void tune(RunBase<Model, Proposal>& run, const SimpleExpectedSquaredJumpDistanceTuner::param_type& parameters) {
+    void tune(RunBase<Model, Proposal>& run, const AcceptanceRateTuner::param_type& parameters) {
         if (!run.isInitialized) {
             run.init();
         }
 
-        double tunedStepSize, maximumExpectedSquaredJumpDistance;
+        double tunedStepSize, acceptanceRate;
         
         // record tuning time 
         double time = std::chrono::duration_cast<std::chrono::milliseconds>(
                 std::chrono::high_resolution_clock::now().time_since_epoch()
         ).count();
 
-        SimpleExpectedSquaredJumpDistanceTuner::tune(tunedStepSize, 
-                                               maximumExpectedSquaredJumpDistance, 
-                                               run.markovChains, 
-                                               run.randomNumberGenerators, 
-                                               parameters);
+        AcceptanceRateTuner::tune(tunedStepSize, 
+                                  acceptanceRate, 
+                                  run.markovChains, 
+                                  run.randomNumberGenerators, 
+                                  parameters);
 
         time = std::chrono::duration_cast<std::chrono::milliseconds>(
                 std::chrono::high_resolution_clock::now().time_since_epoch()
@@ -628,10 +583,10 @@ namespace hops {
 
         run.stepSize = tunedStepSize;
         unsigned long totalNumberOfTuningSamples = 
-                run.markovChains.size() * parameters.iterationsToTestStepSize; 
+                parameters.iterationsToTestStepSize * parameters.maximumTotalIterations; 
         // reset stored states
         run.data->reset();
-        run.data->setTuningData(totalNumberOfTuningSamples, tunedStepSize, maximumExpectedSquaredJumpDistance, {}, time);
+        run.data->setTuningData(totalNumberOfTuningSamples, tunedStepSize, -1, acceptanceRate, time);
     }
 }
 
