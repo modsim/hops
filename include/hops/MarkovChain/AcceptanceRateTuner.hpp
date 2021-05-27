@@ -61,7 +61,7 @@ namespace hops {
          * @return true if markov chain is tuned
          */
         static bool
-        tune(std::vector<std::unique_ptr<MarkovChain>>& markovChain, 
+        tune(std::vector<std::shared_ptr<MarkovChain>>& markovChain, 
              std::vector<RandomNumberGenerator>& randomNumberGenerator, 
              const param_type &parameters);
 
@@ -76,7 +76,7 @@ namespace hops {
         static bool
         tune(double& stepSize, 
              double& acceptanceRate,
-             std::vector<std::unique_ptr<MarkovChain>>& markovChain, 
+             std::vector<std::shared_ptr<MarkovChain>>& markovChain, 
              std::vector<RandomNumberGenerator>& randomNumberGenerator, 
              const param_type &parameters);
 

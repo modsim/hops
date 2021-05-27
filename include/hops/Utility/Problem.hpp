@@ -14,7 +14,7 @@ namespace hops {
     public:
         using ModelType = Model;
 
-        Problem() = default;
+        //Problem() = default;
 
         Problem(const Model& model) :
                 model(model) {
