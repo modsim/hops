@@ -579,7 +579,7 @@ namespace hops {
 
 
     private:
-        template<typename MatrixType, typename VectorType, typename Model>
+        template<typename MatrixType, typename VectorType>
         static bool isInteriorPoint(MatrixType A, VectorType b, VectorType x) {
             return ((b - A * x).array() >= 0).all();
         }
