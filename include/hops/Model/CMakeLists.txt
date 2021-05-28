@@ -2,6 +2,7 @@ if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
     target_sources(hops PRIVATE
             DegenerateMultivariateGaussianModel.hpp
             DynMultimodalModel.hpp
+            LinearModel.hpp
             ModelMixin.hpp
             MultimodalModel.hpp
             MultivariateGaussianModel.hpp
