@@ -583,7 +583,7 @@ namespace hops {
 
         run.stepSize = tunedStepSize;
         unsigned long totalNumberOfTuningSamples = 
-                parameters.iterationsToTestStepSize * parameters.maximumTotalIterations; 
+                parameters.maximumTotalIterations; 
         // reset stored states
         run.data->reset();
         run.data->setTuningData(totalNumberOfTuningSamples, tunedStepSize, -1, acceptanceRate, time);
