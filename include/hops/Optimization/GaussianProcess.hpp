@@ -28,24 +28,6 @@ namespace hops {
             //
         }
 
-        GaussianProcess getPriorCopy() {
-            return GaussianProcess<MatrixType, VectorType, Kernel>(this->kernel, this->priorMeanFunction);
-        }
-
-        GaussianProcess getPosteriorCopy() {
-            GaussianProcess<MatrixType, VectorType, Kernel> gp = this->getPriorCopy();
-            gp.sampleInputs = sampleInputs;
-            gp.posteriorMean = posteriorMean;
-            gp.posteriorCovariance = posteriorCovariance;
-            gp.sqrtInvPosteriorCovariance = sqrtInvPosteriorCovariance;
-            gp.observedCovariance = observedCovariance;
-            gp.invObservedCovariance = invObservedCovariance;
-            gp.observedInputs = observedInputs;
-            gp.observedValues = observedValues;
-            gp.observedValueErrors = observedValueErrors;
-            return gp;
-        }
-
         std::vector<double> sample(const std::vector<VectorType>& x, 
                                    hops::RandomNumberGenerator& randomNumberGenerator) {
             size_t max;
@@ -65,7 +47,7 @@ namespace hops {
             posteriorMean = priorMean(x) + Ks.transpose() * invObservedCovariance * (observedValues - priorMean(observedInputs));
             posteriorCovariance = Kss - Ks.transpose() * invObservedCovariance * Ks;
 
-            Eigen::BDCSVD<MatrixType> solver(MatrixType(posteriorCovariance), Eigen::ComputeFullU);
+            Eigen::BDCSVD<MatrixType> solver(MatrixType(posteriorCovariance), Eigen::ComputeFullU | Eigen::ComputeFullV);
             sqrtInvPosteriorCovariance = solver.matrixU() * 
                                                      solver.singularValues().cwiseSqrt().asDiagonal();
 
@@ -77,7 +59,6 @@ namespace hops {
                 assert(!std::isnan(drawVec(i)));
             }
 
-            //std::cout << sqrtInvPosteriorCovariance << std::endl;
             drawVec = posteriorMean + sqrtInvPosteriorCovariance * drawVec;
 
             maxElement = 0;
@@ -113,7 +94,7 @@ namespace hops {
             observedValueErrors = newObservedValueErrors;
 
             observedCovariance = kernel(observedInputs, observedInputs);
-            observedCovariance = observedCovariance + Eigen::MatrixXd(observedValueErrors.asDiagonal());
+            observedCovariance += observedValueErrors.asDiagonal();
 
             if (observedCovariance.size() > 0) {
                 invObservedCovariance = observedCovariance.inverse();
