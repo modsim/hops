@@ -61,6 +61,10 @@ namespace hops {
                 VectorType inequalityRhs,
                 VectorType startingPoint
         ) {
+            if (!isInteriorPoint(roundedInequalityLhs, roundedInequalityRhs, startingPoint)) {
+                throw std::runtime_error("Starting point outside polytope is always constant.");
+            }
+
             switch (type) {
                 case MarkovChainType::BallWalk : {
                     return addRecordersAndAdapter(
@@ -157,6 +161,10 @@ namespace hops {
                 MatrixType unroundingTransformation,
                 VectorType unroundingShift
         ) {
+            if (!isInteriorPoint(roundedInequalityLhs, roundedInequalityRhs, startingPoint)) {
+                throw std::runtime_error("Starting point outside polytope is always constant.");
+            }
+
             switch (type) {
                 case MarkovChainType::BallWalk : {
                     return addRecordersAndAdapter(
@@ -289,6 +297,10 @@ namespace hops {
                 Model model,
                 bool useParallelTempering
         ) {
+            if (!isInteriorPoint(inequalityLhs, inequalityRhs, startingPoint)) {
+                throw std::runtime_error("Starting point outside polytope is always constant.");
+            }
+
             if constexpr(std::is_same<Model, UniformDummyModel<MatrixType, VectorType>>::value) {
                 return createMarkovChain<MatrixType, VectorType>(type,
                                                                  inequalityLhs,
@@ -453,6 +465,10 @@ namespace hops {
                 Model model,
                 bool useParallelTempering
         ) {
+            if (!isInteriorPoint(roundedInequalityLhs, roundedInequalityRhs, startingPoint)) {
+                throw std::runtime_error("Starting point outside polytope is always constant.");
+            }
+
             if constexpr(std::is_same<Model, UniformDummyModel<MatrixType, VectorType>>::value) {
                 return createMarkovChain<MatrixType, VectorType>(type,
                                                                  roundedInequalityLhs,
@@ -549,6 +565,11 @@ namespace hops {
 
 
     private:
+        template<typename MatrixType, typename VectorType, typename Model>
+        static bool isInteriorPoint(MatrixType A, VectorType b, VectorType x) {
+            return ((b - A * x).array() >= 0).all();
+        }
+
         /**
          * @brief Adds mixins to MarkovChain
          * @tparam MarkovChain
