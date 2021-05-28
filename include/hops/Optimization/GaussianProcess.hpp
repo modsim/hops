@@ -95,7 +95,12 @@ namespace hops {
 
             observedCovariance = kernel(observedInputs, observedInputs);
             observedCovariance += observedValueErrors.asDiagonal();
-            invObservedCovariance = observedCovariance.inverse();
+
+            if (observedCovariance.size() > 0) {
+                invObservedCovariance = observedCovariance.inverse();
+            } else {
+                invObservedCovariance = Eigen::MatrixXd::Zero(0, 0);
+            }
         }
 
         void addObservations(const std::vector<VectorType>& x, const std::vector<double>& y) {
@@ -117,7 +122,12 @@ namespace hops {
 
             observedCovariance = kernel(observedInputs, observedInputs);
             observedCovariance += observedValueErrors.asDiagonal();
-            invObservedCovariance = observedCovariance.inverse();
+
+            if (observedCovariance.size() > 0) {
+                invObservedCovariance = observedCovariance.inverse();
+            } else {
+                invObservedCovariance = Eigen::MatrixXd::Zero(0, 0);
+            }
         }
 
         const VectorType& getPosteriorMean() const { return posteriorMean; }
