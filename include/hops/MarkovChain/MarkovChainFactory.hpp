@@ -61,7 +61,7 @@ namespace hops {
                 VectorType inequalityRhs,
                 VectorType startingPoint
         ) {
-            if (!isInteriorPoint(roundedInequalityLhs, roundedInequalityRhs, startingPoint)) {
+            if (!isInteriorPoint(inequalityLhs, inequalityRhs, startingPoint)) {
                 throw std::runtime_error("Starting point outside polytope is always constant.");
             }
 
