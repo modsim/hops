@@ -102,9 +102,9 @@ namespace hops {
             b(std::move(b_)),
             state(std::move(currentState_)),
             proposal(this->state),
-            stepSize(stepSize_),
+            t(0),
             warmUp(warmUp_),
-            t(0) {
+            stepSize(stepSize_) {
         normal = std::normal_distribution<typename MatrixType::Scalar>(0, stepSize);
 
         // scale down with larger dimensions according to Roberts & Rosenthal, 2001.

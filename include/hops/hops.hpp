@@ -63,6 +63,7 @@
 #include "MarkovChain/MarkovChainFactory.hpp"
 #include "MarkovChain/MarkovChainType.hpp"
 #include "MarkovChain/StateTransformation.hpp"
+#include "MarkovChain/SimpleExpectedSquaredJumpDistanceTuner.hpp"
 
 #include "Model/DegenerateMultivariateGaussianModel.hpp"
 #include "Model/DynMultimodalModel.hpp"
