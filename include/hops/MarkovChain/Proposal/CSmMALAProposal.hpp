@@ -2,9 +2,8 @@
 #define HOPS_CSMMALA_HPP
 
 #include <Eigen/Eigenvalues>
-#include "DikinProposal.hpp"
-#include "../Recorder/IsStoreMetropolisHastingsInfoRecordAvailable.hpp"
-#include "../Recorder/IsAddMessageAvailabe.hpp"
+#include <hops/MarkovChain/Proposal/DikinProposal.hpp>
+#include <hops/MarkovChain/Recorder/IsAddMessageAvailabe.hpp>
 #include <random>
 
 namespace hops {
@@ -78,6 +77,7 @@ namespace hops {
 
         typename MatrixType::Scalar stepSize;
         typename MatrixType::Scalar fisherWeight = .5;
+        typename MatrixType::Scalar fisherScale = 1.;
         typename MatrixType::Scalar geometricFactor;
         typename MatrixType::Scalar covarianceFactor;
 
@@ -129,20 +129,14 @@ namespace hops {
     CSmMALAProposal<Model, Matrix>::calculateLogAcceptanceProbability() {
         bool isProposalInteriorPoint = ((A * proposal - b).array() < 0).all();
         if (!isProposalInteriorPoint) {
-            if constexpr(IsStoreMetropolisHastingsInfoRecordAvailable<Model>::value) {
-                Model::storeMetropolisHastingsInfoRecord("polytope");
-            }
             return -std::numeric_limits<typename MatrixType::Scalar>::infinity();
-        }
-        if constexpr(IsStoreMetropolisHastingsInfoRecordAvailable<Model>::value) {
-            Model::storeMetropolisHastingsInfoRecord("likelihood");
         }
 
         // Important: calculate gradient before fisher info or else x3cflux2 will throw
         StateType gradient = calculateTruncatedGradient(proposal);
         proposalMetric.setZero();
         if (fisherWeight != 0) {
-            auto fisherInformation = Model::calculateExpectedFisherInformation(proposal);
+            auto fisherInformation = fisherScale * Model::calculateExpectedFisherInformation(proposal);
             proposalMetric += fisherWeight * fisherInformation;
         }
         if (fisherWeight != 1) {
@@ -181,7 +175,7 @@ namespace hops {
         StateType gradient = calculateTruncatedGradient(state);
         stateMetric.setZero();
         if (fisherWeight != 0) {
-            auto fisherInformation = Model::calculateExpectedFisherInformation(state);
+            auto fisherInformation = fisherScale * Model::calculateExpectedFisherInformation(state);
             stateMetric += fisherWeight * fisherInformation;
         }
         if (fisherWeight != 1) {

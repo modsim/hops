@@ -4,6 +4,7 @@
 #include <random>
 
 #include <hops/FileWriter/FileWriter.hpp>
+#include <hops/MarkovChain/Recorder/IsAddMessageAvailabe.hpp>
 #include <hops/MarkovChain/Recorder/IsClearRecordsAvailable.hpp>
 #include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
 
@@ -39,9 +40,25 @@ namespace hops {
         numberOfProposals++;
         double acceptanceChance = std::log(uniformRealDistribution(randomNumberGenerator));
         double acceptanceProbability = MarkovChainProposer::calculateLogAcceptanceProbability();
+        if constexpr(IsAddMessageAvailable<MarkovChainProposer>::value) {
+            MarkovChainProposer::addMessage("interior(");
+            MarkovChainProposer::addMessage(std::isfinite(acceptanceProbability) ? "true" : "false");
+            MarkovChainProposer::addMessage(")");
+            MarkovChainProposer::addMessage(" alpha(");
+            MarkovChainProposer::addMessage(std::to_string(std::exp(acceptanceProbability)));
+            MarkovChainProposer::addMessage(") action(");
+        }
         if (acceptanceChance < acceptanceProbability) {
             MarkovChainProposer::acceptProposal();
             numberOfAcceptedProposals++;
+            if constexpr(IsAddMessageAvailable<MarkovChainProposer>::value) {
+                MarkovChainProposer::addMessage("accept) | ");
+            }
+        }
+        else {
+            if constexpr(IsAddMessageAvailable<MarkovChainProposer>::value) {
+                MarkovChainProposer::addMessage("reject) | ");
+            }
         }
     }
 

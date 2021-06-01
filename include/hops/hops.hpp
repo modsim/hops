@@ -39,9 +39,9 @@
 #include "MarkovChain/Recorder/AcceptanceRateRecorder.hpp"
 #include "MarkovChain/Recorder/IsAddMessageAvailabe.hpp"
 #include "MarkovChain/Recorder/IsClearRecordsAvailable.hpp"
-#include "MarkovChain/Recorder/IsStoreMetropolisHastingsInfoRecordAvailable.hpp"
 #include "MarkovChain/Recorder/IsStoreRecordAvailable.hpp"
 #include "MarkovChain/Recorder/IsWriteRecordsToFileAvailable.hpp"
+#include "MarkovChain/Recorder/MessageRecorder.hpp"
 #include "MarkovChain/Recorder/StateRecorder.hpp"
 #include "MarkovChain/Recorder/TimestampRecorder.hpp"
 

@@ -24,7 +24,7 @@ namespace hops {
         }
 
         void writeRecordsToFile(const FileWriter *const fileWriter) const {
-            fileWriter->write("Messages", records);
+            fileWriter->write("messages", records);
             if constexpr(IsWriteRecordsToFileAvailable<MarkovChainImpl>::value) {
                 MarkovChainImpl::writeRecordsToFile(fileWriter);
             }

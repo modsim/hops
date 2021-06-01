@@ -52,7 +52,7 @@ namespace hops {
         typename MatrixType::Scalar stepSize = 0.075; // value  from dikin walk publication
         typename MatrixType::Scalar geometricFactor;
         typename MatrixType::Scalar covarianceFactor;
-        constexpr static typename MatrixType::Scalar boundaryCushion = 1e-10;
+        constexpr static typename MatrixType::Scalar boundaryCushion = 0;
 
         std::normal_distribution<typename MatrixType::Scalar> normalDistribution{0., 1.};
         DikinEllipsoidCalculator<MatrixType, VectorType> dikinEllipsoidCalculator;
