@@ -1,13 +1,13 @@
 #ifndef HOPS_DATA_HPP
 #define HOPS_DATA_HPP
 
-#include "../FileWriter/FileWriter.hpp"
-#include "../FileWriter/FileWriterFactory.hpp"
-#include "../FileWriter/FileWriterType.hpp"
-#include "../Diagnostics/ExpectedSquaredJumpDistance.hpp"
-#include "../Diagnostics/EffectiveSampleSize.hpp"
-#include "../Diagnostics/PotentialScaleReductionFactor.hpp"
-#include "../MarkovChain/MarkovChain.hpp"
+#include <hops/FileWriter/FileWriter.hpp>
+#include <hops/FileWriter/FileWriterFactory.hpp>
+#include <hops/FileWriter/FileWriterType.hpp>
+#include <hops/Diagnostics/ExpectedSquaredJumpDistance.hpp>
+#include <hops/Diagnostics/EffectiveSampleSize.hpp>
+#include <hops/Diagnostics/PotentialScaleReductionFactor.hpp>
+#include <hops/MarkovChain/MarkovChain.hpp>
 #include "ChainData.hpp"
 
 #include <Eigen/Core>

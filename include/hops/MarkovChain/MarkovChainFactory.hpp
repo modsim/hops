@@ -12,7 +12,6 @@
 #include <hops/MarkovChain/ParallelTempering/ParallelTempering.hpp>
 #include <hops/MarkovChain/Proposal/BallWalkProposal.hpp>
 #include <hops/MarkovChain/Proposal/CoordinateHitAndRunProposal.hpp>
-#include <hops/MarkovChain/Proposal/CSmMALANoGradientProposal.hpp>
 #include <hops/MarkovChain/Proposal/CSmMALAProposal.hpp>
 #include <hops/MarkovChain/Proposal/DikinProposal.hpp>
 #include <hops/MarkovChain/Proposal/GaussianProposal.hpp>
@@ -580,7 +579,7 @@ namespace hops {
 
     private:
         template<typename MatrixType, typename VectorType>
-        static bool isInteriorPoint(MatrixType A, VectorType b, VectorType x) {
+            static bool isInteriorPoint(const MatrixType &A, const VectorType &b, const VectorType &x) {
             return ((b - A * x).array() >= 0).all();
         }
 

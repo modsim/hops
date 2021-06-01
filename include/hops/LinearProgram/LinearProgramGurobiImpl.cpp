@@ -63,7 +63,7 @@ namespace {
     }
 }
 
-hops::LinearProgramGurobiImpl::LinearProgramGurobiImpl(const Eigen::MatrixXd &A, Eigen::VectorXd b) :
+hops::LinearProgramGurobiImpl::LinearProgramGurobiImpl(const Eigen::MatrixXd &A, const Eigen::VectorXd &b) :
         LinearProgram(A, b),
         model(std::make_unique<GRBModel>(GRBModel(GurobiEnvironmentSingleton::getInstance().getGurobiEnvironment()))) {
     variables = addVariablesToModel(model.get(), A.cols());

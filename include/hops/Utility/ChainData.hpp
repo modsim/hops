@@ -1,9 +1,8 @@
 #ifndef HOPS_CHAINDATA_HPP
 #define HOPS_CHAINDATA_HPP
 
-#include "../FileWriter/FileWriter.hpp"
+#include <hops/FileWriter/FileWriter.hpp>
 #include "Exceptions.hpp"
-
 #include <Eigen/Core>
 
 #include <vector>

@@ -12,7 +12,7 @@
 namespace hops {
     class LinearProgramGurobiImpl : public LinearProgram {
     public:
-        LinearProgramGurobiImpl(const Eigen::MatrixXd &A, Eigen::VectorXd b);
+        LinearProgramGurobiImpl(const Eigen::MatrixXd &A, const Eigen::VectorXd &b);
 
         LinearProgramGurobiImpl(const LinearProgramGurobiImpl &other);
 

@@ -1,14 +1,14 @@
 #ifndef HOPS_RUN_HPP
 #define HOPS_RUN_HPP
 
-#include "../LinearProgram/LinearProgramClpImpl.hpp"
-#include "../LinearProgram/LinearProgramGurobiImpl.hpp"
-#include "../MarkovChain/ExpectedSquaredJumpDistanceTuner.hpp"
-#include "../MarkovChain/MarkovChain.hpp"
-#include "../MarkovChain/MarkovChainFactory.hpp"
-#include "../MarkovChain/MarkovChainType.hpp"
-#include "../Polytope/MaximumVolumeEllipsoid.hpp"
-#include "../RandomNumberGenerator/RandomNumberGenerator.hpp"
+#include <hops/LinearProgram/LinearProgramClpImpl.hpp>
+#include <hops/LinearProgram/LinearProgramGurobiImpl.hpp>
+#include <hops/MarkovChain/ExpectedSquaredJumpDistanceTuner.hpp>
+#include <hops/MarkovChain/MarkovChain.hpp>
+#include <hops/MarkovChain/MarkovChainFactory.hpp>
+#include <hops/MarkovChain/MarkovChainType.hpp>
+#include <hops/Polytope/MaximumVolumeEllipsoid.hpp>
+#include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
 #include "Data.hpp"
 #include "Exceptions.hpp"
 #include "Problem.hpp"

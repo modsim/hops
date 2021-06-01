@@ -4,7 +4,6 @@
 #include <cmath>
 
 #include <hops/MarkovChain/Draw/IsCalculateLogAcceptanceProbabilityAvailable.hpp>
-#include <hops/MarkovChain/Recorder/IsStoreMetropolisHastingsInfoRecordAvailable.hpp>
 #include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
 
 namespace hops {

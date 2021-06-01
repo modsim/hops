@@ -1,8 +1,6 @@
 set(TEST_SOURCES
         IsAddMessageAvailableTestSuite.cpp
-        IsAppendToLatestMetropolisHastingsInfoRecordAvailableTestSuite.cpp
         IsClearRecordsAvailableTestSuite.cpp
-        IsStoreMetropolisHastingsInfoRecordAvailableTestSuite.cpp
         IsStoreRecordAvailableTestSuite.cpp
         IsWriteRecordsToFileAvailableTestSuite.cpp
         )
