@@ -1,18 +1,11 @@
 #ifndef NEW_HOPS_EXPECTEDSQUAREDJUMPDISTANCETUNER_HPP
 #define NEW_HOPS_EXPECTEDSQUAREDJUMPDISTANCETUNER_HPP
 
-#include <hops/Diagnostics/ExpectedSquaredJumpDistance.hpp>
-#include <hops/FileWriter/FileWriter.hpp>
-#include <hops/FileWriter/FileWriterFactory.hpp>
-#include <hops/FileWriter/FileWriterType.hpp>
 #include <hops/MarkovChain/MarkovChain.hpp>
-#include <hops/MarkovChain/MarkovChainAttribute.hpp>
-#include <hops/Optimization/GaussianProcess.hpp>
 #include <hops/Optimization/ThompsonSampling.hpp>
-
-#include <chrono>
-#include <cmath>
+#include <hops/Diagnostics/ExpectedSquaredJumpDistance.hpp>
 #include <memory>
+#include <chrono>
 #include <stdexcept>
 
 namespace hops {
@@ -26,7 +19,6 @@ namespace hops {
             double stepSizeUpperBound;
             size_t randomSeed;
             bool considerTimeCost;
-            std::string outputDirectory;
 
             param_type(size_t iterationsToTestStepSize,
                        size_t maximumTotalIterations,
@@ -34,8 +26,7 @@ namespace hops {
                        double stepSizeLowerBound,
                        double stepSizeUpperBound,
                        size_t randomSeed,
-                       bool considerTimeCost,
-                       std::string outputDirectory
+                       bool considerTimeCost
             );
         };
 
@@ -73,7 +64,7 @@ namespace hops {
     namespace internal {
         struct ExpectedSquaredJumpDistanceTarget : public ThompsonSamplingTarget<std::vector<double>, Eigen::VectorXd> {
             std::vector<std::shared_ptr<hops::MarkovChain>> markovChain;
-            std::vector<RandomNumberGenerator>* randomNumberGenerator;
+            std::shared_ptr<std::vector<RandomNumberGenerator>> randomNumberGenerator;
             ExpectedSquaredJumpDistanceTuner::param_type parameters;
 
             ExpectedSquaredJumpDistanceTarget(std::vector<std::shared_ptr<hops::MarkovChain>>& markovChain,

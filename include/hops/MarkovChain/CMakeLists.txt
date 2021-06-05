@@ -11,8 +11,6 @@ if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
             MarkovChainAttribute.hpp
             MarkovChainFactory.hpp
             MarkovChainType.hpp
-            SimpleExpectedSquaredJumpDistanceTuner.hpp
-            SimpleExpectedSquaredJumpDistanceTuner.cpp
             StateTransformation.hpp
             )
 endif (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
