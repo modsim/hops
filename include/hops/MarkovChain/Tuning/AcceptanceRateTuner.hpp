@@ -1,0 +1,110 @@
+#ifndef NEW_HOPS_ACCEPTANCERATETUNER_HPP
+#define NEW_HOPS_ACCEPTANCERATETUNER_HPP
+
+#include <hops/MarkovChain/MarkovChain.hpp>
+#include <hops/Optimization/ThompsonSampling.hpp>
+#include <vector>
+
+namespace hops {
+    class AcceptanceRateTuner {
+    public:
+        struct param_type {
+            double acceptanceRateTargetValue;
+            size_t iterationsToTestStepSize;
+            size_t maximumTotalIterations;
+            size_t stepSizeGridSize;
+            double stepSizeLowerBound;
+            double stepSizeUpperBound;
+            size_t randomSeed;
+
+            param_type(double acceptanceRateTargetValue,
+                       size_t iterationsToTestStepSize,
+                       size_t maximumTotalIterations,
+                       size_t stepSizeGridSize,
+                       double stepSizeLowerBound,
+                       double stepSizeUpperBound,
+                       size_t randomSeed
+            );
+        };
+
+        /**
+         * @brief tunes markov chain acceptance rate by nested intervals. The chain is not guaranteed to have converged
+         *        to the specified acceptance rate.
+         * @details Clears Markov chain history.
+         * @param markovChain
+         * @param parameters
+         * size_t indiciation number of iterations used and the tuned MarkovChain
+         * @return true if markov chain is tuned
+         */
+        static bool
+        tune(MarkovChain *markovChain, 
+             RandomNumberGenerator &randomNumberGenerator, 
+             const param_type &parameters);
+
+        /**
+         * @brief tunes markov chain acceptance rate by nested intervals. The chain is not guaranteed to have converged
+         *        to the specified acceptance rate.
+         * @details Clears Markov chain history.
+         * @param markovChain
+         * @param parameters
+         * @return true if markov chain is tuned
+         */
+        static bool
+        tune(double& stepSize, 
+             double& deltaAcceptanceRate, 
+             MarkovChain *markovChain, 
+             RandomNumberGenerator &randomNumberGenerator, 
+             const param_type &parameters);
+
+        /**
+         * @brief tunes markov chain acceptance rate by nested intervals. The chain is not guaranteed to have converged
+         *        to the specified acceptance rate.
+         * @details Clears Markov chain history.
+         * @param markovChain
+         * @param parameters
+         * @return true if markov chain is tuned
+         */
+        static bool
+        tune(std::vector<std::shared_ptr<MarkovChain>>& markovChain, 
+             std::vector<RandomNumberGenerator>& randomNumberGenerator, 
+             const param_type &parameters);
+
+        /**
+         * @brief tunes markov chain acceptance rate by nested intervals. The chain is not guaranteed to have converged
+         *        to the specified acceptance rate.
+         * @details Clears Markov chain history.
+         * @param markovChain
+         * @param parameters
+         * @return true if markov chain is tuned
+         */
+        static bool
+        tune(double& stepSize, 
+             double& deltaAcceptanceRate, 
+             std::vector<std::shared_ptr<MarkovChain>>& markovChain, 
+             std::vector<RandomNumberGenerator>& randomNumberGenerator, 
+             const param_type &parameters);
+
+        AcceptanceRateTuner() = delete;
+    };
+
+    namespace internal {
+        struct AcceptanceRateTarget : public ThompsonSamplingTarget<std::vector<double>, Eigen::VectorXd> {
+            std::vector<std::shared_ptr<hops::MarkovChain>> markovChain;
+            std::vector<RandomNumberGenerator>* randomNumberGenerator;
+            AcceptanceRateTuner::param_type parameters;
+
+            AcceptanceRateTarget(std::vector<std::shared_ptr<hops::MarkovChain>>& markovChain,
+                                              std::vector<hops::RandomNumberGenerator>& randomNumberGenerator,
+                                              const hops::AcceptanceRateTuner::param_type& parameters) :
+                    markovChain(markovChain),
+                    randomNumberGenerator(&randomNumberGenerator),
+                    parameters(parameters) {
+                //
+            }
+
+            virtual std::vector<double> operator()(const Eigen::VectorXd& x) override;
+        };
+    }
+}
+
+#endif //HOPS_ACCEPTANCERATETUNER_HPP
