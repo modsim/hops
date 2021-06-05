@@ -45,8 +45,10 @@
 #include "MarkovChain/Recorder/StateRecorder.hpp"
 #include "MarkovChain/Recorder/TimestampRecorder.hpp"
 
-#include "MarkovChain/AcceptanceRateTuner.hpp"
-#include "MarkovChain/ExpectedSquaredJumpDistanceTuner.hpp"
+#include "MarkovChain/Tuning/AcceptanceRateTuner.hpp"
+#include "MarkovChain/Tuning/ExpectedSquaredJumpDistanceTuner.hpp"
+#include "MarkovChain/Tuning/SimpleExpectedSquaredJumpDistanceTuner.hpp"
+
 #include "MarkovChain/IsGetColdnessAvailable.hpp"
 #include "MarkovChain/IsGetExchangeAttemptProbabilityAvailable.hpp"
 #include "MarkovChain/IsGetStepSizeAvailable.hpp"
@@ -61,7 +63,6 @@
 #include "MarkovChain/MarkovChainFactory.hpp"
 #include "MarkovChain/MarkovChainType.hpp"
 #include "MarkovChain/StateTransformation.hpp"
-#include "MarkovChain/SimpleExpectedSquaredJumpDistanceTuner.hpp"
 
 #include "Model/DegenerateMultivariateGaussianModel.hpp"
 #include "Model/DynMultimodalModel.hpp"

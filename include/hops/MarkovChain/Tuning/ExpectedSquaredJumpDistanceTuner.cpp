@@ -1,4 +1,12 @@
+#include <hops/MarkovChain/MarkovChain.hpp>
+#include <hops/MarkovChain/MarkovChainAttribute.hpp>
 #include <hops/MarkovChain/Tuning/ExpectedSquaredJumpDistanceTuner.hpp>
+#include <hops/Optimization/GaussianProcess.hpp>
+#include <hops/Optimization/ThompsonSampling.hpp>
+
+#include <cmath>
+#include <memory>
+#include <chrono>
 
 /**
  * @brief measures the stepsize of a configured step size
@@ -6,7 +14,7 @@
  * @param markovChain
  * @return
  */
-std::tuple<double, double> hops::internal::ExpectedSquaredJumpDistanceTarget::operator()(const Eigen::VectorXd& x) {
+std::vector<double> hops::internal::ExpectedSquaredJumpDistanceTarget::operator()(const Eigen::VectorXd& x) {
     double stepSize = std::pow(10, x(0));
     std::vector<double> expectedSquaredJumpDistances;
     for (size_t i = 0; i < markovChain.size(); ++i) {
@@ -27,19 +35,11 @@ std::tuple<double, double> hops::internal::ExpectedSquaredJumpDistanceTarget::op
         // set time to 1 if it was 0
         time = (time == 0 ? 1 : time);
 
-        double expectedSquaredJumpDistance = 
-                hops::computeExpectedSquaredJumpDistance<Eigen::VectorXd, Eigen::MatrixXd>(markovChain[i]->getStateRecords());
-
+        double expectedSquaredJumpDistance = hops::computeExpectedSquaredJumpDistance(markovChain[i]->getStateRecords());
         expectedSquaredJumpDistance = (parameters.considerTimeCost ? expectedSquaredJumpDistance / time : expectedSquaredJumpDistance);
         expectedSquaredJumpDistances.push_back(expectedSquaredJumpDistance);
     }
-
-    double mean = std::accumulate(expectedSquaredJumpDistances.begin(), expectedSquaredJumpDistances.end(), 0.0) / expectedSquaredJumpDistances.size();
-
-    double squaredSum = std::inner_product(expectedSquaredJumpDistances.begin(), expectedSquaredJumpDistances.end(), expectedSquaredJumpDistances.begin(), 0.0);
-    double error = std::sqrt(squaredSum / expectedSquaredJumpDistances.size() - mean * mean); 
-
-    return {mean, error};
+    return expectedSquaredJumpDistances;
 }
 
 bool hops::ExpectedSquaredJumpDistanceTuner::tune(
@@ -47,111 +47,73 @@ bool hops::ExpectedSquaredJumpDistanceTuner::tune(
         double& maximumExpectedSquaredJumpDistance,
         std::vector<std::shared_ptr<hops::MarkovChain>>& markovChain,
         std::vector<RandomNumberGenerator>& randomNumberGenerator,
-        hops::ExpectedSquaredJumpDistanceTuner::param_type& parameters,
-        Eigen::MatrixXd& data,
-        Eigen::MatrixXd& posterior) {
+        const hops::ExpectedSquaredJumpDistanceTuner::param_type& parameters) {
     using Kernel = SquaredExponentialKernel<Eigen::MatrixXd, Eigen::VectorXd>;
     using GP = GaussianProcess<Eigen::MatrixXd, Eigen::VectorXd, Kernel>;
 
-    Eigen::VectorXd logStepSizeGrid(parameters.stepSizeGridSize);
+    std::vector<Eigen::VectorXd> logStepSizeGrid;
     double a = std::log10(parameters.stepSizeLowerBound), b = std::log10(parameters.stepSizeUpperBound);
 
     for (size_t i = 0; i < parameters.stepSizeGridSize; ++i) {
-        logStepSizeGrid(i) = (b - a) * i / (parameters.stepSizeGridSize - 1) + a;
+        Eigen::VectorXd x = Eigen::VectorXd(1);
+        x(0) = (b - a) * i / (parameters.stepSizeGridSize - 1) + a;
+        logStepSizeGrid.push_back(x);
     }
 
-    double sigma = 1, length = 1;
+    double sigma = 1, length = 1, noise = 1, unscalingFactor;
     Kernel kernel(sigma, length);
     GP gp = GP(kernel);
 
-    auto target = std::make_shared<internal::ExpectedSquaredJumpDistanceTarget>(
-            internal::ExpectedSquaredJumpDistanceTarget(markovChain, randomNumberGenerator, parameters));
+    auto target = std::make_shared<internal::ExpectedSquaredJumpDistanceTarget>(internal::ExpectedSquaredJumpDistanceTarget(markovChain, randomNumberGenerator, parameters));
+
+    std::vector<Eigen::VectorXd> samples;
+    std::vector<double> observations;
 
     RandomNumberGenerator thompsonSamplingRandomNumberGenerator(parameters.randomSeed, markovChain.size() + 1);
-    bool isThompsonSamplingConverged = ThompsonSampling<Eigen::MatrixXd, Eigen::VectorXd, GP>::optimize(
-            parameters.posteriorUpdateIterations,
-            parameters.pureSamplingIterations,
-            parameters.iterationsForConvergence,
+    bool success = ThompsonSampling<Eigen::MatrixXd, Eigen::VectorXd, GP>::optimize(
+            parameters.maximumTotalIterations,
             gp, target, logStepSizeGrid, 
             thompsonSamplingRandomNumberGenerator,
-            &parameters.posteriorUpdateIterationsNeeded,
-            parameters.smoothingLength);
+            samples, observations, 
+            noise, &unscalingFactor);
    
-    if (parameters.recordData) {
-        auto& posteriorMean = gp.getPosteriorMean();
-        auto& posteriorCovariance = gp.getPosteriorCovariance();
+    auto posteriorMean = gp.getPosteriorMean();
 
-        auto& observedInputs = gp.getObservedInputs();
-        auto& observedValues = gp.getObservedValues();
-        auto& observedValueErrors = gp.getObservedValueErrors();
-
-        // only for logging purposes
-        posterior = Eigen::MatrixXd(posteriorMean.size(), 3);
-        for (long i = 0; i < posteriorMean.size(); ++i) {
-            posterior(i, 0) = logStepSizeGrid(i, 0);
-            posterior(i, 1) = posteriorMean(i);
-            posterior(i, 2) = posteriorCovariance(i,i);
-        }
-
-        // only for logging purposes
-        data = Eigen::MatrixXd(observedInputs.size(), 3);
-        for (long i = 0; i < observedInputs.size(); ++i) {
-            data(i, 0) = observedInputs(i, 0);
-            data(i, 1) = observedValues(i);
-            data(i, 2) = observedValueErrors(i);
+    size_t maximumIndex = 0;
+    for (size_t i = 1; i < posteriorMean.size(); ++i) {
+        if (posteriorMean(i) > posteriorMean(maximumIndex)) {
+            maximumIndex = i;
         }
     }
 
-    // store results in reference parameters
-    auto& posteriorMean = gp.getPosteriorMean();
-    size_t maximumIndex;
-    maximumExpectedSquaredJumpDistance = posteriorMean.maxCoeff(&maximumIndex);
-    stepSize = std::pow(10, logStepSizeGrid(maximumIndex, 0));
+    stepSize = std::pow(10, logStepSizeGrid[maximumIndex](0));
+    maximumExpectedSquaredJumpDistance = posteriorMean(maximumIndex) * unscalingFactor;
 
-    return isThompsonSamplingConverged;
+    return true;
 }
 
 bool hops::ExpectedSquaredJumpDistanceTuner::tune(
         std::vector<std::shared_ptr<hops::MarkovChain>>& markovChain,
         std::vector<RandomNumberGenerator>& randomNumberGenerator,
-        hops::ExpectedSquaredJumpDistanceTuner::param_type& parameters) {
+        const hops::ExpectedSquaredJumpDistanceTuner::param_type& parameters) {
     double stepSize = markovChain[0]->getAttribute(hops::MarkovChainAttribute::STEP_SIZE);
     double maximumExpectedSquaredJumpDistance;
     return tune(stepSize, maximumExpectedSquaredJumpDistance, markovChain, randomNumberGenerator, parameters);
 }
 
-bool hops::ExpectedSquaredJumpDistanceTuner::tune(
-        double& stepSize,
-        double& maximumExpectedSquaredJumpDistance,
-        std::vector<std::shared_ptr<hops::MarkovChain>>& markovChain,
-        std::vector<RandomNumberGenerator>& randomNumberGenerator,
-        hops::ExpectedSquaredJumpDistanceTuner::param_type& parameters) {
-    Eigen::MatrixXd data, posterior;
-    return tune(stepSize, maximumExpectedSquaredJumpDistance, markovChain, randomNumberGenerator, parameters, data, posterior);
-}
-
 hops::ExpectedSquaredJumpDistanceTuner::param_type::param_type(size_t iterationsToTestStepSize,
-                                                               size_t posteriorUpdateIterations,
-                                                               size_t pureSamplingIterations,
-                                                               size_t iterationsForConvergence,
+                                                               size_t maximumTotalIterations,
                                                                size_t stepSizeGridSize,
                                                                double stepSizeLowerBound,
                                                                double stepSizeUpperBound,
-                                                               double smoothingLength,
                                                                size_t randomSeed,
-                                                               bool considerTimeCost,
-                                                               bool recordData) {
+                                                               bool considerTimeCost) {
     this->iterationsToTestStepSize = iterationsToTestStepSize;
-    this->posteriorUpdateIterations = posteriorUpdateIterations;
-    this->pureSamplingIterations = pureSamplingIterations;
-    this->iterationsForConvergence = iterationsForConvergence;
-    this->posteriorUpdateIterationsNeeded = 0;
+    this->maximumTotalIterations = maximumTotalIterations;
     this->stepSizeGridSize = stepSizeGridSize;
     this->stepSizeLowerBound = stepSizeLowerBound;
     this->stepSizeUpperBound = stepSizeUpperBound;
-    this->smoothingLength = smoothingLength;
     this->randomSeed = randomSeed;
     this->considerTimeCost = considerTimeCost;
-    this->recordData = recordData;
 }
 
