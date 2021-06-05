@@ -1,4 +1,11 @@
-#include <hops/MarkovChain/Tuning/SimpleExpectedSquaredJumpDistanceTuner.hpp>
+#include <hops/MarkovChain/MarkovChain.hpp>
+#include <hops/MarkovChain/MarkovChainAttribute.hpp>
+#include <hops/MarkovChain/SimpleExpectedSquaredJumpDistanceTuner.hpp>
+
+#include <vector>
+#include <cmath>
+#include <memory>
+#include <chrono>
 
 //extern std::vector<double> measureExpectedSquaredJumpDistance(double stepSize,
 //                                                              std::vector<std::shared_ptr<hops::MarkovChain>>& markovChain,
@@ -37,6 +44,7 @@ std::vector<double> measureExpectedSquaredJumpDistance(double stepSize,
     return expectedSquaredJumpDistances;
 }
 
+
 bool hops::SimpleExpectedSquaredJumpDistanceTuner::tune(
         double& stepSize,
         double& maximumExpectedSquaredJumpDistance,
@@ -56,9 +64,7 @@ bool hops::SimpleExpectedSquaredJumpDistanceTuner::tune(
     double maximumObservedExpectedSquaredJumpDistance = 0;
     size_t maxElementIndex;
 
-    // only for logging purposes
-    Eigen::MatrixXd data(parameters.stepSizeGridSize, 2);
-
+    std::cerr << "gridsearch_esjd = [" << std::endl;
 	for (size_t i = 0; i < parameters.stepSizeGridSize; ++i) {
         auto testStepSize = logStepSizeGrid[i];
         auto evaluations = measureExpectedSquaredJumpDistance(std::pow(10, testStepSize(0)), markovChain, randomNumberGenerator, parameters);
@@ -69,20 +75,14 @@ bool hops::SimpleExpectedSquaredJumpDistanceTuner::tune(
         }
         mean /= evaluations.size();
 
-        // only for logging purposes
-        data(i, 0) = testStepSize(0);
-        data(i, 1) = mean;
+        std::cerr << "[" << testStepSize << ", " << mean << "]," << std::endl;
 
         if (mean > maximumObservedExpectedSquaredJumpDistance) {
             maximumObservedExpectedSquaredJumpDistance = mean;
             maxElementIndex = i;
         }
     }
-
-    // only for logging purposes
-	auto tuningDataWriter = hops::FileWriterFactory::createFileWriter(parameters.outputDirectory + "/tuningData", FileWriterType::CSV);
-    tuningDataWriter->write("tuner", std::vector<std::string>{"SimpleExpectedSquaredJumpDistanceTuner"});
-    tuningDataWriter->write("data", data);
+    std::cerr << "]" << std::endl;
 
     maximumExpectedSquaredJumpDistance = maximumObservedExpectedSquaredJumpDistance;
     stepSize = std::pow(10, (logStepSizeGrid[maxElementIndex](0)));
@@ -104,14 +104,12 @@ hops::SimpleExpectedSquaredJumpDistanceTuner::param_type::param_type(size_t iter
                                                                size_t stepSizeGridSize,
                                                                double stepSizeLowerBound,
                                                                double stepSizeUpperBound,
-                                                               bool considerTimeCost,
-                                                               std::string outputDirectory) {
+                                                               bool considerTimeCost) {
     this->iterationsToTestStepSize = iterationsToTestStepSize;
     //this->maximumTotalIterations = maximumTotalIterations;
     this->stepSizeGridSize = stepSizeGridSize;
     this->stepSizeLowerBound = stepSizeLowerBound;
     this->stepSizeUpperBound = stepSizeUpperBound;
     this->considerTimeCost = considerTimeCost;
-    this->outputDirectory = outputDirectory;
 }
 

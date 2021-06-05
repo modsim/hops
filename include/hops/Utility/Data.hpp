@@ -189,8 +189,8 @@ namespace hops {
                     tuningWriter->write("maximumExpectedSquaredJumpDistance", std::vector<double>{maximumExpectedSquaredJumpDistance});
                 }
 
-                if (tunedAcceptanceRate >= 0) {
-                    tuningWriter->write("acceptanceRate", std::vector<double>{tunedAcceptanceRate});
+                if (tunedAcceptanceRateInterval.size() >= 0) {
+                    tuningWriter->write("acceptanceRate", tunedAcceptanceRateInterval);
                 }
 
                 tuningWriter->write("totalTimeTaken", std::vector<double>{totalTuningTimeTaken});
@@ -200,12 +200,12 @@ namespace hops {
         void setTuningData(unsigned long totalNumberOfTuningSamples, 
                            double tunedStepSize, 
                            double maximumExpectedSquaredJumpDistance, 
-                           double acceptanceRate, 
+                           std::vector<double> acceptanceRateInterval, 
                            double totalTuningTimeTaken) {
             this->totalNumberOfTuningSamples = totalNumberOfTuningSamples;
             this->tunedStepSize = tunedStepSize;
             this->maximumExpectedSquaredJumpDistance = maximumExpectedSquaredJumpDistance;
-            this->tunedAcceptanceRate = acceptanceRate;
+            this->tunedAcceptanceRateInterval = acceptanceRateInterval;
             this->totalTuningTimeTaken = totalTuningTimeTaken;
         }
 
@@ -223,7 +223,7 @@ namespace hops {
         unsigned long totalNumberOfTuningSamples = 0;
         double tunedStepSize;
         double maximumExpectedSquaredJumpDistance;
-        double tunedAcceptanceRate;
+        std::vector<double> tunedAcceptanceRateInterval;
         double totalTuningTimeTaken;
 
         std::vector<std::vector<double>> sampleVariances;
