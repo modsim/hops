@@ -6,6 +6,5 @@ if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
             ExpectedSquaredJumpDistanceTuner.cpp
             SimpleExpectedSquaredJumpDistanceTuner.hpp
             SimpleExpectedSquaredJumpDistanceTuner.cpp
-            TuningLog.hpp
             )
 endif (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
