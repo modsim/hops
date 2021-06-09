@@ -1,12 +1,4 @@
-#include <hops/MarkovChain/MarkovChain.hpp>
-#include <hops/MarkovChain/MarkovChainAttribute.hpp>
 #include <hops/MarkovChain/Tuning/AcceptanceRateTuner.hpp>
-#include <hops/Optimization/GaussianProcess.hpp>
-#include <hops/Optimization/ThompsonSampling.hpp>
-
-#include <cmath>
-#include <memory>
-#include <chrono>
 
 /**
  * @brief measures the stepsize of a configured step size
@@ -36,7 +28,6 @@ std::vector<double> hops::internal::AcceptanceRateTarget::operator()(const Eigen
         time = (time == 0 ? 1 : time);
 
         double acceptanceRate = markovChain[i]->getAcceptanceRate();
-        std::cout << std::log10(stepSize) << ", " << acceptanceRate << std::endl;
         acceptanceRateScores[i] = 1 - std::abs(acceptanceRate - parameters.acceptanceRateTargetValue);
     }
 
@@ -88,17 +79,26 @@ bool hops::AcceptanceRateTuner::tune(
         }
     }
 
-    std::cout << "posterior = np.array([";
+    // only for logging purposes
+    Eigen::MatrixXd posterior(posteriorMean.size(), 3);
     for (size_t i = 0; i < posteriorMean.size(); ++i) {
-        std::cout << "[" << logStepSizeGrid[i](0) << ", " << posteriorMean(i) << ", " << posteriorCovariance(i,i) << "], ";
+        posterior(i, 0) = logStepSizeGrid[i](0);
+        posterior(i, 1) =  posteriorMean(i);
+        posterior(i, 2) = posteriorCovariance(i,i);
     }
-    std::cout << "])" << std::endl;
 
-    std::cout << "data = np.array([";
+    // only for logging purposes
+    Eigen::MatrixXd data(samples.size(), 2);
     for (size_t i = 0; i < samples.size(); ++i) {
-        std::cout << "[" << samples[i](0) << ", " << observations[i] << "], ";
+        data(i, 0) = samples[i](0);
+        data(i, 1) = observations[i];
     }
-    std::cout << "])" << std::endl;
+
+    // only for logging purposes
+	auto tuningDataWriter = FileWriterFactory::createFileWriter(parameters.outputDirectory + "/tuningData", FileWriterType::CSV);
+    tuningDataWriter->write("tuner", std::vector<std::string>{"AcceptanceRateTuner"});
+    tuningDataWriter->write("posterior", posterior);
+    tuningDataWriter->write("data", data);
 
     stepSize = std::pow(10, logStepSizeGrid[maximumIndex](0));
     double maximumScore = posteriorMean(maximumIndex);
@@ -123,7 +123,8 @@ hops::AcceptanceRateTuner::param_type::param_type(double acceptanceRateTargetVal
                                                   size_t stepSizeGridSize,
                                                   double stepSizeLowerBound,
                                                   double stepSizeUpperBound,
-                                                  size_t randomSeed) {
+                                                  size_t randomSeed,
+                                                  std::string outputDirectory) {
     this->acceptanceRateTargetValue = acceptanceRateTargetValue;
     this->iterationsToTestStepSize = iterationsToTestStepSize;
     this->maximumTotalIterations = maximumTotalIterations;
@@ -131,5 +132,6 @@ hops::AcceptanceRateTuner::param_type::param_type(double acceptanceRateTargetVal
     this->stepSizeLowerBound = stepSizeLowerBound;
     this->stepSizeUpperBound = stepSizeUpperBound;
     this->randomSeed = randomSeed;
+    this->outputDirectory = outputDirectory;
 }
 
