@@ -94,7 +94,7 @@ namespace hops {
 
         static bool optimize (size_t numberOfRounds,
                               GaussianProcessType gp,
-                              internal::ThompsonSamplingTarget<std::vector<typename MatrixType::Scalar>, VectorType> targetFunction,
+                              std::shared_ptr<ThompsonSamplgTargetType> targetFunction,
                               const std::vector<VectorType>& parameterSpaceGrid,
                               RandomNumberGenerator randomNumberGenerator,
                               double noise = 0, 
