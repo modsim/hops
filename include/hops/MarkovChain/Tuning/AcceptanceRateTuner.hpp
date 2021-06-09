@@ -1,8 +1,20 @@
 #ifndef NEW_HOPS_ACCEPTANCERATETUNER_HPP
 #define NEW_HOPS_ACCEPTANCERATETUNER_HPP
 
+#include <hops/FileWriter/FileWriter.hpp>
+#include <hops/FileWriter/FileWriterFactory.hpp>
+#include <hops/FileWriter/FileWriterType.hpp>
 #include <hops/MarkovChain/MarkovChain.hpp>
+#include <hops/MarkovChain/MarkovChainAttribute.hpp>
+#include <hops/MarkovChain/Tuning/AcceptanceRateTuner.hpp>
+#include <hops/Optimization/GaussianProcess.hpp>
 #include <hops/Optimization/ThompsonSampling.hpp>
+
+#include <Eigen/Core>
+
+#include <chrono>
+#include <cmath>
+#include <memory>
 #include <vector>
 
 namespace hops {
@@ -16,6 +28,7 @@ namespace hops {
             double stepSizeLowerBound;
             double stepSizeUpperBound;
             size_t randomSeed;
+            std::string outputDirectory;
 
             param_type(double acceptanceRateTargetValue,
                        size_t iterationsToTestStepSize,
@@ -23,7 +36,8 @@ namespace hops {
                        size_t stepSizeGridSize,
                        double stepSizeLowerBound,
                        double stepSizeUpperBound,
-                       size_t randomSeed
+                       size_t randomSeed,
+                       std::string outputDirectory
             );
         };
 

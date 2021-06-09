@@ -1,10 +1,18 @@
 #ifndef HOPS_SIMPLEEXPECTEDSQUAREDJUMPDISTANCETUNER_HPP
 #define HOPS_SIMPLEEXPECTEDSQUAREDJUMPDISTANCETUNER_HPP
 
-#include <hops/MarkovChain/MarkovChain.hpp>
 #include <hops/Diagnostics/ExpectedSquaredJumpDistance.hpp>
+#include <hops/FileWriter/FileWriter.hpp>
+#include <hops/FileWriter/FileWriterFactory.hpp>
+#include <hops/FileWriter/FileWriterType.hpp>
+#include <hops/MarkovChain/MarkovChain.hpp>
+#include <hops/MarkovChain/MarkovChainAttribute.hpp>
+
+#include <chrono>
+#include <cmath>
 #include <memory>
 #include <stdexcept>
+#include <vector>
 
 namespace hops {
     class SimpleExpectedSquaredJumpDistanceTuner {
@@ -16,13 +24,15 @@ namespace hops {
             double stepSizeLowerBound;
             double stepSizeUpperBound;
             bool considerTimeCost;
+            std::string outputDirectory;
 
             param_type(size_t iterationsToTestStepSize,
                        //size_t maximumTotalIterations,
                        size_t stepSizeGridSize,
                        double stepSizeLowerBound,
                        double stepSizeUpperBound,
-                       bool considerTimeCost
+                       bool considerTimeCost,
+                       std::string outputDirectory
             );
         };
 
