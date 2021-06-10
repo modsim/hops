@@ -52,7 +52,7 @@ bool hops::ExpectedSquaredJumpDistanceTuner::tune(
         logStepSizeGrid.push_back(x);
     }
 
-    double sigma = 1, length = 1, noise = 1, unscalingFactor;
+    double sigma = 1, length = 1, noise = 1, unscalingFactor = 1;
     Kernel kernel(sigma, length);
     GP gp = GP(kernel);
 
@@ -76,15 +76,15 @@ bool hops::ExpectedSquaredJumpDistanceTuner::tune(
     Eigen::MatrixXd posterior(posteriorMean.size(), 3);
     for (size_t i = 0; i < posteriorMean.size(); ++i) {
         posterior(i, 0) = logStepSizeGrid[i](0);
-        posterior(i, 1) =  posteriorMean(i);
-        posterior(i, 2) = posteriorCovariance(i,i);
+        posterior(i, 1) =  posteriorMean(i) * unscalingFactor;
+        posterior(i, 2) = posteriorCovariance(i,i) * unscalingFactor * unscalingFactor;
     }
 
     // only for logging purposes
     Eigen::MatrixXd data(samples.size(), 2);
     for (size_t i = 0; i < samples.size(); ++i) {
         data(i, 0) = samples[i](0);
-        data(i, 1) = observations[i];
+        data(i, 1) = observations[i] * unscalingFactor;
     }
 
     // only for logging purposes
