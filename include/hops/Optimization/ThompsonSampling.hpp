@@ -37,15 +37,6 @@ namespace hops {
             GaussianProcess gp = initialGP.getPriorCopy();
 
             for (size_t i = 0; i < numberOfRounds; ++i) {
-                // train and GP
-                if (rescaling) {
-                    gp = initialGP.getPriorCopy();
-                }
-
-                if (samples.size() > 0) {
-                    gp.addObservations(samples, observations, _noise);
-                }
-                
                 // sample the acquisition function and obtain its maximum
                 gp.sample(parameterSpaceGrid, randomNumberGenerator, maxElementIndex);
                 Eigen::VectorXd testParameter = parameterSpaceGrid[maxElementIndex];
@@ -80,6 +71,13 @@ namespace hops {
                         // if the new maximum is zero, then also the old was, so no rescaling is done (=division by one)
                         observations[j] /= (maximumObservation != 0 ? maximumObservation : 1);
                     }
+
+                    gp = initialGP.getPriorCopy();
+                    gp.addObservations(samples, observations, _noise);
+                } else {
+                    gp.addObservations(std::vector<Eigen::VectorXd>(evaluations.size(), testParameter), 
+                                       evaluations, 
+                                       std::vector<double>(evaluations.size(), noise));
                 }
             }
 
