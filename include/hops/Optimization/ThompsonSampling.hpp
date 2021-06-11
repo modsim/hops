@@ -81,6 +81,7 @@ namespace hops {
                 }
             }
 
+            gp.sample(parameterSpaceGrid, randomNumberGenerator, maxElementIndex);
             initialGP = gp.getPosteriorCopy();
 
             if (rescaling) {
