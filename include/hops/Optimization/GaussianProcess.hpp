@@ -113,7 +113,7 @@ namespace hops {
             observedValueErrors = newObservedValueErrors;
 
             observedCovariance = kernel(observedInputs, observedInputs);
-            observedCovariance += observedValueErrors.asDiagonal();
+            observedCovariance = observedCovariance + Eigen::MatrixXd(observedValueErrors.asDiagonal());
 
             if (observedCovariance.size() > 0) {
                 invObservedCovariance = observedCovariance.inverse();
