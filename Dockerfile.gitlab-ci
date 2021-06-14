@@ -2,11 +2,53 @@ FROM ubuntu:20.04
 LABEL Maintainer="Johann Fredrik Jadebeck <j.jadebeck@juelich.de>"
 
 ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get clean -y
 RUN apt-get update -y
 RUN apt-get install -y apt-utils
-RUN apt-get install -y build-essential software-properties-common cmake libeigen3-dev \
-    liblpsolve55-dev lp-solve libxerces-c-dev libhdf5-dev doxygen libncurses5-dev libncursesw5-dev \
-    libsbml5-dev mpich libmpich-dev git
-RUN apt-get install -y bzip2 libbz2-dev
-RUN apt-get install -y coinor-clp coinor-libclp-dev clang
+RUN apt-get install -y build-essential 
+RUN apt-get install -y software-properties-common 
+RUN apt-get update -y
+RUN apt-get install -y git
+RUN apt-get install -y cmake 
+RUN apt-get install -y libeigen3-dev 
+RUN apt-get install -y libhdf5-dev 
+RUN apt-get install -y doxygen 
+RUN apt-get install -y libsbml5-dev 
+RUN apt-get install -y libmpich-dev 
+RUN apt-get install -y libbz2-dev
+RUN apt-get install -y coinor-libclp-dev 
+RUN apt-get install -y clang
+RUN apt-get install -y libboost-all-dev 
+RUN apt-get install -y vim 
 
+
+# TODO remove
+RUN useradd -ms /bin/bash hops_user
+USER hops_user
+
+WORKDIR /home/hops_user
+
+ADD bin /home/hops_user/bin
+ADD benchmarks /home/hops_user/benchmarks
+ADD cmake /home/hops_user/cmake
+ADD docs /home/hops_user/docs
+ADD include /home/hops_user/include
+ADD resources /home/hops_user/resources
+ADD tests /home/hops_user/tests
+ADD CMakeLists.txt /home/hops_user/CMakeLists.txt
+
+RUN mkdir cmake-build-debug
+WORKDIR /home/hops_user/cmake-build-debug
+RUN cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu
+RUN make -j16
+RUN make test | echo test
+
+
+WORKDIR /home/hops_user/
+RUN mkdir cmake-build-release
+WORKDIR /home/hops_user/cmake-build-release
+RUN cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu
+RUN make -j16
+RUN make test | echo test
+
+CMD tail -f /dev/null

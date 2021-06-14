@@ -27,19 +27,18 @@ ADD cmake /home/hops_user/cmake
 ADD docs /home/hops_user/docs
 ADD include /home/hops_user/include
 ADD resources /home/hops_user/resources
-ADD src /home/hops_user/src
 ADD tests /home/hops_user/tests
 ADD CMakeLists.txt /home/hops_user/CMakeLists.txt
 
 RUN mkdir cmake-build-debug
 WORKDIR /home/hops_user/cmake-build-debug
 RUN cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu
-RUN make -j8
+RUN make -j16
 RUN make test
 
 WORKDIR /home/hops_user/
 RUN mkdir cmake-build-release
 WORKDIR /home/hops_user/cmake-build-release
 RUN cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu
-RUN make -j8
+RUN make -j16
 RUN make test
