@@ -1,4 +1,4 @@
-image: jugit-registry.fz-juelich.de/fluxomics/hops 
+image: jugit-registry.fz-juelich.de/fluxomics/hops
 
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
@@ -11,7 +11,7 @@ stages:
 build-header-only-debug:
   stage: build
   script:
-  - mkdir cmake-build-header-only-debug && cd cmake-build-header-only-debug && CXX=clang++ CC=clang cmake .. -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu -DCMAKE_BUILD_TYPE=Release -DHOPS_HDF5_SUPPORT=ON -DHOPS_BENCHMARKS=OFF -DHOPS_LIBRARY_TYPE=HEADER_ONLY && make -j2 && cd -
+    - mkdir cmake-build-header-only-debug && cd cmake-build-header-only-debug && CXX=clang++ CC=clang cmake .. -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu -DCMAKE_BUILD_TYPE=Release -DHOPS_HDF5_SUPPORT=ON -DHOPS_BENCHMARKS=OFF -DHOPS_LIBRARY_TYPE=HEADER_ONLY && make -j2 && cd -
   artifacts:
     paths:
       - cmake-build-header-only-debug
@@ -20,16 +20,16 @@ build-header-only-debug:
 build-header-only-release:
   stage: build
   script:
-  - mkdir cmake-build-header-only-release && cd cmake-build-header-only-release && CXX=clang++ CC=clang cmake .. -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu -DCMAKE_BUILD_TYPE=Release -DHOPS_HDF5_SUPPORT=ON -DHOPS_BENCHMARKS=OFF -DHOPS_LIBRARY_TYPE=HEADER_ONLY && make -j2 && cd -
+    - mkdir cmake-build-header-only-release && cd cmake-build-header-only-release && CXX=clang++ CC=clang cmake .. -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu -DCMAKE_BUILD_TYPE=Release -DHOPS_HDF5_SUPPORT=ON -DHOPS_BENCHMARKS=OFF -DHOPS_LIBRARY_TYPE=HEADER_ONLY && make -j2 && cd -
   artifacts:
     paths:
       - cmake-build-header-only-release
     expire_in: 2 days
-   
+
 build-debug:
   stage: build
   script:
-  - mkdir cmake-build-debug && cd cmake-build-debug && CXX=clang++ CC=clang cmake .. -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu -DCMAKE_BUILD_TYPE=Release -DHOPS_HDF5_SUPPORT=ON -DHOPS_BENCHMARKS=OFF && make -j2 && cd -
+    - mkdir cmake-build-debug && cd cmake-build-debug && CXX=clang++ CC=clang cmake .. -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu -DCMAKE_BUILD_TYPE=Release -DHOPS_HDF5_SUPPORT=ON -DHOPS_BENCHMARKS=OFF && make -j2 && cd -
   artifacts:
     paths:
       - cmake-build-debug
@@ -38,7 +38,7 @@ build-debug:
 build-release:
   stage: build
   script:
-  - mkdir cmake-build-release && cd cmake-build-release && CXX=clang++ CC=clang cmake .. -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu -DHOPS_HDF5_SUPPORT=ON -DHOPS_HDF5_SUPPORT=ON -DCMAKE_BUILD_TYPE=Release -DHOPS_BENCHMARKS=OFF && make -j2 && cd -
+    - mkdir cmake-build-release && cd cmake-build-release && CXX=clang++ CC=clang cmake .. -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu -DHOPS_HDF5_SUPPORT=ON -DHOPS_HDF5_SUPPORT=ON -DCMAKE_BUILD_TYPE=Release -DHOPS_BENCHMARKS=OFF && make -j2 && cd -
   artifacts:
     paths:
       - cmake-build-release
@@ -47,21 +47,40 @@ build-release:
 test-debug:
   stage: test
   script:
-  - cd cmake-build-debug &&  make test && cd -
-
+    - cd cmake-build-debug &&  make test && cd -
+  artifacts:
+    when: always
+    reports:
+      junit: cmake-build-debug/tests/test-reports/*.xml
+    expire_in: 10 weeks
 
 test-release:
   stage: test
   script:
-  - cd cmake-build-release && make test && cd -
+    - cd cmake-build-release && make test && cd -
+  artifacts:
+    when: always
+    reports:
+      junit: cmake-build-release/tests/test-reports/*.xml
+    expire_in: 10 weeks
 
 test-header-only-debug:
   stage: test
   script:
-  - cd cmake-build-header-only-debug && make test && cd -
+    - cd cmake-build-header-only-debug && make test && cd -
+  artifacts:
+    when: always
+    reports:
+      junit: cmake-build-header-only-debug/tests/test-reports/*.xml
+    expire_in: 10 weeks
 
 test-header-only-release:
   stage: test
   script:
-  - cd cmake-build-header-only-release && make test && cd -
+    - cd cmake-build-header-only-release && make test && cd -
+  artifacts:
+    when: always
+    reports:
+      junit: cmake-build-header-only-release/tests/test-reports/*.xml
+    expire_in: 10 weeks
 

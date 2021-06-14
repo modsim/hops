@@ -44,7 +44,7 @@ BOOST_AUTO_TEST_SUITE(RosenbrockModelTestSuite)
 
         double actualValue = rosenbrockModel.calculateNegativeLogLikelihood(evaluationPoint);
 
-        BOOST_CHECK_CLOSE(actualValue, expectedValue, 0.001);
+        BOOST_CHECK_SMALL(actualValue - expectedValue, 1e-11);
     }
 
     BOOST_AUTO_TEST_CASE(CalculateNegativeLogLikelihoodWithShift) {
@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_SUITE(RosenbrockModelTestSuite)
 
         double actualValue = rosenbrockModel.calculateNegativeLogLikelihood(evaluationPoint);
 
-        BOOST_CHECK_CLOSE(actualValue, expectedValue, 0.01);
+        BOOST_CHECK_SMALL(actualValue - expectedValue, 1e-11);
     }
 
     BOOST_AUTO_TEST_CASE(CalculateLogLikelihoodGradientAtStationaryPoint) {
@@ -89,7 +89,7 @@ BOOST_AUTO_TEST_SUITE(RosenbrockModelTestSuite)
         Eigen::VectorXd actualValue = rosenbrockModel.calculateLogLikelihoodGradient(evaluationPoint);
 
         for (long i = 0; i < expectedValue.rows(); ++i) {
-            BOOST_CHECK_CLOSE(actualValue(i), expectedValue(i), 0.001);
+            BOOST_CHECK_SMALL(actualValue(i) - expectedValue(i), 1e-11);
         }
     }
 
@@ -162,7 +162,7 @@ BOOST_AUTO_TEST_SUITE(RosenbrockModelTestSuite)
                 if(std::abs(actualValue(i, j) - expectedValue(i, j)) > 1) {
                    std::cerr << i << ", " << j << std::endl;
                 }
-                BOOST_CHECK_SMALL(actualValue(i, j) - expectedValue(i, j), 1e-150);
+                BOOST_CHECK_SMALL(actualValue(i, j) - expectedValue(i, j), 1e-11);
             }
         }
     }
