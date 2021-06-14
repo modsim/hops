@@ -52,7 +52,7 @@ bool hops::ExpectedSquaredJumpDistanceTuner::tune(
         logStepSizeGrid.push_back(x);
     }
 
-    double sigma = 1, length = 1, noise = 1, unscalingFactor = 1;
+    double sigma = 1, length = 0.5, noise = 0.5, unscalingFactor = 1;
     Kernel kernel(sigma, length);
     GP gp = GP(kernel);
 
