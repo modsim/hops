@@ -1,4 +1,5 @@
 #include <hops/MarkovChain/Tuning/AcceptanceRateTuner.hpp>
+#include <numeric>
 
 /**
  * @brief measures the stepsize of a configured step size
@@ -28,10 +29,15 @@ std::vector<double> hops::internal::AcceptanceRateTarget::operator()(const Eigen
         time = (time == 0 ? 1 : time);
 
         double acceptanceRate = markovChain[i]->getAcceptanceRate();
-        acceptanceRateScores[i] = 1 - std::abs(acceptanceRate - parameters.acceptanceRateTargetValue);
+        double deltaScale = (   
+                acceptanceRate > parameters.acceptanceRateTargetValue ? 
+                1 - parameters.acceptanceRateTargetValue : 
+                parameters.acceptanceRateTargetValue
+            );
+        acceptanceRateScores[i] = 1 - std::abs(acceptanceRate - parameters.acceptanceRateTargetValue) / deltaScale;
     }
 
-    return acceptanceRateScores;
+    return {std::accumulate(acceptanceRateScores.begin(), acceptanceRateScores.end(), 0.0) / acceptanceRateScores.size()};
 }
 
 bool hops::AcceptanceRateTuner::tune(
