@@ -1,9 +1,11 @@
 set(TEST_SOURCES
         DynMultimodalModelTestSuite.cpp
-        RosenbrockModelTestSuite.cpp
+        IsCalculateExpectedFisherInformationAvailableTestSuite.cpp
+        IsCalculateLogLikelihoodGradientAvailableTestSuite.cpp
         ModelMixinTestSuite.cpp
         MultimodalModelTestSuite.cpp
         MultivariateGaussianModelTestSuite.cpp
+        RosenbrockModelTestSuite.cpp
         )
 
 foreach (TEST_SOURCE ${TEST_SOURCES})

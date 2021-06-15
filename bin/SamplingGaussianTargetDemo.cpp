@@ -60,8 +60,7 @@ int main(int argc, char **argv) {
                                                                   A,
                                                                   b,
                                                                   startingPoint,
-                                                                  model,
-                                                                  false);
+                                                                  model);
     } else if (chainName == "CHRR" || chainName == "HRR") {
         hops::MarkovChainType chainType =
                 chainName == "CHRR" ? hops::MarkovChainType::CoordinateHitAndRun : hops::MarkovChainType::HitAndRun;
@@ -87,8 +86,7 @@ int main(int argc, char **argv) {
                 startingPoint,
                 roundingTransformation,
                 decltype(startingPoint)::Zero(roundingTransformation.rows()),
-                model,
-                false);
+                model);
     } else {
         std::cerr << "No chain with chainname " << chainName << std::endl;
         std::exit(1);

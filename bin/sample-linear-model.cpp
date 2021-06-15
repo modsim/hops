@@ -130,8 +130,7 @@ int main(int argc, char **argv) {
                 startingPoint,
                 Eigen::MatrixXd(roundingTransformation),
                 Eigen::VectorXd(Eigen::VectorXd::Zero(startingPoint.rows())),
-                target,
-                false
+                target
         );
     } else if (markovChainName == "CSmMALA") {
         std::cout << "start is " << startingPoint.transpose() << std::endl;
@@ -140,8 +139,7 @@ int main(int argc, char **argv) {
                 A,
                 b,
                 startingPoint,
-                target,
-                false
+                target
         );
         markovChain->setAttribute(hops::MarkovChainAttribute::FISHER_WEIGHT, std::stod(fisherWeight));
     } else if (markovChainName == "DikinWalk") {
@@ -151,8 +149,7 @@ int main(int argc, char **argv) {
                 A,
                 b,
                 startingPoint,
-                target,
-                false
+                target
         );
     }
 

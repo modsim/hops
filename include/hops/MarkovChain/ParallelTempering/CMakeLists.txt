@@ -11,6 +11,7 @@ if (MPI_FOUND)
     if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
         target_sources(hops PRIVATE
                 ColdnessAttribute.hpp
+                MpiInitializerFinalizer.hpp
                 ParallelTempering.hpp
                 )
     endif (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")

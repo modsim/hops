@@ -7,7 +7,7 @@
 #include <hops/MarkovChain/Recorder/IsStoreRecordAvailable.hpp>
 #include <hops/MarkovChain/Recorder/IsWriteRecordsToFileAvailable.hpp>
 #include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
-#include <mpi.h>
+#include "MpiInitializerFinalizer.hpp"
 #include <random>
 
 namespace hops {
@@ -19,20 +19,18 @@ namespace hops {
     class ParallelTempering : public MarkovChainImpl {
     public:
         ParallelTempering(const MarkovChainImpl &markovChainImpl, // NOLINT(cppcoreguidelines-pro-type-member-init)
+                          RandomNumberGenerator synchronizedRandomNumberGenerator,
                           double exchangeAttemptProbability = 0.1) :
                 MarkovChainImpl(markovChainImpl),
+                synchronizedRandomNumberGenerator(synchronizedRandomNumberGenerator),
                 exchangeAttemptProbability(exchangeAttemptProbability) {
             if (exchangeAttemptProbability > 1) {
                 this->exchangeAttemptProbability = 1;
             } else if (exchangeAttemptProbability < 0) {
                 this->exchangeAttemptProbability = 0;
             }
-            int isMpiInitialized;
-            MPI_Initialized(&isMpiInitialized);
-            if (!isMpiInitialized) {
-                MPI_Init(NULL, NULL);
-                std::atexit(finalizeMpi);
-            }
+
+            MpiInitializerFinalizer::initializeAndQueueFinalizeAtExit();
             MPI_Comm_dup(MPI_COMM_WORLD, &communicator);
             MPI_Comm_size(communicator, &numberOfChains);
 
@@ -44,7 +42,7 @@ namespace hops {
 
         void draw(RandomNumberGenerator &randomNumberGenerator) {
             MarkovChainImpl::draw(randomNumberGenerator);
-            executeParallelTemperingStep(randomNumberGenerator);
+            executeParallelTemperingStep();
         }
 
         void writeRecordsToFile(const FileWriter *const fileWriter) const {
@@ -68,19 +66,19 @@ namespace hops {
         }
 
         /**
-         * @param randomNumberGenerator
-         * @return true only if state exchange occured.
+         * @return true only if state exchange occurred.
          */
-        bool executeParallelTemperingStep(RandomNumberGenerator &randomNumberGenerator) {
-            if (shouldProposeExchange(randomNumberGenerator)) {
-                std::pair<int, int> chainPair = generateChainPairForExchangeProposal(randomNumberGenerator);
+        bool executeParallelTemperingStep() {
+            if (shouldProposeExchange()) {
+                // TODO log acceptance?
+                std::pair<int, int> chainPair = generateChainPairForExchangeProposal();
                 int world_rank;
                 MPI_Comm_rank(communicator, &world_rank);
                 if (chainPair.first == world_rank || chainPair.second == world_rank) {
                     int otherChainRank = world_rank == chainPair.first ? chainPair.second : chainPair.first;
 
                     double acceptanceProbability = calculateExchangeAcceptanceProbability(otherChainRank);
-                    double chance = uniformRealDistribution(randomNumberGenerator);
+                    double chance = uniformRealDistribution(synchronizedRandomNumberGenerator);
                     if (chance <= acceptanceProbability) {
                         exchangeStates(otherChainRank);
                         return true;
@@ -89,7 +87,7 @@ namespace hops {
 
                 } else {
                     // keeps all random number generators in sync
-                    uniformRealDistribution(randomNumberGenerator);
+                    uniformRealDistribution(synchronizedRandomNumberGenerator);
                 }
             }
             return false;
@@ -106,8 +104,8 @@ namespace hops {
             double otherChainProperties[2];
             std::memcpy(otherChainProperties, thisChainProperties, sizeof(double) * 2);
 
-            MPI_Sendrecv_replace(otherChainProperties, 2, MPI_DOUBLE, otherChainRank, INTERNAL_MPI_TAG,
-                                 otherChainRank, INTERNAL_MPI_TAG, communicator, MPI_STATUS_IGNORE);
+            MPI_Sendrecv_replace(otherChainProperties, 2, MPI_DOUBLE, otherChainRank, MpiInitializerFinalizer::getInternalMpiTag(),
+                                 otherChainRank, MpiInitializerFinalizer::getInternalMpiTag(), communicator, MPI_STATUS_IGNORE);
 
             // 1*1=(-1)*(-1) => the signs come out consistently for both chains for the acceptance probability
             double diffColdness = thisChainProperties[0] - otherChainProperties[0];
@@ -120,22 +118,22 @@ namespace hops {
         void exchangeStates(int otherChainRank) {
             typename MarkovChainImpl::StateType thisState = MarkovChainImpl::getState();
 
-            MPI_Sendrecv_replace(thisState.data(), thisState.size(), MPI_DOUBLE, otherChainRank, INTERNAL_MPI_TAG,
-                                 otherChainRank, INTERNAL_MPI_TAG, communicator, MPI_STATUS_IGNORE);
+            MPI_Sendrecv_replace(thisState.data(), thisState.size(), MPI_DOUBLE, otherChainRank, MpiInitializerFinalizer::getInternalMpiTag(),
+                                 otherChainRank, MpiInitializerFinalizer::getInternalMpiTag(), communicator, MPI_STATUS_IGNORE);
 
             MarkovChainImpl::setState(thisState);
         }
 
-        std::pair<int, int> generateChainPairForExchangeProposal(RandomNumberGenerator &randomNumberGenerator) {
+        std::pair<int, int> generateChainPairForExchangeProposal() {
 
-            int chainIndex = uniformIntDistribution(randomNumberGenerator,
+            int chainIndex = uniformIntDistribution(synchronizedRandomNumberGenerator,
                                                     std::uniform_int_distribution<int>::param_type(0,
                                                                                                    numberOfChains - 2));
             return std::make_pair(chainIndex, chainIndex + 1);
         }
 
-        bool shouldProposeExchange(RandomNumberGenerator &randomNumberGenerator) {
-            double chance = uniformRealDistribution(randomNumberGenerator);
+        bool shouldProposeExchange() {
+            double chance = uniformRealDistribution(synchronizedRandomNumberGenerator);
             return (chance < exchangeAttemptProbability);
         }
 
@@ -148,23 +146,12 @@ namespace hops {
         }
 
     private:
-        static void finalizeMpi() {
-            int isMpiFinalized;
-            MPI_Finalized(&isMpiFinalized);
-            if (!isMpiFinalized) {
-                int isFinalizeSuccessful = !MPI_Finalize();
-                if (!isFinalizeSuccessful) {
-                    throw std::runtime_error("MPI failed to finalize.");
-                }
-            }
-        }
-
         int numberOfChains;
         double exchangeAttemptProbability;
         std::uniform_int_distribution<int> uniformIntDistribution;
         std::uniform_real_distribution<double> uniformRealDistribution;
-        constexpr static int INTERNAL_MPI_TAG = 137;
         MPI_Comm communicator;
+        RandomNumberGenerator synchronizedRandomNumberGenerator;
     };
 }
 

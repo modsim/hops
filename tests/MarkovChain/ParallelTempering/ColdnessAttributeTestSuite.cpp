@@ -13,6 +13,7 @@ BOOST_AUTO_TEST_CASE( getColdness) {
         class ModelMock {
         public:
             using VectorType = Eigen::VectorXd;
+            using MatrixType = Eigen::MatrixXd;
         } modelMock;
 
         hops::ColdnessAttribute markovChainWithColdnessAttribute(modelMock, expectedColdness);
@@ -27,6 +28,7 @@ BOOST_AUTO_TEST_CASE( getColdness) {
         class ModelMock {
         public:
             using VectorType = Eigen::VectorXd;
+            using MatrixType = Eigen::MatrixXd;
         } modelMock;
 
         hops::ColdnessAttribute markovChainWithColdnessAttribute(modelMock, 1.);
@@ -43,6 +45,7 @@ BOOST_AUTO_TEST_CASE( getColdness) {
         class ModelMock {
         public:
             using VectorType = Eigen::VectorXd;
+            using MatrixType = Eigen::MatrixXd;
         } modelMock;
 
         hops::ColdnessAttribute markovChainWithColdnessAttribute(modelMock, 1.5);
@@ -57,6 +60,7 @@ BOOST_AUTO_TEST_CASE( getColdness) {
         class ModelMock {
         public:
             using VectorType = Eigen::VectorXd;
+            using MatrixType = Eigen::MatrixXd;
         } modelMock;
 
         hops::ColdnessAttribute markovChainWithColdnessAttribute(modelMock, -1.5);
@@ -71,6 +75,7 @@ BOOST_AUTO_TEST_CASE( getColdness) {
         class ModelMock {
         public:
             using VectorType = Eigen::VectorXd;
+            using MatrixType = Eigen::MatrixXd;
         } modelMock;
 
         hops::ColdnessAttribute markovChainWithColdnessAttribute(modelMock, 1.5);
@@ -87,6 +92,7 @@ BOOST_AUTO_TEST_CASE( getColdness) {
         class ModelMock {
         public:
             using VectorType = Eigen::VectorXd;
+            using MatrixType = Eigen::MatrixXd;
         } modelMock;
 
         hops::ColdnessAttribute markovChainWithColdnessAttribute(modelMock, -1.5);
@@ -103,6 +109,7 @@ BOOST_AUTO_TEST_CASE( getColdness) {
         class ModelMock {
         public:
             using VectorType = Eigen::VectorXd;
+            using MatrixType = Eigen::MatrixXd;
 
             [[maybe_unused]] double calculateNegativeLogLikelihood(const VectorType &) {
                 return -1000;

@@ -1,6 +1,7 @@
 #ifndef HOPS_COLDNESSATTRIBUTE_HPP
 #define HOPS_COLDNESSATTRIBUTE_HPP
 
+#include <hops/Model/IsCalculateLogLikelihoodGradientAvailable.hpp>
 #include <string>
 
 namespace hops {
@@ -12,13 +13,36 @@ namespace hops {
     template<typename Model>
     class ColdnessAttribute : public Model {
     public:
-        ColdnessAttribute(const Model &markovChainImpl, double coldness = 1) : // NOLINT(cppcoreguidelines-pro-type-member-init)
+        explicit ColdnessAttribute(const Model &markovChainImpl, double coldness = 1)
+                : // NOLINT(cppcoreguidelines-pro-type-member-init)
                 Model(markovChainImpl) {
             setColdness(coldness);
         }
 
         typename Model::VectorType::Scalar calculateNegativeLogLikelihood(const typename Model::VectorType &state) {
-            return coldness * Model::calculateNegativeLogLikelihood(state);
+            return coldness == 0 ? 0. : coldness * Model::calculateNegativeLogLikelihood(state);
+        }
+
+        typename Model::VectorType calculateLogLikelihoodGradient(const typename Model::VectorType &state) {
+            if (IsCalculateLogLikelihoodGradientAvailable<Model>::value) {
+                if (coldness == 0) {
+                    return Model::VectorType::Zero(state.rows());
+                } else {
+                    return coldness * Model::calculateLogLikelihoodGradient(state);
+                }
+            }
+            throw std::runtime_error("Gradient called but it is undefined.");
+        }
+
+        typename Model::MatrixType calculateExpectedFisherInformation(const typename Model::VectorType &state) {
+            if (IsCalculateLogLikelihoodGradientAvailable<Model>::value) {
+                if (coldness == 0) {
+                    return Model::MatrixType::Zero(state.rows(), state.rows());
+                } else {
+                    return coldness * Model::calculateExpectedFisherInformation(state);
+                }
+            }
+            throw std::runtime_error("Fisher Information called but it is undefined.");
         }
 
         [[nodiscard]] double getColdness() const {
@@ -30,8 +54,7 @@ namespace hops {
                 coldness = 1;
             } else if (newColdness < 0) {
                 coldness = 0;
-            }
-            else {
+            } else {
                 coldness = newColdness;
             }
         }
