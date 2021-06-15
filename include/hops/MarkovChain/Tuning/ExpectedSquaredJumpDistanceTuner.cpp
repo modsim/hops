@@ -31,7 +31,8 @@ std::vector<double> hops::internal::ExpectedSquaredJumpDistanceTarget::operator(
         expectedSquaredJumpDistance = (parameters.considerTimeCost ? expectedSquaredJumpDistance / time : expectedSquaredJumpDistance);
         expectedSquaredJumpDistances.push_back(expectedSquaredJumpDistance);
     }
-    return expectedSquaredJumpDistances;
+
+    return {std::accumulate(expectedSquaredJumpDistances.begin(), expectedSquaredJumpDistances.end(), 0.0) / expectedSquaredJumpDistances.size()};
 }
 
 bool hops::ExpectedSquaredJumpDistanceTuner::tune(
