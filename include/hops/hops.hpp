@@ -101,10 +101,12 @@
 #include "LinearProgram/LinearProgramClpImpl.cpp"
 #include "LinearProgram/LinearProgramGurobiImpl.cpp"
 
-#include "MarkovChain/AcceptanceRateTuner.cpp"
-#include "MarkovChain/ExpectedSquaredJumpDistanceTuner.cpp"
+#include "MarkovChain/Tuning/BinarySearchAcceptanceRateTuner.cpp"
+#include "MarkovChain/Tuning/AcceptanceRateTuner.cpp"
+#include "MarkovChain/Tuning/ExpectedSquaredJumpDistanceTuner.cpp"
+#include "MarkovChain/Tuning/SimpleExpectedSquaredJumpDistanceTuner.cpp"
 
-#include "Polytope//MaximumVolumeEllipsoid.cpp"
+#include "Polytope/MaximumVolumeEllipsoid.cpp"
 
 #ifdef HOPS_HDF5_SUPPORT
 #include "FileReader/Hdf5Reader.cpp"
