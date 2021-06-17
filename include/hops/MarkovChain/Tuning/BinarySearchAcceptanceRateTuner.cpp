@@ -1,5 +1,5 @@
 #include <hops/MarkovChain/MarkovChainAttribute.hpp>
-#include <hops/MarkovChain/AcceptanceRateTuner.hpp>
+#include <hops/MarkovChain/Tuning/BinarySearchAcceptanceRateTuner.hpp>
 #include <cmath>
 
 namespace {
@@ -10,7 +10,7 @@ namespace {
     };
 }
 
-Case currentCase(double measuredAcceptanceRate, const hops::AcceptanceRateTuner::param_type &parameters) {
+Case currentCase(double measuredAcceptanceRate, const hops::BinarySearchAcceptanceRateTuner::param_type &parameters) {
     if (measuredAcceptanceRate < parameters.lowerLimitAcceptanceRate) {
         return Case::ACCEPTANCE_RATE_TOO_LOW;
     } else if (measuredAcceptanceRate > parameters.upperLimitAcceptanceRate) {
@@ -29,7 +29,7 @@ Case currentCase(double measuredAcceptanceRate, const hops::AcceptanceRateTuner:
 double measureAcceptanceRate(double stepSize,
                              hops::MarkovChain *markovChain,
                              hops::RandomNumberGenerator randomNumberGenerator,
-                             const hops::AcceptanceRateTuner::param_type &parameters) {
+                             const hops::BinarySearchAcceptanceRateTuner::param_type &parameters) {
     markovChain->setAttribute(hops::MarkovChainAttribute::STEP_SIZE, stepSize);
     markovChain->draw(randomNumberGenerator, parameters.iterationsToTestStepSize);
     return markovChain->getAcceptanceRate();
@@ -43,7 +43,7 @@ double measureAcceptanceRate(double stepSize,
  */
 double nextStepSizeToTry(double currentStepSize,
                          double measuredAcceptanceRate,
-                         const hops::AcceptanceRateTuner::param_type &parameters) {
+                         const hops::BinarySearchAcceptanceRateTuner::param_type &parameters) {
     switch (currentCase(measuredAcceptanceRate, parameters)) {
         case Case::ACCEPTANCE_RATE_TOO_HIGH:
             if (currentStepSize > parameters.lowerLimitStepSize) {
@@ -62,20 +62,20 @@ double nextStepSizeToTry(double currentStepSize,
     }
 }
 
-bool hops::AcceptanceRateTuner::tune(MarkovChain *markovChain,
-                                     RandomNumberGenerator &randomNumberGenerator,
-                                     const hops::AcceptanceRateTuner::param_type &parameters) {
+bool hops::BinarySearchAcceptanceRateTuner::tune(MarkovChain *markovChain,
+                                                 RandomNumberGenerator &randomNumberGenerator,
+                                                 const hops::BinarySearchAcceptanceRateTuner::param_type &parameters) {
     double stepSize = markovChain->getAttribute(MarkovChainAttribute::STEP_SIZE);
     double acceptanceRate;
     return tune(stepSize, acceptanceRate, markovChain, randomNumberGenerator, parameters);
 }
 
 
-bool hops::AcceptanceRateTuner::tune(double &stepSize,
-                                     double &acceptanceRate,
-                                     MarkovChain *markovChain,
-                                     RandomNumberGenerator &randomNumberGenerator,
-                                     const hops::AcceptanceRateTuner::param_type &parameters) {
+bool hops::BinarySearchAcceptanceRateTuner::tune(double &stepSize,
+                                                 double &acceptanceRate,
+                                                 MarkovChain *markovChain,
+                                                 RandomNumberGenerator &randomNumberGenerator,
+                                                 const hops::BinarySearchAcceptanceRateTuner::param_type &parameters) {
     double currentAcceptanceRate = 0;
     size_t iterationsCount = 0;
     while (currentCase(currentAcceptanceRate, parameters) != Case::ACCEPTANCE_RATE_GOOD) {
@@ -103,9 +103,9 @@ bool hops::AcceptanceRateTuner::tune(double &stepSize,
  * @return true if markov chain is tuned
  */
 bool
-hops::AcceptanceRateTuner::tune(std::vector<std::shared_ptr<hops::MarkovChain>> &markovChain,
-                                std::vector<hops::RandomNumberGenerator> &randomNumberGenerator,
-                                const param_type &parameters) {
+hops::BinarySearchAcceptanceRateTuner::tune(std::vector<std::shared_ptr<hops::MarkovChain>> &markovChain,
+                                            std::vector<hops::RandomNumberGenerator> &randomNumberGenerator,
+                                            const param_type &parameters) {
     double stepSize, acceptanceRate;
     return tune(stepSize, acceptanceRate, markovChain, randomNumberGenerator, parameters);
 }
@@ -119,11 +119,11 @@ hops::AcceptanceRateTuner::tune(std::vector<std::shared_ptr<hops::MarkovChain>> 
  * @return true if markov chain is tuned
  */
 bool
-hops::AcceptanceRateTuner::tune(double &stepSize,
-                                double &acceptanceRate,
-                                std::vector<std::shared_ptr<hops::MarkovChain>> &markovChain,
-                                std::vector<hops::RandomNumberGenerator> &randomNumberGenerator,
-                                const param_type &parameters) {
+hops::BinarySearchAcceptanceRateTuner::tune(double &stepSize,
+                                            double &acceptanceRate,
+                                            std::vector<std::shared_ptr<hops::MarkovChain>> &markovChain,
+                                            std::vector<hops::RandomNumberGenerator> &randomNumberGenerator,
+                                            const param_type &parameters) {
     bool tuned = tune(stepSize, acceptanceRate, markovChain[0].get(), randomNumberGenerator[0], parameters);
     for (auto &chain : markovChain) {
         chain->setAttribute(hops::MarkovChainAttribute::STEP_SIZE, stepSize);
@@ -132,10 +132,10 @@ hops::AcceptanceRateTuner::tune(double &stepSize,
 }
 
 
-hops::AcceptanceRateTuner::param_type::param_type(double lowerLimitAcceptanceRate, double upperLimitAcceptanceRate,
-                                                  double lowerLimitStepSize, double upperLimitStepSize,
-                                                  size_t iterationsToTestStepSize,
-                                                  size_t maximumTotalIterations) {
+hops::BinarySearchAcceptanceRateTuner::param_type::param_type(double lowerLimitAcceptanceRate, double upperLimitAcceptanceRate,
+                                                              double lowerLimitStepSize, double upperLimitStepSize,
+                                                              size_t iterationsToTestStepSize,
+                                                              size_t maximumTotalIterations) {
     if (lowerLimitAcceptanceRate >= upperLimitAcceptanceRate) {
         throw std::runtime_error("Parameter error: lowerLimitAcceptanceRate is larger than upperLimitAcceptanceRate");
     }

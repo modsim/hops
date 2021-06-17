@@ -49,7 +49,7 @@ namespace {
     };
 }
 
-BOOST_AUTO_TEST_SUITE(AcceptanceRateTuner)
+BOOST_AUTO_TEST_SUITE(BinarySearchAcceptanceRateTuner)
 
     BOOST_AUTO_TEST_CASE(nothingToTune) {
         double startingStepSize = 0.2;
@@ -66,11 +66,11 @@ BOOST_AUTO_TEST_SUITE(AcceptanceRateTuner)
         size_t maxIterations = 1000;
 
         double actualAcceptanceRate = -1;
-        bool isTuned = hops::AcceptanceRateTuner::tune(startingStepSize,
-                                                       actualAcceptanceRate,
-                                                       markovChain,
-                                                       generator,
-                                                       {lowerLimitAcceptanceRate,
+        bool isTuned = hops::BinarySearchAcceptanceRateTuner::tune(startingStepSize,
+                                                                   actualAcceptanceRate,
+                                                                   markovChain,
+                                                                   generator,
+                                                                   {lowerLimitAcceptanceRate,
                                                         upperLimitAcceptanceRate,
                                                         lowerLimitStepSize,
                                                         upperLimitStepSize,
@@ -100,9 +100,9 @@ BOOST_AUTO_TEST_SUITE(AcceptanceRateTuner)
         size_t iterationsToTestStepSize = 100;
         size_t maxIterations = 1000;
 
-        BOOST_CHECK_EXCEPTION(hops::AcceptanceRateTuner::tune(markovChain,
-                                                              generator,
-                                                              {lowerLimitAcceptanceRate,
+        BOOST_CHECK_EXCEPTION(hops::BinarySearchAcceptanceRateTuner::tune(markovChain,
+                                                                          generator,
+                                                                          {lowerLimitAcceptanceRate,
                                                                upperLimitAcceptanceRate,
                                                                lowerLimitStepSize,
                                                                upperLimitStepSize,
@@ -131,7 +131,7 @@ BOOST_AUTO_TEST_SUITE(AcceptanceRateTuner)
         size_t iterationsToTestStepSize = 100;
         size_t maxIterations = 1000;
 
-        BOOST_CHECK_EXCEPTION(hops::AcceptanceRateTuner::tune(
+        BOOST_CHECK_EXCEPTION(hops::BinarySearchAcceptanceRateTuner::tune(
                 markovChain,
                 generator,
                 {lowerLimitAcceptanceRate,
@@ -163,7 +163,7 @@ BOOST_AUTO_TEST_SUITE(AcceptanceRateTuner)
         size_t iterationsToTestStepSize = 0;
         size_t maxIterations = 1000;
 
-        BOOST_CHECK_EXCEPTION(hops::AcceptanceRateTuner::tune(
+        BOOST_CHECK_EXCEPTION(hops::BinarySearchAcceptanceRateTuner::tune(
                 markovChain,
                 generator,
                 {lowerLimitAcceptanceRate,
@@ -195,11 +195,11 @@ BOOST_AUTO_TEST_SUITE(AcceptanceRateTuner)
         size_t maxIterations = 1000;
 
         double actualAcceptanceRate = -1;
-        bool isTuned = hops::AcceptanceRateTuner::tune(startingStepSize,
-                                                       actualAcceptanceRate,
-                                                       markovChain,
-                                                       generator,
-                                                       {lowerLimitAcceptanceRate,
+        bool isTuned = hops::BinarySearchAcceptanceRateTuner::tune(startingStepSize,
+                                                                   actualAcceptanceRate,
+                                                                   markovChain,
+                                                                   generator,
+                                                                   {lowerLimitAcceptanceRate,
                                                         upperLimitAcceptanceRate,
                                                         lowerLimitStepSize,
                                                         upperLimitStepSize,
@@ -229,11 +229,11 @@ BOOST_AUTO_TEST_SUITE(AcceptanceRateTuner)
         size_t maxIterations = 1000;
 
         double actualAcceptanceRate = -1;
-        bool isTuned = hops::AcceptanceRateTuner::tune(startingStepSize,
-                                                       actualAcceptanceRate,
-                                                       markovChain,
-                                                       generator,
-                                                       {lowerLimitAcceptanceRate,
+        bool isTuned = hops::BinarySearchAcceptanceRateTuner::tune(startingStepSize,
+                                                                   actualAcceptanceRate,
+                                                                   markovChain,
+                                                                   generator,
+                                                                   {lowerLimitAcceptanceRate,
                                                         upperLimitAcceptanceRate,
                                                         lowerLimitStepSize,
                                                         upperLimitStepSize,
@@ -262,9 +262,9 @@ BOOST_AUTO_TEST_SUITE(AcceptanceRateTuner)
         size_t iterationsToTestStepSize = 100;
         size_t maxIterations = 1000;
 
-        bool isNotTuned = !hops::AcceptanceRateTuner::tune(markovChain,
-                                                           generator,
-                                                           {lowerLimitAcceptanceRate,
+        bool isNotTuned = !hops::BinarySearchAcceptanceRateTuner::tune(markovChain,
+                                                                       generator,
+                                                                       {lowerLimitAcceptanceRate,
                                                             upperLimitAcceptanceRate,
                                                             lowerLimitStepSize,
                                                             upperLimitStepSize,

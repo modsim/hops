@@ -1,10 +1,15 @@
-#ifndef HOPS_ACCEPTANCERATETUNER_HPP
-#define HOPS_ACCEPTANCERATETUNER_HPP
+#ifndef HOPS_BINARYSEARCHACCEPTANCERATETUNER_HPP
+#define HOPS_BINARYSEARCHACCEPTANCERATETUNER_HPP
 
-#include "MarkovChain.hpp"
+#include "hops/MarkovChain/MarkovChain.hpp"
 
 namespace hops {
-    class AcceptanceRateTuner {
+
+    /**
+     * @deprecated
+     * @brief Deprecated as there are issues due to the uncertainty in estimating acceptance rates.
+     */
+    class BinarySearchAcceptanceRateTuner {
     public:
         struct param_type {
             double lowerLimitAcceptanceRate{};
@@ -80,8 +85,8 @@ namespace hops {
              std::vector<RandomNumberGenerator>& randomNumberGenerator, 
              const param_type &parameters);
 
-        AcceptanceRateTuner() = delete;
+        BinarySearchAcceptanceRateTuner() = delete;
     };
 }
 
-#endif //HOPS_ACCEPTANCERATETUNER_HPP
+#endif //HOPS_BINARYSEARCHACCEPTANCERATETUNER_HPP

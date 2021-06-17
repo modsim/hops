@@ -3,15 +3,7 @@ add_subdirectory(Proposal)
 add_subdirectory(Recorder)
 
 set(TEST_SOURCES
-        IsGetColdnessAvailableTestSuite.cpp
-        IsGetExchangeAttemptProbabilityAvailableTestSuite.cpp
-        IsResetAcceptanceRateAvailableTestSuite.cpp
-        IsGetStepSizeAvailableTestSuite.cpp
-        IsSetColdnessAvailableTestSuite.cpp
-        IsSetExchangeAttemptProbabilityAvailableTestSuite.cpp
-        IsSetFisherWeightAvailableTestSuite.cpp
-        IsSetStepSizeAvailableTestSuite.cpp
-        MarkovChainFactoryTestSuite.cpp
+        BinarySearchAcceptanceRateTunerTestSuite.cpp
         )
 
 foreach (TEST_SOURCE ${TEST_SOURCES})

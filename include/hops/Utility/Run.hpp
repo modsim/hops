@@ -204,15 +204,13 @@ namespace hops {
                                                                                           startingPoints[i],
                                                                                           problem.unroundingTransformation,
                                                                                           problem.unroundingShift,
-                                                                                          problem.model,
-                                                                                          false));
+                                                                                          problem.model));
                     } else {
                         proposal.setState(startingPoints[i]);
                         markovChains[i] = std::move(MarkovChainFactory::createMarkovChain(proposal,
                                                                                           problem.unroundingTransformation,
                                                                                           problem.unroundingShift,
-                                                                                          problem.model,
-                                                                                          false));
+                                                                                          problem.model));
                     }
                 } else if (useRounding) {
                     Eigen::VectorXd roundedStartingPoint = roundingTransformation.triangularView<Eigen::Lower>().solve(startingPoints[i]);
@@ -223,15 +221,13 @@ namespace hops {
                                                                                           roundedStartingPoint,
                                                                                           roundingTransformation,
                                                                                           Eigen::VectorXd(Eigen::VectorXd::Zero(problem.dimension)),
-                                                                                          problem.model,
-                                                                                          false));
+                                                                                          problem.model));
 					} else {
                         proposal.setState(roundedStartingPoint);
                         markovChains[i] = std::move(MarkovChainFactory::createMarkovChain(proposal,
                                                                                           roundingTransformation,
                                                                                           Eigen::VectorXd(Eigen::VectorXd::Zero(problem.dimension)),
-                                                                                          problem.model,
-                                                                                          false));
+                                                                                          problem.model));
                     }
 				} else {
 					if constexpr(std::is_same<Proposal, NoProposal>::value) {
@@ -239,14 +235,12 @@ namespace hops {
                                                                                           problem.A,
                                                                                           problem.b,
                                                                                           startingPoints[i],
-                                                                                          problem.model,
-                                                                                          false));
+                                                                                          problem.model));
 					} else {
                         proposal.setState(startingPoints[i]);
                         markovChains[i] = std::move(
                                 MarkovChainFactory::createMarkovChain<Eigen::MatrixXd, Eigen::VectorXd, Model, Proposal>(proposal,
-                                                                                                                         problem.model,
-                                                                                                                         false));
+                                                                                                                         problem.model));
                     }
                 }
 

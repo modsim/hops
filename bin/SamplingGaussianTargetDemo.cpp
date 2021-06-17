@@ -4,7 +4,7 @@
 #include <hops/LinearProgram/LinearProgramFactory.hpp>
 #include <hops/MarkovChain/MarkovChainFactory.hpp>
 #include <hops/Model/MultivariateGaussianModel.hpp>
-#include <hops/MarkovChain/AcceptanceRateTuner.hpp>
+#include <hops/MarkovChain/Tuning/BinarySearchAcceptanceRateTuner.hpp>
 #include <hops/Polytope/NormalizePolytope.hpp>
 #include <iostream>
 #include <hops/Polytope/MaximumVolumeEllipsoid.hpp>

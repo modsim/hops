@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_SUITE(DataTestSuite)
                 model(Eigen::VectorXd::Zero(dimension), Eigen::MatrixXd::Identity(dimension, dimension));
 
         BOOST_CHECK_NO_THROW(
-             hops::Problem problem(A, b, model);
+                hops::Problem problem(A, b, model);
                 problem.setStartingPoint(x);
                 hops::Run<decltype(model)> run(problem);
 
@@ -120,8 +120,8 @@ BOOST_AUTO_TEST_SUITE(DataTestSuite)
 
         run.getData().computeExpectedSquaredJumpDistance();
 
-        double actualResult = 0.146415;
-        double expectedResult = hops::computeExpectedSquaredJumpDistance(run.getData())(0);
+        double expectedResult = 0.24811;
+        double actualResult = hops::computeExpectedSquaredJumpDistance(run.getData())(0);
 
         BOOST_CHECK_CLOSE(expectedResult, actualResult, 0.01);
     }
