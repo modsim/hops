@@ -47,35 +47,6 @@ namespace hops {
          * @details Clears Markov chain history.
          * @param markovChain
          * @param parameters
-         * size_t indiciation number of iterations used and the tuned MarkovChain
-         * @return true if markov chain is tuned
-         */
-        static bool
-        tune(MarkovChain *markovChain, 
-             RandomNumberGenerator &randomNumberGenerator, 
-             const param_type &parameters);
-
-        /**
-         * @brief tunes markov chain acceptance rate by nested intervals. The chain is not guaranteed to have converged
-         *        to the specified acceptance rate.
-         * @details Clears Markov chain history.
-         * @param markovChain
-         * @param parameters
-         * @return true if markov chain is tuned
-         */
-        static bool
-        tune(double& stepSize, 
-             double& deltaAcceptanceRate, 
-             MarkovChain *markovChain, 
-             RandomNumberGenerator &randomNumberGenerator, 
-             const param_type &parameters);
-
-        /**
-         * @brief tunes markov chain acceptance rate by nested intervals. The chain is not guaranteed to have converged
-         *        to the specified acceptance rate.
-         * @details Clears Markov chain history.
-         * @param markovChain
-         * @param parameters
          * @return true if markov chain is tuned
          */
         static bool
@@ -112,9 +83,7 @@ namespace hops {
                                               const hops::AcceptanceRateTuner::param_type& parameters) :
                     markovChain(markovChain),
                     randomNumberGenerator(&randomNumberGenerator),
-                    parameters(parameters) {
-                //
-            }
+                    parameters(parameters) {}
 
             virtual std::vector<double> operator()(const Eigen::VectorXd& x) override;
         };

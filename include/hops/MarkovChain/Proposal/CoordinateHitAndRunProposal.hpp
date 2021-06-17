@@ -66,7 +66,6 @@ namespace hops {
             b(std::move(b_)),
             state(std::move(currentState_)) {
         slacks = this->b - this->A * this->state;
-        std::cout << "slacks at start: " << slacks.transpose() << std::endl;
     }
 
     template<typename MatrixType, typename VectorType, typename ChordStepDistribution>
@@ -79,7 +78,6 @@ namespace hops {
         backwardDistance = 1. / inverseDistances.minCoeff();
         assert(backwardDistance < 0 && forwardDistance > 0);
         assert(((b - A * state).array() > 0).all());
-        std::cout << "slacks at step: " << (b-A*state).transpose() << std::endl;
 
         step = chordStepDistribution.draw(randomNumberGenerator, backwardDistance, forwardDistance);
     }
