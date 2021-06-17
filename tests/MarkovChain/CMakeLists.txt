@@ -1,6 +1,7 @@
 add_subdirectory(ParallelTempering)
 add_subdirectory(Proposal)
 add_subdirectory(Recorder)
+add_subdirectory(Tuning)
 
 set(TEST_SOURCES
         IsGetColdnessAvailableTestSuite.cpp
