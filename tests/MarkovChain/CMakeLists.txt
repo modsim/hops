@@ -3,7 +3,6 @@ add_subdirectory(Proposal)
 add_subdirectory(Recorder)
 
 set(TEST_SOURCES
-        AcceptanceRateTunerTestSuite.cpp
         IsGetColdnessAvailableTestSuite.cpp
         IsGetExchangeAttemptProbabilityAvailableTestSuite.cpp
         IsResetAcceptanceRateAvailableTestSuite.cpp

@@ -177,9 +177,9 @@ int main(int argc, char **argv) {
             markovChain->setAttribute(hops::MarkovChainAttribute::STEP_SIZE, 1);
             markovChain->clearHistory();
 
-            isTuned = hops::AcceptanceRateTuner::tune(markovChain.get(),
-                                                      randomNumberGenerator,
-                                                      {lowerLimitAcceptanceRate,
+            isTuned = hops::BinarySearchAcceptanceRateTuner::tune(markovChain.get(),
+                                                                  randomNumberGenerator,
+                                                                  {lowerLimitAcceptanceRate,
                                                        upperLimitAcceptanceRate,
                                                        lowerLimitStepSize,
                                                        upperLimitStepSize,

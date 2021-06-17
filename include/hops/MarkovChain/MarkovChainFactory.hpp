@@ -313,8 +313,7 @@ namespace hops {
                                                     inequalityLhs, inequalityRhs, startingPoint),
                                             ColdnessAttribute(model)
                                     )
-                            ),
-                            useParallelTempering
+                            )
                     );
                 }
                 case MarkovChainType::BallWalk : {
@@ -450,7 +449,7 @@ namespace hops {
                                             ColdnessAttribute(model)
                                     )
                             ),
-                            useParallelTempering
+                            synchronizedRandomNumberGenerator
                     );
                 }
                 case MarkovChainType::BallWalk : {

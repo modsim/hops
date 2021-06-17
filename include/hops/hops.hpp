@@ -46,6 +46,7 @@
 #include "MarkovChain/Recorder/TimestampRecorder.hpp"
 
 #include "MarkovChain/Tuning/AcceptanceRateTuner.hpp"
+#include "MarkovChain/Tuning/BinarySearchAcceptanceRateTuner.hpp"
 #include "MarkovChain/Tuning/ExpectedSquaredJumpDistanceTuner.hpp"
 #include "MarkovChain/Tuning/SimpleExpectedSquaredJumpDistanceTuner.hpp"
 

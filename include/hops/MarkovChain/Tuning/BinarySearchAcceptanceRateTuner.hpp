@@ -6,8 +6,8 @@
 namespace hops {
 
     /**
+     * @deprecated
      * @brief Deprecated as there are issues due to the uncertainty in estimating acceptance rates.
-     * @deprecated Binary search does not work well for acceptance rate tuning, because the acceptance rate is uncertain.
      */
     class BinarySearchAcceptanceRateTuner {
     public:
