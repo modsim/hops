@@ -37,10 +37,6 @@ std::tuple<std::vector<double>, std::vector<double>> hops::internal::AcceptanceR
         acceptanceRateScores[i] = 1 - std::abs(acceptanceRate - parameters.acceptanceRateTargetValue) / deltaScale;
     }
 
-<<<<<<< Updated upstream
-    return {std::accumulate(acceptanceRateScores.begin(), acceptanceRateScores.end(), 0.0) /
-            acceptanceRateScores.size()};
-=======
     double mean = std::accumulate(acceptanceRateScores.begin(), acceptanceRateScores.end(), 0.0) / acceptanceRateScores.size();
     std::vector<double> means = {mean};
 
@@ -48,7 +44,6 @@ std::tuple<std::vector<double>, std::vector<double>> hops::internal::AcceptanceR
     std::vector<double> errors = {std::sqrt(squaredSum / acceptanceRateScores.size() - mean * mean)}; 
 
     return {means, errors};
->>>>>>> Stashed changes
 }
 
 bool hops::AcceptanceRateTuner::tune(
@@ -88,19 +83,10 @@ bool hops::AcceptanceRateTuner::tune(
             target,
             logStepSizeGrid,
             thompsonSamplingRandomNumberGenerator,
-<<<<<<< Updated upstream
-            samples,
-            observations,
-            noise);
-
-    auto &posteriorMean = gp.getPosteriorMean();
-    auto &posteriorCovariance = gp.getPosteriorCovariance();
-=======
             samples, observations, noise);
    
     auto& posteriorMean = gp.getPosteriorMean();
     auto& posteriorCovariance = gp.getPosteriorCovariance();
->>>>>>> Stashed changes
 
     size_t maximumIndex = 0;
     for (size_t i = 1; i < posteriorMean.size(); ++i) {
