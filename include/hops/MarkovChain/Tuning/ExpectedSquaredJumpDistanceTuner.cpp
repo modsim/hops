@@ -6,7 +6,7 @@
  * @param markovChain
  * @return
  */
-std::vector<double> hops::internal::ExpectedSquaredJumpDistanceTarget::operator()(const Eigen::VectorXd& x) {
+std::tuple<std::vector<double>, std::vector<double>> hops::internal::ExpectedSquaredJumpDistanceTarget::operator()(const Eigen::VectorXd& x) {
     double stepSize = std::pow(10, x(0));
     std::vector<double> expectedSquaredJumpDistances;
     for (size_t i = 0; i < markovChain.size(); ++i) {
@@ -32,7 +32,13 @@ std::vector<double> hops::internal::ExpectedSquaredJumpDistanceTarget::operator(
         expectedSquaredJumpDistances.push_back(expectedSquaredJumpDistance);
     }
 
-    return {std::accumulate(expectedSquaredJumpDistances.begin(), expectedSquaredJumpDistances.end(), 0.0) / expectedSquaredJumpDistances.size()};
+    double mean = std::accumulate(expectedSquaredJumpDistances.begin(), expectedSquaredJumpDistances.end(), 0.0) / expectedSquaredJumpDistances.size();
+    std::vector<double> means = {mean};
+
+    double squaredSum = std::inner_product(expectedSquaredJumpDistances.begin(), expectedSquaredJumpDistances.end(), expectedSquaredJumpDistances.begin(), 0.0);
+    std::vector<double> errors = {std::sqrt(squaredSum / expectedSquaredJumpDistances.size() - mean * mean)}; 
+
+    return {means, errors};
 }
 
 bool hops::ExpectedSquaredJumpDistanceTuner::tune(
@@ -53,7 +59,7 @@ bool hops::ExpectedSquaredJumpDistanceTuner::tune(
         logStepSizeGrid.push_back(x);
     }
 
-    double sigma = 1, length = 1, noise = 1, unscalingFactor = 1;
+    double sigma = 1, length = 1, unscalingFactor = 1;
     Kernel kernel(sigma, length);
     GP gp = GP(kernel);
 
@@ -61,14 +67,14 @@ bool hops::ExpectedSquaredJumpDistanceTuner::tune(
 
     std::vector<Eigen::VectorXd> samples;
     std::vector<double> observations;
+    std::vector<double> noise;
 
     RandomNumberGenerator thompsonSamplingRandomNumberGenerator(parameters.randomSeed, markovChain.size() + 1);
     bool success = ThompsonSampling<Eigen::MatrixXd, Eigen::VectorXd, GP>::optimize(
             parameters.maximumTotalIterations,
             gp, target, logStepSizeGrid, 
             thompsonSamplingRandomNumberGenerator,
-            samples, observations, 
-            noise, &unscalingFactor);
+            samples, observations, noise);
    
     auto& posteriorMean = gp.getPosteriorMean();
     auto& posteriorCovariance = gp.getPosteriorCovariance();
@@ -82,10 +88,11 @@ bool hops::ExpectedSquaredJumpDistanceTuner::tune(
     }
 
     // only for logging purposes
-    Eigen::MatrixXd data(samples.size(), 2);
+    Eigen::MatrixXd data(samples.size(), 3);
     for (size_t i = 0; i < samples.size(); ++i) {
         data(i, 0) = samples[i](0);
         data(i, 1) = observations[i] * unscalingFactor;
+        data(i, 2) = noise[i] * unscalingFactor;
     }
 
     // only for logging purposes

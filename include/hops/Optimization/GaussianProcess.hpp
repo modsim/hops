@@ -62,8 +62,11 @@ namespace hops {
             MatrixType Ks = kernel(observedInputs, x);
             MatrixType Kss = kernel(x, x);
 
+            VectorType errors = aggregateErrors(x);
+
             posteriorMean = priorMean(x) + Ks.transpose() * invObservedCovariance * (observedValues - priorMean(observedInputs));
             posteriorCovariance = Kss - Ks.transpose() * invObservedCovariance * Ks;
+            posteriorCovariance += errors.asDiagonal();
 
             Eigen::BDCSVD<MatrixType> solver(MatrixType(posteriorCovariance), Eigen::ComputeFullU);
             sqrtInvPosteriorCovariance = solver.matrixU() * 
@@ -117,6 +120,17 @@ namespace hops {
 
             if (observedCovariance.size() > 0) {
                 invObservedCovariance = observedCovariance.inverse();
+
+                //if (invObservedCovariance.hasNaN()) {
+                //    observedCovariance.diagonal().array() *= 1.01;
+                //}
+
+                //invObservedCovariance = observedCovariance.inverse();
+
+                //if (invObservedCovariance.hasNaN()) {
+                //    throw std::runtime_error("cannot invert the observed covariance.");
+                //}
+
             } else {
                 invObservedCovariance = Eigen::MatrixXd::Zero(0, 0);
             }
@@ -175,6 +189,29 @@ namespace hops {
                 prior(i) = priorMeanFunction(x[i]);
             }
             return prior;
+        }
+
+        VectorType aggregateErrors(const std::vector<VectorType>& x) {
+            VectorType errors(x.size());
+            for (size_t i = 0; i < x.size(); ++i) {
+                double mean = 0, error = 0;
+                
+                if (observedInputs.size() > 0) {
+                    for (size_t j = 0; j < observedInputs.size(); ++j) {
+                        if (x[i] == observedInputs[j]) {
+                            mean += observedValues(j);
+                            error += std::pow(observedValueErrors(j), 2) + std::pow(observedValues(j), 2);
+                        }
+                    }
+                    mean /= observedInputs.size();
+                    error /= observedInputs.size();
+                    error -= std::pow(mean, 2);
+                }
+
+                assert(error >= 0);
+                errors(i) = error;
+            }
+            return errors;
         }
     };
 
