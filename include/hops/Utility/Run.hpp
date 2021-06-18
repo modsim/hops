@@ -622,7 +622,7 @@ namespace hops {
 
         run.stepSize = tunedStepSize;
         unsigned long totalNumberOfTuningSamples = 
-                run.markovChains.size() * parameters.iterationsToTestStepSize; 
+                run.markovChains.size() * parameters.iterationsToTestStepSize * parameters.stepSizeGridSize; 
         // reset stored states
         run.data->reset();
         run.data->setTuningData(totalNumberOfTuningSamples, tunedStepSize, maximumExpectedSquaredJumpDistance, {}, time);

@@ -12,7 +12,7 @@ namespace hops {
     namespace internal {
         template<typename ReturnType, typename InputType>
         struct ThompsonSamplingTarget {
-            virtual ReturnType operator()(const InputType&) = 0;
+            virtual std::tuple<ReturnType, ReturnType> operator()(const InputType&) = 0;
         };
     }
 
@@ -28,10 +28,8 @@ namespace hops {
                               RandomNumberGenerator randomNumberGenerator,
                               std::vector<VectorType>& samples,
                               std::vector<double>& observations,
-                              double noise = 0, 
+                              std::vector<double>& noise,
                               double* rescaling = nullptr) {
-            std::vector<double> _noise;
-
             double maximumObservation = std::numeric_limits<double>::min();
             size_t maxElementIndex;
             GaussianProcess gp = initialGP.getPriorCopy();
@@ -42,12 +40,12 @@ namespace hops {
                 Eigen::VectorXd testParameter = parameterSpaceGrid[maxElementIndex];
 
                 // evaluate stepsize which maximized the sampled acquisition function
-                auto evaluations = (*targetFunction)(testParameter);
+                auto[evaluations, _noise] = (*targetFunction)(testParameter);
 
                 for (size_t j = 0; j < evaluations.size(); ++j) {
                     samples.push_back(testParameter);
                     observations.push_back(evaluations[j]);
-                    _noise.push_back(noise);
+                    noise.push_back(_noise[j]);
 
                     // update max observed evaluation
                     if (rescaling && evaluations[j] > maximumObservation) {
@@ -73,11 +71,11 @@ namespace hops {
                     }
 
                     gp = initialGP.getPriorCopy();
-                    gp.addObservations(samples, observations, _noise);
+                    gp.addObservations(samples, observations, noise);
                 } else {
                     gp.addObservations(std::vector<Eigen::VectorXd>(evaluations.size(), testParameter), 
                                        evaluations, 
-                                       std::vector<double>(evaluations.size(), noise));
+                                       _noise);
                 }
             }
 

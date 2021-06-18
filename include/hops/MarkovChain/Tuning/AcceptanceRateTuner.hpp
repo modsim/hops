@@ -85,7 +85,7 @@ namespace hops {
                     randomNumberGenerator(&randomNumberGenerator),
                     parameters(parameters) {}
 
-            virtual std::vector<double> operator()(const Eigen::VectorXd& x) override;
+            virtual std::tuple<std::vector<double>, std::vector<double>> operator()(const Eigen::VectorXd& x) override;
         };
     }
 }

@@ -7,7 +7,7 @@
  * @param markovChain
  * @return
  */
-std::vector<double> hops::internal::AcceptanceRateTarget::operator()(const Eigen::VectorXd &x) {
+std::tuple<std::vector<double>, std::vector<double>> hops::internal::AcceptanceRateTarget::operator()(const Eigen::VectorXd& x) {
     double stepSize = std::pow(10, x(0));
     std::vector<double> acceptanceRateScores(markovChain.size());
     for (size_t i = 0; i < markovChain.size(); ++i) {
@@ -37,8 +37,18 @@ std::vector<double> hops::internal::AcceptanceRateTarget::operator()(const Eigen
         acceptanceRateScores[i] = 1 - std::abs(acceptanceRate - parameters.acceptanceRateTargetValue) / deltaScale;
     }
 
+<<<<<<< Updated upstream
     return {std::accumulate(acceptanceRateScores.begin(), acceptanceRateScores.end(), 0.0) /
             acceptanceRateScores.size()};
+=======
+    double mean = std::accumulate(acceptanceRateScores.begin(), acceptanceRateScores.end(), 0.0) / acceptanceRateScores.size();
+    std::vector<double> means = {mean};
+
+    double squaredSum = std::inner_product(acceptanceRateScores.begin(), acceptanceRateScores.end(), acceptanceRateScores.begin(), 0.0);
+    std::vector<double> errors = {std::sqrt(squaredSum / acceptanceRateScores.size() - mean * mean)}; 
+
+    return {means, errors};
+>>>>>>> Stashed changes
 }
 
 bool hops::AcceptanceRateTuner::tune(
@@ -60,7 +70,7 @@ bool hops::AcceptanceRateTuner::tune(
         logStepSizeGrid.push_back(x);
     }
 
-    double sigma = 0.5, length = 0.5, noise = 0.1;
+    double sigma = 0.5, length = 1;
     Kernel kernel(sigma, length);
     GP gp = GP(kernel);
 
@@ -69,6 +79,7 @@ bool hops::AcceptanceRateTuner::tune(
 
     std::vector<Eigen::VectorXd> samples;
     std::vector<double> observations;
+    std::vector<double> noise;
 
     RandomNumberGenerator thompsonSamplingRandomNumberGenerator(parameters.randomSeed, markovChain.size() + 1);
     bool success = ThompsonSampling<Eigen::MatrixXd, Eigen::VectorXd, GP>::optimize(
@@ -77,12 +88,19 @@ bool hops::AcceptanceRateTuner::tune(
             target,
             logStepSizeGrid,
             thompsonSamplingRandomNumberGenerator,
+<<<<<<< Updated upstream
             samples,
             observations,
             noise);
 
     auto &posteriorMean = gp.getPosteriorMean();
     auto &posteriorCovariance = gp.getPosteriorCovariance();
+=======
+            samples, observations, noise);
+   
+    auto& posteriorMean = gp.getPosteriorMean();
+    auto& posteriorCovariance = gp.getPosteriorCovariance();
+>>>>>>> Stashed changes
 
     size_t maximumIndex = 0;
     for (size_t i = 1; i < posteriorMean.size(); ++i) {
@@ -100,10 +118,11 @@ bool hops::AcceptanceRateTuner::tune(
     }
 
     // only for logging purposes
-    Eigen::MatrixXd data(samples.size(), 2);
+    Eigen::MatrixXd data(samples.size(), 3);
     for (size_t i = 0; i < samples.size(); ++i) {
         data(i, 0) = samples[i](0);
         data(i, 1) = observations[i];
+        data(i, 2) = noise[i];
     }
 
     // only for logging purposes
