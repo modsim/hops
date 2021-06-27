@@ -20,7 +20,10 @@ namespace hops {
     public:
         struct param_type {
             size_t iterationsToTestStepSize;
-            size_t maximumTotalIterations;
+            size_t posteriorUpdateIterations;
+            size_t pureSamplingIterations;
+            size_t iterationsForConvergence;
+            size_t posteriorUpdateIterationsNeeded;
             size_t stepSizeGridSize;
             double stepSizeLowerBound;
             double stepSizeUpperBound;
@@ -29,7 +32,9 @@ namespace hops {
             std::string outputDirectory;
 
             param_type(size_t iterationsToTestStepSize,
-                       size_t maximumTotalIterations,
+                       size_t posteriorUpdateIterations,
+                       size_t pureSamplingIterations,
+                       size_t iterationsForConvergence,
                        size_t stepSizeGridSize,
                        double stepSizeLowerBound,
                        double stepSizeUpperBound,
@@ -50,7 +55,7 @@ namespace hops {
         static bool
         tune(std::vector<std::shared_ptr<MarkovChain>>&, 
              std::vector<RandomNumberGenerator>&, 
-             const param_type&);
+             param_type&);
 
         /**
          * @brief tunes markov chain acceptance rate by nested intervals. The chain is not guaranteed to have converged
@@ -65,13 +70,13 @@ namespace hops {
              double&,
              std::vector<std::shared_ptr<MarkovChain>>&, 
              std::vector<RandomNumberGenerator>&, 
-             const param_type&);
+             param_type&);
 
         ExpectedSquaredJumpDistanceTuner() = delete;
     };
 
     namespace internal {
-        struct ExpectedSquaredJumpDistanceTarget : public ThompsonSamplingTarget<std::vector<double>, Eigen::VectorXd> {
+        struct ExpectedSquaredJumpDistanceTarget : public ThompsonSamplingTarget<double, Eigen::VectorXd> {
             std::vector<std::shared_ptr<hops::MarkovChain>> markovChain;
             std::vector<RandomNumberGenerator>* randomNumberGenerator;
             ExpectedSquaredJumpDistanceTuner::param_type parameters;
@@ -85,7 +90,7 @@ namespace hops {
                 //
             }
 
-            virtual std::tuple<std::vector<double>, std::vector<double>> operator()(const Eigen::VectorXd& x) override;
+            virtual std::tuple<double, double> operator()(const Eigen::VectorXd& x) override;
         };
     }
 }

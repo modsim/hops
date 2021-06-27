@@ -19,93 +19,84 @@ namespace hops {
     template<typename MatrixType, typename VectorType, typename GaussianProcessType>
     class ThompsonSampling {
     public:
-        using ThompsonSamplgTargetType = internal::ThompsonSamplingTarget<std::vector<typename MatrixType::Scalar>, VectorType>;
+        using ThompsonSamplgTargetType = internal::ThompsonSamplingTarget<typename MatrixType::Scalar, VectorType>;
 
-        static bool optimize (size_t numberOfRounds,
+        static bool optimize (const size_t numberOfPosteriorUpdates,
+                              const size_t numberOfSamplingRounds,
+                              const size_t numberOfRoundsForConvergence,
                               GaussianProcessType& initialGP,
                               std::shared_ptr<ThompsonSamplgTargetType> targetFunction,
-                              const std::vector<VectorType>& parameterSpaceGrid,
+                              const std::vector<VectorType>& inputSpaceGrid,
                               RandomNumberGenerator randomNumberGenerator,
-                              std::vector<VectorType>& samples,
-                              std::vector<double>& observations,
-                              std::vector<double>& noise,
-                              double* rescaling = nullptr) {
-            double maximumObservation = std::numeric_limits<double>::min();
+                              size_t* numberOfPosteriorUpdatesNeeded = nullptr) {
             size_t maxElementIndex;
+            bool isConverged = false;
+
+            size_t newMaximumPosteriorMeanIndex = 0, oldMaximumPosteriorMeanIndex = 0, sameMaximumCounter = 0;
             GaussianProcess gp = initialGP.getPriorCopy();
 
-            for (size_t i = 0; i < numberOfRounds; ++i) {
-                // sample the acquisition function and obtain its maximum
-                gp.sample(parameterSpaceGrid, randomNumberGenerator, maxElementIndex);
-                Eigen::VectorXd testParameter = parameterSpaceGrid[maxElementIndex];
+            for (size_t i = 0; i < numberOfPosteriorUpdates; ++i) {
+                std::unordered_map<size_t, size_t> observedInputIndex;
+                std::vector<size_t> observedInputCount;
+                std::vector<Eigen::VectorXd> observedInput;
+                std::vector<double> observedValueMean;
+                std::vector<double> observedValueErrorMean;
 
-                // evaluate stepsize which maximized the sampled acquisition function
-                auto[evaluations, _noise] = (*targetFunction)(testParameter);
+                for (size_t j = 0; j < numberOfSamplingRounds; ++j) {
+                    // sample the acquisition function and obtain its maximum
+                    gp.sample(inputSpaceGrid, randomNumberGenerator, maxElementIndex);
+                    Eigen::VectorXd testInput = inputSpaceGrid[maxElementIndex];
 
-                for (size_t j = 0; j < evaluations.size(); ++j) {
-                    samples.push_back(testParameter);
-                    observations.push_back(evaluations[j]);
-                    noise.push_back(_noise[j]);
+                    // evaluate stepsize which maximized the sampled acquisition function
+                    auto[newObservedValue, newObservedValueError] = (*targetFunction)(testInput);
 
-                    // update max observed evaluation
-                    if (rescaling && evaluations[j] > maximumObservation) {
-                        maximumObservation = evaluations[j];
+                    // aggregate data if this stepsize has been tested before
+                    if (observedInputIndex.count(maxElementIndex)) {
+                        size_t k = observedInputIndex[maxElementIndex];
+                        size_t m = observedInputCount[k];
+                        observedInputCount[k] += 1;
+                        double oldObservedValueMean = observedValueMean[k]; // store for variance update
+                        observedValueMean[k] = (m * observedValueMean[k] + newObservedValue) / (m+1);
+                        observedValueErrorMean[k] = 
+                                (m * (std::pow(observedValueErrorMean[k], 2) + std::pow(oldObservedValueMean, 2)) + 
+                                 1 * (std::pow(newObservedValueError, 2) + std::pow(newObservedValue, 2))) / (m+1) - std::pow(observedValueMean[k], 2);
+                    } else {
+                        observedInputIndex[maxElementIndex] = observedInput.size();
+                        observedInputCount.push_back(1);
+                        observedInput.push_back(testInput);
+                        observedValueMean.push_back(newObservedValue);
+                        observedValueErrorMean.push_back(newObservedValueError);
                     }
                 }
 
-                if (rescaling) {
-                    double unscaleFactor = maximumObservation;
-                    // the observations which were already recorded have to be rescaled
-                    for (size_t j = 0; j < observations.size() - evaluations.size(); ++j) {
-                        // if the unscaleFactor is zero, then because all previous observations
-                        // were zero, so they may as well be multiplied with zero
-                        observations[j] *= unscaleFactor;  
-                        // if the new maximum is zero, then also the old was, so no rescaling is done (=division by one)
-                        observations[j] /= (maximumObservation != 0 ? maximumObservation : 1);
-                    }
+                gp.updateObservations(observedInput, observedValueMean, observedValueErrorMean);
+                gp.addObservations(observedInput, observedValueMean, observedValueErrorMean);
 
-                    // the new observations have not yet been scaled
-                    for (size_t j = observations.size() - evaluations.size(); j < observations.size(); ++j) {
-                        // if the new maximum is zero, then also the old was, so no rescaling is done (=division by one)
-                        observations[j] /= (maximumObservation != 0 ? maximumObservation : 1);
-                    }
-
-                    gp = initialGP.getPriorCopy();
-                    gp.addObservations(samples, observations, noise);
+                // check maximum of posterior mean and increment counter, if the index didnt change
+                // or reset counter, if we have a new maximum
+                gp.getPosteriorMean().maxCoeff(&newMaximumPosteriorMeanIndex);
+                if (newMaximumPosteriorMeanIndex != oldMaximumPosteriorMeanIndex) {
+                    sameMaximumCounter = 0;
                 } else {
-                    gp.addObservations(std::vector<Eigen::VectorXd>(evaluations.size(), testParameter), 
-                                       evaluations, 
-                                       _noise);
+                    ++sameMaximumCounter;
+                }
+                oldMaximumPosteriorMeanIndex = newMaximumPosteriorMeanIndex;
+
+                // if the posterior mean hasn't change for the last sameMaximumCounter of rounds, 
+                // then we assume convergence and break
+                if (sameMaximumCounter == numberOfRoundsForConvergence) {
+                    isConverged = true;
+                    if (numberOfPosteriorUpdatesNeeded) {
+                        *numberOfPosteriorUpdatesNeeded = i;
+                    }
+                    break;
                 }
             }
 
-            gp.sample(parameterSpaceGrid, randomNumberGenerator, maxElementIndex);
+            gp.sample(inputSpaceGrid, randomNumberGenerator, maxElementIndex);
             initialGP = gp.getPosteriorCopy();
 
-            if (rescaling) {
-                *rescaling = maximumObservation;
-            }
-
-            return true;
-        }
-
-        static bool optimize (size_t numberOfRounds,
-                              GaussianProcessType gp,
-                              std::shared_ptr<ThompsonSamplgTargetType> targetFunction,
-                              const std::vector<VectorType>& parameterSpaceGrid,
-                              RandomNumberGenerator randomNumberGenerator,
-                              double noise = 0, 
-                              bool rescaling = false) {
-            std::vector<Eigen::VectorXd> samples;
-            std::vector<double> observations;
-            
-            return optimize(numberOfRounds, 
-                            targetFunction, 
-                            parameterSpaceGrid, 
-                            samples, 
-                            observations, 
-                            noise, 
-                            rescaling);
+            return isConverged;
         }
     };
 }
