@@ -38,13 +38,13 @@ namespace hops {
 
 
     template<typename Model, typename Proposal>
-    void tune(RunBase<Model, Proposal>& run, const AcceptanceRateTuner::param_type& parameters);
+    void tune(RunBase<Model, Proposal>& run, AcceptanceRateTuner::param_type& parameters);
 
     template<typename Model, typename Proposal>
-    void tune(RunBase<Model, Proposal>& run, const ExpectedSquaredJumpDistanceTuner::param_type& parameters);
+    void tune(RunBase<Model, Proposal>& run, ExpectedSquaredJumpDistanceTuner::param_type& parameters);
 
     template<typename Model, typename Proposal>
-    void tune(RunBase<Model, Proposal>& run, const SimpleExpectedSquaredJumpDistanceTuner::param_type& parameters);
+    void tune(RunBase<Model, Proposal>& run, SimpleExpectedSquaredJumpDistanceTuner::param_type& parameters);
 
 
     template<typename Model, typename Proposal>
@@ -338,9 +338,9 @@ namespace hops {
         double randomSeed = 0;
 
         //friend void tune(RunBase<Model, Proposal>& run, const ExpectedSquaredJumpDistanceTuner::param_type& parameters);
-        friend void tune<>(RunBase& run, const AcceptanceRateTuner::param_type& parameters);
-        friend void tune<>(RunBase& run, const ExpectedSquaredJumpDistanceTuner::param_type& parameters);
-        friend void tune<>(RunBase& run, const SimpleExpectedSquaredJumpDistanceTuner::param_type& parameters);
+        friend void tune<>(RunBase& run, AcceptanceRateTuner::param_type& parameters);
+        friend void tune<>(RunBase& run, ExpectedSquaredJumpDistanceTuner::param_type& parameters);
+        friend void tune<>(RunBase& run, SimpleExpectedSquaredJumpDistanceTuner::param_type& parameters);
     };
 
     template <typename Model>
@@ -509,7 +509,7 @@ namespace hops {
 	}
 
     template<typename Model, typename Proposal>
-    void tune(RunBase<Model, Proposal>& run, const AcceptanceRateTuner::param_type& parameters) {
+    void tune(RunBase<Model, Proposal>& run, AcceptanceRateTuner::param_type& parameters) {
         if (!run.isInitialized) {
             run.init();
         }
@@ -542,14 +542,14 @@ namespace hops {
 
         run.stepSize = tunedStepSize;
         unsigned long totalNumberOfTuningSamples = 
-                run.markovChains.size() * parameters.iterationsToTestStepSize * parameters.maximumTotalIterations; 
+                run.markovChains.size() * parameters.iterationsToTestStepSize * parameters.posteriorUpdateIterationsNeeded * parameters.pureSamplingIterations; 
         // reset stored states
         run.data->reset();
         run.data->setTuningData(totalNumberOfTuningSamples, tunedStepSize, -1, {parameters.acceptanceRateTargetValue - deltaAcceptanceRate, parameters.acceptanceRateTargetValue + deltaAcceptanceRate}, time);
     }
 
     template<typename Model, typename Proposal>
-    void tune(RunBase<Model, Proposal>& run, const ExpectedSquaredJumpDistanceTuner::param_type& parameters) {
+    void tune(RunBase<Model, Proposal>& run, ExpectedSquaredJumpDistanceTuner::param_type& parameters) {
         if (!run.isInitialized) {
             run.init();
         }
@@ -582,14 +582,14 @@ namespace hops {
 
         run.stepSize = tunedStepSize;
         unsigned long totalNumberOfTuningSamples = 
-                run.markovChains.size() * parameters.iterationsToTestStepSize * parameters.maximumTotalIterations; 
+                run.markovChains.size() * parameters.iterationsToTestStepSize * parameters.posteriorUpdateIterationsNeeded * parameters.pureSamplingIterations; 
         // reset stored states
         run.data->reset();
         run.data->setTuningData(totalNumberOfTuningSamples, tunedStepSize, maximumExpectedSquaredJumpDistance, {}, time);
     }
 
     template<typename Model, typename Proposal>
-    void tune(RunBase<Model, Proposal>& run, const SimpleExpectedSquaredJumpDistanceTuner::param_type& parameters) {
+    void tune(RunBase<Model, Proposal>& run, SimpleExpectedSquaredJumpDistanceTuner::param_type& parameters) {
         if (!run.isInitialized) {
             run.init();
         }

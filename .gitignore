@@ -5,5 +5,5 @@ out
 CMakeSettings.json
 .clangd
 compile_commands.json
-.*.sw*
+.*sw*
 venv

@@ -23,7 +23,10 @@ namespace hops {
         struct param_type {
             double acceptanceRateTargetValue;
             size_t iterationsToTestStepSize;
-            size_t maximumTotalIterations;
+            size_t posteriorUpdateIterations;
+            size_t pureSamplingIterations;
+            size_t iterationsForConvergence;
+            size_t posteriorUpdateIterationsNeeded;
             size_t stepSizeGridSize;
             double stepSizeLowerBound;
             double stepSizeUpperBound;
@@ -32,7 +35,9 @@ namespace hops {
 
             param_type(double acceptanceRateTargetValue,
                        size_t iterationsToTestStepSize,
-                       size_t maximumTotalIterations,
+                       size_t posteriorUpdateIterations,
+                       size_t pureSamplingIterations,
+                       size_t iterationsForConvergence,
                        size_t stepSizeGridSize,
                        double stepSizeLowerBound,
                        double stepSizeUpperBound,
@@ -52,7 +57,7 @@ namespace hops {
         static bool
         tune(std::vector<std::shared_ptr<MarkovChain>>& markovChain, 
              std::vector<RandomNumberGenerator>& randomNumberGenerator, 
-             const param_type &parameters);
+             param_type &parameters);
 
         /**
          * @brief tunes markov chain acceptance rate by nested intervals. The chain is not guaranteed to have converged
@@ -67,13 +72,13 @@ namespace hops {
              double& deltaAcceptanceRate, 
              std::vector<std::shared_ptr<MarkovChain>>& markovChain, 
              std::vector<RandomNumberGenerator>& randomNumberGenerator, 
-             const param_type &parameters);
+             param_type &parameters);
 
         AcceptanceRateTuner() = delete;
     };
 
     namespace internal {
-        struct AcceptanceRateTarget : public ThompsonSamplingTarget<std::vector<double>, Eigen::VectorXd> {
+        struct AcceptanceRateTarget : public ThompsonSamplingTarget<double, Eigen::VectorXd> {
             std::vector<std::shared_ptr<hops::MarkovChain>> markovChain;
             std::vector<RandomNumberGenerator>* randomNumberGenerator;
             AcceptanceRateTuner::param_type parameters;
@@ -85,7 +90,7 @@ namespace hops {
                     randomNumberGenerator(&randomNumberGenerator),
                     parameters(parameters) {}
 
-            virtual std::tuple<std::vector<double>, std::vector<double>> operator()(const Eigen::VectorXd& x) override;
+            virtual std::tuple<double, double> operator()(const Eigen::VectorXd& x) override;
         };
     }
 }
