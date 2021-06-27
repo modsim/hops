@@ -39,7 +39,7 @@ namespace hops {
                 if (coldness == 0) {
                     return Model::MatrixType::Zero(state.rows(), state.rows());
                 } else {
-                    return coldness * Model::calculateExpectedFisherInformation(state);
+                    return coldness * coldness * Model::calculateExpectedFisherInformation(state);
                 }
             }
             throw std::runtime_error("Fisher Information called but it is undefined.");
