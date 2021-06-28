@@ -173,8 +173,8 @@ namespace hops {
                     }
                 }
 
-                // record data which could not be updated, because it was not stored in *this the first place,
-                // in order to add it afterwards
+                // record data which could not be updated, because it was not stored in *this the first place
+                // this data is "returned" in the reference arguments, such that it can be added after this function returns
                 if (!foundInput) {
                     inputsNotFound.push_back(x[i]);
                     valuesNotFound.push_back(y[i]);
@@ -195,9 +195,9 @@ namespace hops {
                 observedValueErrors(k) = error[i];
 
                 // update the observed covariance 
-                observedCovariance.row(k) = kernel({observedInputs[k]}, observedInputs);
-                observedCovariance.col(k) = observedCovariance.row(k).transpose();
-                observedCovariance(k, k) += observedValueErrors(k);
+                //observedCovariance.row(k) = kernel({observedInputs[k]}, observedInputs);
+                //observedCovariance.col(k) = observedCovariance.row(k).transpose();
+                observedCovariance(k, k) = kernel({observedInputs[k]}, {observedInputs[k]})(0,0) + observedValueErrors(k);
                 //observedCovariance(k, k) += 1.e-5;
             }
 
@@ -213,6 +213,14 @@ namespace hops {
             x = inputsNotFound;
             y = valuesNotFound;
             error = errorsNotFound;
+        }
+
+        void updateObservations(const std::vector<VectorType>& x, const std::vector<double>& y) {
+            updateObservations(x, y, std::vector<double>(y.size(), 0));
+        }
+
+        void updateObservation(const VectorType& x, double y, double error = 0) {
+            updateObservations({x}, {y}, {error});
         }
 
         void addObservations(const std::vector<VectorType>& x, const std::vector<double>& y, const std::vector<double>& error) {
@@ -364,7 +372,9 @@ namespace hops {
                 for (size_t j = 0; j < y.size(); ++j) {
                     VectorType diff = x[i] - y[j];
                     double squaredDistance = diff.transpose() * diff;
-                    covariance(i, j) = sigma * sigma * std::exp(-0.5 * squaredDistance / (length * length));
+                    double val = sigma * sigma * std::exp(-0.5 * squaredDistance / (length * length));
+                    covariance(i, j) = val;
+                    //covariance(j, i) = val;
                 }
             }
             return covariance;
