@@ -1,7 +1,7 @@
 #ifndef HOPS_GAUSSIANPROCESS_HPP
 #define HOPS_GAUSSIANPROCESS_HPP
 
-#include "../RandomNumberGenerator/RandomNumberGenerator.hpp"
+#include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
 
 #include <Eigen/Core>
 #include <Eigen/LU>
@@ -14,6 +14,41 @@
 #include <iostream>
 
 namespace hops {
+    namespace internal{
+        template<typename MatrixType>
+        MatrixType append(const MatrixType& rhs, const MatrixType& lhs) {
+            MatrixType newRhs(rhs.rows() + lhs.rows(), lhs.cols());
+            if (rhs.size() > 0) {
+                newRhs << rhs, lhs;
+            } else {
+                newRhs << lhs;
+            }
+            return newRhs;
+        }
+
+        template<typename MatrixType, typename VectorType>
+        MatrixType append(const MatrixType& rhs, const VectorType& lhs) {
+            MatrixType newRhs(rhs.rows() + 1, lhs.cols());
+            if (rhs.size() > 0) {
+                newRhs << rhs, lhs.transpose();
+            } else {
+                newRhs << lhs.transpose();
+            }
+            return newRhs;
+        }
+
+        template<typename VectorType>
+        VectorType append(const VectorType& rhs, double lhs) {
+            VectorType newRhs(rhs.rows() + 1);
+            if (rhs.size() > 0) {
+                newRhs << rhs, lhs;
+            } else {
+                newRhs << lhs;
+            }
+            return newRhs;
+        }
+    }
+
     template<typename MatrixType, typename VectorType, typename Kernel>
     class GaussianProcess {
     public:
@@ -66,8 +101,8 @@ namespace hops {
          *  recomputing depending quantities, which makes it rather safe to call it before sampling or querying any posterior data
          *
          */
-        void computePosterior(const std::vector<VectorType>& input) {
-            bool isNewInput = input != storedInputs;
+        void computePosterior(const MatrixType& input) {
+            bool isNewInput = (!storedInputs.size() || input != storedInputs);
             if (isNewObservations || isNewInput) {
                 observationInputCovariance = kernel(observedInputs, input);
                 //inputAggregatedErrors = aggregateErrors(input);
@@ -80,6 +115,12 @@ namespace hops {
                 }
 
                 if (isNewObservations) {
+                    // compute the cholesky factorization on the new observed covariance
+                    sqrtObservedCovariance = observedCovariance.llt().matrixL();
+
+                    assert(sqrtObservedCovariance.isLowerTriangular() 
+                            && "error computing the cholesky factorization of the observed covariance, check code.");
+
                     posteriorMean = sqrtObservedCovariance.template triangularView<Eigen::Lower>().solve(observedValues - priorMean(observedInputs));
                     posteriorMean = sqrtObservedCovariance.template triangularView<Eigen::Lower>().transpose().solve(posteriorMean);
 
@@ -116,15 +157,15 @@ namespace hops {
          * Sample from posterior at x
          *
          */
-        Eigen::VectorXd sample(const std::vector<VectorType>& input, 
+        Eigen::VectorXd sample(const MatrixType& input, 
                                hops::RandomNumberGenerator& randomNumberGenerator, 
                                size_t& maxElement) {
             computePosterior(input); 
 
-            VectorType draw(input.size());
+            VectorType draw(input.rows());
             auto standardNormal = std::normal_distribution<double>();
 
-            for (size_t i = 0; i < input.size(); ++i) {
+            for (long i = 0; i < input.rows(); ++i) {
                 draw(i) = standardNormal(randomNumberGenerator);
                 assert(!std::isnan(draw(i)));
             }
@@ -150,20 +191,20 @@ namespace hops {
          *  The isUnique argument controls, whether x may be assumed to be unique in *this. If isUnique == true, then only the data at the first 
          *  occurence of x_i in *this will be updated.
          */
-        void updateObservations(std::vector<VectorType>& x, std::vector<double>& y, std::vector<double>& error, bool isUnique = false) {
+        std::tuple<MatrixType, MatrixType, VectorType> updateObservations(const MatrixType& x, 
+                                                                          const VectorType& y, 
+                                                                          const VectorType& error, 
+                                                                          bool isUnique = false) {
             assert(x.size() == y.size());
             assert(y.size() == error.size());
 
-            std::vector<VectorType> inputsNotFound;
-            std::vector<double> valuesNotFound;
-            std::vector<double> errorsNotFound;
-
             // collect indices of observations which should be updated
-            std::vector<size_t> updateCandidates;
-            for (size_t i = 0; i < x.size(); ++i) {
+            std::vector<long> updateCandidates;
+            std::vector<long> notFound;
+            for (long i = 0; i < x.rows(); ++i) {
                 bool foundInput = false;
-                for (size_t j = 0; j < observedInputs.size(); ++j) {
-                    if (x[i] == observedInputs[j]) {
+                for (long j = 0; j < observedInputs.rows(); ++j) {
+                    if (x.row(i) == observedInputs.row(j)) {
                         updateCandidates.push_back(j);
                         foundInput = true;
 
@@ -176,9 +217,7 @@ namespace hops {
                 // record data which could not be updated, because it was not stored in *this the first place
                 // this data is "returned" in the reference arguments, such that it can be added after this function returns
                 if (!foundInput) {
-                    inputsNotFound.push_back(x[i]);
-                    valuesNotFound.push_back(y[i]);
-                    errorsNotFound.push_back(error[i]);
+                    notFound.push_back(i);
                 }
             }
 
@@ -191,13 +230,13 @@ namespace hops {
                 size_t k = updateCandidates[i];
 
                 // update the data
-                observedValues(k) = y[i];
-                observedValueErrors(k) = error[i];
+                observedValues(k) = y(i);
+                observedValueErrors(k) = error(i);
 
                 // update the observed covariance 
                 //observedCovariance.row(k) = kernel({observedInputs[k]}, observedInputs);
                 //observedCovariance.col(k) = observedCovariance.row(k).transpose();
-                observedCovariance(k, k) = kernel({observedInputs[k]}, {observedInputs[k]})(0,0) + observedValueErrors(k);
+                observedCovariance(k, k) = kernel(observedInputs.row(k), observedInputs.row(k))(0, 0) + observedValueErrors(k);
                 //observedCovariance(k, k) += 1.e-5;
             }
 
@@ -207,23 +246,40 @@ namespace hops {
 //            assert(control.size() == 0 || control.cwiseAbs().maxCoeff() < 1.e-5);
 //#endif
 
-            // compute the cholesky factorization on the new observed covariance
-            sqrtObservedCovariance = observedCovariance.llt().matrixL();
-        
-            x = inputsNotFound;
-            y = valuesNotFound;
-            error = errorsNotFound;
+            MatrixType inputsNotFound(notFound.size(), x.cols());
+            VectorType valuesNotFound(notFound.size());
+            VectorType errorsNotFound(notFound.size());
+
+            for (size_t i = 0; i < notFound.size(); ++i) {
+                long k = notFound[i];
+
+                inputsNotFound.row(i) = x.row(k);
+                valuesNotFound.row(i) = y.row(k);
+                errorsNotFound.row(i) = error.row(k);
+            }
+
+            //x = inputsNotFound;
+            //y = valuesNotFound;
+            //error = errorsNotFound;
+            return {inputsNotFound, valuesNotFound, errorsNotFound};
         }
 
-        void updateObservations(const std::vector<VectorType>& x, const std::vector<double>& y) {
-            updateObservations(x, y, std::vector<double>(y.size(), 0));
+        //void updateObservations(MatrixType& x, 
+        //                        VectorType& y, 
+        //                        VectorType& error, 
+        //                        bool isUnique = false) {
+        //    std::tie(x, y, error) = updateObservationsConstArgs(x, y, error);
+        //}
+
+        void updateObservations(const MatrixType& x, const VectorType& y) {
+            updateObservations(x, y, VectorType::Zeros(y.rows()));
         }
 
-        void updateObservation(const VectorType& x, double y, double error = 0) {
-            updateObservations({x}, {y}, {error});
-        }
+        //void updateObservation(const VectorType& x, double y, double error = 0) {
+        //    updateObservations({x}, {y}, {error});
+        //}
 
-        void addObservations(const std::vector<VectorType>& x, const std::vector<double>& y, const std::vector<double>& error) {
+        void addObservations(const MatrixType& x, VectorType& y, VectorType& error) {
             assert(x.size() == y.size());
             assert(y.size() == error.size());
 
@@ -232,11 +288,13 @@ namespace hops {
             auto n = observedValues.size();
             auto m = x.size();
 
-            VectorType newObservedValues = VectorType(n + m);
-            newObservedValues.head(n) = observedValues;
+            //VectorType newObservedValues = VectorType(n + m);
+            //newObservedValues << observedValues, y;
+            observedValues = internal::append(observedValues, y);
 
-            VectorType newObservedValueErrors = VectorType(n + m);
-            newObservedValueErrors.head(n) = observedValueErrors;
+            //VectorType newObservedValueErrors = VectorType(n + m);
+            //newObservedValueErrors << observedValueErrors, error;
+            observedValueErrors = internal::append(observedValueErrors, error);
 
             MatrixType newObservedCovariance = MatrixType::Zero(n + m, n + m);
             
@@ -246,40 +304,34 @@ namespace hops {
             newObservedCovariance.block(n, n, m, m) = kernel(x, x);
             //newObservedCovariance.block(n, n, m, m).diagonal().array() += 1.e-5;
 
-            for (size_t i = 0; i < m; ++i) {
-                observedInputs.push_back(x[i]);
-                newObservedValues(n + i) = y[i];
-                newObservedValueErrors(n + i) = error[i];
-            }
+            newObservedCovariance.block(n, n, m, m) += Eigen::MatrixXd(error.asDiagonal());
 
-            newObservedCovariance.block(n, n, m, m) += Eigen::MatrixXd(newObservedValueErrors.tail(m).asDiagonal());
-
+            //MatrixType newObservedInputs = MatrixType::Zero(n + m, n + m);
+            //newObservedInputs << observedInputs, x;
+            observedInputs = internal::append(observedInputs, x);
+            
 #ifndef NDEBUG
             MatrixType control = kernel(observedInputs, observedInputs);
-            control += Eigen::MatrixXd(newObservedValueErrors.asDiagonal());
+            control += Eigen::MatrixXd(observedValueErrors.asDiagonal());
             //control.diagonal().array() += 1.e-5;
             control -= newObservedCovariance;
             assert((control.size() == 0 || control.cwiseAbs().maxCoeff() < 1.e-5));
 #endif
 
-            observedValues = newObservedValues;
-            observedValueErrors = newObservedValueErrors;
+            //observedInputs = newObservedInputs;
+            //observedValues = newObservedValues;
+            //observedValueErrors = newObservedValueErrors;
             observedCovariance = newObservedCovariance;
             //observedCovariance = observedCovariance;
-
-            sqrtObservedCovariance = observedCovariance.llt().matrixL();
-#ifndef NDEBUG
-            assert(sqrtObservedCovariance.isLowerTriangular() && "error computing the cholesky factorization of the observed covariance, check code.");
-#endif
         }
 
-        void addObservations(const std::vector<VectorType>& x, const std::vector<double>& y) {
-            addObservations(x, y, std::vector<double>(y.size(), 0));
+        void addObservations(const MatrixType& x, const VectorType& y) {
+            addObservations(x, y, VectorType::Zeros(y.rows()));
         }
 
-        void addObservation(const VectorType& x, double y, double error = 0) {
-            addObservations({x}, {y}, {error});
-        }
+        //void addObservation(const VectorType& x, double y, double error = 0) {
+        //    addObservations({x}, {y}, {error});
+        //}
 
         const VectorType& getPosteriorMean() { 
             computePosterior(storedInputs);
@@ -296,15 +348,25 @@ namespace hops {
             return sqrtPosteriorCovariance; 
         }
 
-        const std::vector<VectorType>& getObservedInputs() const { return observedInputs; }
+        const MatrixType& getObservedInputs() const { return observedInputs; }
         const VectorType& getObservedValues() const { return observedValues; }
         const VectorType& getObservedValueErrors() const { return observedValueErrors; }
+
+        const MatrixType& getObservedCovariance() const { return observedCovariance; }
+
+        std::function<double (VectorType)>& getPriorMeanFunction() {
+            return priorMeanFunction;
+        }
+
+        Kernel getKernel() {
+            return kernel;
+        }
 
     private:
         std::function<double (VectorType)> priorMeanFunction;
         Kernel kernel;
 
-        std::vector<VectorType> storedInputs;
+        MatrixType storedInputs;
         VectorType inputPriorMean;
         //VectorType inputAggregatedErrors;
         MatrixType observationInputCovariance;
@@ -318,14 +380,14 @@ namespace hops {
         MatrixType observedCovariance;
         MatrixType sqrtObservedCovariance;
         
-        std::vector<VectorType> observedInputs;
+        MatrixType observedInputs;
         VectorType observedValues;
         VectorType observedValueErrors;
 
-        VectorType priorMean(const std::vector<VectorType>& x) {
-            VectorType prior(x.size());
-            for (size_t i = 0; i < x.size(); ++i) {
-                prior(i) = priorMeanFunction(x[i]);
+        VectorType priorMean(const MatrixType& x) {
+            VectorType prior(x.rows());
+            for (long i = 0; i < x.rows(); ++i) {
+                prior(i) = priorMeanFunction(x.row(i));
             }
             return prior;
         }
@@ -355,33 +417,6 @@ namespace hops {
         //    }
         //    return errors;
         //}
-    };
-
-    template<typename MatrixType, typename VectorType>
-    class SquaredExponentialKernel {
-    public:
-        SquaredExponentialKernel (double sigma = 1, double length = 1) :
-                sigma(sigma),
-                length(length) {
-            // 
-        }
-
-        MatrixType operator()(std::vector<VectorType> x, std::vector<VectorType> y) {
-            MatrixType covariance(x.size(), y.size());
-            for (size_t i = 0; i < x.size(); ++i) {
-                for (size_t j = 0; j < y.size(); ++j) {
-                    VectorType diff = x[i] - y[j];
-                    double squaredDistance = diff.transpose() * diff;
-                    double val = sigma * sigma * std::exp(-0.5 * squaredDistance / (length * length));
-                    covariance(i, j) = val;
-                    //covariance(j, i) = val;
-                }
-            }
-            return covariance;
-        }
-    private:
-        double sigma;
-        double length;
     };
 }
 
