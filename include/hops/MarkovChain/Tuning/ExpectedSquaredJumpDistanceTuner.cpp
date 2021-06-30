@@ -49,13 +49,11 @@ bool hops::ExpectedSquaredJumpDistanceTuner::tune(
     using Kernel = SquaredExponentialKernel<Eigen::MatrixXd, Eigen::VectorXd>;
     using GP = GaussianProcess<Eigen::MatrixXd, Eigen::VectorXd, Kernel>;
 
-    std::vector<Eigen::VectorXd> logStepSizeGrid;
+    Eigen::VectorXd logStepSizeGrid(parameters.stepSizeGridSize);
     double a = std::log10(parameters.stepSizeLowerBound), b = std::log10(parameters.stepSizeUpperBound);
 
     for (size_t i = 0; i < parameters.stepSizeGridSize; ++i) {
-        Eigen::VectorXd x = Eigen::VectorXd(1);
-        x(0) = (b - a) * i / (parameters.stepSizeGridSize - 1) + a;
-        logStepSizeGrid.push_back(x);
+        logStepSizeGrid(i) = (b - a) * i / (parameters.stepSizeGridSize - 1) + a;
     }
 
     double sigma = 1, length = 1;
@@ -82,16 +80,16 @@ bool hops::ExpectedSquaredJumpDistanceTuner::tune(
 
     // only for logging purposes
     Eigen::MatrixXd posterior(posteriorMean.size(), 3);
-    for (size_t i = 0; i < posteriorMean.size(); ++i) {
-        posterior(i, 0) = logStepSizeGrid[i](0);
+    for (long i = 0; i < posteriorMean.size(); ++i) {
+        posterior(i, 0) = logStepSizeGrid(i, 0);
         posterior(i, 1) = posteriorMean(i);
         posterior(i, 2) = posteriorCovariance(i,i);
     }
 
     // only for logging purposes
     Eigen::MatrixXd data(observedInputs.size(), 3);
-    for (size_t i = 0; i < observedInputs.size(); ++i) {
-        data(i, 0) = observedInputs[i](0);
+    for (long i = 0; i < observedInputs.size(); ++i) {
+        data(i, 0) = observedInputs(i, 0);
         data(i, 1) = observedValues(i);
         data(i, 2) = observedValueErrors(i);
     }
@@ -105,7 +103,7 @@ bool hops::ExpectedSquaredJumpDistanceTuner::tune(
     // store results in reference parameters
     size_t maximumIndex;
     maximumExpectedSquaredJumpDistance = posteriorMean.maxCoeff(&maximumIndex);
-    stepSize = std::pow(10, logStepSizeGrid[maximumIndex](0));
+    stepSize = std::pow(10, logStepSizeGrid(maximumIndex, 0));
 
     return isThompsonSamplingConverged;
 }
