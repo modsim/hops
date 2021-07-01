@@ -90,12 +90,6 @@ namespace hops {
             return gp;
         }
 
-        std::vector<double> sample(const std::vector<VectorType>& x, 
-                                   hops::RandomNumberGenerator& randomNumberGenerator) {
-            size_t max;
-            return sample(x, randomNumberGenerator, max);
-        }
-
         /**
          *  Compute the posterior mean and covariance for the given input. This method checks, if any data has changed before 
          *  recomputing depending quantities, which makes it rather safe to call it before sampling or querying any posterior data
@@ -179,6 +173,17 @@ namespace hops {
         Eigen::VectorXd sample(hops::RandomNumberGenerator& randomNumberGenerator, 
                                size_t& maxElement) {
             return sample(storedInputs, randomNumberGenerator, maxElement);
+        }
+
+        Eigen::VectorXd sample(const MatrixType& x, 
+                               hops::RandomNumberGenerator& randomNumberGenerator) {
+            size_t max;
+            return sample(x, randomNumberGenerator, max);
+        }
+
+        Eigen::VectorXd sample(hops::RandomNumberGenerator& randomNumberGenerator) {
+            size_t max;
+            return sample(storedInputs, randomNumberGenerator, max);
         }
 
         /**

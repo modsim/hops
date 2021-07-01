@@ -6,6 +6,7 @@
 #include <Eigen/Sparse>
 #include <vector>
 #include <hops/Optimization/GaussianProcess.hpp>
+#include <hops/Optimization/Kernel/SquaredExponentialKernel.hpp>
 
 BOOST_AUTO_TEST_SUITE(GaussianProcessTestSuite)
 
@@ -14,24 +15,22 @@ BOOST_AUTO_TEST_SUITE(GaussianProcessTestSuite)
         hops::GaussianProcess gp = hops::GaussianProcess<Eigen::MatrixXd, Eigen::VectorXd, decltype(kernel)>(kernel, 0);
         hops::RandomNumberGenerator randomNumberGenerator(3);
 
-        std::vector<Eigen::VectorXd> x;
-        x.emplace_back(-2 * Eigen::VectorXd::Ones(1));
-        x.emplace_back(-1 * Eigen::VectorXd::Ones(1));
-        x.emplace_back(0 * Eigen::VectorXd::Ones(1));
-        x.emplace_back(1 * Eigen::VectorXd::Ones(1));
-        x.emplace_back(2 * Eigen::VectorXd::Ones(1));
-        std::vector<double> y{3.5, 1.2, 0, 0.9, 4.2};
-        std::vector<double> error{0.01, 0.1, 1, 10, 100};
+        Eigen::VectorXd x(5);
+        x << -2, -1, 0, 1, 2;
+        Eigen::VectorXd y(5);
+        y << 3.5, 1.2, 0, 0.9, 4.2;
+        Eigen::VectorXd error(5);
+        error << 0.01, 0.1, 1, 10, 100;
         gp.addObservations(x, y, error);
 
         size_t N = 100;
         double a = -5, b = 5;
-        std::vector<Eigen::VectorXd> xPrime(N);
+        Eigen::VectorXd xPrime(N);
         for (size_t i = 0; i < N; ++i) {
-            xPrime[i] = (a + i * (b - a) / N) * Eigen::VectorXd::Ones(1);
+            xPrime(i) = (a + i * (b - a) / N);
         }
 
-        std::vector<double> sample = gp.sample(xPrime, randomNumberGenerator);
+        Eigen::VectorXd sample = gp.sample(xPrime, randomNumberGenerator);
 
         auto posteriorMean = gp.getPosteriorMean();
         auto posteriorCovariance = gp.getPosteriorCovariance().diagonal();
@@ -104,9 +103,8 @@ BOOST_AUTO_TEST_SUITE(GaussianProcessTestSuite)
 
     BOOST_AUTO_TEST_CASE(SquaredExponentialKernel) {
         hops::SquaredExponentialKernel kernel = hops::SquaredExponentialKernel<Eigen::MatrixXd, Eigen::VectorXd>(1, 1);
-        std::vector<Eigen::VectorXd> x;
-        x.emplace_back(0 * Eigen::VectorXd::Ones(1));
-        x.emplace_back(1 * Eigen::VectorXd::Ones(1));
+        Eigen::VectorXd x(2);
+        x << 0, 1;
 
         auto actualCovariance = kernel(x, x);
 

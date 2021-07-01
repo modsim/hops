@@ -1,12 +1,11 @@
-#ifndef NEW_HOPS_ACCEPTANCERATETUNER_HPP
-#define NEW_HOPS_ACCEPTANCERATETUNER_HPP
+#ifndef HOPS_ACCEPTANCERATETUNER_HPP
+#define HOPS_ACCEPTANCERATETUNER_HPP
 
 #include <hops/FileWriter/FileWriter.hpp>
 #include <hops/FileWriter/FileWriterFactory.hpp>
 #include <hops/FileWriter/FileWriterType.hpp>
 #include <hops/MarkovChain/MarkovChain.hpp>
 #include <hops/MarkovChain/MarkovChainAttribute.hpp>
-#include <hops/MarkovChain/Tuning/AcceptanceRateTuner.hpp>
 #include <hops/Optimization/GaussianProcess.hpp>
 #include <hops/Optimization/ThompsonSampling.hpp>
 
