@@ -349,12 +349,12 @@ namespace hops {
 	template<typename Model, typename Proposal>
 	void RunBase<Model, Proposal>::setProblem(const Problem<Model>& problem) {
 		this->isInitialized = false;
-		this->problem = &problem;
+		this->problem = problem;
 	}
 
 	template<typename Model, typename Proposal>
 	const Problem<Model>& RunBase<Model, Proposal>::getProblem() {
-		return *problem;
+		return problem;
 	}
 
 
