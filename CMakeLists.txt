@@ -33,11 +33,13 @@ set(MKL_USE_interface lp64)
 # Set Options
 ########################################################################################################################
 
-option(HOPS_HDF5_SUPPORT "Enables HDF5 support with HighFive. Use -DHOPS_BENCHMARKS=ON to enable." OFF)
+option(HOPS_SBML_SUPPORT "Enables SBML support. Use -DHOPS_SBML_SUPPORT=ON to enable." OFF)
+option(HOPS_HDF5_SUPPORT "Enables HDF5 support with HighFive. Use -DHOPS_HDF5_SUPPORT=ON to enable." OFF)
 option(HOPS_BENCHMARKS "Enables compilation of Benchmarks (Requires Celero). Use -DHOPS_BENCHMARKS=ON to enable." OFF)
 option(HOPS_DOCS "Enables generation of documentation. Use -DHOPS_DOCS=OFF to disable." ON)
 option(HOPS_BINARIES "Enables compilation of hops executables. Use -DHOPS_BINARIES=OFF to disable." ON)
 option(HOPS_TESTS "Enables compilation of unit tests. Use -DHOPS_TESTS=OFF to disable." ON)
+option(HOPS_NO_INSTALL "Disables installation. Use -DHOPS_NO_INSTALL=ON to disable installation." OFF)
 set(HOPS_LIBRARY_TYPE SHARED CACHE STRING "Type of library to build. Options are HEADER_ONLY, STATIC or SHARED")
 set_property(CACHE HOPS_LIBRARY_TYPE PROPERTY STRINGS HEADER_ONLY STATIC SHARED)
 
@@ -235,14 +237,16 @@ endif ()
 # Install
 ########################################################################################################################
 
-install(DIRECTORY include/ DESTINATION include/ FILES_MATCHING PATTERN "*.hpp")
-install(DIRECTORY include/ DESTINATION include/ FILES_MATCHING PATTERN "*.cpp")
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/hops/hops.hpp DESTINATION include/hops)
+if(NOT HOPS_NO_INSTALL)
+    install(DIRECTORY include/ DESTINATION include/ FILES_MATCHING PATTERN "*.hpp")
+    install(DIRECTORY include/ DESTINATION include/ FILES_MATCHING PATTERN "*.cpp")
+    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/hops/hops.hpp DESTINATION include/hops)
 
-if (HOPS_BINARIES)
-    install(TARGETS hops-sampler DESTINATION bin/)
-endif ()
+    if (HOPS_BINARIES)
+        install(TARGETS hops-sampler DESTINATION bin/)
+    endif ()
 
-install(TARGETS hops EXPORT hops-config LIBRARY DESTINATION "lib")
-install(EXPORT hops-config DESTINATION "lib")
+    install(TARGETS hops EXPORT hops-config LIBRARY DESTINATION "lib")
+    install(EXPORT hops-config DESTINATION "lib")
+endif()
 
