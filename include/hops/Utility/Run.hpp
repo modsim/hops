@@ -515,6 +515,7 @@ namespace hops {
         }
 
         double tunedStepSize, deltaAcceptanceRate;
+        Eigen::MatrixXd data, posterior;
         
         // record tuning time 
         double time = std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -525,7 +526,9 @@ namespace hops {
                                   deltaAcceptanceRate, 
                                   run.markovChains, 
                                   run.randomNumberGenerators, 
-                                  parameters);
+                                  parameters,
+                                  data, 
+                                  posterior);
 
         time = std::chrono::duration_cast<std::chrono::milliseconds>(
                 std::chrono::high_resolution_clock::now().time_since_epoch()
@@ -545,7 +548,15 @@ namespace hops {
                 run.markovChains.size() * parameters.iterationsToTestStepSize * parameters.posteriorUpdateIterationsNeeded * parameters.pureSamplingIterations; 
         // reset stored states
         run.data->reset();
-        run.data->setTuningData(totalNumberOfTuningSamples, tunedStepSize, -1, {parameters.acceptanceRateTargetValue - deltaAcceptanceRate, parameters.acceptanceRateTargetValue + deltaAcceptanceRate}, time);
+
+        run.data->setTuningMethod("ThompsonSamplingESJD");
+        run.data->setTotalNumberOfTuningSamples(totalNumberOfTuningSamples);
+        run.data->setTunedStepSize(tunedStepSize); 
+        run.data->setTunedObjectiveValue(deltaAcceptanceRate);
+        run.data->setTotalTuningTimeTaken(time); 
+
+        run.data->setTuningData(data); 
+        run.data->setTuningPosterior(posterior); 
     }
 
     template<typename Model, typename Proposal>
@@ -555,6 +566,7 @@ namespace hops {
         }
 
         double tunedStepSize, maximumExpectedSquaredJumpDistance;
+        Eigen::MatrixXd data, posterior;
         
         // record tuning time 
         double time = std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -565,7 +577,9 @@ namespace hops {
                                                maximumExpectedSquaredJumpDistance, 
                                                run.markovChains, 
                                                run.randomNumberGenerators, 
-                                               parameters);
+                                               parameters, 
+                                               data, 
+                                               posterior);
 
         time = std::chrono::duration_cast<std::chrono::milliseconds>(
                 std::chrono::high_resolution_clock::now().time_since_epoch()
@@ -585,7 +599,15 @@ namespace hops {
                 run.markovChains.size() * parameters.iterationsToTestStepSize * parameters.posteriorUpdateIterationsNeeded * parameters.pureSamplingIterations; 
         // reset stored states
         run.data->reset();
-        run.data->setTuningData(totalNumberOfTuningSamples, tunedStepSize, maximumExpectedSquaredJumpDistance, {}, time);
+
+        run.data->setTuningMethod("ThompsonSamplingAcceptanceRate");
+        run.data->setTotalNumberOfTuningSamples(totalNumberOfTuningSamples);
+        run.data->setTunedStepSize(tunedStepSize); 
+        run.data->setTunedObjectiveValue(maximumExpectedSquaredJumpDistance);
+        run.data->setTotalTuningTimeTaken(time); 
+
+        run.data->setTuningData(data); 
+        run.data->setTuningPosterior(posterior); 
     }
 
     template<typename Model, typename Proposal>
@@ -595,6 +617,7 @@ namespace hops {
         }
 
         double tunedStepSize, maximumExpectedSquaredJumpDistance;
+        Eigen::MatrixXd data, posterior;
         
         // record tuning time 
         double time = std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -602,10 +625,10 @@ namespace hops {
         ).count();
 
         SimpleExpectedSquaredJumpDistanceTuner::tune(tunedStepSize, 
-                                               maximumExpectedSquaredJumpDistance, 
-                                               run.markovChains, 
-                                               run.randomNumberGenerators, 
-                                               parameters);
+                                                      maximumExpectedSquaredJumpDistance, 
+                                                      run.markovChains, 
+                                                      run.randomNumberGenerators, 
+                                                      parameters);
 
         time = std::chrono::duration_cast<std::chrono::milliseconds>(
                 std::chrono::high_resolution_clock::now().time_since_epoch()
@@ -625,7 +648,15 @@ namespace hops {
                 run.markovChains.size() * parameters.iterationsToTestStepSize * parameters.stepSizeGridSize; 
         // reset stored states
         run.data->reset();
-        run.data->setTuningData(totalNumberOfTuningSamples, tunedStepSize, maximumExpectedSquaredJumpDistance, {}, time);
+
+        run.data->setTuningMethod("GridSearchESJD");
+        run.data->setTotalNumberOfTuningSamples(totalNumberOfTuningSamples);
+        run.data->setTunedStepSize(tunedStepSize); 
+        run.data->setTunedObjectiveValue(maximumExpectedSquaredJumpDistance);
+        run.data->setTotalTuningTimeTaken(time); 
+
+        run.data->setTuningData(data); 
+        run.data->setTuningPosterior(posterior); 
     }
 }
 

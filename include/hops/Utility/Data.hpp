@@ -184,29 +184,45 @@ namespace hops {
                 auto tuningWriter = FileWriterFactory::createFileWriter(outputDirectory + "/tuning", FileWriterType::CSV);
                 tuningWriter->write("totalNumberOfTuningSamples", std::vector<long>{static_cast<long>(totalNumberOfTuningSamples)});
                 tuningWriter->write("stepSize", std::vector<double>{tunedStepSize});
-
-                if (maximumExpectedSquaredJumpDistance >= 0) {
-                    tuningWriter->write("maximumExpectedSquaredJumpDistance", std::vector<double>{maximumExpectedSquaredJumpDistance});
-                }
-
-                if (tunedAcceptanceRateInterval.size() >= 0) {
-                    tuningWriter->write("acceptanceRate", tunedAcceptanceRateInterval);
-                }
-
+                tuningWriter->write("objectiveValue", std::vector<double>{tunedObjectiveValue});
                 tuningWriter->write("totalTimeTaken", std::vector<double>{totalTuningTimeTaken});
+
+                if (tuningData.size() > 0) {
+                    tuningWriter->write("data", tuningData);
+                }
+
+                if (tuningPosterior.size() > 0) {
+                    tuningWriter->write("posterior", tuningPosterior);
+                }
             }
         }
 
-        void setTuningData(unsigned long totalNumberOfTuningSamples, 
-                           double tunedStepSize, 
-                           double maximumExpectedSquaredJumpDistance, 
-                           std::vector<double> acceptanceRateInterval, 
-                           double totalTuningTimeTaken) {
+        void setTuningMethod(const std::string& tuningMethod) {
+            this->tuningMethod = tuningMethod;
+        }
+
+        void setTotalNumberOfTuningSamples(unsigned long totalNumberOfTuningSamples) {
             this->totalNumberOfTuningSamples = totalNumberOfTuningSamples;
+        }
+
+        void setTunedStepSize(double tunedStepSize) {
             this->tunedStepSize = tunedStepSize;
-            this->maximumExpectedSquaredJumpDistance = maximumExpectedSquaredJumpDistance;
-            this->tunedAcceptanceRateInterval = acceptanceRateInterval;
+        }
+
+        void setTunedObjectiveValue(double tunedObjectiveValue) {
+            this->tunedObjectiveValue = tunedObjectiveValue;
+        }
+
+        void setTotalTuningTimeTaken(double totalTuningTimeTaken) {
             this->totalTuningTimeTaken = totalTuningTimeTaken;
+        }
+
+        void setTuningData(const Eigen::MatrixXd& tuningData) {
+            this->tuningData = tuningData;
+        }
+
+        void setTuningPosterior(const Eigen::MatrixXd& tuningPosterior) {
+            this->tuningPosterior = tuningPosterior;
         }
 
     private:
@@ -220,11 +236,14 @@ namespace hops {
         Eigen::VectorXd totalTimeTaken;
 
         // tuning data
+        std::string tuningMethod;
         unsigned long totalNumberOfTuningSamples = 0;
         double tunedStepSize;
-        double maximumExpectedSquaredJumpDistance;
-        std::vector<double> tunedAcceptanceRateInterval;
+        double tunedObjectiveValue;
         double totalTuningTimeTaken;
+
+        Eigen::MatrixXd tuningData;
+        Eigen::MatrixXd tuningPosterior;
 
         std::vector<std::vector<double>> sampleVariances;
         std::vector<std::vector<double>> intraChainExpectations;
