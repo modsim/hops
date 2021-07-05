@@ -31,17 +31,14 @@ namespace hops {
                               std::shared_ptr<ThompsonSamplgTargetType> targetFunction,
                               const MatrixType& inputSpaceGrid,
                               RandomNumberGenerator randomNumberGenerator,
-                              size_t* numberOfPosteriorUpdatesNeeded = nullptr) {
+                              size_t* numberOfPosteriorUpdatesNeeded = nullptr,
+                              double smoothingLength = 0) {
             size_t maxElementIndex;
             bool isConverged = false;
 
             size_t newMaximumPosteriorMeanIndex = 0, oldMaximumPosteriorMeanIndex = 0, sameMaximumCounter = 0;
             GaussianProcess gp = initialGP.getPriorCopy();
 
-            // note that for the smoothing, the sigma value of the kernel cancels out and is thus "magically"
-            // set to 1
-            double smoothingLength = 0.5;
-            //SquaredExponentialKernel smoothingKernel = SquaredExponentialKernel<MatrixType, VectorType>(1, smoothingLength);
             UniformBallKernel smoothingKernel = UniformBallKernel<MatrixType, VectorType>(smoothingLength);
             GaussianProcess data = GaussianProcess<MatrixType, VectorType, decltype(smoothingKernel)>(smoothingKernel);
 

@@ -29,8 +29,9 @@ namespace hops {
             size_t stepSizeGridSize;
             double stepSizeLowerBound;
             double stepSizeUpperBound;
+            double smoothingLength;
             size_t randomSeed;
-            std::string outputDirectory;
+            bool recordData;
 
             param_type(double acceptanceRateTargetValue,
                        size_t iterationsToTestStepSize,
@@ -40,8 +41,9 @@ namespace hops {
                        size_t stepSizeGridSize,
                        double stepSizeLowerBound,
                        double stepSizeUpperBound,
+                       double smoothingLength,
                        size_t randomSeed,
-                       std::string outputDirectory
+                       bool recordData = false
             );
         };
 
@@ -72,6 +74,23 @@ namespace hops {
              std::vector<std::shared_ptr<MarkovChain>>& markovChain, 
              std::vector<RandomNumberGenerator>& randomNumberGenerator, 
              param_type &parameters);
+
+        /**
+         * @brief tunes markov chain acceptance rate by nested intervals. The chain is not guaranteed to have converged
+         *        to the specified acceptance rate.
+         * @details Clears Markov chain history.
+         * @param markovChain
+         * @param parameters
+         * @return true if markov chain is tuned
+         */
+        static bool
+        tune(double& stepSize, 
+             double& deltaAcceptanceRate, 
+             std::vector<std::shared_ptr<MarkovChain>>& markovChain, 
+             std::vector<RandomNumberGenerator>& randomNumberGenerator, 
+             param_type&,
+             Eigen::MatrixXd&,
+             Eigen::MatrixXd&);
 
         AcceptanceRateTuner() = delete;
     };

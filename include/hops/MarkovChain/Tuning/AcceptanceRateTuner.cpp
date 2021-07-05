@@ -46,11 +46,13 @@ std::tuple<double, double> hops::internal::AcceptanceRateTarget::operator()(cons
 }
 
 bool hops::AcceptanceRateTuner::tune(
-        double &stepSize,
-        double &deltaAcceptanceRate,
-        std::vector<std::shared_ptr<hops::MarkovChain>> &markovChain,
-        std::vector<RandomNumberGenerator> &randomNumberGenerator,
-        hops::AcceptanceRateTuner::param_type &parameters) {
+        double& stepSize,
+        double& deltaAcceptanceRate,
+        std::vector<std::shared_ptr<hops::MarkovChain>>& markovChain,
+        std::vector<RandomNumberGenerator>& randomNumberGenerator,
+        hops::AcceptanceRateTuner::param_type &parameters,
+        Eigen::MatrixXd& data,
+        Eigen::MatrixXd& posterior) {
     using Kernel = SquaredExponentialKernel<Eigen::MatrixXd, Eigen::VectorXd>;
     using GP = GaussianProcess<Eigen::MatrixXd, Eigen::VectorXd, Kernel>;
 
@@ -75,38 +77,35 @@ bool hops::AcceptanceRateTuner::tune(
             parameters.iterationsForConvergence,
             gp, target, logStepSizeGrid, 
             thompsonSamplingRandomNumberGenerator,
-            &parameters.posteriorUpdateIterationsNeeded);
-   
+            &parameters.posteriorUpdateIterationsNeeded,
+            parameters.smoothingLength);
+  
+    if (parameters.recordData) {
+        auto& posteriorMean = gp.getPosteriorMean();
+        auto& posteriorCovariance = gp.getPosteriorCovariance();
+
+        auto& observedInputs = gp.getObservedInputs();
+        auto& observedValues = gp.getObservedValues();
+        auto& observedValueErrors = gp.getObservedValueErrors();
+
+        // only for logging purposes
+        posterior = Eigen::MatrixXd(posteriorMean.size(), 3);
+        for (long i = 0; i < posteriorMean.size(); ++i) {
+            posterior(i, 0) = logStepSizeGrid(i, 0);
+            posterior(i, 1) = posteriorMean(i);
+            posterior(i, 2) = posteriorCovariance(i,i);
+        }
+
+        // only for logging purposes
+        data = Eigen::MatrixXd(observedInputs.size(), 3);
+        for (long i = 0; i < observedInputs.size(); ++i) {
+            data(i, 0) = observedInputs(i, 0);
+            data(i, 1) = observedValues(i);
+            data(i, 2) = observedValueErrors(i);
+        }
+    }
+
     auto& posteriorMean = gp.getPosteriorMean();
-    auto& posteriorCovariance = gp.getPosteriorCovariance();
-
-    auto& observedInputs = gp.getObservedInputs();
-    auto& observedValues = gp.getObservedValues();
-    auto& observedValueErrors = gp.getObservedValueErrors();
-
-    // only for logging purposes
-    Eigen::MatrixXd posterior(posteriorMean.size(), 3);
-    for (long i = 0; i < posteriorMean.size(); ++i) {
-        posterior(i, 0) = logStepSizeGrid(i, 0);
-        posterior(i, 1) = posteriorMean(i);
-        posterior(i, 2) = posteriorCovariance(i,i);
-    }
-
-    // only for logging purposes
-    Eigen::MatrixXd data(observedInputs.size(), 3);
-    for (long i = 0; i < observedInputs.size(); ++i) {
-        data(i, 0) = observedInputs(i, 0);
-        data(i, 1) = observedValues(i);
-        data(i, 2) = observedValueErrors(i);
-    }
-
-    // only for logging purposes
-    auto tuningDataWriter = FileWriterFactory::createFileWriter(parameters.outputDirectory + "/tuningData",
-                                                                FileWriterType::CSV);
-    tuningDataWriter->write("tuner", std::vector<std::string>{"AcceptanceRateTuner"});
-    tuningDataWriter->write("posterior", posterior);
-    tuningDataWriter->write("data", data);
-
     size_t maximumIndex;
     double maximumScore = posteriorMean.maxCoeff(&maximumIndex);
     stepSize = std::pow(10, logStepSizeGrid(maximumIndex, 0));
@@ -121,8 +120,18 @@ bool hops::AcceptanceRateTuner::tune(
         std::vector<RandomNumberGenerator> &randomNumberGenerator,
         hops::AcceptanceRateTuner::param_type &parameters) {
     double stepSize = markovChain[0]->getAttribute(hops::MarkovChainAttribute::STEP_SIZE);
-    double maximumAcceptanceRate;
-    return tune(stepSize, maximumAcceptanceRate, markovChain, randomNumberGenerator, parameters);
+    double deltaAcceptanceRate;
+    return tune(stepSize, deltaAcceptanceRate, markovChain, randomNumberGenerator, parameters);
+}
+
+bool hops::AcceptanceRateTuner::tune(
+        double &stepSize,
+        double &deltaAcceptanceRate,
+        std::vector<std::shared_ptr<hops::MarkovChain>> &markovChain,
+        std::vector<RandomNumberGenerator> &randomNumberGenerator,
+        hops::AcceptanceRateTuner::param_type &parameters) {
+    Eigen::MatrixXd data, posterior;
+    return tune(stepSize, deltaAcceptanceRate, markovChain, randomNumberGenerator, parameters, data, posterior);
 }
 
 hops::AcceptanceRateTuner::param_type::param_type(double acceptanceRateTargetValue,
@@ -133,8 +142,9 @@ hops::AcceptanceRateTuner::param_type::param_type(double acceptanceRateTargetVal
                                                   size_t stepSizeGridSize,
                                                   double stepSizeLowerBound,
                                                   double stepSizeUpperBound,
+                                                  double smoothingLength,
                                                   size_t randomSeed,
-                                                  std::string outputDirectory) {
+                                                  bool recordData) {
     this->acceptanceRateTargetValue = acceptanceRateTargetValue;
     this->iterationsToTestStepSize = iterationsToTestStepSize;
     this->posteriorUpdateIterations = posteriorUpdateIterations;
@@ -144,7 +154,8 @@ hops::AcceptanceRateTuner::param_type::param_type(double acceptanceRateTargetVal
     this->stepSizeGridSize = stepSizeGridSize;
     this->stepSizeLowerBound = stepSizeLowerBound;
     this->stepSizeUpperBound = stepSizeUpperBound;
+    this->smoothingLength = smoothingLength;
     this->randomSeed = randomSeed;
-    this->outputDirectory = outputDirectory;
+    this->recordData = recordData;
 }
 
