@@ -4,7 +4,7 @@
 #include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
 
 #include <Eigen/Core>
-#include <Eigen/LU>
+#include <Eigen/Cholesky>
 #include <Eigen/SVD>
 
 #include <random>

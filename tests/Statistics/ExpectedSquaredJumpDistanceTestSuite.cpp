@@ -11,6 +11,8 @@ BOOST_AUTO_TEST_SUITE(ExpectedSquaredJumpDistanceTestSuite)
         std::vector<double> chain1{0, 1, 1, 2};
         std::vector<double> chain2{0, 0, 1, 2};
 
+        Eigen::MatrixXd covariance = Eigen::MatrixXd::Identity(1, 1);
+
         std::vector<std::vector<Eigen::VectorXd>> chains(2);
 
         for (size_t i = 0; i < chain1.size(); ++i) {
@@ -26,7 +28,7 @@ BOOST_AUTO_TEST_SUITE(ExpectedSquaredJumpDistanceTestSuite)
         }
 
         for (size_t i = 0; i < chains.size(); ++i) {
-            double esjd = hops::computeExpectedSquaredJumpDistance(chains[i]);
+            double esjd = hops::computeExpectedSquaredJumpDistance<Eigen::VectorXd, Eigen::MatrixXd>(chains[i], covariance);
             BOOST_CHECK_CLOSE(expectedResult, esjd, 0.01);
         }
     }
@@ -36,6 +38,8 @@ BOOST_AUTO_TEST_SUITE(ExpectedSquaredJumpDistanceTestSuite)
         std::vector<Eigen::VectorXd> chain1;
         std::vector<Eigen::VectorXd> chain2;
         
+        Eigen::MatrixXd covariance = Eigen::MatrixXd::Identity(1, 1);
+
         for (auto& i : {0, 1, 1, 2}) {
             Eigen::VectorXd x(1);
             x(0) = i;
@@ -53,7 +57,7 @@ BOOST_AUTO_TEST_SUITE(ExpectedSquaredJumpDistanceTestSuite)
         chains.push_back(&chain1);
         chains.push_back(&chain2);
 
-        auto esjds = hops::computeExpectedSquaredJumpDistance(chains);
+        auto esjds = hops::computeExpectedSquaredJumpDistance<Eigen::VectorXd, Eigen::MatrixXd>(chains, covariance);
 
         for (size_t i = 0; i < chains.size(); ++i) {
             BOOST_CHECK_CLOSE(expectedResult, esjds[i], 0.01);
@@ -64,6 +68,8 @@ BOOST_AUTO_TEST_SUITE(ExpectedSquaredJumpDistanceTestSuite)
         std::vector<double> expectedResult{1, 0};
         std::vector<double> chain1{0, 1};
         std::vector<double> chain2{0, 0};
+
+        Eigen::MatrixXd covariance = Eigen::MatrixXd::Identity(1, 1);
 
         std::vector<std::vector<Eigen::VectorXd>> chains(2);
 
@@ -81,7 +87,7 @@ BOOST_AUTO_TEST_SUITE(ExpectedSquaredJumpDistanceTestSuite)
 
         std::vector<double> esjds;
         for (size_t i = 0; i < chains.size(); ++i) {
-            double esjd = hops::computeExpectedSquaredJumpDistance(chains[i]);
+            double esjd = hops::computeExpectedSquaredJumpDistance<Eigen::VectorXd, Eigen::MatrixXd>(chains[i], covariance);
             esjds.push_back(esjd);
             BOOST_CHECK_CLOSE(expectedResult[i], esjd, 0.01);
         }
@@ -102,7 +108,7 @@ BOOST_AUTO_TEST_SUITE(ExpectedSquaredJumpDistanceTestSuite)
         }
 
         for (size_t i = 0; i < chains.size(); ++i) {
-            double esjd = hops::computeExpectedSquaredJumpDistance(chains[i], 2, esjds[i], 2);
+            double esjd = hops::computeExpectedSquaredJumpDistance<Eigen::VectorXd, Eigen::MatrixXd>(chains[i], 2, esjds[i], 2, covariance);
             BOOST_CHECK_CLOSE(2./3., esjd, 0.01);
         }
     }
@@ -110,6 +116,8 @@ BOOST_AUTO_TEST_SUITE(ExpectedSquaredJumpDistanceTestSuite)
     BOOST_AUTO_TEST_CASE(ComputeIncrementallyPointerArray) {
         std::vector<double> expectedResult{1, 0};
         std::vector<const std::vector<Eigen::VectorXd>*> chains;
+
+        Eigen::MatrixXd covariance = Eigen::MatrixXd::Identity(1, 1);
 
         std::vector<Eigen::VectorXd>chain1;
         std::vector<Eigen::VectorXd>chain2;
@@ -129,7 +137,7 @@ BOOST_AUTO_TEST_SUITE(ExpectedSquaredJumpDistanceTestSuite)
         chains.push_back(&chain1);
         chains.push_back(&chain2);
 
-        auto esjds = hops::computeExpectedSquaredJumpDistance(chains);
+        auto esjds = hops::computeExpectedSquaredJumpDistance<Eigen::VectorXd, Eigen::MatrixXd>(chains, covariance);
 
         for (size_t i = 0; i < chains.size(); ++i) {
             BOOST_CHECK_CLOSE(expectedResult[i], esjds[i], 0.01);
@@ -142,7 +150,7 @@ BOOST_AUTO_TEST_SUITE(ExpectedSquaredJumpDistanceTestSuite)
             chain2.push_back(draw);
         }
 
-        esjds = hops::computeExpectedSquaredJumpDistance(chains, 2, esjds, 2);
+        esjds = hops::computeExpectedSquaredJumpDistance<Eigen::VectorXd, Eigen::MatrixXd>(chains, 2, esjds, 2, covariance);
         for (size_t i = 0; i < chains.size(); ++i) {
             BOOST_CHECK_CLOSE(2./3., esjds[i], 0.01);
         }

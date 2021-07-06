@@ -10,8 +10,6 @@
 #include <hops/Optimization/GaussianProcess.hpp>
 #include <hops/Optimization/ThompsonSampling.hpp>
 
-#include <Eigen/Core>
-
 #include <chrono>
 #include <cmath>
 #include <memory>
