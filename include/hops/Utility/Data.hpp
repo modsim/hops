@@ -97,7 +97,7 @@ namespace hops {
 					throw EmptyChainDataException();
 				}
             }
-            std::vector<double> expectedSquaredJumpDistance = ::hops::computeExpectedSquaredJumpDistance(states);
+            std::vector<double> expectedSquaredJumpDistance = ::hops::computeExpectedSquaredJumpDistance<Eigen::VectorXd, Eigen::MatrixXd>(states);
             this->expectedSquaredJumpDistance = Eigen::Map<Eigen::VectorXd>(expectedSquaredJumpDistance.data(), chains.size());
         }
 

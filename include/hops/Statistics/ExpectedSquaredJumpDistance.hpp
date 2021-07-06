@@ -3,6 +3,9 @@
 
 #include <hops/Statistics/Covariance.hpp>
 
+#include <Eigen/Core>
+#include <Eigen/Cholesky>
+
 #include <string>
 #include <stdexcept>
 #include <vector>
@@ -17,11 +20,11 @@ namespace hops {
      * \[ ESJD = \frac{1}{N-1} \sum_{n=1}^(N-1) \| \theta_{n+1} - \theta_n \|^2_{\Sigma} \]
      */
     template<typename StateType, typename MatrixType>
-    double computeExpectedSquaredJumpDistance (const std::vector<StateType>& draws, 
-                                               unsigned long numUnseen, 
-                                               double esjdSeen, 
-                                               unsigned long numSeen,
-                                               const MatrixType& covariance) {
+    double computeExpectedSquaredJumpDistance(const std::vector<StateType>& draws, 
+                                              unsigned long numUnseen, 
+                                              double esjdSeen, 
+                                              unsigned long numSeen,
+                                              const MatrixType& sqrtCovariance) {
         size_t numDraws = draws.size(),
                correction = 0;
         // account for missing jump between two batches of samples
@@ -38,7 +41,9 @@ namespace hops {
                eta = 1.0 * (numSeen - 1) / (numSeen + numUnseen - 1),
                squaredDistance;
         for (unsigned long i = numDraws - numUnseen - correction; i < numDraws - 1; ++i) {
-            squaredDistance = (draws[i] - draws[i+1]).transpose() * covariance * (draws[i] - draws[i+1]) ;
+            StateType distance = sqrtCovariance.template triangularView<Eigen::Lower>().solve(draws[i] - draws[i+1]);
+            distance = sqrtCovariance.template triangularView<Eigen::Lower>().transpose().solve(distance);
+            squaredDistance = (draws[i] - draws[i+1]).transpose() * distance;
             esjd += squaredDistance;
         }
         esjd /=  numUnseen - 1 + correction;
@@ -49,30 +54,32 @@ namespace hops {
      * Compute Expected Squared Jump Distance non-incrementally on all draws passed.
      */
     template<typename StateType, typename MatrixType>
-    double computeExpectedSquaredJumpDistance (const std::vector<StateType>& draws, const MatrixType& covariance) {
-        return computeExpectedSquaredJumpDistance(draws, draws.size(), 0, 0, covariance);
+    double computeExpectedSquaredJumpDistance(const std::vector<StateType>& draws, const MatrixType& sqrtCovariance) {
+        return computeExpectedSquaredJumpDistance<StateType, MatrixType>(draws, draws.size(), 0, 0, sqrtCovariance);
     }
 
     /* 
      * Compute Expected Squared Jump Distance non-incrementally on all draws passed.
      */
     template<typename StateType, typename MatrixType>
-    double computeExpectedSquaredJumpDistance (const std::vector<StateType>& draws) {
-        MatrixType covariance = computeCovariance(draws);
-        return computeExpectedSquaredJumpDistance(draws, draws.size(), 0, 0, covariance);
+    double computeExpectedSquaredJumpDistance(const std::vector<StateType>& draws) {
+        MatrixType covariance = computeCovariance<StateType, MatrixType>(draws);
+        MatrixType sqrtCovariance = covariance.llt().matrixL();
+        return computeExpectedSquaredJumpDistance<StateType, MatrixType>(draws, sqrtCovariance);
     }
 
     /*
      * Compute Expected Squared Jump Distance for every chain in \c chains incrementally.
      */
-    template<typename StateType>
-    std::vector<double> computeExpectedSquaredJumpDistance (const std::vector<std::vector<StateType>>& chains, 
-                                                            unsigned long numUnseen, 
-                                                            std::vector<double> esjdSeen, 
-                                                            unsigned long numSeen) {
+    template<typename StateType, typename MatrixType>
+    std::vector<double> computeExpectedSquaredJumpDistance(const std::vector<std::vector<StateType>>& chains, 
+                                                           unsigned long numUnseen, 
+                                                           std::vector<double> esjdSeen, 
+                                                           unsigned long numSeen,
+                                                           const MatrixType& sqrtCovariance) {
         std::vector<double> esjds(chains.size());
         for (size_t i = 0; i < chains.size(); ++i) {
-            esjds[i] = computeExpectedSquaredJumpDistance(chains[i], numUnseen, esjdSeen[i], numSeen);
+            esjds[i] = computeExpectedSquaredJumpDistance<StateType, MatrixType>(chains[i], numUnseen, esjdSeen[i], numSeen, sqrtCovariance);
         }
         return esjds;
     }
@@ -80,23 +87,34 @@ namespace hops {
     /*
      * Compute Expected Squared Jump Distance non-incrementally for every chain in \c chains. 
      */
-    template<typename StateType>
-    std::vector<double> computeExpectedSquaredJumpDistance (const std::vector<std::vector<StateType>>& chains) {
-        return computeExpectedSquaredJumpDistance(chains, chains[0].size(), std::vector<double>(chains.size()), 0); 
+    template<typename StateType, typename MatrixType>
+    std::vector<double> computeExpectedSquaredJumpDistance(const std::vector<std::vector<StateType>>& chains, const MatrixType& sqrtCovariance) {
+        return computeExpectedSquaredJumpDistance<StateType, MatrixType>(chains, chains[0].size(), std::vector<double>(chains.size()), 0, sqrtCovariance); 
+    }
+
+    /*
+     * Compute Expected Squared Jump Distance non-incrementally for every chain in \c chains. 
+     */
+    template<typename StateType, typename MatrixType>
+    std::vector<double> computeExpectedSquaredJumpDistance(const std::vector<std::vector<StateType>>& chains) {
+        MatrixType covariance = computeCovariance<StateType, MatrixType>(chains);
+        MatrixType sqrtCovariance = covariance.llt().matrixL();
+        return computeExpectedSquaredJumpDistance<StateType, MatrixType>(chains, sqrtCovariance); 
     }
 
     /*
      * Compute Expected Squared Jump Distance for every chain in \c chains incrementally. 
      * \c chains is supposed to be a vector of pointers to the actual chains.
      */
-    template<typename StateType>
-    std::vector<double> computeExpectedSquaredJumpDistance (const std::vector<const std::vector<StateType>*>& chains, 
-                                                            unsigned long numUnseen, 
-                                                            std::vector<double> esjdSeen, 
-                                                            unsigned long numSeen) {
+    template<typename StateType, typename MatrixType>
+    std::vector<double> computeExpectedSquaredJumpDistance(const std::vector<const std::vector<StateType>*>& chains, 
+                                                           unsigned long numUnseen, 
+                                                           std::vector<double> esjdSeen, 
+                                                           unsigned long numSeen,
+                                                           const MatrixType& sqrtCovariance) {
         std::vector<double> esjds(chains.size());
         for (size_t i = 0; i < chains.size(); ++i) {
-            esjds[i] = computeExpectedSquaredJumpDistance(*chains[i], numUnseen, esjdSeen[i], numSeen);
+            esjds[i] = computeExpectedSquaredJumpDistance<StateType, MatrixType>(*chains[i], numUnseen, esjdSeen[i], numSeen, sqrtCovariance);
         }
         return esjds;
     }
@@ -105,9 +123,21 @@ namespace hops {
      * Compute Expected Squared Jump Distance non-incrementally for every chain in \c chains. 
      * \c chains is supposed to be a vector of pointers to the actual chains.
      */
-    template<typename StateType>
-    std::vector<double> computeExpectedSquaredJumpDistance (const std::vector<const std::vector<StateType>*>& chains) {
-        return computeExpectedSquaredJumpDistance(chains, chains[0]->size(), std::vector<double>(chains.size()), 0); 
+    template<typename StateType, typename MatrixType>
+    std::vector<double> computeExpectedSquaredJumpDistance(const std::vector<const std::vector<StateType>*>& chains, 
+                                                           const MatrixType& sqrtCovariance) {
+        return computeExpectedSquaredJumpDistance<StateType, MatrixType>(chains, chains[0]->size(), std::vector<double>(chains.size()), 0, sqrtCovariance); 
+    }
+
+    /*
+     * Compute Expected Squared Jump Distance non-incrementally for every chain in \c chains. 
+     * \c chains is supposed to be a vector of pointers to the actual chains.
+     */
+    template<typename StateType, typename MatrixType>
+    std::vector<double> computeExpectedSquaredJumpDistance(const std::vector<const std::vector<StateType>*>& chains) {
+        MatrixType covariance = computeCovariance<StateType, MatrixType>(chains);
+        MatrixType sqrtCovariance = covariance.llt().matrixL();
+        return computeExpectedSquaredJumpDistance<StateType, MatrixType>(chains, sqrtCovariance); 
     }
 }
 

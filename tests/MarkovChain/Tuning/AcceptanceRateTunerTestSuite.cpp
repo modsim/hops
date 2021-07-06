@@ -68,6 +68,7 @@ BOOST_AUTO_TEST_SUITE(AcceptanceRateTuner)
         double targetAcceptanceRate = 0.825;
         double lowerLimitStepSize = 1e-2;
         double upperLimitStepSize = 1;
+        double smoothingLength = 1;
         size_t iterationsToTestStepSize = 100;
         size_t maxPosteriorUpdates = 20;
         size_t maxPureSamplingRounds = 1;
@@ -82,8 +83,9 @@ BOOST_AUTO_TEST_SUITE(AcceptanceRateTuner)
                         200,
                         lowerLimitStepSize,
                         upperLimitStepSize,
+                        smoothingLength,
                         42,
-                        "test_output"
+                        false
                 };
 
         std::vector<std::shared_ptr<hops::MarkovChain>> mcs{markovChain};

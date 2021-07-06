@@ -27,7 +27,9 @@ std::tuple<double, double> hops::internal::ExpectedSquaredJumpDistanceTarget::op
         // set time to 1 if it was 0
         time = (time == 0 ? 1 : time);
 
-        double expectedSquaredJumpDistance = hops::computeExpectedSquaredJumpDistance(markovChain[i]->getStateRecords());
+        double expectedSquaredJumpDistance = 
+                hops::computeExpectedSquaredJumpDistance<Eigen::VectorXd, Eigen::MatrixXd>(markovChain[i]->getStateRecords());
+
         expectedSquaredJumpDistance = (parameters.considerTimeCost ? expectedSquaredJumpDistance / time : expectedSquaredJumpDistance);
         expectedSquaredJumpDistances.push_back(expectedSquaredJumpDistance);
     }
