@@ -125,8 +125,8 @@ namespace hops {
 		void setSamplingUntilConvergence(bool sampleUntilConvergence);
 		bool getSamplingUntilConvergence();
 
-		void setDiagnosticsThreshold(double diagnosticsThreshold);
-		double getDiagnosticsThreshold();
+		void setStatisticsThreshold(double diagnosticsThreshold);
+		double getStatisticsThreshold();
 
 		void setMaxRepetitions(double maxRepetitions);
 		double getMaxRepetitions();
@@ -285,7 +285,7 @@ namespace hops {
             }
 
             unsigned long k = 0;
-            double convergenceDiagnostics = 0;
+            double convergenceStatistics = 0;
             do {
                 #pragma omp parallel for
                 for (unsigned long i = 0; i < numberOfChains; ++i) {
@@ -294,14 +294,14 @@ namespace hops {
                 // end pragma omp parallel for
 
                 if (sampleUntilConvergence && numberOfChains >= 2) {
-                    convergenceDiagnostics = computePotentialScaleReductionFactor(*data).maxCoeff();
+                    convergenceStatistics = computePotentialScaleReductionFactor(*data).maxCoeff();
                 }
 
                 //numSeen += conf.numSamples;
                 ++k;
             } while(sampleUntilConvergence &&
                     // if threshold was not met or if psrf is nan, keep going
-                    (convergenceDiagnostics > diagnosticsThreshold || std::isnan(convergenceDiagnostics))  &&
+                    (convergenceStatistics > diagnosticsThreshold || std::isnan(convergenceStatistics))  &&
                     // though only if we have not yet reached the maximum number of repetitions
                     k < maxRepetitions);
         }
@@ -477,12 +477,12 @@ namespace hops {
 
 
 	template<typename Model, typename Proposal>
-    void RunBase<Model, Proposal>::setDiagnosticsThreshold(double diagnosticsThreshold) {
+    void RunBase<Model, Proposal>::setStatisticsThreshold(double diagnosticsThreshold) {
 		this->diagnosticsThreshold = diagnosticsThreshold;
 	}
 
 	template<typename Model, typename Proposal>
-	double RunBase<Model, Proposal>::getDiagnosticsThreshold() {
+	double RunBase<Model, Proposal>::getStatisticsThreshold() {
 		return diagnosticsThreshold;
 	}
 

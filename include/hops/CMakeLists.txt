@@ -2,7 +2,7 @@ if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
     target_sources(hops PRIVATE hops.hpp)
 endif (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
 
-add_subdirectory(Diagnostics)
+add_subdirectory(Statistics)
 add_subdirectory(FileReader)
 add_subdirectory(FileWriter)
 add_subdirectory(LinearProgram)

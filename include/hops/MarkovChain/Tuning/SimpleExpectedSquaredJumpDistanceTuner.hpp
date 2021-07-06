@@ -1,7 +1,7 @@
 #ifndef HOPS_SIMPLEEXPECTEDSQUAREDJUMPDISTANCETUNER_HPP
 #define HOPS_SIMPLEEXPECTEDSQUAREDJUMPDISTANCETUNER_HPP
 
-#include <hops/Diagnostics/ExpectedSquaredJumpDistance.hpp>
+#include <hops/Statistics/ExpectedSquaredJumpDistance.hpp>
 #include <hops/FileWriter/FileWriter.hpp>
 #include <hops/FileWriter/FileWriterFactory.hpp>
 #include <hops/FileWriter/FileWriterType.hpp>
