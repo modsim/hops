@@ -34,7 +34,8 @@ namespace hops {
         MatrixType covarianceUnseen = MatrixType::Zero(dimension, dimension);
         for (unsigned long i = 0; i < numberOfChains; ++i) {
             for (unsigned long j = numberOfSeenDraws; j < numberOfDraws; ++j) {
-                covarianceUnseen += (draws[i]->at(j).transpose() - mean) * (draws[i]->at(j) - mean.transpose());
+                StateType centered = draws[i]->at(j) - mean;
+                covarianceUnseen += centered * centered.transpose();
             }
         }
         covarianceUnseen.array() /= numberOfUnseenDraws * numberOfChains;

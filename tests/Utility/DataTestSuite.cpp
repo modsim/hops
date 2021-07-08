@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_SUITE(DataTestSuite)
 
         run.getData().computeExpectedSquaredJumpDistance();
 
-        double expectedResult = 0.24811;
+        double expectedResult = 3.20334;
         double actualResult = hops::computeExpectedSquaredJumpDistance(run.getData())(0);
 
         BOOST_CHECK_CLOSE(expectedResult, actualResult, 0.01);

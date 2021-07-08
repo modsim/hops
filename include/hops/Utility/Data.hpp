@@ -85,22 +85,6 @@ namespace hops {
             }
         }
 
-        void computeExpectedSquaredJumpDistance() {
-            std::vector<const std::vector<Eigen::VectorXd>*> states(chains.size());
-			if (!chains.size()) {
-				throw EmptyChainDataException();
-			}
-
-            for (size_t i = 0; i < states.size(); ++i) {
-                states[i] = chains[i].states.get();
-				if (!states[i]) {
-					throw EmptyChainDataException();
-				}
-            }
-            std::vector<double> expectedSquaredJumpDistance = ::hops::computeExpectedSquaredJumpDistance<Eigen::VectorXd, Eigen::MatrixXd>(states);
-            this->expectedSquaredJumpDistance = Eigen::Map<Eigen::VectorXd>(expectedSquaredJumpDistance.data(), chains.size());
-        }
-
         void computeEffectiveSampleSize() {
             std::vector<const std::vector<Eigen::VectorXd>*> states(chains.size());
 			if (!chains.size()) {
@@ -115,6 +99,22 @@ namespace hops {
             }
             std::vector<double> effectiveSampleSize = ::hops::computeEffectiveSampleSize(states);
             this->effectiveSampleSize = Eigen::Map<Eigen::VectorXd>(effectiveSampleSize.data(), dimension);
+        }
+
+        void computeExpectedSquaredJumpDistance() {
+            std::vector<const std::vector<Eigen::VectorXd>*> states(chains.size());
+			if (!chains.size()) {
+				throw EmptyChainDataException();
+			}
+
+            for (size_t i = 0; i < states.size(); ++i) {
+                states[i] = chains[i].states.get();
+				if (!states[i]) {
+					throw EmptyChainDataException();
+				}
+            }
+            std::vector<double> expectedSquaredJumpDistance = ::hops::computeExpectedSquaredJumpDistance<Eigen::VectorXd, Eigen::MatrixXd>(states);
+            this->expectedSquaredJumpDistance = Eigen::Map<Eigen::VectorXd>(expectedSquaredJumpDistance.data(), chains.size());
         }
 
         void computePotentialScaleReductionFactor() {

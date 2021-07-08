@@ -305,7 +305,7 @@ namespace hops {
             
             newObservedCovariance.block(0, 0, n, n) = observedCovariance; // hopefully saves some computation time
             newObservedCovariance.block(0, n, n, m) = kernel(observedInputs, x);
-            newObservedCovariance.block(n, 0, m, n) = newObservedCovariance.block(0, n, n, m).transpose();
+            newObservedCovariance.block(n, 0, m, n) = newObservedCovariance.block(0, n, n, m).transpose().eval();
             newObservedCovariance.block(n, n, m, m) = kernel(x, x);
             //newObservedCovariance.block(n, n, m, m).diagonal().array() += 1.e-5;
 
