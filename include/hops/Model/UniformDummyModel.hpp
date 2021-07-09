@@ -15,15 +15,15 @@ namespace hops {
 
         UniformDummyModel() {}
 
-        typename MatrixType::Scalar calculateNegativeLogLikelihood(const VectorType &) const {
+        typename MatrixType::Scalar computeNegativeLogLikelihood(const VectorType &) const {
             throw std::runtime_error("UniformDummyModel is not supposed to be actually used.");
         }
 
-        MatrixType calculateExpectedFisherInformation(const VectorType &) const {
+        MatrixType computeExpectedFisherInformation(const VectorType &) const {
             throw std::runtime_error("UniformDummyModel is not supposed to be actually used.");
         }
 
-        VectorType calculateLogLikelihoodGradient(const VectorType &) const {
+        VectorType computeLogLikelihoodGradient(const VectorType &) const {
             throw std::runtime_error("UniformDummyModel is not supposed to be actually used.");
         }
     };

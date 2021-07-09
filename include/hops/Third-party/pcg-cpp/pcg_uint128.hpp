@@ -75,7 +75,7 @@
 
 namespace pcg_extras {
 
-// Recent versions of GCC have intrinsics we can use to quickly calculate
+// Recent versions of GCC have intrinsics we can use to quickly compute
 // the number of leading and trailing zeros in a number.  If possible, we
 // use them, otherwise we fall back to old-fashioned bit twiddling to figure
 // them out.

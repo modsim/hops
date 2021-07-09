@@ -156,12 +156,12 @@ namespace hops {
 #if defined(HOPS_GUROBI_FOUND) || defined(HOPS_CLP_FOUND)
                     try {
                         LinearProgramGurobiImpl linearProgram(problem.A, problem.b);
-                        chebyshev = linearProgram.calculateChebyshevCenter().optimalParameters;
+                        chebyshev = linearProgram.computeChebyshevCenter().optimalParameters;
 
                     // either std::runtime_error, if Gurobi wasn't found or GRBException if no license
                     } catch (...) { 
                         LinearProgramClpImpl linearProgram(problem.A, problem.b);
-                        chebyshev = linearProgram.calculateChebyshevCenter().optimalParameters;
+                        chebyshev = linearProgram.computeChebyshevCenter().optimalParameters;
                     }
 #else
                     throw MissingStartingPointsException(

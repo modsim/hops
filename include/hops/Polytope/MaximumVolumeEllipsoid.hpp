@@ -36,7 +36,7 @@ namespace hops {
          */
         [[nodiscard]] Eigen::Matrix<RealType, Eigen::Dynamic, 1> applyRoundingTransformation(Eigen::Matrix<RealType, Eigen::Dynamic, 1> &x);
 
-        [[nodiscard]] RealType calculateVolume() const;
+        [[nodiscard]] RealType computeVolume() const;
 
         [[nodiscard]] const Eigen::Matrix<RealType, Eigen::Dynamic, Eigen::Dynamic> &getRoundingTransformation() const;
 

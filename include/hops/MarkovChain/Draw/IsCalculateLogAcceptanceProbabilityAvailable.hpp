@@ -9,7 +9,7 @@ namespace hops {
     };
 
     template<typename T>
-    struct IsCalculateLogAcceptanceProbabilityAvailable<T, std::void_t<decltype(std::declval<T>().calculateLogAcceptanceProbability())> > :
+    struct IsCalculateLogAcceptanceProbabilityAvailable<T, std::void_t<decltype(std::declval<T>().computeLogAcceptanceProbability())> > :
             std::true_type {
     };
 }

@@ -12,15 +12,15 @@ namespace {
         using MatrixType = Matrix;
         using VectorType = Vector;
 
-        static double calculateNegativeLogLikelihood(const VectorType &) {
+        static double computeNegativeLogLikelihood(const VectorType &) {
             return 21;
         }
 
-        [[nodiscard]] MatrixType calculateExpectedFisherInformation(const VectorType &x) const {
+        [[nodiscard]] MatrixType computeExpectedFisherInformation(const VectorType &x) const {
             return Eigen::MatrixXd::Ones(x.rows(), x.rows());
         }
 
-        [[nodiscard]] VectorType calculateLogLikelihoodGradient(const VectorType &x) const {
+        [[nodiscard]] VectorType computeLogLikelihoodGradient(const VectorType &x) const {
             return x;
         }
     };
@@ -28,7 +28,7 @@ namespace {
 
 BOOST_AUTO_TEST_SUITE(MultimodalModel)
 
-    BOOST_AUTO_TEST_CASE( calculateNegativeLogLikelihood) {
+    BOOST_AUTO_TEST_CASE( computeNegativeLogLikelihood) {
         double expectedNegativeLogLikelihood = 21;
         ModelMock<Eigen::MatrixXd, Eigen::VectorXd> model1;
         ModelMock<Eigen::MatrixXd, Eigen::VectorXd> model2;
@@ -37,11 +37,11 @@ BOOST_AUTO_TEST_SUITE(MultimodalModel)
 
         auto evaluationPoint = Eigen::VectorXd::Zero(2);
 
-        double actualNegativeLogLikelihood = multimodalModel.calculateNegativeLogLikelihood(evaluationPoint);
+        double actualNegativeLogLikelihood = multimodalModel.computeNegativeLogLikelihood(evaluationPoint);
         BOOST_CHECK(actualNegativeLogLikelihood == expectedNegativeLogLikelihood);
     }
 
-    BOOST_AUTO_TEST_CASE( calculateNegativeLogLikelihoodForGaussianMixture) {
+    BOOST_AUTO_TEST_CASE( computeNegativeLogLikelihoodForGaussianMixture) {
         Eigen::VectorXd mean1 = Eigen::VectorXd::Ones(1);
         Eigen::VectorXd mean2 = -Eigen::VectorXd::Ones(1);
         Eigen::MatrixXd covariance = 0.1 * Eigen::MatrixXd::Identity(1, 1);
@@ -51,13 +51,13 @@ BOOST_AUTO_TEST_SUITE(MultimodalModel)
         hops::MultimodalModel multimodalModel(std::make_tuple(model1, model2));
 
         Eigen::VectorXd evaluationPoint = Eigen::VectorXd::Zero(1);
-        BOOST_CHECK_CLOSE(multimodalModel.calculateNegativeLogLikelihood(evaluationPoint), 4.767646, 0.001);
+        BOOST_CHECK_CLOSE(multimodalModel.computeNegativeLogLikelihood(evaluationPoint), 4.767646, 0.001);
 
         evaluationPoint = 0.75*Eigen::VectorXd::Ones(1);
-        BOOST_CHECK_CLOSE(multimodalModel.calculateNegativeLogLikelihood(evaluationPoint), 0.773292, 0.001);
+        BOOST_CHECK_CLOSE(multimodalModel.computeNegativeLogLikelihood(evaluationPoint), 0.773292, 0.001);
     }
 
-    BOOST_AUTO_TEST_CASE( calculateExpectedFisherInformation) {
+    BOOST_AUTO_TEST_CASE( computeExpectedFisherInformation) {
         Eigen::MatrixXd expectedExpectedFisherInformation = 2 * Eigen::MatrixXd::Ones(2, 2);
         ModelMock<Eigen::MatrixXd, Eigen::VectorXd> model1;
         ModelMock<Eigen::MatrixXd, Eigen::VectorXd> model2;
@@ -66,12 +66,12 @@ BOOST_AUTO_TEST_SUITE(MultimodalModel)
 
         Eigen::VectorXd evaluationPoint = Eigen::VectorXd::Ones(2);
 
-        Eigen::MatrixXd actualExpectedFisherInformation = multimodalModel.calculateExpectedFisherInformation(
+        Eigen::MatrixXd actualExpectedFisherInformation = multimodalModel.computeExpectedFisherInformation(
                 evaluationPoint);
         BOOST_CHECK(actualExpectedFisherInformation == expectedExpectedFisherInformation);
     }
 
-    BOOST_AUTO_TEST_CASE( calculateLogLikelihoodGradient) {
+    BOOST_AUTO_TEST_CASE( computeLogLikelihoodGradient) {
         Eigen::VectorXd expectedLogLikelihoodGradient = 2 * Eigen::VectorXd::Ones(2);
         ModelMock<Eigen::MatrixXd, Eigen::VectorXd> model1;
         ModelMock<Eigen::MatrixXd, Eigen::VectorXd> model2;
@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_SUITE(MultimodalModel)
 
         Eigen::VectorXd evaluationPoint = Eigen::VectorXd::Ones(2);
 
-        Eigen::VectorXd actualLogLikelihoodGradient = multimodalModel.calculateLogLikelihoodGradient(evaluationPoint);
+        Eigen::VectorXd actualLogLikelihoodGradient = multimodalModel.computeLogLikelihoodGradient(evaluationPoint);
         BOOST_CHECK(actualLogLikelihoodGradient == expectedLogLikelihoodGradient);
     }
 

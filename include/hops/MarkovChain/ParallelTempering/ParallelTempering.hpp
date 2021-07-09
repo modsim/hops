@@ -77,7 +77,7 @@ namespace hops {
                 if (chainPair.first == world_rank || chainPair.second == world_rank) {
                     int otherChainRank = world_rank == chainPair.first ? chainPair.second : chainPair.first;
 
-                    double acceptanceProbability = calculateExchangeAcceptanceProbability(otherChainRank);
+                    double acceptanceProbability = computeExchangeAcceptanceProbability(otherChainRank);
                     double chance = uniformRealDistribution(synchronizedRandomNumberGenerator);
                     if (chance <= acceptanceProbability) {
                         exchangeStates(otherChainRank);
@@ -93,7 +93,7 @@ namespace hops {
             return false;
         }
 
-        double calculateExchangeAcceptanceProbability(int otherChainRank) {
+        double computeExchangeAcceptanceProbability(int otherChainRank) {
             double coldness = this->getColdness();
             double coldNegativeLogLikelihood = this->getNegativeLogLikelihoodOfCurrentState() / coldness;
             double thisChainProperties[] = {

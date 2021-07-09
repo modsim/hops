@@ -22,11 +22,11 @@ namespace hops {
          * @param x
          * @return
          */
-        typename MatrixType::Scalar calculateNegativeLogLikelihood(const VectorType &x) const;
+        typename MatrixType::Scalar computeNegativeLogLikelihood(const VectorType &x) const;
 
-        MatrixType calculateExpectedFisherInformation(const VectorType &) const;
+        MatrixType computeExpectedFisherInformation(const VectorType &) const;
 
-        VectorType calculateLogLikelihoodGradient(const VectorType &x) const;
+        VectorType computeLogLikelihoodGradient(const VectorType &x) const;
 
     private:
         VectorType mean;
@@ -53,20 +53,20 @@ namespace hops {
 
     template<typename MatrixType, typename VectorType>
     typename MatrixType::Scalar
-    MultivariateGaussianModel<MatrixType, VectorType>::calculateNegativeLogLikelihood(const VectorType &x) const {
+    MultivariateGaussianModel<MatrixType, VectorType>::computeNegativeLogLikelihood(const VectorType &x) const {
         return -logNormalizationConstant +
                0.5 * static_cast<typename MatrixType::Scalar>((x - mean).transpose() * inverseCovariance * (x - mean));
     }
 
     template<typename MatrixType, typename VectorType>
     MatrixType
-    MultivariateGaussianModel<MatrixType, VectorType>::calculateExpectedFisherInformation(const VectorType &) const {
+    MultivariateGaussianModel<MatrixType, VectorType>::computeExpectedFisherInformation(const VectorType &) const {
         return inverseCovariance;
     }
 
     template<typename MatrixType, typename VectorType>
     VectorType
-    MultivariateGaussianModel<MatrixType, VectorType>::calculateLogLikelihoodGradient(const VectorType &x) const {
+    MultivariateGaussianModel<MatrixType, VectorType>::computeLogLikelihoodGradient(const VectorType &x) const {
         return -inverseCovariance * (x - mean);
     }
 }

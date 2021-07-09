@@ -38,7 +38,7 @@ hops::MaximumVolumeEllipsoid<RealType>::applyRoundingTransformation(Eigen::Matri
 }
 
 template<typename RealType>
-RealType hops::MaximumVolumeEllipsoid<RealType>::calculateVolume() const {
+RealType hops::MaximumVolumeEllipsoid<RealType>::computeVolume() const {
     const RealType halfDim = static_cast<RealType>(roundingTransformation.cols() * 0.5);
     return std::pow(M_PI, halfDim) / std::tgamma(halfDim + 1.0) * roundingTransformation.diagonal().prod();
 }
@@ -236,7 +236,7 @@ hops::MaximumVolumeEllipsoid<RealType> hops::MaximumVolumeEllipsoid<RealType>::c
     std::unique_ptr<LinearProgram> linearProgram;
     linearProgram = LinearProgramFactory::createLinearProgram(A.template cast<double>(),
                                                               b.template cast<double>());
-    Eigen::VectorXd startingPoint = linearProgram->calculateChebyshevCenter().optimalParameters;
+    Eigen::VectorXd startingPoint = linearProgram->computeChebyshevCenter().optimalParameters;
     return MaximumVolumeEllipsoid<RealType>::construct(A,
                                                        b,
                                                        maximumNumberOfIterationsToRun,

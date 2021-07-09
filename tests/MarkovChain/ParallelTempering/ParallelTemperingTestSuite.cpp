@@ -167,7 +167,7 @@ BOOST_AUTO_TEST_SUITE(ParallelTempering)
                 MPI_Irecv(&actualAcceptanceProbability, 1, MPI_DOUBLE, otherChainRank, 0,
                           TEST_COMMUNICATOR, &request);
 
-                double expectedAcceptanceProbability = parallelTempering.calculateExchangeAcceptanceProbability(
+                double expectedAcceptanceProbability = parallelTempering.computeExchangeAcceptanceProbability(
                         otherChainRank);
                 double sendProbability = expectedAcceptanceProbability;
                 MPI_Send(&sendProbability, 1, MPI_DOUBLE, otherChainRank, 0,

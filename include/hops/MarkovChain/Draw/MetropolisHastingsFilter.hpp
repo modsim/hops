@@ -39,7 +39,7 @@ namespace hops {
         MarkovChainProposer::propose(randomNumberGenerator);
         numberOfProposals++;
         double acceptanceChance = std::log(uniformRealDistribution(randomNumberGenerator));
-        double acceptanceProbability = MarkovChainProposer::calculateLogAcceptanceProbability();
+        double acceptanceProbability = MarkovChainProposer::computeLogAcceptanceProbability();
         if constexpr(IsAddMessageAvailable<MarkovChainProposer>::value) {
             MarkovChainProposer::addMessage("interior(");
             MarkovChainProposer::addMessage(std::isfinite(acceptanceProbability) ? "true" : "false");

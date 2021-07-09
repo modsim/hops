@@ -9,7 +9,7 @@
 namespace hops {
     namespace CSmMALAProposalDetails {
         template<typename MatrixType>
-        void calculateMetricInfoForCSmMALAWithSvd(const MatrixType &metric,
+        void computeMetricInfoForCSmMALAWithSvd(const MatrixType &metric,
                                                   MatrixType &sqrtInvMetric,
                                                   double &logSqrtDeterminant) {
             Eigen::BDCSVD<MatrixType> solver(metric, Eigen::ComputeFullU);
@@ -38,7 +38,7 @@ namespace hops {
 
         void acceptProposal();
 
-        [[nodiscard]] typename MatrixType::Scalar calculateLogAcceptanceProbability();
+        [[nodiscard]] typename MatrixType::Scalar computeLogAcceptanceProbability();
 
         StateType getState() const;
 
@@ -57,7 +57,7 @@ namespace hops {
         std::string getName();
 
     private:
-        StateType calculateTruncatedGradient(StateType x);
+        StateType computeTruncatedGradient(StateType x);
 
         MatrixType A;
         VectorType b;
@@ -126,30 +126,30 @@ namespace hops {
 
     template<typename Model, typename Matrix>
     typename CSmMALAProposal<Model, Matrix>::MatrixType::Scalar
-    CSmMALAProposal<Model, Matrix>::calculateLogAcceptanceProbability() {
+    CSmMALAProposal<Model, Matrix>::computeLogAcceptanceProbability() {
         bool isProposalInteriorPoint = ((A * proposal - b).array() < 0).all();
         if (!isProposalInteriorPoint) {
             return -std::numeric_limits<typename MatrixType::Scalar>::infinity();
         }
 
-        // Important: calculate gradient before fisher info or else x3cflux2 will throw
-        StateType gradient = calculateTruncatedGradient(proposal);
+        // Important: compute gradient before fisher info or else x3cflux2 will throw
+        StateType gradient = computeTruncatedGradient(proposal);
         proposalMetric.setZero();
         if (fisherWeight != 0) {
-            auto fisherInformation = fisherScale * Model::calculateExpectedFisherInformation(proposal);
+            auto fisherInformation = fisherScale * Model::computeExpectedFisherInformation(proposal);
             proposalMetric += fisherWeight * fisherInformation;
         }
         if (fisherWeight != 1) {
-            auto dikinEllipsoid = dikinEllipsoidCalculator.calculateDikinEllipsoid(proposal);
+            auto dikinEllipsoid = dikinEllipsoidCalculator.computeDikinEllipsoid(proposal);
             proposalMetric += (1 - fisherWeight) * dikinEllipsoid;
 
         }
-        CSmMALAProposalDetails::calculateMetricInfoForCSmMALAWithSvd(proposalMetric, proposalSqrtInvMetric,
+        CSmMALAProposalDetails::computeMetricInfoForCSmMALAWithSvd(proposalMetric, proposalSqrtInvMetric,
                                                                      proposalLogSqrtDeterminant);
         driftedProposal = proposal +
                           0.5 * std::pow(covarianceFactor, 2) * proposalSqrtInvMetric * proposalSqrtInvMetric *
                           gradient;
-        proposalNegativeLogLikelihood = Model::calculateNegativeLogLikelihood(proposal);
+        proposalNegativeLogLikelihood = Model::computeNegativeLogLikelihood(proposal);
 
         double normDifference =
                 static_cast<double>((driftedState - proposal).transpose() * stateMetric * (driftedState - proposal)) -
@@ -171,23 +171,23 @@ namespace hops {
     template<typename Model, typename Matrix>
     void CSmMALAProposal<Model, Matrix>::setState(StateType newState) {
         state.swap(newState);
-        // Important: calculate gradient before fisher info or else x3cflux2 will throw
-        StateType gradient = calculateTruncatedGradient(state);
+        // Important: compute gradient before fisher info or else x3cflux2 will throw
+        StateType gradient = computeTruncatedGradient(state);
         stateMetric.setZero();
         if (fisherWeight != 0) {
-            auto fisherInformation = fisherScale * Model::calculateExpectedFisherInformation(state);
+            auto fisherInformation = fisherScale * Model::computeExpectedFisherInformation(state);
             stateMetric += fisherWeight * fisherInformation;
         }
         if (fisherWeight != 1) {
-            auto dikinEllipsoid = dikinEllipsoidCalculator.calculateDikinEllipsoid(state);
+            auto dikinEllipsoid = dikinEllipsoidCalculator.computeDikinEllipsoid(state);
             stateMetric += (1 - fisherWeight) * dikinEllipsoid;
         }
-        CSmMALAProposalDetails::calculateMetricInfoForCSmMALAWithSvd(stateMetric,
+        CSmMALAProposalDetails::computeMetricInfoForCSmMALAWithSvd(stateMetric,
                                                                      stateSqrtInvMetric,
                                                                      stateLogSqrtDeterminant);
         driftedState = state + 0.5 * std::pow(covarianceFactor, 2) * stateSqrtInvMetric * stateSqrtInvMetric *
                                gradient;
-        stateNegativeLogLikelihood = Model::calculateNegativeLogLikelihood(state);
+        stateNegativeLogLikelihood = Model::computeNegativeLogLikelihood(state);
     }
 
     template<typename Model, typename Matrix>
@@ -232,8 +232,8 @@ namespace hops {
 
     template<typename Model, typename Matrix>
     typename CSmMALAProposal<Model, Matrix>::StateType
-    CSmMALAProposal<Model, Matrix>::calculateTruncatedGradient(StateType x) {
-        StateType gradient = Model::calculateLogLikelihoodGradient(x);
+    CSmMALAProposal<Model, Matrix>::computeTruncatedGradient(StateType x) {
+        StateType gradient = Model::computeLogLikelihoodGradient(x);
         double norm = gradient.norm();
         if (norm != 0) {
             gradient /= norm;

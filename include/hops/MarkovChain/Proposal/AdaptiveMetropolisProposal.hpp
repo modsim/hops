@@ -45,7 +45,7 @@ namespace hops {
 
         typename MatrixType::Scalar getStepSize() const;
 
-        [[nodiscard]] typename MatrixType::Scalar calculateLogAcceptanceProbability(); 
+        [[nodiscard]] typename MatrixType::Scalar computeLogAcceptanceProbability(); 
 
         std::string getName();
 
@@ -152,7 +152,7 @@ namespace hops {
 
     template<typename MatrixType, typename VectorType>
     typename MatrixType::Scalar 
-    AdaptiveMetropolisProposal<MatrixType, VectorType>::calculateLogAcceptanceProbability() {
+    AdaptiveMetropolisProposal<MatrixType, VectorType>::computeLogAcceptanceProbability() {
         bool isProposalInteriorPoint = ((A * proposal - b).array() < -boundaryCushion).all();
         if (!isProposalInteriorPoint) {
             return -std::numeric_limits<typename MatrixType::Scalar>::infinity();

@@ -98,7 +98,7 @@ std::map<std::string, std::any> parseCommandLineOptions(int argc, char **argv) {
         try {
             start = hops::CsvReader::readVector<decltype(start)>(startFile);
         } catch (...) {
-            start = hops::LinearProgramFactory::createLinearProgram(A, b)->calculateChebyshevCenter()
+            start = hops::LinearProgramFactory::createLinearProgram(A, b)->computeChebyshevCenter()
                     .optimalParameters;
         }
         arguments["A"] = A;
