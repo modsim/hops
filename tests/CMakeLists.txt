@@ -2,7 +2,7 @@
 # Test subdirectories
 ########################################################################################################################
 
-project(hops-tests CXX)
+#project(hops-tests CXX)
 
 find_package(Boost REQUIRED COMPONENTS unit_test_framework)
 
