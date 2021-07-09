@@ -11,15 +11,15 @@ namespace {
         using VectorType = Eigen::VectorXd;
         using MatrixType = Eigen::MatrixXd;
 
-        [[maybe_unused]] static double calculateNegativeLogLikelihood(const VectorType &) {
+        [[maybe_unused]] static double computeNegativeLogLikelihood(const VectorType &) {
             return 0.;
         }
 
-        [[maybe_unused]] static Eigen::VectorXd calculateLogLikelihoodGradient(const VectorType &) {
+        [[maybe_unused]] static Eigen::VectorXd computeLogLikelihoodGradient(const VectorType &) {
             return Eigen::VectorXd::Ones(2);
         }
 
-        [[maybe_unused]] static Eigen::MatrixXd calculateExpectedFisherInformation(const VectorType &) {
+        [[maybe_unused]] static Eigen::MatrixXd computeExpectedFisherInformation(const VectorType &) {
             return Eigen::MatrixXd::Identity(2, 2);
         }
     };

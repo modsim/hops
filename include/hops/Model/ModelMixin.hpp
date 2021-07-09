@@ -8,7 +8,7 @@
 
 namespace hops {
     /**
-     * @brief ModelMixin Mixin to add model likelihood to calculateLogAcceptanceRate().
+     * @brief ModelMixin Mixin to add model likelihood to computeLogAcceptanceRate().
      * @details Useful for MarkovChainProposer classes, that do not already contain the model.
      * @tparam MarkovChainProposer
      * @tparam ModelImpl
@@ -20,12 +20,12 @@ namespace hops {
                 MarkovChainProposer(markovChainProposer),
                 ModelImpl(model) {
             proposalNegativeLogLikelihood = 0;
-            stateNegativeLogLikelihood = ModelImpl::calculateNegativeLogLikelihood(MarkovChainProposer::getState());
+            stateNegativeLogLikelihood = ModelImpl::computeNegativeLogLikelihood(MarkovChainProposer::getState());
         }
 
         void acceptProposal();
 
-        double calculateLogAcceptanceProbability();
+        double computeLogAcceptanceProbability();
 
         double getNegativeLogLikelihoodOfCurrentState();
 
@@ -41,13 +41,13 @@ namespace hops {
     }
 
     template<typename MarkovChainProposer, typename ModelImpl>
-    double ModelMixin<MarkovChainProposer, ModelImpl>::calculateLogAcceptanceProbability() {
+    double ModelMixin<MarkovChainProposer, ModelImpl>::computeLogAcceptanceProbability() {
         double acceptanceProbability = 0;
         if constexpr(IsCalculateLogAcceptanceProbabilityAvailable<MarkovChainProposer>::value) {
-            acceptanceProbability += MarkovChainProposer::calculateLogAcceptanceProbability();
+            acceptanceProbability += MarkovChainProposer::computeLogAcceptanceProbability();
         }
         if (std::isfinite(acceptanceProbability)) {
-            proposalNegativeLogLikelihood = ModelImpl::calculateNegativeLogLikelihood(
+            proposalNegativeLogLikelihood = ModelImpl::computeNegativeLogLikelihood(
                     MarkovChainProposer::getProposal());
             acceptanceProbability += stateNegativeLogLikelihood - proposalNegativeLogLikelihood;
         }

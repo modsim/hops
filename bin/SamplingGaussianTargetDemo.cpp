@@ -53,7 +53,7 @@ int main(int argc, char **argv) {
             std::unique_ptr<hops::LinearProgram> linearProgram = hops::LinearProgramFactory::createLinearProgram(
                     Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>(A.cast<double>()),
                     b.cast<double>();
-            startingPoint = linearProgram->calculateChebyshevCenter().optimalParameters.cast<RealType>();
+            startingPoint = linearProgram->computeChebyshevCenter().optimalParameters.cast<RealType>();
         }
 
         markovChain = hops::MarkovChainFactory::createMarkovChain(chainType,
@@ -77,7 +77,7 @@ int main(int argc, char **argv) {
             std::unique_ptr<hops::LinearProgram> linearProgram = hops::LinearProgramFactory::createLinearProgram(
                     Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>((A * roundingTransformation).cast<double>()),
                     b.cast<double>());
-            startingPoint = linearProgram->calculateChebyshevCenter().optimalParameters.cast<RealType>();
+            startingPoint = linearProgram->computeChebyshevCenter().optimalParameters.cast<RealType>();
         }
         markovChain = hops::MarkovChainFactory::createMarkovChain<Eigen::Matrix<RealType, Eigen::Dynamic, Eigen::Dynamic>, decltype(b), decltype(model)>(
                 chainType,

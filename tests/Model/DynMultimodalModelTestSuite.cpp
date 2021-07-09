@@ -18,15 +18,15 @@ BOOST_AUTO_TEST_SUITE(DynMultiModelTestSuite)
             // do nothing
         }
 
-        double calculateNegativeLogLikelihood(const VectorType &) const {
+        double computeNegativeLogLikelihood(const VectorType &) const {
             return -std::log(fx);
         }
 
-        [[nodiscard]] MatrixType calculateExpectedFisherInformation(const VectorType &x) const {
+        [[nodiscard]] MatrixType computeExpectedFisherInformation(const VectorType &x) const {
             return Eigen::MatrixXd::Ones(x.rows(), x.rows());
         }
 
-        [[nodiscard]] VectorType calculateLogLikelihoodGradient(const VectorType &x) const {
+        [[nodiscard]] VectorType computeLogLikelihoodGradient(const VectorType &x) const {
             return x;
         }
     };
@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_SUITE(DynMultiModelTestSuite)
         auto multimodalModel = hops::DynMultimodalModel<ModelMock<Eigen::MatrixXd, Eigen::VectorXd>>(modelComponents, weights);
         auto evaluationPoint = Eigen::VectorXd::Zero(2);
 
-        double actualNegativeLogLikelihood = multimodalModel.calculateNegativeLogLikelihood(evaluationPoint);
+        double actualNegativeLogLikelihood = multimodalModel.computeNegativeLogLikelihood(evaluationPoint);
         BOOST_CHECK_CLOSE(actualNegativeLogLikelihood, expectedNegativeLogLikelihood, 0.001);
     }
 
@@ -64,10 +64,10 @@ BOOST_AUTO_TEST_SUITE(DynMultiModelTestSuite)
         hops::DynMultimodalModel multimodalModel = hops::DynMultimodalModel<hops::MultivariateGaussianModel<Eigen::MatrixXd, Eigen::VectorXd>>({model1, model2}, {1, 1});
 
         Eigen::VectorXd evaluationPoint = Eigen::VectorXd::Zero(d);
-        BOOST_CHECK_CLOSE(multimodalModel.calculateNegativeLogLikelihood(evaluationPoint), 4.767645680805376, 0.001);
+        BOOST_CHECK_CLOSE(multimodalModel.computeNegativeLogLikelihood(evaluationPoint), 4.767645680805376, 0.001);
 
         evaluationPoint = 0.5 * Eigen::VectorXd::Ones(d);
-        BOOST_CHECK_CLOSE(multimodalModel.calculateNegativeLogLikelihood(evaluationPoint), 1.017645986707556, 0.001);
+        BOOST_CHECK_CLOSE(multimodalModel.computeNegativeLogLikelihood(evaluationPoint), 1.017645986707556, 0.001);
     }
 
     BOOST_AUTO_TEST_CASE(CalculateLogLikelihoodGradient) {
@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_SUITE(DynMultiModelTestSuite)
 
         hops::DynMultimodalModel multimodalModel = hops::DynMultimodalModel<hops::MultivariateGaussianModel<Eigen::MatrixXd, Eigen::VectorXd>>({model1, model2}, {1, 2});
 
-        Eigen::VectorXd actualLogLikelihoodGradient = multimodalModel.calculateLogLikelihoodGradient(evaluationPoint);
+        Eigen::VectorXd actualLogLikelihoodGradient = multimodalModel.computeLogLikelihoodGradient(evaluationPoint);
 
         BOOST_CHECK_SMALL((actualLogLikelihoodGradient - expectedLogLikelihoodGradient).squaredNorm(), 1.e-7);
     }
@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_SUITE(DynMultiModelTestSuite)
 
         hops::DynMultimodalModel multimodalModel = hops::DynMultimodalModel<hops::MultivariateGaussianModel<Eigen::MatrixXd, Eigen::VectorXd>>({model, model}, {1, 2});
 
-        Eigen::VectorXd actualLogLikelihoodGradient = multimodalModel.calculateLogLikelihoodGradient(evaluationPoint);
+        Eigen::VectorXd actualLogLikelihoodGradient = multimodalModel.computeLogLikelihoodGradient(evaluationPoint);
 
         BOOST_CHECK_SMALL((actualLogLikelihoodGradient - expectedLogLikelihoodGradient).squaredNorm(), 1.e-7);
     }

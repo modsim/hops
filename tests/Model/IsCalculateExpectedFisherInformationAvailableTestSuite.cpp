@@ -16,7 +16,7 @@ BOOST_AUTO_TEST_SUITE(IsCalculateExpectedFisherInformationAvailable)
     BOOST_AUTO_TEST_CASE(WhenCalculateExpectedFisherInformationHasWrongSignature) {
         class Mock {
         public:
-            double calculateExpectedFisherInformation(Mock);
+            double computeExpectedFisherInformation(Mock);
         };
 
         BOOST_CHECK(hops::IsCalculateExpectedFisherInformationAvailable<Mock>::value == false);
@@ -28,7 +28,7 @@ BOOST_AUTO_TEST_SUITE(IsCalculateExpectedFisherInformationAvailable)
             using VectorType = double;
             using MatrixType = int;
 
-            MatrixType calculateExpectedFisherInformation(const VectorType &);
+            MatrixType computeExpectedFisherInformation(const VectorType &);
         };
 
         BOOST_CHECK(hops::IsCalculateExpectedFisherInformationAvailable<Mock>::value);

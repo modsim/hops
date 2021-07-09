@@ -29,7 +29,7 @@ BOOST_AUTO_TEST_SUITE(LinearProgrammingClp)
         BOOST_CHECK(actualSolution.status == expectedSolution.status);
     }
 
-    BOOST_AUTO_TEST_CASE(calculateChebyshevCenter) {
+    BOOST_AUTO_TEST_CASE(computeChebyshevCenter) {
         Eigen::VectorXd expectedChebyshevParameters(2);
         expectedChebyshevParameters << 0.29289321881345, 0.29289321881345;
 
@@ -41,12 +41,12 @@ BOOST_AUTO_TEST_SUITE(LinearProgrammingClp)
         b << 1, 0, 0;
 
         auto linearProgram = hops::LinearProgramClpImpl(A, b);
-        auto actualChebyshevCenter = linearProgram.calculateChebyshevCenter();
+        auto actualChebyshevCenter = linearProgram.computeChebyshevCenter();
 
         BOOST_CHECK(actualChebyshevCenter.optimalParameters.isApprox(expectedChebyshevParameters, 1e-11));
     }
 
-    BOOST_AUTO_TEST_CASE(calculateChebyshevCenterIsStableUnderRepeatedCalculations) {
+    BOOST_AUTO_TEST_CASE(computeChebyshevCenterIsStableUnderRepeatedCalculations) {
         Eigen::MatrixXd A(3, 2);
         Eigen::VectorXd b(3);
         A << 1, 1,
@@ -55,10 +55,10 @@ BOOST_AUTO_TEST_SUITE(LinearProgrammingClp)
         b << 1, 0, 0;
 
         auto linearProgram = hops::LinearProgramClpImpl(A, b);
-        auto actualChebyshevCenter1 = linearProgram.calculateChebyshevCenter();
-        auto actualChebyshevCenter2 = linearProgram.calculateChebyshevCenter();
-        auto actualChebyshevCenter3 = linearProgram.calculateChebyshevCenter();
-        auto actualChebyshevCenter4 = linearProgram.calculateChebyshevCenter();
+        auto actualChebyshevCenter1 = linearProgram.computeChebyshevCenter();
+        auto actualChebyshevCenter2 = linearProgram.computeChebyshevCenter();
+        auto actualChebyshevCenter3 = linearProgram.computeChebyshevCenter();
+        auto actualChebyshevCenter4 = linearProgram.computeChebyshevCenter();
 
         BOOST_CHECK(actualChebyshevCenter1 == actualChebyshevCenter2);
         BOOST_CHECK(actualChebyshevCenter1 == actualChebyshevCenter3);
@@ -104,7 +104,7 @@ BOOST_AUTO_TEST_SUITE(LinearProgrammingClp)
         BOOST_CHECK(actualB.isApprox(expectedB));
     }
 
-    BOOST_AUTO_TEST_CASE(calculateUnconstrainedDimensions) {
+    BOOST_AUTO_TEST_CASE(computeUnconstrainedDimensions) {
         std::vector<long> expectedUnboundDirections{1, -1};
 
         Eigen::MatrixXd A(2, 2);
@@ -113,7 +113,7 @@ BOOST_AUTO_TEST_SUITE(LinearProgrammingClp)
         b << 1, 1;
 
         auto linearProgram = hops::LinearProgramClpImpl(A, b);
-        auto actualUnboundDirections = linearProgram.calculateUnconstrainedDimensions();
+        auto actualUnboundDirections = linearProgram.computeUnconstrainedDimensions();
 
         BOOST_CHECK(actualUnboundDirections == expectedUnboundDirections);
     }

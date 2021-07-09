@@ -51,7 +51,7 @@
  * scheme works, you're probably best of starting with one of the other
  * codebases (see www.pcg-random.org).  But if you're curious about the
  * constants for the various output functions used in those other, simpler,
- * codebases, this code shows how they are calculated.
+ * codebases, this code shows how they are computed.
  *
  * On the positive side, at least there are convenience typedefs so that you
  * can say

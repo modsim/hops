@@ -43,15 +43,15 @@ namespace hops {
          *              -\log g &= -\log \sum_{i=0}^N w_i f_i \\
          *              &= -\log \sum_{i=0}^N w_i \exp\{ \log f_i \} \\
          *          \f}
-         *          using the components `calculateNegativeLogLikelihood` method, which has to be provided
+         *          using the components `computeNegativeLogLikelihood` method, which has to be provided
          *          by `Model`.
          * @param x 
          * @return
          */
-        typename MatrixType::Scalar calculateNegativeLogLikelihood(const VectorType &x) const {
+        typename MatrixType::Scalar computeNegativeLogLikelihood(const VectorType &x) const {
             typename MatrixType::Scalar y = 0;
             for (size_t i = 0; i < modelComponents.size(); ++i) {
-                y += weights[i] * std::exp(-modelComponents[i].calculateNegativeLogLikelihood(x));
+                y += weights[i] * std::exp(-modelComponents[i].computeNegativeLogLikelihood(x));
             }
             return -std::log(y);
         }
@@ -62,7 +62,7 @@ namespace hops {
          *          of densities, where the expected fisher information is known for each density individually. 
          *          This function is thus not yet implemented and throws an exception.
          */
-        MatrixType calculateExpectedFisherInformation(const VectorType &) const {
+        MatrixType computeExpectedFisherInformation(const VectorType &) const {
             throw std::string("No closed form expression available and thus not yet implemented.");
         }
 
@@ -78,17 +78,17 @@ namespace hops {
          *               &= \frac{ \sum_{i=0}^N w_i \exp\{\log f_i\} \nabla \log \fi }{ \sum_{i=0}^N w_i \exp\{\log f_i\} }
          *          \f}
          *          Note that \f$ -\log f_i \f$ and \f$\nabla \log f_i \f$ have to be provided by
-         *          the components in `modelComponents` by the `calculateNegativeLogLikelihood` and `calculateLogLikelihoodGradient` methods.
+         *          the components in `modelComponents` by the `computeNegativeLogLikelihood` and `computeLogLikelihoodGradient` methods.
          * @param x 
          * @return
          */
-        VectorType calculateLogLikelihoodGradient(const VectorType &x) const {
+        VectorType computeLogLikelihoodGradient(const VectorType &x) const {
             VectorType 
-                gradY = weights[0] * modelComponents[0].calculateLogLikelihoodGradient(x) * std::exp(-modelComponents[0].calculateNegativeLogLikelihood(x));
-            typename MatrixType::Scalar denominator = weights[0] * std::exp(-modelComponents[0].calculateNegativeLogLikelihood(x));
+                gradY = weights[0] * modelComponents[0].computeLogLikelihoodGradient(x) * std::exp(-modelComponents[0].computeNegativeLogLikelihood(x));
+            typename MatrixType::Scalar denominator = weights[0] * std::exp(-modelComponents[0].computeNegativeLogLikelihood(x));
             for (size_t i = 1; i < modelComponents.size(); ++i) {
-                gradY += weights[i] * modelComponents[i].calculateLogLikelihoodGradient(x) * std::exp(-modelComponents[i].calculateNegativeLogLikelihood(x)),
-                denominator += weights[i] * std::exp(-modelComponents[i].calculateNegativeLogLikelihood(x));
+                gradY += weights[i] * modelComponents[i].computeLogLikelihoodGradient(x) * std::exp(-modelComponents[i].computeNegativeLogLikelihood(x)),
+                denominator += weights[i] * std::exp(-modelComponents[i].computeNegativeLogLikelihood(x));
             }
             return gradY / denominator;
         }

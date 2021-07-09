@@ -20,7 +20,7 @@ namespace {
 
         void acceptProposal() {};
 
-        [[nodiscard]] double calculateLogAcceptanceProbability() const {
+        [[nodiscard]] double computeLogAcceptanceProbability() const {
             return std::log(1 - stepSize);
         };
 

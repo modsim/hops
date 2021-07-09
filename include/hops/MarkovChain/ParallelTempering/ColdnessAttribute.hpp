@@ -7,7 +7,7 @@
 namespace hops {
     /**
      * @brief Mixin to add coldness to target distribution.
-     * @details The result from calculateNegativeLogLikelihood function is adjusted by the coldness.
+     * @details The result from computeNegativeLogLikelihood function is adjusted by the coldness.
      * @tparam Model
      */
     template<typename Model>
@@ -19,22 +19,22 @@ namespace hops {
             setColdness(coldness);
         }
 
-        typename Model::VectorType::Scalar calculateNegativeLogLikelihood(const typename Model::VectorType &state) {
-            return coldness == 0 ? 0. : coldness * Model::calculateNegativeLogLikelihood(state);
+        typename Model::VectorType::Scalar computeNegativeLogLikelihood(const typename Model::VectorType &state) {
+            return coldness == 0 ? 0. : coldness * Model::computeNegativeLogLikelihood(state);
         }
 
-        typename Model::VectorType calculateLogLikelihoodGradient(const typename Model::VectorType &state) {
+        typename Model::VectorType computeLogLikelihoodGradient(const typename Model::VectorType &state) {
             if (IsCalculateLogLikelihoodGradientAvailable<Model>::value) {
                 if (coldness == 0) {
                     return Model::VectorType::Zero(state.rows());
                 } else {
-                    return coldness * Model::calculateLogLikelihoodGradient(state);
+                    return coldness * Model::computeLogLikelihoodGradient(state);
                 }
             }
             throw std::runtime_error("Gradient called but it is undefined.");
         }
 
-        typename Model::MatrixType calculateExpectedFisherInformation(const typename Model::VectorType &state) {
+        typename Model::MatrixType computeExpectedFisherInformation(const typename Model::VectorType &state) {
             if (IsCalculateLogLikelihoodGradientAvailable<Model>::value) {
                 if (coldness == 0) {
                     return Model::MatrixType::Zero(state.rows(), state.rows());

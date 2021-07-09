@@ -35,9 +35,9 @@ namespace hops {
 
         typename MatrixType::Scalar getStepSize() const;
 
-        [[nodiscard]] typename MatrixType::Scalar calculateLogAcceptanceProbability() {
-            return chordStepDistribution.calculateInverseNormalizationConstant(0, backwardDistance, forwardDistance)
-                   - chordStepDistribution.calculateInverseNormalizationConstant(0, backwardDistance - step,
+        [[nodiscard]] typename MatrixType::Scalar computeLogAcceptanceProbability() {
+            return chordStepDistribution.computeInverseNormalizationConstant(0, backwardDistance, forwardDistance)
+                   - chordStepDistribution.computeInverseNormalizationConstant(0, backwardDistance - step,
                                                                                  forwardDistance - step);
         }
 

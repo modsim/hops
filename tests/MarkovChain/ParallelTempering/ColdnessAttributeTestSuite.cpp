@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE( getColdness) {
         BOOST_CHECK(actualColdness == expectedColdness);
     }
 
-    BOOST_AUTO_TEST_CASE( calculateNegativeLogLikelihood) {
+    BOOST_AUTO_TEST_CASE( computeNegativeLogLikelihood) {
         double expectedNegativeLogLikelihood = -250;
 
         class ModelMock {
@@ -111,7 +111,7 @@ BOOST_AUTO_TEST_CASE( getColdness) {
             using VectorType = Eigen::VectorXd;
             using MatrixType = Eigen::MatrixXd;
 
-            [[maybe_unused]] double calculateNegativeLogLikelihood(const VectorType &) {
+            [[maybe_unused]] double computeNegativeLogLikelihood(const VectorType &) {
                 return -1000;
             }
         } modelMock;
@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE( getColdness) {
 
 
         hops::ColdnessAttribute<ModelMock>::VectorType mockState = Eigen::VectorXd::Zero(1);
-        double actualNegativeLogLikelihood = markovChainWithColdnessAttribute.calculateNegativeLogLikelihood(mockState);
+        double actualNegativeLogLikelihood = markovChainWithColdnessAttribute.computeNegativeLogLikelihood(mockState);
         BOOST_CHECK(actualNegativeLogLikelihood == expectedNegativeLogLikelihood);
     }
 

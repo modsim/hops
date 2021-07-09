@@ -15,7 +15,7 @@ namespace hops {
             return uniformRealDistribution(randomNumberGenerator, params);
         }
 
-        constexpr RealType calculateInverseNormalizationConstant(RealType, RealType, RealType) {
+        constexpr RealType computeInverseNormalizationConstant(RealType, RealType, RealType) {
             return 1.;
         }
 
@@ -39,7 +39,7 @@ namespace hops {
             stepSize = newStepSize;
         }
 
-        RealType calculateInverseNormalizationConstant(RealType sigma, RealType lowerBound, RealType upperBound) {
+        RealType computeInverseNormalizationConstant(RealType sigma, RealType lowerBound, RealType upperBound) {
             return truncatedNormalDistribution.inverseNormalization({sigma, lowerBound, upperBound});
         }
 

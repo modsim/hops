@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_SUITE(MaximumVolumeEllipsoid)
 
         auto maximumVolumeEllipsoid = hops::MaximumVolumeEllipsoid<double>::construct(A, b, 50, start);
 
-        BOOST_CHECK_LE(std::abs(maximumVolumeEllipsoid.calculateVolume() - 0.464049344828066),
+        BOOST_CHECK_LE(std::abs(maximumVolumeEllipsoid.computeVolume() - 0.464049344828066),
                        1e-8 * 0.464049344828066);
 
         Eigen::MatrixXd matlabE2(2, 2);
@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_SUITE(MaximumVolumeEllipsoid)
                 start
         );
 
-        const double vol = maximumVolumeEllipsoid.calculateVolume();
+        const double vol = maximumVolumeEllipsoid.computeVolume();
         BOOST_CHECK_LE(std::abs(vol - 1.05772409651363e+28), 1e-10 * 1.05772409651363e+28);
 
         Eigen::MatrixXd matlabE = createEcoliMatlabE();
@@ -144,7 +144,7 @@ BOOST_AUTO_TEST_SUITE(MaximumVolumeEllipsoid)
                                                                                       maximumNumberOfIterationsToRun,
                                                                                       start,
                                                                                       1e-6);
-        const double vol1 = maximumVolumeEllipsoid.calculateVolume();
+        const double vol1 = maximumVolumeEllipsoid.computeVolume();
 
         const Eigen::MatrixXd matlabE = createEcoliMatlabE();
         const Eigen::MatrixXd matlabE2 = createEcoliMatlabE2();
@@ -159,7 +159,7 @@ BOOST_AUTO_TEST_SUITE(MaximumVolumeEllipsoid)
                                                                                        start2,
                                                                                        1e-6);
 
-        const double vol2 = maximumVolumeEllipsoid2.calculateVolume();
+        const double vol2 = maximumVolumeEllipsoid2.computeVolume();
         const double maxCenterError = (maximumVolumeEllipsoid.getCenter() -
                                        maximumVolumeEllipsoid2.getCenter()).lpNorm<Eigen::Infinity>();
 

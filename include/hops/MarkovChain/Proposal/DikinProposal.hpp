@@ -24,7 +24,7 @@ namespace hops {
 
         void acceptProposal();
 
-        typename MatrixType::Scalar calculateLogAcceptanceProbability();
+        typename MatrixType::Scalar computeLogAcceptanceProbability();
 
         StateType getState() const;
 
@@ -88,13 +88,13 @@ namespace hops {
 
     template<typename MatrixType, typename VectorType>
     typename MatrixType::Scalar
-    DikinProposal<MatrixType, VectorType>::calculateLogAcceptanceProbability() {
+    DikinProposal<MatrixType, VectorType>::computeLogAcceptanceProbability() {
         bool isProposalInteriorPoint = ((A * proposal - b).array() < -boundaryCushion).all();
         if (!isProposalInteriorPoint) {
             return -std::numeric_limits<typename MatrixType::Scalar>::infinity();
         }
 
-        auto choleskyResult = dikinEllipsoidCalculator.calculateCholeskyFactorOfDikinEllipsoid(proposal);
+        auto choleskyResult = dikinEllipsoidCalculator.computeCholeskyFactorOfDikinEllipsoid(proposal);
         if (!choleskyResult.first) {
             return -std::numeric_limits<typename MatrixType::Scalar>::infinity();
         }
@@ -119,9 +119,9 @@ namespace hops {
     template<typename MatrixType, typename VectorType>
     void DikinProposal<MatrixType, VectorType>::setState(StateType newState) {
         state.swap(newState);
-        auto choleskyResult = dikinEllipsoidCalculator.calculateCholeskyFactorOfDikinEllipsoid(state);
+        auto choleskyResult = dikinEllipsoidCalculator.computeCholeskyFactorOfDikinEllipsoid(state);
         if (!choleskyResult.first) {
-            throw std::runtime_error("Could not calculate cholesky factorization for newState.");
+            throw std::runtime_error("Could not compute cholesky factorization for newState.");
         }
         stateCholeskyOfDikinEllipsoid = std::move(choleskyResult.second);
         stateLogSqrtDeterminant = stateCholeskyOfDikinEllipsoid.diagonal().array().log().sum();

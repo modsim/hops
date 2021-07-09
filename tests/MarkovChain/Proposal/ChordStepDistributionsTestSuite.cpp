@@ -20,7 +20,7 @@ BOOST_AUTO_TEST_SUITE(ChordStepDistributionTestSuite)
 
     BOOST_AUTO_TEST_CASE(UniformStepDistributionInverseNormalizationIsCorrect) {
         hops::UniformStepDistribution<double> uniformStepDistribution;
-        double actualInverseNormalization = uniformStepDistribution.calculateInverseNormalizationConstant(1,
+        double actualInverseNormalization = uniformStepDistribution.computeInverseNormalizationConstant(1,
                                                                                                           5,
                                                                                                           9);
         BOOST_CHECK_EQUAL(actualInverseNormalization, 1);
@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_SUITE(ChordStepDistributionTestSuite)
 
     BOOST_AUTO_TEST_CASE(GaussianStepDistributionInverseNormilizationIsCorrect) {
         hops::GaussianStepDistribution<double> gaussianStepDistribution;
-        double actualInverseNormalization = gaussianStepDistribution.calculateInverseNormalizationConstant(.5,
+        double actualInverseNormalization = gaussianStepDistribution.computeInverseNormalizationConstant(.5,
                                                                                                            -.5,
                                                                                                            .9);
         BOOST_CHECK_SMALL(actualInverseNormalization - 0.805414, 1e-3);

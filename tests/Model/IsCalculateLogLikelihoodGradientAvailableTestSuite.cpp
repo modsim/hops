@@ -16,7 +16,7 @@ BOOST_AUTO_TEST_SUITE(IsCalculateLogLikelihoodGradientAvailable)
     BOOST_AUTO_TEST_CASE(WhenCalculateLogLikelihoodGradientHasWrongSignature) {
         class Mock {
         public:
-            double calculateLogLikelihoodGradient(Mock);
+            double computeLogLikelihoodGradient(Mock);
         };
 
         BOOST_CHECK(hops::IsCalculateLogLikelihoodGradientAvailable<Mock>::value == false);
@@ -27,7 +27,7 @@ BOOST_AUTO_TEST_SUITE(IsCalculateLogLikelihoodGradientAvailable)
         public:
             using VectorType = double;
 
-            VectorType calculateLogLikelihoodGradient(const VectorType &);
+            VectorType computeLogLikelihoodGradient(const VectorType &);
         };
 
         BOOST_CHECK(hops::IsCalculateLogLikelihoodGradientAvailable<Mock>::value);

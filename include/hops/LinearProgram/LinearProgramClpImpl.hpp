@@ -21,9 +21,9 @@ namespace hops {
 
         std::tuple<Eigen::MatrixXd, Eigen::VectorXd> removeRedundantConstraints(double tolerance) override;
 
-        LinearProgramSolution calculateChebyshevCenter() const override;
+        LinearProgramSolution computeChebyshevCenter() const override;
 
-        std::vector<long> calculateUnconstrainedDimensions() const override;
+        std::vector<long> computeUnconstrainedDimensions() const override;
 
         std::tuple<Eigen::MatrixXd, Eigen::VectorXd>
         addBoxConstraintsToUnconstrainedDimensions(double lb, double ub) override;
@@ -50,11 +50,11 @@ namespace hops {
             throw std::runtime_error("HOPS did not find CLP during compilation.");
         }
 
-        [[nodiscard]] LinearProgramSolution calculateChebyshevCenter() const override {
+        [[nodiscard]] LinearProgramSolution computeChebyshevCenter() const override {
             throw std::runtime_error("HOPS did not find CLP during compilation.");
         }
 
-        [[nodiscard]] std::vector<long> calculateUnconstrainedDimensions() const override {
+        [[nodiscard]] std::vector<long> computeUnconstrainedDimensions() const override {
             throw std::runtime_error("HOPS did not find CLP during compilation.");
         }
 

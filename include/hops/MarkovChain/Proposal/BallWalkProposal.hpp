@@ -35,7 +35,7 @@ namespace hops {
 
         typename MatrixType::Scalar getStepSize() const;
 
-        [[nodiscard]] typename MatrixType::Scalar calculateLogAcceptanceProbability() {
+        [[nodiscard]] typename MatrixType::Scalar computeLogAcceptanceProbability() {
             bool isProposalInteriorPoint = ((A * proposal - b).array() < 0).all();
             if (!isProposalInteriorPoint) {
                 return -std::numeric_limits<typename MatrixType::Scalar>::infinity();
