@@ -48,7 +48,8 @@ See the Dockerfile for a demonstration on installing HOPS and its dependencies o
 #### Install on Linux:
 
 ```
-$ mkdir cmake-build-release cd cmake-build-release      # create and switch into directory for out-of-source build
+$ mkdir cmake-build-release cd cmake-build-release      # create and switch into 
+                                                        # directory for out-of-source build
 $ cmake .. -DCMAKE_BUILD_TYPE=Release                   # run cmake
 $ make                                                  # build hops
 $ make test                                             # run Tests
