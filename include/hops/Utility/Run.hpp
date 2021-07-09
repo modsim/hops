@@ -125,8 +125,8 @@ namespace hops {
 		void setSamplingUntilConvergence(bool sampleUntilConvergence);
 		bool getSamplingUntilConvergence();
 
-		void setStatisticsThreshold(double diagnosticsThreshold);
-		double getStatisticsThreshold();
+		void setConvergenceThreshold(double convergenceThreshold);
+		double getConvergenceThreshold();
 
 		void setMaxRepetitions(double maxRepetitions);
 		double getMaxRepetitions();
@@ -301,7 +301,7 @@ namespace hops {
                 ++k;
             } while(sampleUntilConvergence &&
                     // if threshold was not met or if psrf is nan, keep going
-                    (convergenceStatistics > diagnosticsThreshold || std::isnan(convergenceStatistics))  &&
+                    (convergenceStatistics > convergenceThreshold || std::isnan(convergenceStatistics))  &&
                     // though only if we have not yet reached the maximum number of repetitions
                     k < maxRepetitions);
         }
@@ -329,7 +329,7 @@ namespace hops {
         bool useRounding = false;
 
         bool sampleUntilConvergence = false;
-        double diagnosticsThreshold = 1.05;
+        double convergenceThreshold = 1.05;
         unsigned long maxRepetitions = 1;
 
         double stepSize = 1;
@@ -477,13 +477,13 @@ namespace hops {
 
 
 	template<typename Model, typename Proposal>
-    void RunBase<Model, Proposal>::setStatisticsThreshold(double diagnosticsThreshold) {
-		this->diagnosticsThreshold = diagnosticsThreshold;
+    void RunBase<Model, Proposal>::setConvergenceThreshold(double convergenceThreshold) {
+		this->convergenceThreshold = convergenceThreshold;
 	}
 
 	template<typename Model, typename Proposal>
-	double RunBase<Model, Proposal>::getStatisticsThreshold() {
-		return diagnosticsThreshold;
+	double RunBase<Model, Proposal>::getConvergenceThreshold() {
+		return convergenceThreshold;
 	}
 
 
