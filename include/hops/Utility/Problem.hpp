@@ -73,7 +73,7 @@ namespace hops {
         }
 
         void setUnroundingTransformation(const Eigen::MatrixXd& unroundingTransformation) {
-            if (unroundingShift.size() > 0) {
+            if (unroundingTransformation.size() > 0) {
                 this->unroundingTransformation = unroundingTransformation;
                 unround = true;
             } else {
