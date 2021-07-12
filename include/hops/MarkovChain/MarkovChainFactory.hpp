@@ -13,7 +13,6 @@
 #include <hops/MarkovChain/Proposal/AdaptiveMetropolisProposal.hpp>
 #include <hops/MarkovChain/Proposal/BallWalkProposal.hpp>
 #include <hops/MarkovChain/Proposal/CoordinateHitAndRunProposal.hpp>
-#include <hops/MarkovChain/Proposal/CSmMALAProposal.hpp>
 #include <hops/MarkovChain/Proposal/DikinProposal.hpp>
 #include <hops/MarkovChain/Proposal/GaussianProposal.hpp>
 #include <hops/MarkovChain/Proposal/HitAndRunProposal.hpp>
@@ -345,18 +344,6 @@ namespace hops {
                             )
                     );
                 }
-                case MarkovChainType::CSmMALA: {
-                    return addRecordersAndAdapter(
-                            NegativeLogLikelihoodRecorder(
-                                    MetropolisHastingsFilter(
-                                            CSmMALAProposal(ColdnessAttribute(model),
-                                                            inequalityLhs,
-                                                            inequalityRhs,
-                                                            startingPoint)
-                                    )
-                            )
-                    );
-                }
                 case MarkovChainType::DikinWalk : {
                     return addRecordersAndAdapter(
                             NegativeLogLikelihoodRecorder(
@@ -478,19 +465,6 @@ namespace hops {
                                                             inequalityLhs, inequalityRhs, startingPoint),
                                                     ColdnessAttribute(model)
                                             )
-                                    )
-                            ),
-                            synchronizedRandomNumberGenerator
-                    );
-                }
-                case MarkovChainType::CSmMALA: {
-                    return addRecordersAndAdapter(
-                            NegativeLogLikelihoodRecorder(
-                                    MetropolisHastingsFilter(
-                                            CSmMALAProposal(ColdnessAttribute(model),
-                                                            inequalityLhs,
-                                                            inequalityRhs,
-                                                            startingPoint)
                                     )
                             ),
                             synchronizedRandomNumberGenerator

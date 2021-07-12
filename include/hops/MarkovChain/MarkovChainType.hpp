@@ -6,7 +6,6 @@ namespace hops {
         AdaptiveMetropolis,
         BallWalk,
         CoordinateHitAndRun,
-        CSmMALA,
         DikinWalk,
         Gaussian,
         HitAndRun,
