@@ -1,4 +1,0 @@
-<map id="HighFive::details::data_converter&lt; std::vector&lt; T &gt;, typename std::enable_if&lt;(std::is_same&lt; T, typename type_of_array&lt; T &gt;::type &gt;::value &amp;&amp;!std::is_same&lt; T, Reference &gt;::value)&gt;::type &gt;" name="HighFive::details::data_converter&lt; std::vector&lt; T &gt;, typename std::enable_if&lt;(std::is_same&lt; T, typename type_of_array&lt; T &gt;::type &gt;::value &amp;&amp;!std::is_same&lt; T, Reference &gt;::value)&gt;::type &gt;">
-<area shape="rect" id="node1" title=" " alt="" coords="5,204,236,384"/>
-<area shape="rect" id="node2" href="$structHighFive_1_1details_1_1container__converter.html" title=" " alt="" coords="32,5,209,156"/>
-</map>

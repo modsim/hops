@@ -4,7 +4,7 @@
 #include <Eigen/Cholesky>
 #include <Eigen/Core>
 #include <Eigen/Dense>
-#include <hops/FileWriter/CsvWriter.hpp>
+#include "../../FileWriter/CsvWriter.hpp"
 
 namespace hops {
     template<typename MatrixType, typename VectorType>
@@ -13,10 +13,10 @@ namespace hops {
         DikinEllipsoidCalculator(MatrixType A, VectorType b);
 
         std::pair<bool, Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>>
-        calculateCholeskyFactorOfDikinEllipsoid(const VectorType &x);
+        computeCholeskyFactorOfDikinEllipsoid(const VectorType &x);
 
         Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>
-        calculateDikinEllipsoid(const VectorType &x);
+        computeDikinEllipsoid(const VectorType &x);
 
     private:
         MatrixType A;
@@ -29,9 +29,9 @@ namespace hops {
 
     template<typename MatrixType, typename VectorType>
     std::pair<bool, Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>>
-    DikinEllipsoidCalculator<MatrixType, VectorType>::calculateCholeskyFactorOfDikinEllipsoid(const VectorType &x) {
+    DikinEllipsoidCalculator<MatrixType, VectorType>::computeCholeskyFactorOfDikinEllipsoid(const VectorType &x) {
         Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic> dikinEllipsoid =
-                calculateDikinEllipsoid(x);
+                computeDikinEllipsoid(x);
 
         Eigen::LLT<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>> solver(dikinEllipsoid);
         bool successful = solver.info() == Eigen::Success;
@@ -40,7 +40,7 @@ namespace hops {
 
     template<typename MatrixType, typename VectorType>
     Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>
-    DikinEllipsoidCalculator<MatrixType, VectorType>::calculateDikinEllipsoid(const VectorType &x) {
+    DikinEllipsoidCalculator<MatrixType, VectorType>::computeDikinEllipsoid(const VectorType &x) {
         Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, 1> inv_slack = (this->b -
                                                                                    this->A * x).cwiseInverse();
 

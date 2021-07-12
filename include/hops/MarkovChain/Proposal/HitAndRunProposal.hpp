@@ -2,8 +2,8 @@
 #define HOPS_HITANDRUNPROPOSAL_HPP
 
 #include "ChordStepDistributions.hpp"
-#include <hops/MarkovChain/IsSetStepSizeAvailable.hpp>
-#include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
+#include "../IsSetStepSizeAvailable.hpp"
+#include "../../RandomNumberGenerator/RandomNumberGenerator.hpp"
 #include <random>
 
 namespace hops {
@@ -26,9 +26,9 @@ namespace hops {
 
         void setStepSize(typename MatrixType::Scalar stepSize);
 
-        [[nodiscard]] typename MatrixType::Scalar calculateLogAcceptanceProbability() {
-            return chordStepDistribution.calculateInverseNormalizationConstant(0, backwardDistance, forwardDistance)
-                   - chordStepDistribution.calculateInverseNormalizationConstant(0, backwardDistance - step,
+        [[nodiscard]] typename MatrixType::Scalar computeLogAcceptanceProbability() {
+            return chordStepDistribution.computeInverseNormalizationConstant(0, backwardDistance, forwardDistance)
+                   - chordStepDistribution.computeInverseNormalizationConstant(0, backwardDistance - step,
                                                                                  forwardDistance - step);
         }
 

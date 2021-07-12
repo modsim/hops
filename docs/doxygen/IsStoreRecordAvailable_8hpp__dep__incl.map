@@ -1,0 +1,11 @@
+<map id="IsStoreRecordAvailable.hpp" name="IsStoreRecordAvailable.hpp">
+<area shape="rect" id="node1" title=" " alt="" coords="400,5,600,32"/>
+<area shape="rect" id="node2" href="$AcceptanceRateRecorder_8hpp.html" title=" " alt="" coords="23,80,236,107"/>
+<area shape="rect" id="node3" href="$hops_8hpp.html" title=" " alt="" coords="518,304,600,331"/>
+<area shape="rect" id="node6" href="$MessageRecorder_8hpp.html" title=" " alt="" coords="808,155,974,181"/>
+<area shape="rect" id="node7" href="$StateRecorder_8hpp.html" title=" " alt="" coords="541,80,684,107"/>
+<area shape="rect" id="node8" href="$TimestampRecorder_8hpp.html" title=" " alt="" coords="708,80,890,107"/>
+<area shape="rect" id="node9" href="$NegativeLogLikelihoodRecorder_8hpp.html" title=" " alt="" coords="260,80,516,107"/>
+<area shape="rect" id="node4" href="$MarkovChainFactory_8hpp.html" title=" " alt="" coords="394,155,575,181"/>
+<area shape="rect" id="node5" href="$Run_8hpp.html" title=" " alt="" coords="447,229,522,256"/>
+</map>

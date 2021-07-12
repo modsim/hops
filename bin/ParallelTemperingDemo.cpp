@@ -1,7 +1,6 @@
 #include <hops/FileReader/CsvReader.hpp>
 #include <hops/FileWriter/FileWriterFactory.hpp>
 #include <hops/MarkovChain/MarkovChainFactory.hpp>
-#include <hops/MarkovChain/Recorder/StateRecorder.hpp>
 #include <hops/Model/ModelMixin.hpp>
 #include <hops/Model/MultivariateGaussianModel.hpp>
 #include <hops/Model/MultimodalModel.hpp>
@@ -13,25 +12,26 @@
  */
 int main() {
     Eigen::MatrixXd A(65, 64);
-    A << -Eigen::MatrixXd::Identity(64, 64), Eigen::VectorXd::Ones(64);
+    A << -Eigen::MatrixXd::Identity(64, 64), Eigen::VectorXd::Ones(64).transpose();
     Eigen::VectorXd b = Eigen::VectorXd::Ones(65);
-    Eigen::VectorXd s = 1./100 * Eigen::VectorXd::Ones(64);
-    Eigen::VectorXd mean1 = 1./1000 * Eigen::VectorXd::Ones(64);
-    Eigen::VectorXd mean2 = 1./200 * Eigen::VectorXd::Ones(64);
+    Eigen::VectorXd s = 1. / 100 * Eigen::VectorXd::Ones(64);
+    Eigen::VectorXd mean1 = 1. / 1000 * Eigen::VectorXd::Ones(64);
+    Eigen::VectorXd mean2 = 1. / 200 * Eigen::VectorXd::Ones(64);
     Eigen::MatrixXd covariance = 0.075 * Eigen::MatrixXd::Identity(64, 64);
-    hops::RandomNumberGenerator randomNumberGenerator(42);
+    hops::RandomNumberGenerator randomNumberGenerator(42, world_rank);
+    hops::RandomNumberGenerator synchronizedRandomNumberGenerator(42);
 
     hops::MultivariateGaussianModel model1(mean1, covariance);
     hops::MultivariateGaussianModel model2(mean2, covariance);
     hops::ColdnessAttribute multimodalModel(hops::MultimodalModel(std::make_tuple(model1, model2)));
 
-    auto markovChain = hops::MarkovChainFactory::createMarkovChain(
+    auto markovChain = hops::MarkovChainFactory::createMarkovChainWithParallelTempering(
             hops::MarkovChainType::CoordinateHitAndRun,
             A,
             b,
             s,
             multimodalModel,
-            true
+            synchronizedRandomNumberGenerator
     );
 
     long thinning = 10 * 64;
@@ -51,6 +51,6 @@ int main() {
               << " s per sample"
               << std::endl;
 
-    auto fileWriter = hops::FileWriterFactory::createFileWriter("parallelTemperingDemo", hops::FileWriterType::Csv);
+    auto fileWriter = hops::FileWriterFactory::createFileWriter("parallelTemperingDemo", hops::FileWriterType::CSV);
     markovChain->writeHistory(fileWriter.get());
 }

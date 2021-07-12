@@ -3,8 +3,11 @@
 
 namespace hops {
     enum class MarkovChainType {
+        AdaptiveMetropolis,
+        BallWalk,
         CoordinateHitAndRun,
         DikinWalk,
+        Gaussian,
         HitAndRun,
     };
 }

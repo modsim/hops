@@ -12,7 +12,7 @@
 namespace hops {
     class LinearProgramGurobiImpl : public LinearProgram {
     public:
-        LinearProgramGurobiImpl(const Eigen::MatrixXd &A, Eigen::VectorXd b);
+        LinearProgramGurobiImpl(const Eigen::MatrixXd &A, const Eigen::VectorXd &b);
 
         LinearProgramGurobiImpl(const LinearProgramGurobiImpl &other);
 
@@ -22,9 +22,9 @@ namespace hops {
 
         std::tuple<Eigen::MatrixXd, Eigen::VectorXd> removeRedundantConstraints(double tolerance) override;
 
-        [[nodiscard]] LinearProgramSolution calculateChebyshevCenter() const override;
+        [[nodiscard]] LinearProgramSolution computeChebyshevCenter() const override;
 
-        [[nodiscard]] std::vector<long> calculateUnconstrainedDimensions() const override;
+        [[nodiscard]] std::vector<long> computeUnconstrainedDimensions() const override;
 
         std::tuple<Eigen::MatrixXd, Eigen::VectorXd>
         addBoxConstraintsToUnconstrainedDimensions(double lb, double ub) override;
@@ -52,11 +52,11 @@ namespace hops {
             throw std::runtime_error("HOPS did not find gurobi during compilation.");
         }
 
-        [[nodiscard]] LinearProgramSolution calculateChebyshevCenter() const override {
+        [[nodiscard]] LinearProgramSolution computeChebyshevCenter() const override {
             throw std::runtime_error("HOPS did not find gurobi during compilation.");
         }
 
-        [[nodiscard]] std::vector<long> calculateUnconstrainedDimensions() const override {
+        [[nodiscard]] std::vector<long> computeUnconstrainedDimensions() const override {
             throw std::runtime_error("HOPS did not find gurobi during compilation.");
         }
 

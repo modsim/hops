@@ -2,7 +2,7 @@
 # Test subdirectories
 ########################################################################################################################
 
-project(hops-tests CXX)
+#project(hops-tests CXX)
 
 find_package(Boost REQUIRED COMPONENTS unit_test_framework)
 
@@ -13,4 +13,7 @@ add_subdirectory(FileWriter)
 add_subdirectory(LinearProgram)
 add_subdirectory(MarkovChain)
 add_subdirectory(Model)
-add_subdirectory(PolytopePreprocessing)
+add_subdirectory(Optimization)
+add_subdirectory(Polytope)
+add_subdirectory(Statistics)
+add_subdirectory(Utility)

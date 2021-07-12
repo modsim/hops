@@ -4,12 +4,13 @@
 #include <boost/test/included/unit_test.hpp>
 #include <hops/MarkovChain/Recorder/IsStoreRecordAvailable.hpp>
 
-BOOST_AUTO_TEST_SUITE(IsStoreRecordAvailable)
-    BOOST_AUTO_TEST_CASE( WhenStoreRecordIsNotAvailable) {
+BOOST_AUTO_TEST_SUITE(IsStoreRecordAvailableTestSuite)
+
+    BOOST_AUTO_TEST_CASE(WhenStoreRecordIsNotAvailable) {
         BOOST_CHECK(hops::IsStoreRecordAvailable<double>::value == false);
     }
 
-    BOOST_AUTO_TEST_CASE( WhenStoreRecordHasWrongSignature) {
+    BOOST_AUTO_TEST_CASE(WhenStoreRecordHasWrongSignature) {
         class RecorderMock {
         public:
             void storeRecord(double);
@@ -18,7 +19,7 @@ BOOST_AUTO_TEST_SUITE(IsStoreRecordAvailable)
         BOOST_CHECK(hops::IsStoreRecordAvailable<RecorderMock>::value == false);
     }
 
-    BOOST_AUTO_TEST_CASE( WhenStoreRecordIsAvailable) {
+    BOOST_AUTO_TEST_CASE(WhenStoreRecordIsAvailable) {
         class RecorderMock {
         public:
             void storeRecord();
