@@ -1,6 +1,5 @@
 ########################################################################################################################
-# CMAKE Settings
-########################################################################################################################
+# CMAKE Settings ########################################################################################################################
 
 cmake_minimum_required(VERSION 3.14)
 set(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")
@@ -171,12 +170,11 @@ if (HOPS_DOCS)
         message(STATUS "Enabled Doxygen documentation. Use -DHOPS_DOCS=OFF to disable.")
         set(DOCUMENTATION_DIR "docs")
 
-        set(HEADER_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include/hops")
-        set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
+        set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
         set(doxy_main_page "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
-        set(doxyfile_in "${CMAKE_CURRENT_SOURCE_DIR}/docs/Doxyfile.in")
-        set(doxyfile "${CMAKE_CURRENT_BINARY_DIR}/docs/Doxyfile")
+        set(doxyfile_in "${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in")
+        set(doxyfile "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile")
         configure_file(${doxyfile_in} ${doxyfile} @ONLY)
         add_custom_target(docs
                 COMMAND ${DOXYGEN_EXECUTABLE} ${doxyfile} && make -C ${CMAKE_CURRENT_BINARY_DIR}/docs/latex

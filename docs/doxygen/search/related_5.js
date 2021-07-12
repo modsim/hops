@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['swap_1632',['swap',['../classhops_1_1MaximumVolumeEllipsoid.html#a1bbe261d44784cee49001cf892c6d6b5',1,'hops::MaximumVolumeEllipsoid']]]
+  ['hdf5errmapper_2561',['HDF5ErrMapper',['../classHighFive_1_1Exception.html#a1f3f174381f90e2f63dc4dbd5eb62e52',1,'HighFive::Exception']]]
 ];

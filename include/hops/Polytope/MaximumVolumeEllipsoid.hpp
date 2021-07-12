@@ -1,26 +1,25 @@
 #ifndef HOPS_MAXIMUMVOLUMEELLIPSOID_HPP
 #define HOPS_MAXIMUMVOLUMEELLIPSOID_HPP
 
-/**
- * @file MaxVolEllipsoid.hpp
- * @brief Based on an port from http://www.caam.rice.edu/~zhang/maxvep/ by Samuel Leweke
- *
- * @details
- *  Reference:
- *  Zhang, Y., & Gao, L. (2003):
- *  On Numerical Solution of the Maximum Volume Ellipsoid Problem.
- *  SIAM Journal on Optimization, 14(1), 53–76.
- *  doi:10.1137/S1052623401397230
- *
- *  Implementation initially ported from Matlab to C++ by Samuel Leweke (2013).
- */
-
 #include <cmath>
 #include <Eigen/Core>
 #include <hops/LinearProgram/LinearProgramFactory.hpp>
 
 namespace hops {
     template<typename RealType>
+    /**
+    * @brief [Deprectated] Use PolyRound (https://gitlab.com/csb.ethz/PolyRound) for effective and efficient rounding.
+    * @deprecated This class is known to be ineffective for a wide class of models.
+    *
+    * @details
+    *  Reference:
+    *  Zhang, Y., & Gao, L. (2003):
+    *  On Numerical Solution of the Maximum Volume Ellipsoid Problem.
+    *  SIAM Journal on Optimization, 14(1), 53–76.
+    *  doi:10.1137/S1052623401397230
+    *
+    *  Implementation initially ported from Matlab to C++ by Samuel Leweke (2013).
+    */
     class MaximumVolumeEllipsoid {
     public:
         MaximumVolumeEllipsoid(const MaximumVolumeEllipsoid &) = default;
@@ -30,11 +29,12 @@ namespace hops {
         MaximumVolumeEllipsoid &operator=(const MaximumVolumeEllipsoid &) = default;
 
         /**
-         * @brief Applies the maximum volume ellipsoid to round vector.
+         * @brief Transforms vector x to the rounded space.
          * @param x
          * @return
          */
-        [[nodiscard]] Eigen::Matrix<RealType, Eigen::Dynamic, 1> applyRoundingTransformation(Eigen::Matrix<RealType, Eigen::Dynamic, 1> &x);
+        [[nodiscard]] Eigen::Matrix<RealType, Eigen::Dynamic, 1>
+        applyRoundingTransformation(Eigen::Matrix<RealType, Eigen::Dynamic, 1> &x);
 
         [[nodiscard]] RealType computeVolume() const;
 
@@ -66,7 +66,8 @@ namespace hops {
                   RealType tolerance = 1e-6);
 
         template<typename Derived>
-        friend std::ostream &operator<<(std::ostream &out, const MaximumVolumeEllipsoid<Derived> &maximumVolumeEllipsoid);
+        friend std::ostream &
+        operator<<(std::ostream &out, const MaximumVolumeEllipsoid<Derived> &maximumVolumeEllipsoid);
 
     private:
         template<typename Derived>

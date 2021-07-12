@@ -1,8 +1,0 @@
-<map id="MarkovChain.hpp" name="MarkovChain.hpp">
-<area shape="rect" id="node1" title=" " alt="" coords="249,5,383,32"/>
-<area shape="rect" id="node2" href="$AcceptanceRateTuner_8hpp.html" title=" " alt="" coords="22,80,213,107"/>
-<area shape="rect" id="node3" href="$hops_8hpp.html" title=" " alt="" coords="235,229,317,256"/>
-<area shape="rect" id="node5" href="$MarkovChainAdapter_8hpp.html" title=" " alt="" coords="288,80,475,107"/>
-<area shape="rect" id="node6" href="$MarkovChainFactory_8hpp.html" title=" " alt="" coords="339,155,520,181"/>
-<area shape="rect" id="node4" href="$AcceptanceRateTuner_8cpp.html" title=" " alt="" coords="24,155,213,181"/>
-</map>

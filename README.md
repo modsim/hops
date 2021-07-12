@@ -12,7 +12,7 @@ Test data from the application note is downloadable at https://doi.org/10.26165/
 
 ## Documentation
 
-See https://modsim.github.io/hops/.
+Documentation, interactive demos and further resources can be found at https://modsim.github.io/hops/.
 
 
 ## Cloning from Github

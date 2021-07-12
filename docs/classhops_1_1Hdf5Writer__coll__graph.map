@@ -1,4 +1,0 @@
-<map id="hops::Hdf5Writer" name="hops::Hdf5Writer">
-<area shape="rect" id="node1" title="Warning: This writer can not append to existing datasets." alt="" coords="5,248,137,457"/>
-<area shape="rect" id="node2" href="$classhops_1_1FileWriter.html" title=" " alt="" coords="10,5,133,200"/>
-</map>

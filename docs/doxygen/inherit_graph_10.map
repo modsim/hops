@@ -1,3 +1,21 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$classhops_1_1Data.html" title=" " alt="" coords="5,5,97,32"/>
+<area shape="rect" id="node1" title=" " alt="" coords="5,611,96,638"/>
+<area shape="rect" id="node2" href="$structH5Easy_1_1detail_1_1is__vector.html" title=" " alt="" coords="202,5,337,47"/>
+<area shape="rect" id="node3" href="$structhops_1_1IsAcceptProposalAvailable.html" title=" " alt="" coords="153,71,385,112"/>
+<area shape="rect" id="node4" href="$structhops_1_1IsAddMessageAvailable.html" title=" " alt="" coords="162,136,377,177"/>
+<area shape="rect" id="node5" href="$structhops_1_1IsCalculateExpectedFisherInformationAvailable.html" title=" " alt="" coords="171,202,367,258"/>
+<area shape="rect" id="node6" href="$structhops_1_1IsCalculateLogAcceptanceProbabilityAvailable.html" title=" " alt="" coords="154,282,385,338"/>
+<area shape="rect" id="node7" href="$structhops_1_1IsCalculateLogLikelihoodGradientAvailable.html" title=" " alt="" coords="144,363,395,404"/>
+<area shape="rect" id="node8" href="$structhops_1_1IsClearRecordsAvailable.html" title=" " alt="" coords="160,428,379,469"/>
+<area shape="rect" id="node9" href="$structhops_1_1IsGetColdnessAvailable.html" title=" " alt="" coords="162,493,377,535"/>
+<area shape="rect" id="node10" href="$structhops_1_1IsGetExchangeAttemptProbabilityAvailable.html" title=" " alt="" coords="164,559,375,615"/>
+<area shape="rect" id="node11" href="$structhops_1_1IsGetStepSizeAvailable.html" title=" " alt="" coords="164,640,375,681"/>
+<area shape="rect" id="node12" href="$structhops_1_1IsInstallDataObjectAvailable.html" title=" " alt="" coords="172,705,367,747"/>
+<area shape="rect" id="node13" href="$structhops_1_1IsResetAcceptanceRateAvailable.html" title=" " alt="" coords="162,771,377,812"/>
+<area shape="rect" id="node14" href="$structhops_1_1IsSetColdnessAvailable.html" title=" " alt="" coords="163,836,375,877"/>
+<area shape="rect" id="node15" href="$structhops_1_1IsSetExchangeAttemptProbabilityAvailable.html" title=" " alt="" coords="165,902,374,958"/>
+<area shape="rect" id="node16" href="$structhops_1_1IsSetFisherWeightAvailable.html" title=" " alt="" coords="151,983,388,1024"/>
+<area shape="rect" id="node17" href="$structhops_1_1IsSetStepSizeAvailable.html" title=" " alt="" coords="165,1048,374,1089"/>
+<area shape="rect" id="node18" href="$structhops_1_1IsStoreRecordAvailable.html" title=" " alt="" coords="164,1113,375,1155"/>
+<area shape="rect" id="node19" href="$structhops_1_1IsWriteRecordsToFileAvailable.html" title=" " alt="" coords="172,1179,367,1220"/>
 </map>
