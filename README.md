@@ -32,6 +32,10 @@ git clone git@github.com:modsim/hops.git --recursive
 HOPS uses CMake as build system.  
 See the Dockerfile for a demonstration on installing HOPS and its dependencies on Ubuntu 20.4.
 
+## Python Interface
+
+Python interface is available at https://github.com/modsim/hopsy.
+
 
 ### CMake options
 
