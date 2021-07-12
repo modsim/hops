@@ -1,0 +1,4 @@
+<map id="hops::IsWriteRecordsToFileAvailable&lt; T, std::void_t&lt; decltype(std::declval&lt; T &gt;().writeRecordsToFile(std::declval&lt; const FileWriter * &gt;()))&gt; &gt;" name="hops::IsWriteRecordsToFileAvailable&lt; T, std::void_t&lt; decltype(std::declval&lt; T &gt;().writeRecordsToFile(std::declval&lt; const FileWriter * &gt;()))&gt; &gt;">
+<area shape="rect" id="node1" title=" " alt="" coords="5,131,224,281"/>
+<area shape="rect" id="node2" title=" " alt="" coords="73,5,157,83"/>
+</map>

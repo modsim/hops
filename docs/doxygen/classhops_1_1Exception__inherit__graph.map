@@ -1,0 +1,7 @@
+<map id="hops::Exception" name="hops::Exception">
+<area shape="rect" id="node1" title=" " alt="" coords="467,5,592,97"/>
+<area shape="rect" id="node2" href="$structhops_1_1EmptyChainDataException.html" title=" " alt="" coords="5,153,240,230"/>
+<area shape="rect" id="node3" href="$structhops_1_1MissingStartingPointsException.html" title=" " alt="" coords="265,145,517,237"/>
+<area shape="rect" id="node4" href="$structhops_1_1NoProblemProvidedException.html" title=" " alt="" coords="541,153,795,230"/>
+<area shape="rect" id="node5" href="$structhops_1_1UninitializedDataFieldException.html" title=" " alt="" coords="819,145,1074,237"/>
+</map>

@@ -71,11 +71,6 @@ namespace hops {
          * @details Assume \f$ g = g(x) \f$ is the density of the multimodal model as defined above. 
          * This method computes the gradient of the log-likelihood as
          *          \f{align*}{
-         *               \nabla \log g 
-         *               &= \frac{ \nabla g }{ g }
-         *               &= \frac{ \nabla \sum_{i=0}^N w_i f_i }{ \sum_{i=0}^N w_i f_i }
-         *               &= \frac{ \sum_{i=0}^N w_i \nabla \exp\{\log f_i\} }{ \sum_{i=0}^N w_i \exp\{\log f_i\} }
-         *               &= \frac{ \sum_{i=0}^N w_i \exp\{\log f_i\} \nabla \log \fi }{ \sum_{i=0}^N w_i \exp\{\log f_i\} }
          *          \f}
          *          Note that \f$ -\log f_i \f$ and \f$\nabla \log f_i \f$ have to be provided by
          *          the components in `modelComponents` by the `computeNegativeLogLikelihood` and `computeLogLikelihoodGradient` methods.

@@ -1,0 +1,4 @@
+<map id="hops::IsCalculateExpectedFisherInformationAvailable&lt; T, std::void_t&lt; decltype(std::declval&lt; T &gt;() .computeExpectedFisherInformation(std::declval&lt; const typename T::VectorType &amp; &gt;()))&gt; &gt;" name="hops::IsCalculateExpectedFisherInformationAvailable&lt; T, std::void_t&lt; decltype(std::declval&lt; T &gt;() .computeExpectedFisherInformation(std::declval&lt; const typename T::VectorType &amp; &gt;()))&gt; &gt;">
+<area shape="rect" id="node1" title=" " alt="" coords="5,131,280,281"/>
+<area shape="rect" id="node2" title=" " alt="" coords="101,5,185,83"/>
+</map>
