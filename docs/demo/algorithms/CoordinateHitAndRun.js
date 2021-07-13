@@ -9,8 +9,6 @@ MCMC.registerAlgorithm("CoordinateHitAndRun", {
 
     init: (self) => {
         self.coordinate = 0;
-        let A;
-        let b;
     },
 
     reset: (self) => {
@@ -27,25 +25,19 @@ MCMC.registerAlgorithm("CoordinateHitAndRun", {
 
     step: (self, visualizer) => {
         self.coordinate = (self.coordinate + 1) % 2;
-        console.log(`updating ${self.coordinate}`)
-        if (!self.A) {
-            self.A = visualizer.simulation.mcmc.constraints.getA();
-            self.b = visualizer.simulation.mcmc.constraints.getB();
-        }
+        const A = visualizer.simulation.mcmc.constraints.getA();
+        const b = visualizer.simulation.mcmc.constraints.getB();
 
+        console.log('polytope')
+        console.log(A)
+        console.log(b)
 
-        const slacks = self.b.subtract(self.A.multiply(self.chain.last()));
-        const inverseDistances = self.A.col(self.coordinate).cwiseQuotient(slacks);
+        const slacks = b.subtract(A.multiply(self.chain.last()));
+        const inverseDistances = A.col(self.coordinate).cwiseQuotient(slacks);
         const forwardDistance = 1. / inverseDistances.maxCoeff();
         const backwardDistance = 1. / inverseDistances.minCoeff();
-        console.log('inverseDistances')
-        console.log(inverseDistances)
         const step = zeros(self.dim, 1);
         step[self.coordinate] = Math.random() * (forwardDistance - backwardDistance) + backwardDistance;
-        console.log('state')
-        console.log(self.chain.last()[self.coordinate])
-        console.log('step')
-        console.log(step[self.coordinate])
         const proposal = self.chain.last().add(step);
 
         const logAcceptRatio = +self.logDensity(proposal) - self.logDensity(self.chain.last());
