@@ -18,7 +18,10 @@ MCMC.registerAlgorithm("AdaptiveMH", {
     self.amDist = new MultivariateNormal(zeros(self.dim, 1), eye(self.dim));
     self.chainScatter = eye(self.dim, self.dim).scale(1e-6);
     self.chainSum = zeros(self.dim, 1);
-    self.chain = [MultivariateNormal.getSample(self.dim)];
+    const firstSample =  MultivariateNormal.getSample(self.dim);
+    firstSample[0] = 0;
+    firstSample[1] = 0;
+    self.chain = [firstSample];
   },
 
   attachUI: (self, folder) => {
