@@ -1,8 +1,8 @@
 #ifndef HOPS_NOOPDRAWADAPTER_HPP
 #define HOPS_NOOPDRAWADAPTER_HPP
 
-#include <hops/MarkovChain/Draw/IsAcceptProposalAvailable.hpp>
-#include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
+#include "IsAcceptProposalAvailable.hpp"
+#include "../../RandomNumberGenerator/RandomNumberGenerator.hpp"
 
 namespace hops {
     template<typename MarkovChainProposer>

@@ -1,8 +1,9 @@
 #define BOOST_TEST_MODULE CsvWriteImplTestSuite
+#define BOOST_TEST_DYN_LINK
 
 #include <boost/test/included/unit_test.hpp>
 #include <Eigen/Core>
-#include <hops/FileWriter/CsvWriterImpl.hpp>
+#include <hops/hops.hpp>
 
 BOOST_AUTO_TEST_SUITE(CsvWriterImpl)
 

@@ -15,5 +15,4 @@ namespace hops::internal {
     };
 }
 
-
 #endif //HOPS_CSVWRITERIMPL_HPP

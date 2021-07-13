@@ -1,7 +1,7 @@
 #ifndef HOPS_ISWRITERECORDSTOFILEAVAILABLE_HPP
 #define HOPS_ISWRITERECORDSTOFILEAVAILABLE_HPP
 
-#include <hops/FileWriter/FileWriter.hpp>
+#include "../../FileWriter/FileWriter.hpp"
 #include <type_traits>
 
 namespace hops {

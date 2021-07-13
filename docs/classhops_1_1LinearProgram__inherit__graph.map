@@ -1,5 +1,0 @@
-<map id="hops::LinearProgram" name="hops::LinearProgram">
-<area shape="rect" id="node1" title=" " alt="" coords="156,5,433,229"/>
-<area shape="rect" id="node2" href="$classhops_1_1LinearProgramClpImpl.html" title=" " alt="" coords="5,277,283,443"/>
-<area shape="rect" id="node3" href="$classhops_1_1LinearProgramGurobiImpl.html" title=" " alt="" coords="307,277,584,443"/>
-</map>

@@ -4,10 +4,10 @@
 #include <hops/LinearProgram/LinearProgramFactory.hpp>
 #include <hops/MarkovChain/MarkovChainFactory.hpp>
 #include <hops/Model/MultivariateGaussianModel.hpp>
-#include <hops/MarkovChain/AcceptanceRateTuner.hpp>
-#include <hops/PolytopePreprocessing/NormalizePolytope.hpp>
+#include <hops/MarkovChain/Tuning/BinarySearchAcceptanceRateTuner.hpp>
+#include <hops/Polytope/NormalizePolytope.hpp>
 #include <iostream>
-#include <hops/PolytopePreprocessing/MaximumVolumeEllipsoid.hpp>
+#include <hops/Polytope/MaximumVolumeEllipsoid.hpp>
 
 using RealType = double;
 
@@ -53,15 +53,14 @@ int main(int argc, char **argv) {
             std::unique_ptr<hops::LinearProgram> linearProgram = hops::LinearProgramFactory::createLinearProgram(
                     Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>(A.cast<double>()),
                     b.cast<double>();
-            startingPoint = linearProgram->calculateChebyshevCenter().optimalParameters.cast<RealType>();
+            startingPoint = linearProgram->computeChebyshevCenter().optimalParameters.cast<RealType>();
         }
 
         markovChain = hops::MarkovChainFactory::createMarkovChain(chainType,
                                                                   A,
                                                                   b,
                                                                   startingPoint,
-                                                                  model,
-                                                                  false);
+                                                                  model);
     } else if (chainName == "CHRR" || chainName == "HRR") {
         hops::MarkovChainType chainType =
                 chainName == "CHRR" ? hops::MarkovChainType::CoordinateHitAndRun : hops::MarkovChainType::HitAndRun;
@@ -78,7 +77,7 @@ int main(int argc, char **argv) {
             std::unique_ptr<hops::LinearProgram> linearProgram = hops::LinearProgramFactory::createLinearProgram(
                     Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>((A * roundingTransformation).cast<double>()),
                     b.cast<double>());
-            startingPoint = linearProgram->calculateChebyshevCenter().optimalParameters.cast<RealType>();
+            startingPoint = linearProgram->computeChebyshevCenter().optimalParameters.cast<RealType>();
         }
         markovChain = hops::MarkovChainFactory::createMarkovChain<Eigen::Matrix<RealType, Eigen::Dynamic, Eigen::Dynamic>, decltype(b), decltype(model)>(
                 chainType,
@@ -87,8 +86,7 @@ int main(int argc, char **argv) {
                 startingPoint,
                 roundingTransformation,
                 decltype(startingPoint)::Zero(roundingTransformation.rows()),
-                model,
-                false);
+                model);
     } else {
         std::cerr << "No chain with chainname " << chainName << std::endl;
         std::exit(1);

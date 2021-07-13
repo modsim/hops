@@ -3,7 +3,7 @@
 
 #include <boost/test/included/unit_test.hpp>
 #include <Eigen/Core>
-#include <hops/MarkovChain/Proposal/DikinEllipsoidCalculator.hpp>
+#include <hops/hops.hpp>
 
 BOOST_AUTO_TEST_SUITE(DikinEllipsoidCalculator)
 
@@ -26,7 +26,7 @@ BOOST_AUTO_TEST_SUITE(DikinEllipsoidCalculator)
             interiorPoint(i) = 0;
         }
 
-        auto actualDikinEllipsoid = dikinEllipsoidCalculator.calculateDikinEllipsoid(interiorPoint);
+        auto actualDikinEllipsoid = dikinEllipsoidCalculator.computeDikinEllipsoid(interiorPoint);
 
         BOOST_CHECK(actualDikinEllipsoid == 2 * Eigen::MatrixXd::Identity(cols, cols));
     }
@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_SUITE(DikinEllipsoidCalculator)
             interiorPoint(i) = 0;
         }
 
-        auto[choleskyWasSuccessful, actualDikinEllipsoidLowerFactor] = dikinEllipsoidCalculator.calculateCholeskyFactorOfDikinEllipsoid(
+        auto[choleskyWasSuccessful, actualDikinEllipsoidLowerFactor] = dikinEllipsoidCalculator.computeCholeskyFactorOfDikinEllipsoid(
                 interiorPoint);
         Eigen::MatrixXd actualDikinEllipsoid =
                 actualDikinEllipsoidLowerFactor * actualDikinEllipsoidLowerFactor.transpose();
@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_SUITE(DikinEllipsoidCalculator)
             interiorPoint(i) = 1. / 8;
         }
 
-        auto actualDikinEllipsoid = dikinEllipsoidCalculator.calculateDikinEllipsoid(interiorPoint);
+        auto actualDikinEllipsoid = dikinEllipsoidCalculator.computeDikinEllipsoid(interiorPoint);
 
         BOOST_CHECK(((actualDikinEllipsoid - expectedDikinEllipsoid).array() < 1e-12).all());
     }
@@ -112,7 +112,7 @@ BOOST_AUTO_TEST_SUITE(DikinEllipsoidCalculator)
             interiorPoint(i) = 1. / 8;
         }
 
-        auto[choleskyWasSuccessful, actualDikinEllipsoidLowerFactor] = dikinEllipsoidCalculator.calculateCholeskyFactorOfDikinEllipsoid(
+        auto[choleskyWasSuccessful, actualDikinEllipsoidLowerFactor] = dikinEllipsoidCalculator.computeCholeskyFactorOfDikinEllipsoid(
                 interiorPoint);
         Eigen::MatrixXd actualDikinEllipsoid =
                 actualDikinEllipsoidLowerFactor * actualDikinEllipsoidLowerFactor.transpose();

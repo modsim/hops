@@ -2,12 +2,10 @@
 #define HOPS_COORDINATEHITANDRUNPROPOSAL_HPP
 
 #include "ChordStepDistributions.hpp"
-#include <hops/MarkovChain/IsSetStepSizeAvailable.hpp>
-#include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
+#include "../IsSetStepSizeAvailable.hpp"
+#include "../../RandomNumberGenerator/RandomNumberGenerator.hpp"
 #include <random>
-#include <hops/FileWriter/CsvWriter.hpp>
-
-// TODO overrelaxed
+#include "../../FileWriter/CsvWriter.hpp"
 
 namespace hops {
     template<typename MatrixType, typename VectorType, typename ChordStepDistribution = UniformStepDistribution<typename MatrixType::Scalar>>
@@ -37,9 +35,9 @@ namespace hops {
 
         typename MatrixType::Scalar getStepSize() const;
 
-        [[nodiscard]] typename MatrixType::Scalar calculateLogAcceptanceProbability() {
-            return chordStepDistribution.calculateInverseNormalizationConstant(0, backwardDistance, forwardDistance)
-                   - chordStepDistribution.calculateInverseNormalizationConstant(0, backwardDistance - step,
+        [[nodiscard]] typename MatrixType::Scalar computeLogAcceptanceProbability() {
+            return chordStepDistribution.computeInverseNormalizationConstant(0, backwardDistance, forwardDistance)
+                   - chordStepDistribution.computeInverseNormalizationConstant(0, backwardDistance - step,
                                                                                  forwardDistance - step);
         }
 

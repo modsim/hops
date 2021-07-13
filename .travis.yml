@@ -3,7 +3,7 @@ sudo: true
 
 env:
   global:
-    - MAKEFLAGS="-j 2"
+    - MAKEFLAGS="-j 3"
 
 language: cpp
 

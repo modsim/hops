@@ -1,0 +1,27 @@
+var searchData=
+[
+  ['cmakelists_2etxt_236',['CMakeLists.txt',['../hops_2CMakeLists_8txt.html',1,'(Global Namespace)'],['../hops_2FileReader_2CMakeLists_8txt.html',1,'(Global Namespace)'],['../hops_2FileWriter_2CMakeLists_8txt.html',1,'(Global Namespace)'],['../hops_2LinearProgram_2CMakeLists_8txt.html',1,'(Global Namespace)'],['../hops_2MarkovChain_2CMakeLists_8txt.html',1,'(Global Namespace)'],['../hops_2MarkovChain_2Draw_2CMakeLists_8txt.html',1,'(Global Namespace)'],['../hops_2MarkovChain_2ParallelTempering_2CMakeLists_8txt.html',1,'(Global Namespace)'],['../hops_2MarkovChain_2Proposal_2CMakeLists_8txt.html',1,'(Global Namespace)'],['../hops_2MarkovChain_2Recorder_2CMakeLists_8txt.html',1,'(Global Namespace)'],['../hops_2MarkovChain_2Tuning_2CMakeLists_8txt.html',1,'(Global Namespace)'],['../hops_2Model_2CMakeLists_8txt.html',1,'(Global Namespace)'],['../hops_2Optimization_2CMakeLists_8txt.html',1,'(Global Namespace)'],['../hops_2Polytope_2CMakeLists_8txt.html',1,'(Global Namespace)'],['../hops_2RandomNumberGenerator_2CMakeLists_8txt.html',1,'(Global Namespace)'],['../hops_2Statistics_2CMakeLists_8txt.html',1,'(Global Namespace)'],['../hops_2Third-party_2CMakeLists_8txt.html',1,'(Global Namespace)'],['../hops_2Transformation_2CMakeLists_8txt.html',1,'(Global Namespace)'],['../hops_2Utility_2CMakeLists_8txt.html',1,'(Global Namespace)']]],
+  ['halfsize_5ftrait_237',['halfsize_trait',['../structpcg__detail_1_1halfsize__trait.html',1,'pcg_detail']]],
+  ['halfsize_5ftrait_3c_20pcg128_5ft_20_3e_238',['halfsize_trait&lt; pcg128_t &gt;',['../structpcg__detail_1_1halfsize__trait_3_01pcg128__t_01_4.html',1,'pcg_detail']]],
+  ['halfsize_5ftrait_3c_20uint16_5ft_20_3e_239',['halfsize_trait&lt; uint16_t &gt;',['../structpcg__detail_1_1halfsize__trait_3_01uint16__t_01_4.html',1,'pcg_detail']]],
+  ['halfsize_5ftrait_3c_20uint32_5ft_20_3e_240',['halfsize_trait&lt; uint32_t &gt;',['../structpcg__detail_1_1halfsize__trait_3_01uint32__t_01_4.html',1,'pcg_detail']]],
+  ['halfsize_5ftrait_3c_20uint64_5ft_20_3e_241',['halfsize_trait&lt; uint64_t &gt;',['../structpcg__detail_1_1halfsize__trait_3_01uint64__t_01_4.html',1,'pcg_detail']]],
+  ['hasconverged_242',['hasConverged',['../classhops_1_1MaximumVolumeEllipsoid.html#a1a06eb1aa222b873b88d378574661e6a',1,'hops::MaximumVolumeEllipsoid']]],
+  ['hdf5_243',['HDF5',['../namespacehops.html#aa1f31ac2c8cd28714c492b16a34d5096a86459eb6a9c3edb9d09e9d6fe8d5b9fa',1,'hops']]],
+  ['hdf5reader_244',['Hdf5Reader',['../classhops_1_1Hdf5Reader.html',1,'hops::Hdf5Reader'],['../classhops_1_1Hdf5Reader.html#a3b56d8e829023188365940247f0d8cc2',1,'hops::Hdf5Reader::Hdf5Reader()']]],
+  ['hdf5reader_2ecpp_245',['Hdf5Reader.cpp',['../Hdf5Reader_8cpp.html',1,'']]],
+  ['hdf5reader_2ehpp_246',['Hdf5Reader.hpp',['../Hdf5Reader_8hpp.html',1,'']]],
+  ['hdf5writer_247',['Hdf5Writer',['../classhops_1_1Hdf5Writer.html',1,'hops::Hdf5Writer'],['../classhops_1_1Hdf5Writer.html#ad18f40dd8c7d3b5527537619be60796f',1,'hops::Hdf5Writer::Hdf5Writer()']]],
+  ['hdf5writer_2ecpp_248',['Hdf5Writer.cpp',['../Hdf5Writer_8cpp.html',1,'']]],
+  ['hdf5writer_2ehpp_249',['Hdf5Writer.hpp',['../Hdf5Writer_8hpp.html',1,'']]],
+  ['hitandrun_250',['HitAndRun',['../namespacehops.html#a190439e0b88a2a32fe29ae38b6780038af9ed742dd3b1035ee88bf2bfb53f4ce0',1,'hops']]],
+  ['hitandrunproposal_251',['HitAndRunProposal',['../classhops_1_1HitAndRunProposal.html',1,'hops::HitAndRunProposal&lt; MatrixType, VectorType, ChordStepDistribution &gt;'],['../classhops_1_1HitAndRunProposal.html#a0b3a2809f8210b773aebff5834b5db13',1,'hops::HitAndRunProposal::HitAndRunProposal()']]],
+  ['hitandrunproposal_2ehpp_252',['HitAndRunProposal.hpp',['../HitAndRunProposal_8hpp.html',1,'']]],
+  ['hops_253',['hops',['../namespacehops.html',1,'']]],
+  ['hops_2ehpp_254',['hops.hpp',['../hops_8hpp.html',1,'']]],
+  ['htype_255',['htype',['../structpcg__detail_1_1xsl__rr__rr__mixin.html#acb07e7049dcdc8d04ee3b1c35cb60c1b',1,'pcg_detail::xsl_rr_rr_mixin']]],
+  ['internal_256',['internal',['../namespacehops_1_1internal.html',1,'hops']]],
+  ['read_3c_20eigen_3a_3asparsematrix_3c_20double_20_3e_20_3e_257',['read&lt; Eigen::SparseMatrix&lt; double &gt; &gt;',['../Hdf5Reader_8cpp.html#a83762ed8fc1633e78ff4ae1a35ebd242',1,'Hdf5Reader.cpp']]],
+  ['read_3c_20eigen_3a_3asparsematrix_3c_20float_20_3e_20_3e_258',['read&lt; Eigen::SparseMatrix&lt; float &gt; &gt;',['../Hdf5Reader_8cpp.html#a35b35c045fb6f0bc44dad939b1d32643',1,'Hdf5Reader.cpp']]],
+  ['read_3c_20eigen_3a_3asparsematrix_3c_20int_20_3e_20_3e_259',['read&lt; Eigen::SparseMatrix&lt; int &gt; &gt;',['../Hdf5Reader_8cpp.html#aa205fde4b8654cde4bbaf4cbe28ae4b0',1,'Hdf5Reader.cpp']]]
+];
