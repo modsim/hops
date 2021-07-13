@@ -1,7 +1,7 @@
 set(TEST_SOURCES
         DynMultimodalModelTestSuite.cpp
-        IsCalculateExpectedFisherInformationAvailableTestSuite.cpp
-        IsCalculateLogLikelihoodGradientAvailableTestSuite.cpp
+        IsComputeExpectedFisherInformationAvailableTestSuite.cpp
+        IsComputeLogLikelihoodGradientAvailableTestSuite.cpp
         ModelMixinTestSuite.cpp
         MultimodalModelTestSuite.cpp
         MultivariateGaussianModelTestSuite.cpp

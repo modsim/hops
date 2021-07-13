@@ -1,7 +1,7 @@
 #ifndef HOPS_COLDNESSATTRIBUTE_HPP
 #define HOPS_COLDNESSATTRIBUTE_HPP
 
-#include <hops/Model/IsCalculateLogLikelihoodGradientAvailable.hpp>
+#include <hops/Model/IsComputeLogLikelihoodGradientAvailable.hpp>
 #include <string>
 
 namespace hops {
@@ -24,7 +24,7 @@ namespace hops {
         }
 
         typename Model::VectorType computeLogLikelihoodGradient(const typename Model::VectorType &state) {
-            if (IsCalculateLogLikelihoodGradientAvailable<Model>::value) {
+            if (IsComputeLogLikelihoodGradientAvailable<Model>::value) {
                 if (coldness == 0) {
                     return Model::VectorType::Zero(state.rows());
                 } else {
@@ -35,7 +35,7 @@ namespace hops {
         }
 
         typename Model::MatrixType computeExpectedFisherInformation(const typename Model::VectorType &state) {
-            if (IsCalculateLogLikelihoodGradientAvailable<Model>::value) {
+            if (IsComputeLogLikelihoodGradientAvailable<Model>::value) {
                 if (coldness == 0) {
                     return Model::MatrixType::Zero(state.rows(), state.rows());
                 } else {
