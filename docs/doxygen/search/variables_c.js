@@ -1,8 +1,14 @@
 var searchData=
 [
-  ['objectivevalue_2252',['objectiveValue',['../structhops_1_1LinearProgramSolution.html#ae65a28fca5469af692935c1b792c1b38',1,'hops::LinearProgramSolution']]],
-  ['offset_2253',['offset',['../structHighFive_1_1CompoundType_1_1member__def.html#a7fe8f7fc11e223445033f75b25435612',1,'HighFive::CompoundType::member_def']]],
-  ['optimalparameters_2254',['optimalParameters',['../structhops_1_1LinearProgramSolution.html#a7aea9c25e4d840c3241e809ee2e404df',1,'hops::LinearProgramSolution']]],
-  ['otherwise_2255',['OTHERWISE',['../LICENSE_8txt.html#a3469e2ff8d890052b182a9271c20c9ab',1,'LICENSE.txt']]],
-  ['outputdirectory_2256',['outputDirectory',['../structhops_1_1SimpleExpectedSquaredJumpDistanceTuner_1_1param__type.html#a560615dfafa9b4ad7163ef71d53410f3',1,'hops::SimpleExpectedSquaredJumpDistanceTuner::param_type']]]
+  ['shift_1423',['shift',['../classhops_1_1Transformation.html#acc23140db9320ea3eec72332c2721038',1,'hops::Transformation']]],
+  ['sigma_1424',['sigma',['../structhops_1_1TruncatedNormalDistribution_1_1param__type.html#ae513c4acd5937479f0a73634fbf9da4c',1,'hops::TruncatedNormalDistribution::param_type']]],
+  ['smoothinglength_1425',['smoothingLength',['../structhops_1_1AcceptanceRateTuner_1_1param__type.html#a62dd2d14dbd05056c31f036c21660737',1,'hops::AcceptanceRateTuner::param_type::smoothingLength()'],['../structhops_1_1ExpectedSquaredJumpDistanceTuner_1_1param__type.html#a562cf8191951342d7cb0b61bd393403e',1,'hops::ExpectedSquaredJumpDistanceTuner::param_type::smoothingLength()']]],
+  ['so_1426',['so',['../LICENSE_8txt.html#aa012087f27f6c70b31284d8d3fb32dc5',1,'LICENSE.txt']]],
+  ['software_1427',['Software',['../LICENSE_8txt.html#a616fec2e7b0bfde4ab91c74abe97a463',1,'LICENSE.txt']]],
+  ['state_5f_1428',['state_',['../classpcg__detail_1_1engine.html#a8e29a3b26c9966667b6ea7a7f153b145',1,'pcg_detail::engine']]],
+  ['status_1429',['status',['../structhops_1_1LinearProgramSolution.html#a85331843055f8b464f55f940b96cbbdc',1,'hops::LinearProgramSolution']]],
+  ['stepsizegridsize_1430',['stepSizeGridSize',['../structhops_1_1AcceptanceRateTuner_1_1param__type.html#acbef4150afe50022903aeb46aad9e9bc',1,'hops::AcceptanceRateTuner::param_type::stepSizeGridSize()'],['../structhops_1_1ExpectedSquaredJumpDistanceTuner_1_1param__type.html#a6bcd6991bb3b2793f1529f3ebaf5ad8b',1,'hops::ExpectedSquaredJumpDistanceTuner::param_type::stepSizeGridSize()'],['../structhops_1_1SimpleExpectedSquaredJumpDistanceTuner_1_1param__type.html#a255a4f10c79f34b2d88c4cc20fa1d395',1,'hops::SimpleExpectedSquaredJumpDistanceTuner::param_type::stepSizeGridSize()']]],
+  ['stepsizelowerbound_1431',['stepSizeLowerBound',['../structhops_1_1AcceptanceRateTuner_1_1param__type.html#aff093c4a877d7d90fc4058c587f68579',1,'hops::AcceptanceRateTuner::param_type::stepSizeLowerBound()'],['../structhops_1_1ExpectedSquaredJumpDistanceTuner_1_1param__type.html#ac21fbceaadfb327935d2fad8cee38c2f',1,'hops::ExpectedSquaredJumpDistanceTuner::param_type::stepSizeLowerBound()'],['../structhops_1_1SimpleExpectedSquaredJumpDistanceTuner_1_1param__type.html#ad66cc8c73803e9f6d2b90dacdc2ccc55',1,'hops::SimpleExpectedSquaredJumpDistanceTuner::param_type::stepSizeLowerBound()']]],
+  ['stepsizeupperbound_1432',['stepSizeUpperBound',['../structhops_1_1AcceptanceRateTuner_1_1param__type.html#a552b34717c627b879680fb28100c2512',1,'hops::AcceptanceRateTuner::param_type::stepSizeUpperBound()'],['../structhops_1_1ExpectedSquaredJumpDistanceTuner_1_1param__type.html#a4585c283404b1292f25238f3e10d0979',1,'hops::ExpectedSquaredJumpDistanceTuner::param_type::stepSizeUpperBound()'],['../structhops_1_1SimpleExpectedSquaredJumpDistanceTuner_1_1param__type.html#afc595386fe02fcdd4f674ca6fde814e5',1,'hops::SimpleExpectedSquaredJumpDistanceTuner::param_type::stepSizeUpperBound()']]],
+  ['sublicense_1433',['sublicense',['../LICENSE_8txt.html#a1691a27465bfbfaf84459cbd02a69d10',1,'LICENSE.txt']]]
 ];
