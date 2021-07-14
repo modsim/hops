@@ -77,7 +77,7 @@ $(function() {
 <p>For details and benchmarks see the application note <a href="https://doi.org/10.1093/bioinformatics/btaa872">https://doi.org/10.1093/bioinformatics/btaa872</a>. Test data from the application note is downloadable at <a href="https://doi.org/10.26165/JUELICH-DATA/YXLFKJ">https://doi.org/10.26165/JUELICH-DATA/YXLFKJ</a>.</p>
 <h1><a class="anchor" id="autotoc_md1"></a>
 Documentation</h1>
-<p>See <a href="https://modsim.github.io/hops/">https://modsim.github.io/hops/</a>.</p>
+<p>Documentation, interactive demos and further resources can be found at <a href="https://modsim.github.io/hops/">https://modsim.github.io/hops/</a>.</p>
 <h1><a class="anchor" id="autotoc_md2"></a>
 Cloning from Github</h1>
 <p>HOPS contains git submodules that point to third-party libraries. For this reason, HOPS should be fetched recursively:</p>
@@ -87,13 +87,16 @@ Cloning from Github</h1>
 Installation</h1>
 <p>HOPS uses CMake as build system. <br  />
  See the Dockerfile for a demonstration on installing HOPS and its dependencies on Ubuntu 20.4.</p>
-<h2><a class="anchor" id="autotoc_md4"></a>
+<h1><a class="anchor" id="autotoc_md4"></a>
+Python Interface</h1>
+<p>Python interface is available at <a href="https://github.com/modsim/hopsy">https://github.com/modsim/hopsy</a>.</p>
+<h2><a class="anchor" id="autotoc_md5"></a>
 CMake options</h2>
 <table class="markdownTable">
 <tr class="markdownTableHead">
 <th class="markdownTableHeadNone">Option Name </th><th class="markdownTableHeadNone">Default </th><th class="markdownTableHeadNone">Description  </th></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">HOPS_HDF5_SUPPORT </td><td class="markdownTableBodyNone">OFF </td><td class="markdownTableBodyNone">Enables HDF5 support with <a class="el" href="namespaceHighFive.html">HighFive</a>. Use -DHOPS_BENCHMARKS=ON to enable.  </td></tr>
+<td class="markdownTableBodyNone">HOPS_HDF5_SUPPORT </td><td class="markdownTableBodyNone">OFF </td><td class="markdownTableBodyNone">Enables HDF5 support with HighFive. Use -DHOPS_BENCHMARKS=ON to enable.  </td></tr>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">HOPS_BENCHMARKS </td><td class="markdownTableBodyNone">OFF </td><td class="markdownTableBodyNone">Enables compilation of Benchmarks (Requires Celero). Use -DHOPS_BENCHMARKS=ON to enable.  </td></tr>
 <tr class="markdownTableRowOdd">
@@ -105,7 +108,7 @@ CMake options</h2>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">HOPS_LIBRARY_TYPE </td><td class="markdownTableBodyNone">SHARED </td><td class="markdownTableBodyNone">Type of library to build. Options are HEADER_ONLY, STATIC or SHARED  </td></tr>
 </table>
-<h3><a class="anchor" id="autotoc_md5"></a>
+<h3><a class="anchor" id="autotoc_md6"></a>
 Install on Linux:</h3>
 <div class="fragment"><div class="line">$ mkdir cmake-build-release cd cmake-build-release      # create and switch into </div>
 <div class="line">                                                        # directory for out-of-source build</div>
@@ -113,20 +116,20 @@ Install on Linux:</h3>
 <div class="line">$ make                                                  # build hops</div>
 <div class="line">$ make test                                             # run Tests</div>
 <div class="line">$ sudo make install                                     # install</div>
-</div><!-- fragment --><h3><a class="anchor" id="autotoc_md6"></a>
+</div><!-- fragment --><h3><a class="anchor" id="autotoc_md7"></a>
 Install on Windows 10:</h3>
 <p>Use an IDE (e.g. CLion) to parse the project and its CMakeLists.txt.</p>
-<h1><a class="anchor" id="autotoc_md7"></a>
+<h1><a class="anchor" id="autotoc_md8"></a>
 Examples</h1>
 <p>See the examples directory for demonstrations on how to use the library.</p>
-<h1><a class="anchor" id="autotoc_md8"></a>
+<h1><a class="anchor" id="autotoc_md9"></a>
 Supported Compilers</h1>
 <ul>
 <li>g++</li>
 <li>Clang</li>
 <li>Microsoft Visual C++</li>
 </ul>
-<h1><a class="anchor" id="autotoc_md9"></a>
+<h1><a class="anchor" id="autotoc_md10"></a>
 Troubleshooting</h1>
 <ul>
 <li><p class="startli">If you run into trouble finding CLP on Linux (e.g. Ubuntu 20.04), try extending the cmake prefix path:</p>

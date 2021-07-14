@@ -135,7 +135,7 @@ $(function() {
 <div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;            priorMeanFunction = [=](VectorType) -&gt; <span class="keywordtype">double</span> { <span class="keywordflow">return</span> constantPriorMean; };</div>
 <div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;        }</div>
 <div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160; </div>
-<div class="line"><a name="l00060"></a><span class="lineno"><a class="line" href="classhops_1_1GaussianProcess.html#a66cd5428425cf413ce60e10eb267c922">   60</a></span>&#160;        <a class="code" href="classhops_1_1GaussianProcess.html#a66cd5428425cf413ce60e10eb267c922">GaussianProcess</a> (Kernel kernel, <a class="code" href="simpleton_8hpp.html#ab9921c7ab45091f0e72cd45ea7084ee5">std::function</a>&lt;<span class="keywordtype">double</span> (VectorType)&gt; priorMeanFunction) :</div>
+<div class="line"><a name="l00060"></a><span class="lineno"><a class="line" href="classhops_1_1GaussianProcess.html#a66cd5428425cf413ce60e10eb267c922">   60</a></span>&#160;        <a class="code" href="classhops_1_1GaussianProcess.html#a66cd5428425cf413ce60e10eb267c922">GaussianProcess</a> (Kernel kernel, std::function&lt;<span class="keywordtype">double</span> (VectorType)&gt; priorMeanFunction) :</div>
 <div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;                priorMeanFunction(priorMeanFunction),</div>
 <div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;                kernel(kernel),</div>
 <div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;                isNewObservations(true) {</div>
@@ -257,10 +257,10 @@ $(function() {
 <div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160; </div>
 <div class="line"><a name="l00199"></a><span class="lineno"><a class="line" href="classhops_1_1GaussianProcess.html#a004348265474a48674f929d3126e4394">  199</a></span>&#160;        std::tuple&lt;MatrixType, MatrixType, VectorType&gt; <a class="code" href="classhops_1_1GaussianProcess.html#a004348265474a48674f929d3126e4394">updateObservations</a>(<span class="keyword">const</span> MatrixType&amp; x, </div>
 <div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;                                                                          <span class="keyword">const</span> VectorType&amp; y, </div>
-<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;                                                                          <span class="keyword">const</span> VectorType&amp; <a class="code" href="namespaceH5Easy_1_1detail.html#abeb04841b04f7136adf84b2aa79b9839">error</a>, </div>
+<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;                                                                          <span class="keyword">const</span> VectorType&amp; error, </div>
 <div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;                                                                          <span class="keywordtype">bool</span> isUnique = <span class="keyword">false</span>) {</div>
 <div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;            assert(x.size() == y.size());</div>
-<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;            assert(y.size() == <a class="code" href="namespaceH5Easy_1_1detail.html#abeb04841b04f7136adf84b2aa79b9839">error</a>.size());</div>
+<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;            assert(y.size() == error.size());</div>
 <div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160; </div>
 <div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;            <span class="comment">// collect indices of observations which should be updated</span></div>
 <div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;            std::vector&lt;long&gt; updateCandidates;</div>
@@ -295,7 +295,7 @@ $(function() {
 <div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160; </div>
 <div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;                <span class="comment">// update the data</span></div>
 <div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;                observedValues(k) = y(i);</div>
-<div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;                observedValueErrors(k) = <a class="code" href="namespaceH5Easy_1_1detail.html#abeb04841b04f7136adf84b2aa79b9839">error</a>(i);</div>
+<div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;                observedValueErrors(k) = error(i);</div>
 <div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160; </div>
 <div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;                <span class="comment">// update the observed covariance </span></div>
 <div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160;                <span class="comment">//observedCovariance.row(k) = kernel({observedInputs[k]}, observedInputs);</span></div>
@@ -319,7 +319,7 @@ $(function() {
 <div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160; </div>
 <div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;                inputsNotFound.row(i) = x.row(k);</div>
 <div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;                valuesNotFound.row(i) = y.row(k);</div>
-<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;                errorsNotFound.row(i) = <a class="code" href="namespaceH5Easy_1_1detail.html#abeb04841b04f7136adf84b2aa79b9839">error</a>.row(k);</div>
+<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;                errorsNotFound.row(i) = error.row(k);</div>
 <div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;            }</div>
 <div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160; </div>
 <div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160;            <span class="comment">//x = inputsNotFound;</span></div>
@@ -343,9 +343,9 @@ $(function() {
 <div class="line"><a name="l00284"></a><span class="lineno">  284</span>&#160;        <span class="comment">//    updateObservations({x}, {y}, {error});</span></div>
 <div class="line"><a name="l00285"></a><span class="lineno">  285</span>&#160;        <span class="comment">//}</span></div>
 <div class="line"><a name="l00286"></a><span class="lineno">  286</span>&#160; </div>
-<div class="line"><a name="l00287"></a><span class="lineno"><a class="line" href="classhops_1_1GaussianProcess.html#a93552069d53d7f397458757f09d2c2f8">  287</a></span>&#160;        <span class="keywordtype">void</span> <a class="code" href="classhops_1_1GaussianProcess.html#a93552069d53d7f397458757f09d2c2f8">addObservations</a>(<span class="keyword">const</span> MatrixType&amp; x, VectorType&amp; y, VectorType&amp; <a class="code" href="namespaceH5Easy_1_1detail.html#abeb04841b04f7136adf84b2aa79b9839">error</a>) {</div>
+<div class="line"><a name="l00287"></a><span class="lineno"><a class="line" href="classhops_1_1GaussianProcess.html#a93552069d53d7f397458757f09d2c2f8">  287</a></span>&#160;        <span class="keywordtype">void</span> <a class="code" href="classhops_1_1GaussianProcess.html#a93552069d53d7f397458757f09d2c2f8">addObservations</a>(<span class="keyword">const</span> MatrixType&amp; x, VectorType&amp; y, VectorType&amp; error) {</div>
 <div class="line"><a name="l00288"></a><span class="lineno">  288</span>&#160;            assert(x.size() == y.size());</div>
-<div class="line"><a name="l00289"></a><span class="lineno">  289</span>&#160;            assert(y.size() == <a class="code" href="namespaceH5Easy_1_1detail.html#abeb04841b04f7136adf84b2aa79b9839">error</a>.size());</div>
+<div class="line"><a name="l00289"></a><span class="lineno">  289</span>&#160;            assert(y.size() == error.size());</div>
 <div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160; </div>
 <div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160;            isNewObservations = <span class="keyword">true</span>;</div>
 <div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160; </div>
@@ -358,7 +358,7 @@ $(function() {
 <div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160; </div>
 <div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160;            <span class="comment">//VectorType newObservedValueErrors = VectorType(n + m);</span></div>
 <div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160;            <span class="comment">//newObservedValueErrors &lt;&lt; observedValueErrors, error;</span></div>
-<div class="line"><a name="l00302"></a><span class="lineno">  302</span>&#160;            observedValueErrors = <a class="code" href="namespacehops_1_1internal.html#a6f11349ed3a202e15993e96e433465d9">internal::append</a>(observedValueErrors, <a class="code" href="namespaceH5Easy_1_1detail.html#abeb04841b04f7136adf84b2aa79b9839">error</a>);</div>
+<div class="line"><a name="l00302"></a><span class="lineno">  302</span>&#160;            observedValueErrors = <a class="code" href="namespacehops_1_1internal.html#a6f11349ed3a202e15993e96e433465d9">internal::append</a>(observedValueErrors, error);</div>
 <div class="line"><a name="l00303"></a><span class="lineno">  303</span>&#160; </div>
 <div class="line"><a name="l00304"></a><span class="lineno">  304</span>&#160;            MatrixType newObservedCovariance = MatrixType::Zero(n + m, n + m);</div>
 <div class="line"><a name="l00305"></a><span class="lineno">  305</span>&#160;            </div>
@@ -368,7 +368,7 @@ $(function() {
 <div class="line"><a name="l00309"></a><span class="lineno">  309</span>&#160;            newObservedCovariance.block(n, n, m, m) = kernel(x, x);</div>
 <div class="line"><a name="l00310"></a><span class="lineno">  310</span>&#160;            <span class="comment">//newObservedCovariance.block(n, n, m, m).diagonal().array() += 1.e-5;</span></div>
 <div class="line"><a name="l00311"></a><span class="lineno">  311</span>&#160; </div>
-<div class="line"><a name="l00312"></a><span class="lineno">  312</span>&#160;            newObservedCovariance.block(n, n, m, m) += Eigen::MatrixXd(<a class="code" href="namespaceH5Easy_1_1detail.html#abeb04841b04f7136adf84b2aa79b9839">error</a>.asDiagonal());</div>
+<div class="line"><a name="l00312"></a><span class="lineno">  312</span>&#160;            newObservedCovariance.block(n, n, m, m) += Eigen::MatrixXd(error.asDiagonal());</div>
 <div class="line"><a name="l00313"></a><span class="lineno">  313</span>&#160; </div>
 <div class="line"><a name="l00314"></a><span class="lineno">  314</span>&#160;            <span class="comment">//MatrixType newObservedInputs = MatrixType::Zero(n + m, n + m);</span></div>
 <div class="line"><a name="l00315"></a><span class="lineno">  315</span>&#160;            <span class="comment">//newObservedInputs &lt;&lt; observedInputs, x;</span></div>
@@ -418,7 +418,7 @@ $(function() {
 <div class="line"><a name="l00359"></a><span class="lineno">  359</span>&#160; </div>
 <div class="line"><a name="l00360"></a><span class="lineno"><a class="line" href="classhops_1_1GaussianProcess.html#a0cfc3d076366dfc255fa4e00532c97de">  360</a></span>&#160;        <span class="keyword">const</span> MatrixType&amp; <a class="code" href="classhops_1_1GaussianProcess.html#a0cfc3d076366dfc255fa4e00532c97de">getObservedCovariance</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> observedCovariance; }</div>
 <div class="line"><a name="l00361"></a><span class="lineno">  361</span>&#160; </div>
-<div class="line"><a name="l00362"></a><span class="lineno"><a class="line" href="classhops_1_1GaussianProcess.html#a17903f83083a24ce253be0a0c3041439">  362</a></span>&#160;        <a class="code" href="simpleton_8hpp.html#ab9921c7ab45091f0e72cd45ea7084ee5">std::function</a>&lt;double (VectorType)&gt;&amp; <a class="code" href="classhops_1_1GaussianProcess.html#a17903f83083a24ce253be0a0c3041439">getPriorMeanFunction</a>() {</div>
+<div class="line"><a name="l00362"></a><span class="lineno"><a class="line" href="classhops_1_1GaussianProcess.html#a17903f83083a24ce253be0a0c3041439">  362</a></span>&#160;        std::function&lt;double (VectorType)&gt;&amp; <a class="code" href="classhops_1_1GaussianProcess.html#a17903f83083a24ce253be0a0c3041439">getPriorMeanFunction</a>() {</div>
 <div class="line"><a name="l00363"></a><span class="lineno">  363</span>&#160;            <span class="keywordflow">return</span> priorMeanFunction;</div>
 <div class="line"><a name="l00364"></a><span class="lineno">  364</span>&#160;        }</div>
 <div class="line"><a name="l00365"></a><span class="lineno">  365</span>&#160; </div>
@@ -427,7 +427,7 @@ $(function() {
 <div class="line"><a name="l00368"></a><span class="lineno">  368</span>&#160;        }</div>
 <div class="line"><a name="l00369"></a><span class="lineno">  369</span>&#160; </div>
 <div class="line"><a name="l00370"></a><span class="lineno">  370</span>&#160;    <span class="keyword">private</span>:</div>
-<div class="line"><a name="l00371"></a><span class="lineno">  371</span>&#160;        <a class="code" href="simpleton_8hpp.html#ab9921c7ab45091f0e72cd45ea7084ee5">std::function</a>&lt;double (VectorType)&gt; priorMeanFunction;</div>
+<div class="line"><a name="l00371"></a><span class="lineno">  371</span>&#160;        std::function&lt;double (VectorType)&gt; priorMeanFunction;</div>
 <div class="line"><a name="l00372"></a><span class="lineno">  372</span>&#160;        Kernel kernel;</div>
 <div class="line"><a name="l00373"></a><span class="lineno">  373</span>&#160; </div>
 <div class="line"><a name="l00374"></a><span class="lineno">  374</span>&#160;        MatrixType storedInputs;</div>
@@ -506,11 +506,9 @@ $(function() {
 <div class="ttc" id="aclasshops_1_1GaussianProcess_html"><div class="ttname"><a href="classhops_1_1GaussianProcess.html">hops::GaussianProcess</a></div><div class="ttdef"><b>Definition:</b> GaussianProcess.hpp:53</div></div>
 <div class="ttc" id="anamespacehops_html"><div class="ttname"><a href="namespacehops.html">hops</a></div><div class="ttdef"><b>Definition:</b> CsvReader.hpp:8</div></div>
 <div class="ttc" id="aclasshops_1_1GaussianProcess_html_a17903f83083a24ce253be0a0c3041439"><div class="ttname"><a href="classhops_1_1GaussianProcess.html#a17903f83083a24ce253be0a0c3041439">hops::GaussianProcess::getPriorMeanFunction</a></div><div class="ttdeci">std::function&lt; double(VectorType)&gt; &amp; getPriorMeanFunction()</div><div class="ttdef"><b>Definition:</b> GaussianProcess.hpp:362</div></div>
-<div class="ttc" id="anamespaceH5Easy_1_1detail_html_abeb04841b04f7136adf84b2aa79b9839"><div class="ttname"><a href="namespaceH5Easy_1_1detail.html#abeb04841b04f7136adf84b2aa79b9839">H5Easy::detail::error</a></div><div class="ttdeci">Exception error(const File &amp;file, const std::string &amp;path, const std::string &amp;message)</div><div class="ttdef"><b>Definition:</b> H5Easy_misc.hpp:52</div></div>
 <div class="ttc" id="aclasshops_1_1GaussianProcess_html_a07220c3c5f559eaace86cd890beb9f95"><div class="ttname"><a href="classhops_1_1GaussianProcess.html#a07220c3c5f559eaace86cd890beb9f95">hops::GaussianProcess::GaussianProcess</a></div><div class="ttdeci">GaussianProcess(Kernel kernel, double constantPriorMean=0)</div><div class="ttdef"><b>Definition:</b> GaussianProcess.hpp:55</div></div>
 <div class="ttc" id="aclasshops_1_1GaussianProcess_html_a93552069d53d7f397458757f09d2c2f8"><div class="ttname"><a href="classhops_1_1GaussianProcess.html#a93552069d53d7f397458757f09d2c2f8">hops::GaussianProcess::addObservations</a></div><div class="ttdeci">void addObservations(const MatrixType &amp;x, VectorType &amp;y, VectorType &amp;error)</div><div class="ttdef"><b>Definition:</b> GaussianProcess.hpp:287</div></div>
 <div class="ttc" id="aclasshops_1_1GaussianProcess_html_a66cd5428425cf413ce60e10eb267c922"><div class="ttname"><a href="classhops_1_1GaussianProcess.html#a66cd5428425cf413ce60e10eb267c922">hops::GaussianProcess::GaussianProcess</a></div><div class="ttdeci">GaussianProcess(Kernel kernel, std::function&lt; double(VectorType)&gt; priorMeanFunction)</div><div class="ttdef"><b>Definition:</b> GaussianProcess.hpp:60</div></div>
-<div class="ttc" id="asimpleton_8hpp_html_ab9921c7ab45091f0e72cd45ea7084ee5"><div class="ttname"><a href="simpleton_8hpp.html#ab9921c7ab45091f0e72cd45ea7084ee5">function</a></div><div class="ttdeci">void function(const HighFive::Object &amp;obj)</div><div class="ttdef"><b>Definition:</b> simpleton.cpp:5</div></div>
 <div class="ttc" id="aclasshops_1_1GaussianProcess_html_a201880e5c5bfa9a8a677976c519834eb"><div class="ttname"><a href="classhops_1_1GaussianProcess.html#a201880e5c5bfa9a8a677976c519834eb">hops::GaussianProcess::getPosteriorCovariance</a></div><div class="ttdeci">const MatrixType &amp; getPosteriorCovariance()</div><div class="ttdef"><b>Definition:</b> GaussianProcess.hpp:346</div></div>
 <div class="ttc" id="aclasshops_1_1GaussianProcess_html_ad8dbcc7473cf866ee2de5d18f25a357f"><div class="ttname"><a href="classhops_1_1GaussianProcess.html#ad8dbcc7473cf866ee2de5d18f25a357f">hops::GaussianProcess::sample</a></div><div class="ttdeci">Eigen::VectorXd sample(const MatrixType &amp;input, hops::RandomNumberGenerator &amp;randomNumberGenerator, size_t &amp;maxElement)</div><div class="ttdef"><b>Definition:</b> GaussianProcess.hpp:154</div></div>
 <div class="ttc" id="aclasshops_1_1GaussianProcess_html_aae3ece713d0ea03091038e14cb79604f"><div class="ttname"><a href="classhops_1_1GaussianProcess.html#aae3ece713d0ea03091038e14cb79604f">hops::GaussianProcess::updateObservations</a></div><div class="ttdeci">void updateObservations(const MatrixType &amp;x, const VectorType &amp;y)</div><div class="ttdef"><b>Definition:</b> GaussianProcess.hpp:279</div></div>

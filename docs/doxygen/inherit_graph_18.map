@@ -1,3 +1,5 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$structHighFive_1_1details_1_1array__dims_3_01FixedLenStringArray_3_01N_01_4_01_4.html" title=" " alt="" coords="5,5,211,61"/>
+<area shape="rect" id="node1" href="$classhops_1_1FileWriter.html" title=" " alt="" coords="5,31,128,57"/>
+<area shape="rect" id="node2" href="$classhops_1_1CsvWriter.html" title=" " alt="" coords="179,5,305,32"/>
+<area shape="rect" id="node3" href="$classhops_1_1Hdf5Writer.html" title="Warning: This writer can not append to existing datasets." alt="" coords="176,56,308,83"/>
 </map>

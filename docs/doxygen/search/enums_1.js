@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['filewritertype_2459',['FileWriterType',['../namespacehops.html#aa1f31ac2c8cd28714c492b16a34d5096',1,'hops']]],
-  ['flush_2460',['Flush',['../namespaceH5Easy.html#af71ce7ab9b99227bdead69993d1f3b62',1,'H5Easy']]]
+  ['linearprogramsolver_1584',['LinearProgramSolver',['../namespacehops.html#a452b5e0a2402081e20cf6ab547d5a2af',1,'hops']]],
+  ['linearprogramstatus_1585',['LinearProgramStatus',['../namespacehops.html#a6ac50360eae9d8560e47d5b446b84831',1,'hops']]]
 ];

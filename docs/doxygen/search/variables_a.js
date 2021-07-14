@@ -1,13 +1,10 @@
 var searchData=
 [
-  ['m1_2239',['m1',['../structCSL1.html#abe51174ea5c5ebba88e55962b4eb0c7d',1,'CSL1']]],
-  ['m2_2240',['m2',['../structCSL1.html#a62ee6026a1837c8c11fee814af45ea19',1,'CSL1']]],
-  ['m3_2241',['m3',['../structCSL1.html#a130b023500792c4c9e19f48fc3d1c7eb',1,'CSL1']]],
-  ['markovchain_2242',['markovChain',['../structhops_1_1internal_1_1AcceptanceRateTarget.html#abf1e61521c75366e3c81c075344ee70d',1,'hops::internal::AcceptanceRateTarget::markovChain()'],['../structhops_1_1internal_1_1ExpectedSquaredJumpDistanceTarget.html#a91401444bd1594d1b4451ef6aa876560',1,'hops::internal::ExpectedSquaredJumpDistanceTarget::markovChain()']]],
-  ['matrix_2243',['matrix',['../classhops_1_1Transformation.html#aa0000177cc78b5757a64effb97320aa3',1,'hops::Transformation']]],
-  ['maximumtotaliterations_2244',['maximumTotalIterations',['../structhops_1_1BinarySearchAcceptanceRateTuner_1_1param__type.html#a9cad81075db6c4cf231c6b977783d52a',1,'hops::BinarySearchAcceptanceRateTuner::param_type']]],
-  ['mcg_2245',['mcg',['../namespacepcg__detail.html#a1338b2f0b0575e795053506ae0579262',1,'pcg_detail']]],
-  ['merchantability_2246',['MERCHANTABILITY',['../LICENSE_8txt.html#a4598ea1f1dd4c57b82cdc5d0a6326074',1,'LICENSE.txt']]],
-  ['merge_2247',['merge',['../LICENSE_8txt.html#a17d7c1b7b1269ec7b0de0be59f09c44a',1,'LICENSE.txt']]],
-  ['modify_2248',['modify',['../LICENSE_8txt.html#ae82ffce5dc405c3a53ac31df991aac0a',1,'LICENSE.txt']]]
+  ['parameters_1412',['parameters',['../structhops_1_1internal_1_1AcceptanceRateTarget.html#a8c7f83b9ec4749af1bce794d0585910e',1,'hops::internal::AcceptanceRateTarget::parameters()'],['../structhops_1_1internal_1_1ExpectedSquaredJumpDistanceTarget.html#afa32d34b5a6f42d42461acf4146a8972',1,'hops::internal::ExpectedSquaredJumpDistanceTarget::parameters()']]],
+  ['philower_1413',['phiLower',['../structhops_1_1TruncatedNormalDistribution_1_1param__type.html#af03a0cc06631221f85584dc5a31030cd',1,'hops::TruncatedNormalDistribution::param_type']]],
+  ['phiupper_1414',['phiUpper',['../structhops_1_1TruncatedNormalDistribution_1_1param__type.html#a999adeb9d6730eea34c816ec01c4a6c0',1,'hops::TruncatedNormalDistribution::param_type']]],
+  ['posteriorupdateiterations_1415',['posteriorUpdateIterations',['../structhops_1_1AcceptanceRateTuner_1_1param__type.html#ad280f51c9ec702d7140e10986ade112f',1,'hops::AcceptanceRateTuner::param_type::posteriorUpdateIterations()'],['../structhops_1_1ExpectedSquaredJumpDistanceTuner_1_1param__type.html#ad57ffea23fb650588fa9247854545a6f',1,'hops::ExpectedSquaredJumpDistanceTuner::param_type::posteriorUpdateIterations()']]],
+  ['posteriorupdateiterationsneeded_1416',['posteriorUpdateIterationsNeeded',['../structhops_1_1AcceptanceRateTuner_1_1param__type.html#ada785929e13c8f45ad6ddc8a5941bd4a',1,'hops::AcceptanceRateTuner::param_type::posteriorUpdateIterationsNeeded()'],['../structhops_1_1ExpectedSquaredJumpDistanceTuner_1_1param__type.html#ae06cb7521ccc859188e137d3b62dba7c',1,'hops::ExpectedSquaredJumpDistanceTuner::param_type::posteriorUpdateIterationsNeeded()']]],
+  ['publish_1417',['publish',['../LICENSE_8txt.html#a5b478986635ef271f53ab106ddabbb0c',1,'LICENSE.txt']]],
+  ['puresamplingiterations_1418',['pureSamplingIterations',['../structhops_1_1AcceptanceRateTuner_1_1param__type.html#a4df7ea9508a6092cd41be1feda2cfb02',1,'hops::AcceptanceRateTuner::param_type::pureSamplingIterations()'],['../structhops_1_1ExpectedSquaredJumpDistanceTuner_1_1param__type.html#acaf3e31b4227457678bd7063230e5709',1,'hops::ExpectedSquaredJumpDistanceTuner::param_type::pureSamplingIterations()']]]
 ];
