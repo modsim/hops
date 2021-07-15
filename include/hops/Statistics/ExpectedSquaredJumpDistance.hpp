@@ -2,6 +2,7 @@
 #define HOPS_EXPECTEDSQUAREDJUMPDISTANCE_HPP
 
 #include <hops/Statistics/Covariance.hpp>
+#include <hops/Statistics/IsConstantChain.hpp>
 
 #include <Eigen/Core>
 #include <Eigen/Cholesky>
@@ -40,13 +41,17 @@ namespace hops {
         double esjd = 0, 
                eta = 1.0 * (numSeen - 1) / (numSeen + numUnseen - 1),
                squaredDistance;
-        for (unsigned long i = numDraws - numUnseen - correction; i < numDraws - 1; ++i) {
-            StateType distance = sqrtCovariance.template triangularView<Eigen::Lower>().solve(draws[i] - draws[i+1]);
-            distance = sqrtCovariance.template triangularView<Eigen::Lower>().transpose().solve(distance);
-            squaredDistance = (draws[i] - draws[i+1]).transpose() * distance;
-            esjd += squaredDistance;
+        
+        if (!isConstantChain<StateType>({&draws})) {
+            for (unsigned long i = numDraws - numUnseen - correction; i < numDraws - 1; ++i) {
+                StateType distance = sqrtCovariance.template triangularView<Eigen::Lower>().solve(draws[i] - draws[i+1]);
+                distance = sqrtCovariance.template triangularView<Eigen::Lower>().transpose().solve(distance);
+                squaredDistance = (draws[i] - draws[i+1]).transpose() * distance;
+                esjd += squaredDistance;
+            }
+            esjd /=  numUnseen - 1 + correction;
         }
-        esjd /=  numUnseen - 1 + correction;
+
         return eta * esjdSeen + (1 - eta) * esjd;
     }
 
