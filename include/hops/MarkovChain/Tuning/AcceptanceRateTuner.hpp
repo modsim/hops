@@ -16,6 +16,10 @@
 #include <memory>
 #include <vector>
 
+#ifdef _OPENMP
+#include <omp.h>
+#endif 
+
 namespace hops {
     class AcceptanceRateTuner {
     public:
