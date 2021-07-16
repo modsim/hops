@@ -10,10 +10,16 @@
 #include <hops/Optimization/GaussianProcess.hpp>
 #include <hops/Optimization/ThompsonSampling.hpp>
 
+#include <Eigen/Core>
+
 #include <chrono>
 #include <cmath>
 #include <memory>
 #include <stdexcept>
+
+#ifdef _OPENMP
+#include <omp.h>
+#endif 
 
 namespace hops {
     class ExpectedSquaredJumpDistanceTuner {
