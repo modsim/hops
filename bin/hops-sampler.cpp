@@ -94,7 +94,7 @@ std::map<std::string, std::any> parseCommandLineOptions(int argc, char **argv) {
         A = hops::CsvReader::readMatrix<decltype(A)>(Afile);
         b = hops::CsvReader::readVector<decltype(b)>(bfile);
         transformation = hops::CsvReader::readMatrix<decltype(transformation)>(transformFile);
-        shift = hops::CsvReader::readVector<decltype(shift)>(startFile);
+        shift = hops::CsvReader::readVector<decltype(shift)>(shiftFile);
         try {
             start = hops::CsvReader::readVector<decltype(start)>(startFile);
         } catch (...) {
