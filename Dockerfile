@@ -15,6 +15,7 @@ RUN apt-get install -y libmpich-dev
 #RUN apt-get install -y libbz2-dev
 #RUN apt-get install -y coinor-libclp-dev 
 RUN apt-get install -y libboost-all-dev 
+RUN apt-get install -y libtbb-dev
 
 RUN useradd -ms /bin/bash hops_user
 USER hops_user
