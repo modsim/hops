@@ -142,7 +142,6 @@ else (OpenMP_CXX_FOUND)
     message(WARNING "OPENMP not found.")
 endif (OpenMP_CXX_FOUND)
 
-
 add_subdirectory(include)
 
 ########################################################################################################################

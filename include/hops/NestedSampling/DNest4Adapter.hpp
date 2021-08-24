@@ -79,7 +79,7 @@ namespace hops {
     template<typename PriorMarkovChain, typename PosteriorProposer, typename Model>
     void DNest4DAdapter<PriorMarkovChain, PosteriorProposer, Model>::print(std::ostream &out) const {
         for (long i = 0; i < this->getState().get.size(); i++)
-            out << this->getState(i) << ' ';
+            out << this->getState(i) << " ";
     }
 
     template<typename PriorMarkovChain, typename PosteriorProposer, typename Model>
