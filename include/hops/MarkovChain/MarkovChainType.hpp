@@ -29,6 +29,8 @@ namespace hops {
                 return "Gaussian Random Walk";
             case MarkovChainType::HitAndRun:
                 return "Hit-and-Run";
+            default:
+                throw std::runtime_error("Bug in switch case.");
         }
     }
 
@@ -48,6 +50,8 @@ namespace hops {
                 return "G";
             case MarkovChainType::HitAndRun:
                 return "HR";
+            default:
+                throw std::runtime_error("Bug in switch case.");
         }
 
     }
