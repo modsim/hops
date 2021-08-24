@@ -24,8 +24,6 @@ else (DNest4_INCLUDE_DIR)
     set(DNest4_LIBRARIES "${DNest4_LIBRARY}" )
 
     include(FindPackageHandleStandardArgs)
-    # handle the QUIETLY and REQUIRED arguments and set LIBCPLEX_FOUND to TRUE
-    # if all listed variables are TRUE
     find_package_handle_standard_args(DNest4  DEFAULT_MSG
             DNest4_LIBRARY DNest4_INCLUDE_DIR)
 
