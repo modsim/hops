@@ -46,7 +46,7 @@ int main(int argc, char **argv) {
         } else {
             std::unique_ptr<hops::LinearProgram> linearProgram = hops::LinearProgramFactory::createLinearProgram(
                     Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>(A.cast<double>()),
-                    b.cast<double>();
+                    b.cast<double>());
             startingPoint = linearProgram->computeChebyshevCenter().optimalParameters.cast<RealType>();
         }
 
@@ -101,7 +101,7 @@ int main(int argc, char **argv) {
         markovChain->draw(randomNumberGenerator, 1, numberOfSamples);
         markovChain->setAttribute(hops::MarkovChainAttribute::STEP_SIZE, 1);
 
-        isTuned = hops::AcceptanceRateTuner::tune(markovChain.get(),
+        isTuned = hops::BinarySearchAcceptanceRateTuner::tune(markovChain.get(),
                                                   randomNumberGenerator,
                                                   {lowerLimitAcceptanceRate,
                                                    upperLimitAcceptanceRate,
