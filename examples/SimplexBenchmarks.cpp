@@ -41,7 +41,6 @@ std::tuple<Eigen::MatrixXd, Eigen::VectorXd> createSimplex(std::vector<double> d
 
 //    std::cout << "A " << std::endl << A << std::endl;
 //    std::cout << "b " << std::endl << b << std::endl;
-
     return std::make_tuple(A, b);
 }
 
