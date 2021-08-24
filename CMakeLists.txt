@@ -37,6 +37,7 @@ option(HOPS_HDF5_SUPPORT "Enables HDF5 support with HighFive. Use -DHOPS_HDF5_SU
 option(HOPS_BENCHMARKS "Enables compilation of Benchmarks (Requires Celero). Use -DHOPS_BENCHMARKS=ON to enable." OFF)
 option(HOPS_DOCS "Enables generation of documentation. Use -DHOPS_DOCS=OFF to disable." ON)
 option(HOPS_BINARIES "Enables compilation of hops executables. Use -DHOPS_BINARIES=OFF to disable." ON)
+option(HOPS_EXAMPLES "Enables compilation of hops examples. Use -DHOPS_EXAMPLES=OFF to disable." ON)
 option(HOPS_TESTS "Enables compilation of unit tests. Use -DHOPS_TESTS=OFF to disable." ON)
 option(HOPS_NO_INSTALL "Disables installation. Use -DHOPS_NO_INSTALL=ON to disable installation." OFF)
 set(HOPS_LIBRARY_TYPE SHARED CACHE STRING "Type of library to build. Options are HEADER_ONLY, STATIC or SHARED")
@@ -207,6 +208,17 @@ if (HOPS_BINARIES)
     add_subdirectory(bin)
 else ()
     message(STATUS "Disabled compilation of executables. Use -DHOPS_BINARIES=ON to enable.")
+endif ()
+
+########################################################################################################################
+# HOPS_EXAMPLES
+########################################################################################################################
+
+if (HOPS_EXAMPLES)
+    message(STATUS "Enabled compilation of examples. Use -DHOPS_EXAMPLES=OFF to disable.")
+    add_subdirectory(examples)
+else ()
+    message(STATUS "Disabled compilation of examples. Use -DHOPS_EXAMPLES=ON to enable.")
 endif ()
 
 ########################################################################################################################
