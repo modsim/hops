@@ -1,6 +1,6 @@
 # Avoid having to make Header only version of deprecated MaximumVolumeEllipsoid by only compiling these
 # Examples when hops is not in HEADER_ONLY mode.
-if (HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
+if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
     set(BIN_SOURCES
             SamplingGaussianTarget.cpp
             SimplexBenchmarks.cpp
