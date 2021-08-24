@@ -29,10 +29,12 @@ USER hops_user
 
 WORKDIR /home/hops_user
 
+ADD Doxyfile.in /home/hops_user/Doxyfile.in
 ADD bin /home/hops_user/bin
 ADD benchmarks /home/hops_user/benchmarks
 ADD cmake /home/hops_user/cmake
 ADD docs /home/hops_user/docs
+ADD examples /home/hops_user/examples
 ADD include /home/hops_user/include
 ADD resources /home/hops_user/resources
 ADD tests /home/hops_user/tests

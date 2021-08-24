@@ -44,6 +44,16 @@ int main(int argc, char **argv) {
 
     if (chainName == "DikinWalk") {
         hops::MarkovChainType chainType = hops::MarkovChainType::DikinWalk;
+        decltype(b) startingPoint;
+        if (argc == 10) {
+            startingPoint = hops::CsvReader::readVector<Eigen::Matrix<double, Eigen::Dynamic, 1>>(
+                    argv[9]).cast<RealType>();
+        } else {
+            std::unique_ptr<hops::LinearProgram> linearProgram = hops::LinearProgramFactory::createLinearProgram(
+                    Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>(A.cast<double>()),
+                    b.cast<double>());
+            startingPoint = linearProgram->computeChebyshevCenter().optimalParameters.cast<RealType>();
+        }
 
         markovChain = hops::MarkovChainFactory::createMarkovChain(chainType,
                                                                   A,

@@ -18,6 +18,8 @@ int main() {
     Eigen::VectorXd mean1 = 1. / 1000 * Eigen::VectorXd::Ones(64);
     Eigen::VectorXd mean2 = 1. / 200 * Eigen::VectorXd::Ones(64);
     Eigen::MatrixXd covariance = 0.075 * Eigen::MatrixXd::Identity(64, 64);
+    int world_rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
     hops::RandomNumberGenerator randomNumberGenerator(42, world_rank);
     hops::RandomNumberGenerator synchronizedRandomNumberGenerator(42);
 
