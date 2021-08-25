@@ -24,7 +24,6 @@ namespace hops {
             return covariance;
         }
 
-    private:
         double length;
     };
 }
