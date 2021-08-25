@@ -309,7 +309,7 @@ namespace hops {
             newObservedCovariance.block(n, n, m, m) = kernel(x, x);
             //newObservedCovariance.block(n, n, m, m).diagonal().array() += 1.e-5;
 
-            newObservedCovariance.block(n, n, m, m) += Eigen::MatrixXd(error.asDiagonal());
+            newObservedCovariance.block(n, n, m, m) += MatrixType(error.asDiagonal());
 
             //MatrixType newObservedInputs = MatrixType::Zero(n + m, n + m);
             //newObservedInputs << observedInputs, x;
@@ -361,6 +361,14 @@ namespace hops {
 
         std::function<double (VectorType)>& getPriorMeanFunction() {
             return priorMeanFunction;
+        }
+
+        void setKernelSigma(double sigma) {
+            double oldSigma = kernel.sigma;
+            kernel.sigma = sigma;
+            observedCovariance -= MatrixType(observedValueErrors.asDiagonal());
+            observedCovariance.array() *= (sigma / oldSigma);
+            observedCovariance += MatrixType(observedValueErrors.asDiagonal());
         }
 
         Kernel getKernel() {
