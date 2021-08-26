@@ -114,8 +114,10 @@ namespace hops {
                         data.getObservedInputs(), data.getObservedValues(), smoothedObservedValueErrors);
                 gp.addObservations(newObservedInput, newObservedValueMean, smoothedObservedValueErrors);
 
-//                double newKernelSigma = 2*(data.getObservedValues().array() + data.getObservedValueErrors().array().sqrt()).maxCoeff();
-//                gp.setKernelSigma(newKernelSigma);
+                //double newKernelSigma = 2*(data.getObservedValues().array() + data.getObservedValueErrors().array().sqrt()).maxCoeff();
+                //double newKernelSigma = data.getObservedValues().array().maxCoeff();
+                //newKernelSigma = ( newKernelSigma == 0 ? initialGP.getKernel().sigma : newKernelSigma );
+                //gp.setKernelSigma(newKernelSigma);
 
                 // check maximum of posterior mean and increment counter, if the index didnt change
                 // or reset counter, if we have a new maximum
