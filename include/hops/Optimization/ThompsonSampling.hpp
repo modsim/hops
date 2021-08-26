@@ -98,7 +98,8 @@ namespace hops {
                 //MatrixType weights = smoothingKernel(data.getObservedInputs(), data.getObservedInputs());
                 const MatrixType& weights = data.getObservedCovariance();
                 VectorType smoothedObservedValueErrors = weights * data.getObservedValueErrors();
-                VectorType normalizer = weights * VectorType::Ones(weights.cols());
+                //VectorType normalizer = weights * VectorType::Ones(weights.cols());
+                VectorType normalizer = weights.rowwise().sum(); // * VectorType::Ones(weights.cols());
                 smoothedObservedValueErrors = smoothedObservedValueErrors.array() / normalizer.array();
 
                 //MatrixType print(smoothedObservedValueErrors.rows(), 2);
