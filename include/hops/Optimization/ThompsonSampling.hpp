@@ -42,6 +42,12 @@ namespace hops {
             UniformBallKernel smoothingKernel = UniformBallKernel<MatrixType, VectorType>(smoothingLength);
             GaussianProcess data = GaussianProcess<MatrixType, VectorType, decltype(smoothingKernel)>(smoothingKernel);
 
+            std::unordered_map<long, long> observedInputIndex;
+            std::vector<long> observedInputCount;
+            MatrixType observedInput(0, inputSpaceGrid.cols());
+            VectorType observedValueMean(0);
+            VectorType observedValueErrorMean(0);
+
             size_t i = 0;
             for (; i < numberOfPosteriorUpdates; ++i) {
                 // if the posterior mean hasn't change for the last sameMaximumCounter of rounds, 
@@ -50,12 +56,6 @@ namespace hops {
                     isConverged = true;
                     break;
                 }
-
-                std::unordered_map<long, long> observedInputIndex;
-                std::vector<long> observedInputCount;
-                MatrixType observedInput(0, inputSpaceGrid.cols());
-                VectorType observedValueMean(0);
-                VectorType observedValueErrorMean(0);
 
                 for (size_t j = 0; j < numberOfSamplingRounds; ++j) {
                     // sample the acquisition function and obtain its maximum
@@ -89,10 +89,14 @@ namespace hops {
                     }
                 }
 
+                MatrixType newObservedInput;
+                VectorType newObservedValueMean;
+                VectorType newObservedValueErrorMean;
+
                 // update the data to have the combined observed inputs, values and errors
-                std::tie(observedInput, observedValueMean, observedValueErrorMean) = data.updateObservations(
+                std::tie(newObservedInput, newObservedValueMean, newObservedValueErrorMean) = data.updateObservations(
                         observedInput, observedValueMean, observedValueErrorMean);
-                data.addObservations(observedInput, observedValueMean, observedValueErrorMean);
+                data.addObservations(newObservedInput, newObservedValueMean, newObservedValueErrorMean);
 
                 // compute smoothing on unsmoothed errors
                 //MatrixType weights = smoothingKernel(data.getObservedInputs(), data.getObservedInputs());
@@ -106,9 +110,9 @@ namespace hops {
                 //print << data.getObservedValueErrors(), smoothedObservedValueErrors;
                 //std::cout << print << std::endl << std::endl;
 
-                std::tie(observedInput, observedValueMean, smoothedObservedValueErrors) = gp.updateObservations(
+                std::tie(newObservedInput, newObservedValueMean, smoothedObservedValueErrors) = gp.updateObservations(
                         data.getObservedInputs(), data.getObservedValues(), smoothedObservedValueErrors);
-                gp.addObservations(observedInput, observedValueMean, smoothedObservedValueErrors);
+                gp.addObservations(newObservedInput, newObservedValueMean, smoothedObservedValueErrors);
 
                 //double newKernelSigma = 2*(data.getObservedValues().array() + data.getObservedValueErrors().array().sqrt()).maxCoeff();
                 //double newKernelSigma = data.getObservedValues().array().maxCoeff();

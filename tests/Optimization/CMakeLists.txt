@@ -1,4 +1,7 @@
-set(TEST_SOURCES GaussianProcessTestSuite.cpp)
+set(TEST_SOURCES 
+    GaussianProcessTestSuite.cpp
+    ThompsonSamplingTestSuite.cpp
+    )
 
 foreach (TEST_SOURCE ${TEST_SOURCES})
     get_filename_component(TEST_NAME ${TEST_SOURCE} NAME_WE)
