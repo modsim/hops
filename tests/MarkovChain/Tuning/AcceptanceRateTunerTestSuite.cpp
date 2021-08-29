@@ -69,7 +69,8 @@ BOOST_AUTO_TEST_SUITE(AcceptanceRateTuner)
         double lowerLimitStepSize = 1e-2;
         double upperLimitStepSize = 1;
         double smoothingLength = 1;
-        size_t iterationsToTestStepSize = 100;
+        size_t stepSizeGridSize = 21;
+        size_t iterationsToTestStepSize = 200;
         size_t maxPosteriorUpdates = 20;
         size_t maxPureSamplingRounds = 1;
         size_t iterationsForConvergence = 5;
@@ -80,7 +81,7 @@ BOOST_AUTO_TEST_SUITE(AcceptanceRateTuner)
                         maxPosteriorUpdates,
                         maxPureSamplingRounds,
                         iterationsForConvergence,
-                        200,
+                        stepSizeGridSize,
                         lowerLimitStepSize,
                         upperLimitStepSize,
                         smoothingLength,
