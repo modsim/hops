@@ -29,8 +29,8 @@ struct TestTarget : public hops::internal::ThompsonSamplingTarget<double, Eigen:
         };
 
         this->errors = std::unordered_map<double, std::vector<double>>{
-            {0., {.5, .5}},
-            {1., {.5, .5}}
+            {0., {.25, .25}},
+            {1., {.25, .25}}
         };
 
         count = std::vector<unsigned>(2, 0);
@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_SUITE(ThompsonSamplingTestSuite)
 
         expectedInputs << 1, 0;
         expectedValues << 1.5, 3.5;
-        expectedErrors << .5, 1.25;
+        expectedErrors << .25, 1.25;
 
         Eigen::VectorXd grid(2);
         grid << 0, 1;
