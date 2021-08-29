@@ -41,7 +41,8 @@ std::tuple<double, double> hops::internal::AcceptanceRateTarget::operator()(cons
     double mean = std::accumulate(acceptanceRateScores.begin(), acceptanceRateScores.end(), 0.0) / acceptanceRateScores.size();
 
     double squaredSum = std::inner_product(acceptanceRateScores.begin(), acceptanceRateScores.end(), acceptanceRateScores.begin(), 0.0);
-    double error = std::sqrt(squaredSum / acceptanceRateScores.size() - mean * mean); 
+    //double error = std::sqrt(squaredSum / acceptanceRateScores.size() - mean * mean); 
+    double error = squaredSum / acceptanceRateScores.size() - mean * mean; 
 
     return {mean, error};
 }

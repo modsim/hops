@@ -76,8 +76,8 @@ namespace hops {
                         double oldObservedValueMean = observedValueMean(k); // store for variance update
                         observedValueMean(k) = (m * observedValueMean(k) + newObservedValue) / (m+1);
                         observedValueErrorMean(k) = 
-                                (m * (std::pow(observedValueErrorMean(k), 2) + std::pow(oldObservedValueMean, 2)) + 
-                                 1 * (std::pow(newObservedValueError, 2) + std::pow(newObservedValue, 2))) / (m+1) - std::pow(observedValueMean(k), 2);
+                                (m * (observedValueErrorMean(k) + std::pow(oldObservedValueMean, 2)) + 
+                                 1 * (newObservedValueError + std::pow(newObservedValue, 2))) / (m+1) - std::pow(observedValueMean(k), 2);
                     } else {
                         size_t n = observedInput.rows();
                         observedInputIndex[maxElementIndex] = n;
