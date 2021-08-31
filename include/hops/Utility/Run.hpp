@@ -151,17 +151,17 @@ namespace hops {
             // initialize missing starting points with the chebyshev center or the starting point passed
             // by the problem.
             if (startingPoints.size() < numberOfChains) {
-                Eigen::VectorXd chebyshev;
-                if (!problem.useStartingPoint) {
+                Eigen::VectorXd defaultStartingPoint;
+                if (!problem.useStartingPoint && startingPoints.size() == 0) {
 #if defined(HOPS_GUROBI_FOUND) || defined(HOPS_CLP_FOUND)
                     try {
                         LinearProgramGurobiImpl linearProgram(problem.A, problem.b);
-                        chebyshev = linearProgram.computeChebyshevCenter().optimalParameters;
+                        defaultStartingPoint = linearProgram.computeChebyshevCenter().optimalParameters;
 
                     // either std::runtime_error, if Gurobi wasn't found or GRBException if no license
                     } catch (...) { 
                         LinearProgramClpImpl linearProgram(problem.A, problem.b);
-                        chebyshev = linearProgram.computeChebyshevCenter().optimalParameters;
+                        defaultStartingPoint = linearProgram.computeChebyshevCenter().optimalParameters;
                     }
 #else
                     throw MissingStartingPointsException(
@@ -169,15 +169,15 @@ namespace hops {
                             "LP solver is available for computing the Chebyshev center, "
                             "can thus not intialize missing starting points.");
 #endif
+                } if (problem.useStartingPoint) {
+                    defaultStartingPoint = problem.startingPoint;
+                } else {
+                    defaultStartingPoint = startingPoints.back();
                 }
 
                 // initialize all missing starting points
                 for (unsigned long i = startingPoints.size(); i < numberOfChains; ++i) {
-                    if (problem.useStartingPoint) {
-                        startingPoints.push_back(problem.startingPoint);
-                    } else {
-                        startingPoints.push_back(chebyshev);
-                    }
+                    startingPoints.push_back(defaultStartingPoint);
                 }
             }
 
