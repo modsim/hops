@@ -5,6 +5,8 @@ if (MPI_FOUND)
     set(BIN_SOURCES )
 endif (MPI_FOUND)
 
+set(BIN_SOURCES ${BIN_SOURCES} SamplingGaussianTargetDemo.cpp)
+
 foreach (BIN_SOURCE ${BIN_SOURCES})
     get_filename_component(BIN_NAME ${BIN_SOURCE} NAME_WE)
     add_executable(${BIN_NAME} ${BIN_SOURCE})
