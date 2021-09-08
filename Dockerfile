@@ -42,3 +42,5 @@ WORKDIR /home/hops_user/cmake-build-release
 RUN cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu
 RUN make -j16
 RUN make test
+
+CMD CMD tail -f /dev/null
