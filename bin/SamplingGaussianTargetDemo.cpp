@@ -9,38 +9,42 @@
 #include <iostream>
 #include <hops/Polytope/MaximumVolumeEllipsoid.hpp>
 #include <hops/MarkovChain/Tuning/AcceptanceRateTuner.hpp>
-
-using RealType = double;
+#include <filesystem>
 
 int main(int argc, char **argv) {
-    if (argc != 11 && argc != 10) {
+    if (argc != 8 && argc != 7) {
         std::cout << "usage: SamplingGaussianTarget A.csv b.csv mean.csv covariance.csv "
                   << "numberOfSamples thinningNumber CHRR|HRR|DikinWalk outputName [startingPoint.csv]"
                   << "\nArgument Description:\n"
-                  << "\tA.csv\t\t\t\t nxm dimensional matrix of polytope Ax<b\n"
-                  << "\tb.csv\t\t\t\t n dimensional vector of polytope Ax<b\n"
-                  << "\tmean.csv\t\t\t m dimensional vector\n"
-                  << "\tcovariance.csv\t\t mxm dimensional matrix\n"
+                  << "\tinput-path\t\t path with model\n"
                   << "\tnumberOfSamples\t\t number of samples to generate\n"
                   << "\tthinningNumber\t\t number of markov chain iterations per sample\n"
                   << "\talgorithm\t\t\t CHRR or HRR or DikinWalk\n"
                   << "\toutputName\t\t\t name for output\n"
-                  << "\tfisherweight\t\t\t fisherweight\n"
-                  << "\t[startingPoint]\t\t optional starting point, useful for resuming sampling" << std::endl;
+                  << "\tfisherweight\t\t\t fisherweight\n" << std::endl;
         exit(0);
     }
 
-    Eigen::SparseMatrix<RealType> A = hops::CsvReader::readMatrix<Eigen::SparseMatrix<double>>(
-            argv[1]).cast<RealType>();
-    Eigen::Matrix<RealType, Eigen::Dynamic, 1> b = hops::CsvReader::readVector<Eigen::Matrix<double, Eigen::Dynamic, 1>>(
-            argv[2]).cast<RealType>();
-    Eigen::Matrix<RealType, Eigen::Dynamic, 1> mean = hops::CsvReader::readVector<Eigen::Matrix<double, Eigen::Dynamic, 1>>(
-            argv[3]).cast<RealType>();
-    Eigen::Matrix<RealType, Eigen::Dynamic, Eigen::Dynamic> covariance = hops::CsvReader::readMatrix<Eigen::MatrixXd>(
-            argv[4]).cast<RealType>();
-    long numberOfSamples = std::strtol(argv[5], NULL, 10);
-    long thinning = std::strtol(argv[6], NULL, 10);
-    std::string chainName = argv[7];
+    std::filesystem::path inputPath = std::string(argv[1]);
+    std::string modelName = inputPath.filename();
+
+    std::string Afile = inputPath / std::filesystem::path("A_" + modelName + "_unrounded.csv");
+    std::string bfile = inputPath / std::filesystem::path("b_" + modelName + "_unrounded.csv");
+    std::string meanFile =
+            inputPath / std::filesystem::path("MeanVector.csv");
+    std::string covFile =
+            inputPath / std::filesystem::path("CovarianceMatrix.csv");
+
+    Eigen::SparseMatrix<double> A = hops::CsvReader::readMatrix<Eigen::SparseMatrix<double>>(Afile);
+    Eigen::VectorXd b = hops::CsvReader::readVector<Eigen::VectorXd>(bfile);
+    Eigen::VectorXd mean = hops::CsvReader::readVector<Eigen::VectorXd>(meanFile);
+    Eigen::MatrixXd covariance = hops::CsvReader::readMatrix<Eigen::MatrixXd>(covFile, true);
+
+    decltype(mean) startingPoint = mean;
+
+    long numberOfSamples = std::strtol(argv[2], NULL, 10);
+    long thinning = std::strtol(argv[3], NULL, 10);
+    std::string chainName = argv[4];
 
     hops::MultivariateGaussianModel model(mean, covariance);
 
@@ -48,16 +52,6 @@ int main(int argc, char **argv) {
 
     if (chainName == "DikinWalk") {
         hops::MarkovChainType chainType = hops::MarkovChainType::DikinWalk;
-        decltype(b) startingPoint;
-        if (argc == 11) {
-            startingPoint = hops::CsvReader::readVector<Eigen::Matrix<double, Eigen::Dynamic, 1>>(
-                    argv[10]).cast<RealType>();
-        } else {
-            std::unique_ptr<hops::LinearProgram> linearProgram = hops::LinearProgramFactory::createLinearProgram(
-                    Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>(A.cast<double>()),
-                    b.cast<double>());
-            startingPoint = linearProgram->computeChebyshevCenter().optimalParameters.cast<RealType>();
-        }
 
         markovChain = hops::MarkovChainFactory::createMarkovChain(chainType,
                                                                   A,
@@ -66,51 +60,56 @@ int main(int argc, char **argv) {
                                                                   model);
     } else if (chainName == "CSmMALA") {
         hops::MarkovChainType chainType = hops::MarkovChainType::CSmMALA;
-        decltype(b) startingPoint;
-        if (argc == 11) {
-            startingPoint = hops::CsvReader::readVector<Eigen::Matrix<double, Eigen::Dynamic, 1>>(
-                    argv[10]).cast<RealType>();
-        } else {
-            std::unique_ptr<hops::LinearProgram> linearProgram = hops::LinearProgramFactory::createLinearProgram(
-                    Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>(A.cast<double>()),
-                    b.cast<double>());
-            startingPoint = linearProgram->computeChebyshevCenter().optimalParameters.cast<RealType>();
-        }
-
         markovChain = hops::MarkovChainFactory::createMarkovChain(chainType,
                                                                   A,
                                                                   b,
                                                                   startingPoint,
                                                                   model);
 
-        double fisherWeight = std::stod(argv[9]);
+        double fisherWeight = std::stod(argv[6]);
         std::cout << "setting fisherweight to " << fisherWeight << std::endl;
         markovChain->setAttribute(hops::MarkovChainAttribute::FISHER_WEIGHT, fisherWeight);
     } else if (chainName == "CHRR" || chainName == "HRR") {
         hops::MarkovChainType chainType =
                 chainName == "CHRR" ? hops::MarkovChainType::CoordinateHitAndRun : hops::MarkovChainType::HitAndRun;
-        Eigen::MatrixXd roundingTransformation = hops::MaximumVolumeEllipsoid<double>::construct(
-                A,
-                b,
-                50000, 1e-9).getRoundingTransformation();
 
-        decltype(b) startingPoint;
-        if (argc == 11) {
-            startingPoint = hops::CsvReader::readVector<Eigen::Matrix<double, Eigen::Dynamic, 1>>(
-                    argv[10]).cast<RealType>();
-        } else {
-            std::unique_ptr<hops::LinearProgram> linearProgram = hops::LinearProgramFactory::createLinearProgram(
-                    Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>((A * roundingTransformation).cast<double>()),
-                    b.cast<double>());
-            startingPoint = linearProgram->computeChebyshevCenter().optimalParameters.cast<RealType>();
+        std::string Afile_rounded = inputPath / std::filesystem::path("A_" + modelName + "_rounded.csv");
+        std::string bfile_rounded = inputPath / std::filesystem::path("b_" + modelName + "_rounded.csv");
+        std::string transformFile =
+                inputPath / std::filesystem::path("T_" + modelName + "_rounded.csv");
+        std::string shiftFile =
+                inputPath / std::filesystem::path("shift_" + modelName + "_rounded.csv");
+
+        // TODO round
+        std::string startFile =
+                inputPath / std::filesystem::path("start_" + modelName + "_rounded.csv");
+
+        Eigen::MatrixXd A_rounded = hops::CsvReader::readMatrix<decltype(A)>(Afile_rounded);
+        auto b_rounded = hops::CsvReader::readVector<decltype(b)>(bfile_rounded);
+        Eigen::MatrixXd transformation_rounded = hops::CsvReader::readMatrix<decltype(A)>(transformFile);
+        auto shift_rounded = hops::CsvReader::readVector<decltype(b)>(shiftFile);
+
+        Eigen::VectorXd startingPoint_rounded;
+        if(transformation_rounded.isLowerTriangular()) {
+            startingPoint_rounded = transformation_rounded.template triangularView<Eigen::Lower>().solve(
+                    mean);
         }
-        markovChain = hops::MarkovChainFactory::createMarkovChain<Eigen::Matrix<RealType, Eigen::Dynamic, Eigen::Dynamic>, decltype(b), decltype(model)>(
+        else if (transformation_rounded.isUpperTriangular()) {
+            startingPoint_rounded = transformation_rounded.template triangularView<Eigen::Upper>().solve(
+                    mean);
+        }
+        else {
+            throw std::runtime_error("rounding transformation is not upper or lower triangular. It can't be correct.");
+        }
+
+
+        markovChain = hops::MarkovChainFactory::createMarkovChain<Eigen::MatrixXd, decltype(b), decltype(model)>(
                 chainType,
-                Eigen::Matrix<RealType, Eigen::Dynamic, Eigen::Dynamic>(A * roundingTransformation),
-                b,
-                startingPoint,
-                roundingTransformation,
-                decltype(startingPoint)::Zero(roundingTransformation.rows()),
+                A_rounded,
+                b_rounded,
+                startingPoint_rounded,
+                transformation_rounded,
+                shift_rounded,
                 model);
     } else {
         std::cerr << "No chain with chainname " << chainName << std::endl;
@@ -119,24 +118,16 @@ int main(int argc, char **argv) {
 
     hops::RandomNumberGenerator randomNumberGenerator((std::random_device()()));
 
-    double lowerLimitStepSize = 1e-8;
-    double upperLimitStepSize = 2;
+    double lowerLimitStepSize = 1e-15;
+    double upperLimitStepSize = 1;
 
-    size_t iterationsToTestStepSize = 50;
-    size_t posteriorUpdateIterations = 50;
-    size_t pureSamplingIterations = 10;
-    size_t stepSizeGridSize = 200;
-    size_t iterationsForConvergence = 5;
-    double smoothingLength = 0.001;
+    size_t iterationsToTestStepSize = 200;
+    size_t posteriorUpdateIterations = 600;
+    size_t pureSamplingIterations = 15;
+    size_t stepSizeGridSize = 500;
+    size_t iterationsForConvergence = 25;
+    double smoothingLength = 0.002;
     bool recordData = true;
-
-    if (chainName == "CSmMALA") {
-        lowerLimitStepSize = 0.005;
-        posteriorUpdateIterations = 10;
-        stepSizeGridSize = 10;
-        iterationsForConvergence = 5;
-        smoothingLength = 0.005;
-    }
 
     hops::AcceptanceRateTuner::param_type tuningParameters(0.234,
                                                            iterationsToTestStepSize,
@@ -158,7 +149,7 @@ int main(int argc, char **argv) {
 
     std::cout << "Current step size: " << markovChain->getAttribute(hops::MarkovChainAttribute::STEP_SIZE) << std::endl;
 
-    auto fileWriter = hops::FileWriterFactory::createFileWriter(std::string(argv[8]) + "_" + markovChain->getName(),
+    auto fileWriter = hops::FileWriterFactory::createFileWriter(inputPath.string() + "_" +markovChain->getName() + "_" + std::string(argv[5]),
                                                                 hops::FileWriterType::CSV);
     markovChain->draw(randomNumberGenerator, numberOfSamples, thinning);
     markovChain->writeHistory(fileWriter.get());

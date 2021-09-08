@@ -55,7 +55,7 @@ MatrixType hops::CsvReader::readMatrix(const std::string &file, bool hasColumnAn
         std::vector<std::string> cells;
         std::string cell;
         while (std::getline(lineStream, cell, ',')) {
-            cells.push_back(cell);
+            cells.emplace_back(cell);
         }
         stringRepresentationOfMatrix.emplace_back(cells);
     }
