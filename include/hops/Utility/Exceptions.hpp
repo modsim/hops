@@ -5,7 +5,7 @@
 #include <string>
 
 namespace hops {
-    class Exception {
+    class Exception : public std::exception {
     public:
         Exception(std::string message = "") :
                 message(message) {
