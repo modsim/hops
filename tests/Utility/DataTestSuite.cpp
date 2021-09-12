@@ -118,7 +118,7 @@ BOOST_AUTO_TEST_SUITE(DataTestSuite)
 
         BOOST_CHECK_EQUAL(run.getData().getStates()[0]->size(), numberOfSamples);
 
-        run.getData().computeExpectedSquaredJumpDistance();
+        computeExpectedSquaredJumpDistance(run.getData());
 
         double expectedResult = 3.20334;
         double actualResult = hops::computeExpectedSquaredJumpDistance(run.getData())(0);

@@ -100,10 +100,6 @@ namespace hops {
             return this->unroundingShift;
         }
 
-        bool isConsistentProblem () {
-
-        }
-
     private:
         Eigen::MatrixXd A;
         Eigen::VectorXd b;

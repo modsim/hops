@@ -12,23 +12,16 @@
 #include <chrono>
 
 namespace hops {
-    namespace internal {
-        template<typename ReturnType, typename InputType>
-        struct ThompsonSamplingTarget {
-            virtual std::tuple<ReturnType, ReturnType> operator()(const InputType&) = 0;
-        };
-    }
-
-    template<typename MatrixType, typename VectorType, typename GaussianProcessType>
+    template<typename MatrixType, typename VectorType, typename GaussianProcessType, typename ThompsonSamplgTargetType>
     class ThompsonSampling {
     public:
-        using ThompsonSamplgTargetType = internal::ThompsonSamplingTarget<typename MatrixType::Scalar, VectorType>;
+        //using ThompsonSamplgTargetType = internal::ThompsonSamplingTarget<typename MatrixType::Scalar, VectorType>;
 
         static bool optimize (const size_t numberOfPosteriorUpdates,
                               const size_t numberOfSamplingRounds,
                               const size_t numberOfRoundsForConvergence,
                               GaussianProcessType& initialGP,
-                              std::shared_ptr<ThompsonSamplgTargetType> targetFunction,
+                              ThompsonSamplgTargetType targetFunction,
                               const MatrixType& inputSpaceGrid,
                               RandomNumberGenerator randomNumberGenerator,
                               size_t* numberOfPosteriorUpdatesNeeded = nullptr,
@@ -63,7 +56,7 @@ namespace hops {
                     VectorType testInput = inputSpaceGrid.row(maxElementIndex);
 
                     // evaluate stepsize which maximized the sampled acquisition function
-                    auto[newObservedValue, newObservedValueError] = (*targetFunction)(testInput);
+                    auto[newObservedValue, newObservedValueError] = targetFunction(testInput);
 
                     // aggregate data if this stepsize has been tested before
                     if (observedInputIndex.count(maxElementIndex)) {

@@ -100,7 +100,7 @@ namespace hops {
     };
 
     namespace internal {
-        struct AcceptanceRateTarget : public ThompsonSamplingTarget<double, Eigen::VectorXd> {
+        struct AcceptanceRateTarget {
             std::vector<std::shared_ptr<hops::MarkovChain>> markovChain;
             std::vector<RandomNumberGenerator>* randomNumberGenerator;
             AcceptanceRateTuner::param_type parameters;
@@ -112,7 +112,7 @@ namespace hops {
                     randomNumberGenerator(&randomNumberGenerator),
                     parameters(parameters) {}
 
-            virtual std::tuple<double, double> operator()(const Eigen::VectorXd& x) override;
+            std::tuple<double, double> operator()(const Eigen::VectorXd& x);
         };
     }
 }

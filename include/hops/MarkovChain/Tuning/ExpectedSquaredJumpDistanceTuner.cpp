@@ -8,7 +8,7 @@
  */
 std::tuple<double, double> hops::internal::ExpectedSquaredJumpDistanceTarget::operator()(const Eigen::VectorXd& x) {
     double stepSize = std::pow(10, x(0));
-    std::vector<double> expectedSquaredJumpDistances;
+    std::vector<double> expectedSquaredJumpDistances(markovChain.size());
     #pragma omp parallel for
     for (size_t i = 0; i < markovChain.size(); ++i) {
         markovChain[i]->clearHistory();
@@ -32,7 +32,7 @@ std::tuple<double, double> hops::internal::ExpectedSquaredJumpDistanceTarget::op
                 hops::computeExpectedSquaredJumpDistance<Eigen::VectorXd, Eigen::MatrixXd>(markovChain[i]->getStateRecords());
 
         expectedSquaredJumpDistance = (parameters.considerTimeCost ? expectedSquaredJumpDistance / time : expectedSquaredJumpDistance);
-        expectedSquaredJumpDistances.push_back(expectedSquaredJumpDistance);
+        expectedSquaredJumpDistances[i] = expectedSquaredJumpDistance;
     }
 
     double mean = std::accumulate(expectedSquaredJumpDistances.begin(), expectedSquaredJumpDistances.end(), 0.0) / expectedSquaredJumpDistances.size();
@@ -43,6 +43,7 @@ std::tuple<double, double> hops::internal::ExpectedSquaredJumpDistanceTarget::op
 
     return {mean, error};
 }
+
 
 bool hops::ExpectedSquaredJumpDistanceTuner::tune(
         double& stepSize,
@@ -66,11 +67,10 @@ bool hops::ExpectedSquaredJumpDistanceTuner::tune(
     Kernel kernel(sigma, length);
     GP gp = GP(kernel);
 
-    auto target = std::make_shared<internal::ExpectedSquaredJumpDistanceTarget>(
-            internal::ExpectedSquaredJumpDistanceTarget(markovChain, randomNumberGenerator, parameters));
+    auto target = internal::ExpectedSquaredJumpDistanceTarget{markovChain, randomNumberGenerator, parameters};
 
     RandomNumberGenerator thompsonSamplingRandomNumberGenerator(parameters.randomSeed, markovChain.size() + 1);
-    bool isThompsonSamplingConverged = ThompsonSampling<Eigen::MatrixXd, Eigen::VectorXd, GP>::optimize(
+    bool isThompsonSamplingConverged = ThompsonSampling<Eigen::MatrixXd, Eigen::VectorXd, GP, decltype(target)>::optimize(
             parameters.posteriorUpdateIterations,
             parameters.pureSamplingIterations,
             parameters.iterationsForConvergence,
