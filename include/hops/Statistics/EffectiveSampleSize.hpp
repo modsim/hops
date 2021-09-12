@@ -8,6 +8,8 @@
 #include "Autocorrelation.hpp"
 
 namespace hops {
+    using IntermediateEffectiveSampleSizeResults = double;
+
     template <typename StateType>
     double computeEffectiveSampleSize (const std::vector<const std::vector<StateType>*>& chains, 
                                        unsigned long dimension) {

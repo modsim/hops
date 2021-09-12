@@ -10,7 +10,7 @@
 #include <hops/Optimization/ThompsonSampling.hpp>
 #include <hops/Optimization/Kernel/SquaredExponentialKernel.hpp>
 
-struct TestTarget : public hops::internal::ThompsonSamplingTarget<double, Eigen::VectorXd> {
+struct TestTarget {
 	std::unordered_map<double, std::vector<double>> values;
 	std::unordered_map<double, std::vector<double>> errors;
     std::vector<unsigned> count;
@@ -36,7 +36,7 @@ struct TestTarget : public hops::internal::ThompsonSamplingTarget<double, Eigen:
         count = std::vector<unsigned>(2, 0);
     };
 
-	virtual std::tuple<double, double> operator()(const Eigen::VectorXd& x) override {
+	std::tuple<double, double> operator()(const Eigen::VectorXd& x) {
         auto value = values[x(0)][count[x(0)]];
         auto error = errors[x(0)][count[x(0)]];
 
@@ -66,12 +66,12 @@ BOOST_AUTO_TEST_SUITE(ThompsonSamplingTestSuite)
 
         GP gp = GP(Kernel(1, 1));
 
-        auto target = std::make_shared<TestTarget>(TestTarget());
+        auto target = TestTarget();
 
         hops::RandomNumberGenerator rng(1);
         size_t foo;
 
-        hops::ThompsonSampling<Eigen::MatrixXd, Eigen::VectorXd, GP>::optimize(
+        hops::ThompsonSampling<Eigen::MatrixXd, Eigen::VectorXd, GP, TestTarget>::optimize(
             3, 1, 3, gp, target, grid, rng, &foo, 0);
 
         

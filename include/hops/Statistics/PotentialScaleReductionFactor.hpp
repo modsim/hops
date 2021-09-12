@@ -11,6 +11,7 @@
 #include "IsConstantChain.hpp"
 
 namespace hops {
+    using IntermediatePotentialScaleReductionFactorResults = double;
     /*
      * states.size() is the number of chains, states[i].size() is the number of draws, states[i][j].rows() is the dimensionality
      *

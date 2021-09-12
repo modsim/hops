@@ -69,11 +69,10 @@ bool hops::AcceptanceRateTuner::tune(
     Kernel kernel(sigma, length);
     GP gp = GP(kernel);
 
-    auto target = std::make_shared<internal::AcceptanceRateTarget>(
-            internal::AcceptanceRateTarget(markovChain, randomNumberGenerator, parameters));
+    auto target = internal::AcceptanceRateTarget(markovChain, randomNumberGenerator, parameters);
 
     RandomNumberGenerator thompsonSamplingRandomNumberGenerator(parameters.randomSeed, markovChain.size() + 1);
-    bool isThompsonSamplingConverged = ThompsonSampling<Eigen::MatrixXd, Eigen::VectorXd, GP>::optimize(
+    bool isThompsonSamplingConverged = ThompsonSampling<Eigen::MatrixXd, Eigen::VectorXd, GP, decltype(target)>::optimize(
             parameters.posteriorUpdateIterations,
             parameters.pureSamplingIterations,
             parameters.iterationsForConvergence,

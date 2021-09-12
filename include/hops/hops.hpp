@@ -46,10 +46,13 @@
 #include "MarkovChain/Recorder/StateRecorder.hpp"
 #include "MarkovChain/Recorder/TimestampRecorder.hpp"
 
+#include "MarkovChain/Tuning/AcceptanceRateTarget.hpp"
 #include "MarkovChain/Tuning/AcceptanceRateTuner.hpp"
 #include "MarkovChain/Tuning/BinarySearchAcceptanceRateTuner.hpp"
+#include "MarkovChain/Tuning/ExpectedSquaredJumpDistanceTarget.hpp"
 #include "MarkovChain/Tuning/ExpectedSquaredJumpDistanceTuner.hpp"
 #include "MarkovChain/Tuning/SimpleExpectedSquaredJumpDistanceTuner.hpp"
+#include "MarkovChain/Tuning/ThompsonSamplingTuner.hpp"
 
 #include "MarkovChain/IsGetColdnessAvailable.hpp"
 #include "MarkovChain/IsGetExchangeAttemptProbabilityAvailable.hpp"
@@ -74,6 +77,8 @@
 #include "Model/RosenbrockModel.hpp"
 #include "Model/UniformDummyModel.hpp"
 
+#include "Parallel/OpenMPControls.hpp"
+
 #include "Polytope/MaximumVolumeEllipsoid.hpp"
 #include "Polytope/NormalizePolytope.hpp"
 #include "Polytope/SimplexFactory.hpp"
@@ -87,6 +92,7 @@
 #include "Utility/Exceptions.hpp"
 #include "Utility/Problem.hpp"
 #include "Utility/Run.hpp"
+#include "Utility/Tuning.hpp"
 
 #ifdef HOPS_HEADER_ONLY
 
@@ -108,6 +114,8 @@
 #include "MarkovChain/Tuning/SimpleExpectedSquaredJumpDistanceTuner.cpp"
 
 #include "Polytope/MaximumVolumeEllipsoid.cpp"
+
+#include "Utility/Data.cpp"
 
 #ifdef HOPS_HDF5_SUPPORT
 #include "FileReader/Hdf5Reader.cpp"

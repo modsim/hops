@@ -16,8 +16,7 @@
 #include <memory>
 
 namespace hops {
-    class Data {
-    public:
+    struct Data {
         Data(long dimension = 0) : dimension(dimension) {
             //
         }
@@ -58,6 +57,9 @@ namespace hops {
             std::vector<const std::vector<Eigen::VectorXd>*> states(chains.size());
             for (size_t i = 0; i < states.size(); ++i) {
                 states[i] = chains[i].states.get();
+                if (i == 0 && states[i]->size() > 0) {
+                    dimension = states[i]->at(0).size();
+                }
             }
             return states;
         }
@@ -71,74 +73,45 @@ namespace hops {
         }
 
 
-        void computeTotalNumberOfSamples() {
-            totalNumberOfSamples = 0;
-            for (size_t i = 0; i < chains.size(); ++i) {
-                totalNumberOfSamples += chains[i].getStates().size();
+        void setAcceptanceRates(const std::vector<std::vector<double>>& acceptanceRates) {
+            for (size_t i = 0; i < acceptanceRates.size(); ++i) {
+                if (i >= chains.size()) {
+                    chains.push_back(ChainData());
+                }
+                chains[i].acceptanceRates = std::make_shared<std::vector<double>>(acceptanceRates[i]);
             }
         }
 
-        void computeAcceptanceRate() {
-            acceptanceRate = Eigen::VectorXd(chains.size());
-            for (size_t i = 0; i < chains.size(); ++i) {
-                acceptanceRate(i) = chains[i].getAcceptanceRates().back();
+        void setNegativeLogLikelihood(const std::vector<std::vector<double>>& negativeLogLikelihood) {
+            for (size_t i = 0; i < negativeLogLikelihood.size(); ++i) {
+                if (i >= chains.size()) {
+                    chains.push_back(ChainData());
+                }
+                chains[i].negativeLogLikelihood = std::make_shared<std::vector<double>>(negativeLogLikelihood[i]);
             }
         }
 
-        void computeEffectiveSampleSize() {
-            std::vector<const std::vector<Eigen::VectorXd>*> states(chains.size());
-			if (!chains.size()) {
-				throw EmptyChainDataException();
-			}
-
+        void setStates(const std::vector<std::vector<Eigen::VectorXd>>& states) {
             for (size_t i = 0; i < states.size(); ++i) {
-                states[i] = chains[i].states.get();
-				if (!states[i]) {
-					throw EmptyChainDataException();
-				}
-            }
-            std::vector<double> effectiveSampleSize = ::hops::computeEffectiveSampleSize(states);
-            this->effectiveSampleSize = Eigen::Map<Eigen::VectorXd>(effectiveSampleSize.data(), dimension);
-        }
-
-        void computeExpectedSquaredJumpDistance() {
-            std::vector<const std::vector<Eigen::VectorXd>*> states(chains.size());
-			if (!chains.size()) {
-				throw EmptyChainDataException();
-			}
-
-            for (size_t i = 0; i < states.size(); ++i) {
-                states[i] = chains[i].states.get();
-				if (!states[i]) {
-					throw EmptyChainDataException();
-				}
-            }
-            std::vector<double> expectedSquaredJumpDistance = ::hops::computeExpectedSquaredJumpDistance<Eigen::VectorXd, Eigen::MatrixXd>(states);
-            this->expectedSquaredJumpDistance = Eigen::Map<Eigen::VectorXd>(expectedSquaredJumpDistance.data(), chains.size());
-        }
-
-        void computePotentialScaleReductionFactor() {
-            std::vector<const std::vector<Eigen::VectorXd>*> states(chains.size());
-			if (!chains.size()) {
-				throw EmptyChainDataException();
-			}
-
-            for (size_t i = 0; i < states.size(); ++i) {
-                states[i] = chains[i].states.get();
-				if (!states[i]) {
-					throw EmptyChainDataException();
-				}
-            }
-            std::vector<double> potentialScaleReductionFactor = ::hops::computePotentialScaleReductionFactor(states);
-            this->potentialScaleReductionFactor = Eigen::Map<Eigen::VectorXd>(potentialScaleReductionFactor.data(), dimension);
-        }
-
-        void computeTotalTimeTaken() {
-            totalTimeTaken = Eigen::VectorXd(chains.size());
-            for (size_t i = 0; i < chains.size(); ++i) {
-                totalTimeTaken(i) = chains[i].getTimestamps().back() - chains[i].getTimestamps().front();
+                if (i >= chains.size()) {
+                    chains.push_back(ChainData());
+                }
+                if (i == 0 && states[i].size() > 0) {
+                    dimension = states[i].at(0).size();
+                }
+                chains[i].states = std::make_shared<std::vector<Eigen::VectorXd>>(states[i]);
             }
         }
+
+        void setTimestamps(const std::vector<std::vector<long>>& timestamps) {
+            for (size_t i = 0; i < timestamps.size(); ++i) {
+                if (i >= chains.size()) {
+                    chains.push_back(ChainData());
+                }
+                chains[i].timestamps = std::make_shared<std::vector<long>>(timestamps[i]);
+            }
+        }
+
 
         void reset() {
             for (size_t i = 0; i < chains.size(); ++i) {
@@ -225,7 +198,33 @@ namespace hops {
             this->tuningPosterior = tuningPosterior;
         }
 
-    private:
+
+        Data thin(size_t thinning) {
+            Data newData{};
+            for (const auto& chain : chains) {
+                newData.chains.push_back(chain.thin(thinning));
+            }
+            return newData;
+        }
+
+        Data subsample(size_t numberOfSubsamples, size_t numberOfChains = 0) {
+            Data newData{};
+            numberOfChains = ( numberOfChains ? numberOfChains : chains.size() );
+            for (size_t i = 0; i < numberOfChains; ++i) {
+                newData.chains.push_back(chains[i].subsample(numberOfSubsamples));
+            }
+            return newData;
+        }
+
+        Data flatten() {
+            Data newData{};
+            newData.chains.push_back(chains[0]);
+            for (size_t i = 1; i < chains.size(); ++i) {
+                newData.chains[0].append(chains[i]);
+            }
+            return newData;
+        }
+
         std::vector<ChainData> chains;
 
         double totalNumberOfSamples;
@@ -238,6 +237,7 @@ namespace hops {
         // tuning data
         std::string tuningMethod;
         unsigned long totalNumberOfTuningSamples = 0;
+        unsigned long totalNumberOfTuningIterations = 0;
         double tunedStepSize;
         double tunedObjectiveValue;
         double totalTuningTimeTaken;
@@ -251,43 +251,63 @@ namespace hops {
         unsigned long numSeen = 0;
 
         long dimension = 0;
-        friend Eigen::VectorXd computeAcceptanceRate(Data& data);
-        friend Eigen::VectorXd computeExpectedSquaredJumpDistance(Data& data);
-        friend Eigen::VectorXd computeEffectiveSampleSize(Data& data);
-        friend Eigen::VectorXd computePotentialScaleReductionFactor(Data& data);
-        friend double computeTotalNumberOfSamples(Data& data);
-        friend Eigen::VectorXd computeTotalTimeTaken(Data& data);
     };
 
-    inline Eigen::VectorXd computeAcceptanceRate(Data& data) {
-        data.computeAcceptanceRate();
-        return data.acceptanceRate;
-    }
+    Eigen::VectorXd computeAcceptanceRate(Data& data);
+    Eigen::VectorXd computeEffectiveSampleSize(Data& data);
 
-    inline Eigen::VectorXd computeExpectedSquaredJumpDistance(Data& data) {
-        data.computeExpectedSquaredJumpDistance();
-        return data.expectedSquaredJumpDistance;
-    }
+    Eigen::VectorXd computeExpectedSquaredJumpDistance(const Data& data, const Eigen::MatrixXd& sqrtCovariance);
+    Eigen::VectorXd computeExpectedSquaredJumpDistance(const Data& data);
+    
+    Eigen::VectorXd computePotentialScaleReductionFactor(Data& data);
+    Eigen::VectorXd computeTotalTimeTaken(Data& data);
+    long computeTotalNumberOfSamples(Data& data);
 
-    inline Eigen::VectorXd computeEffectiveSampleSize(Data& data) {
-        data.computeEffectiveSampleSize();
-        return data.effectiveSampleSize;
-    }
+    using IntermediateAcceptanceRateResults = double;
+    using IntermediateExpectedSquaredJumpDistanceResults_ = IntermediateExpectedSquaredJumpDistanceResults<Eigen::VectorXd, Eigen::MatrixXd>;
+    using IntermediateTotalTimeTakenResults = Eigen::VectorXd;
+    using IntermediateTotalNumberOfSamplesResults = long;
 
-    inline Eigen::VectorXd computePotentialScaleReductionFactor(Data& data) {
-        data.computePotentialScaleReductionFactor();
-        return data.potentialScaleReductionFactor;
-    }
+    std::tuple<Eigen::VectorXd, IntermediateAcceptanceRateResults> 
+    computeAcceptanceRateIncrementally(Data& data, const IntermediateAcceptanceRateResults& intermediateResults);
 
-    inline double computeTotalNumberOfSamples(Data& data) {
-        data.computeTotalNumberOfSamples();
-        return data.totalNumberOfSamples;
-    }
+    std::tuple<Eigen::VectorXd, IntermediateEffectiveSampleSizeResults> 
+    computeEffectiveSampleSizeIncrementally(Data& data, const IntermediateEffectiveSampleSizeResults& intermediateResults);
+    
 
-    inline Eigen::VectorXd computeTotalTimeTaken(Data& data) {
-        data.computeTotalTimeTaken();
-        return data.totalTimeTaken;
-    }
+    std::tuple<Eigen::VectorXd, IntermediateExpectedSquaredJumpDistanceResults_>
+    computeExpectedSquaredJumpDistanceIncrementally(const Data& data, const Eigen::MatrixXd& sqrtCovariance);
+    
+    std::tuple<Eigen::VectorXd, IntermediateExpectedSquaredJumpDistanceResults_>
+    computeExpectedSquaredJumpDistanceIncrementally(const Data& data);
+    
+    std::tuple<Eigen::VectorXd, IntermediateExpectedSquaredJumpDistanceResults_>
+    computeExpectedSquaredJumpDistanceIncrementally(const Data& data, 
+                                                    const IntermediateExpectedSquaredJumpDistanceResults_& intermediateResults,
+                                                    const Eigen::MatrixXd& sqrtCovariance);
+    
+    std::tuple<Eigen::VectorXd, IntermediateExpectedSquaredJumpDistanceResults_>
+    computeExpectedSquaredJumpDistanceIncrementally(const Data& data, 
+                                                    const IntermediateExpectedSquaredJumpDistanceResults_& intermediateResults);
+    
+
+    std::tuple<Eigen::VectorXd, IntermediatePotentialScaleReductionFactorResults> 
+    computePotentialScaleReductionFactorIncrementally(Data& data, const IntermediatePotentialScaleReductionFactorResults& intermediateResults);
+    
+    std::tuple<Eigen::VectorXd, IntermediateTotalTimeTakenResults> 
+    computeTotalTimeTakenIncrementally(Data& data, const IntermediateTotalTimeTakenResults& intermediateResults);
+    
+    std::tuple<long, IntermediateTotalNumberOfSamplesResults> 
+    computeTotalNumberOfSamplesIncrementally(Data& data, const IntermediateTotalNumberOfSamplesResults& intermediateResults);
+
+    Eigen::MatrixXd computeAcceptanceRateEvery(Data& data, size_t k);
+    Eigen::MatrixXd computeEffectiveSampleSizeEvery(Data& data, size_t k);
+
+    Eigen::MatrixXd computeExpectedSquaredJumpDistanceEvery(const Data& data, size_t k, const Eigen::MatrixXd& sqrtCovariance);
+    Eigen::MatrixXd computeExpectedSquaredJumpDistanceEvery(const Data& data, size_t k);
+
+    Eigen::MatrixXd computePotentialScaleReductionFactorEvery(Data& data, size_t k);
+    Eigen::MatrixXd computeTotalTimeTakenEvery(Data& data, size_t k);
 }
 
 #endif // HOPS_DATA_HPP

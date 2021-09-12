@@ -101,7 +101,7 @@ namespace hops {
     };
 
     namespace internal {
-        struct ExpectedSquaredJumpDistanceTarget : public ThompsonSamplingTarget<double, Eigen::VectorXd> {
+        struct ExpectedSquaredJumpDistanceTarget {
             std::vector<std::shared_ptr<hops::MarkovChain>> markovChain;
             std::vector<RandomNumberGenerator>* randomNumberGenerator;
             ExpectedSquaredJumpDistanceTuner::param_type parameters;
@@ -115,7 +115,7 @@ namespace hops {
                 //
             }
 
-            virtual std::tuple<double, double> operator()(const Eigen::VectorXd& x) override;
+            std::tuple<double, double> operator()(const Eigen::VectorXd& x);
         };
     }
 }

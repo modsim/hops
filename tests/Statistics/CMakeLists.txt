@@ -1,4 +1,5 @@
 set(TEST_SOURCES
+        CovarianceTestSuite.cpp
         EffectiveSampleSizeTestSuite.cpp
         ExpectedSquaredJumpDistanceTestSuite.cpp
         PotentialScaleReductionFactorTestSuite.cpp
