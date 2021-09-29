@@ -7,7 +7,7 @@
 #include <random>
 
 namespace hops {
-    template<typename MatrixType, typename VectorType, typename ChordStepDistribution = UniformStepDistribution<typename MatrixType::Scalar>>
+    template<typename MatrixType, typename VectorType, typename ChordStepDistribution = UniformStepDistribution<typename MatrixType::Scalar>, bool Precise = true>
     class HitAndRunProposal {
     public:
         using StateType = VectorType;
@@ -29,7 +29,7 @@ namespace hops {
         [[nodiscard]] typename MatrixType::Scalar computeLogAcceptanceProbability() {
             return chordStepDistribution.computeInverseNormalizationConstant(0, backwardDistance, forwardDistance)
                    - chordStepDistribution.computeInverseNormalizationConstant(0, backwardDistance - step,
-                                                                                 forwardDistance - step);
+                                                                               forwardDistance - step);
         }
 
         [[nodiscard]] typename MatrixType::Scalar getStepSize() const;
@@ -52,10 +52,11 @@ namespace hops {
         typename MatrixType::Scalar backwardDistance;
     };
 
-    template<typename MatrixType, typename VectorType, typename ChordStepDistribution>
-    HitAndRunProposal<MatrixType, VectorType, ChordStepDistribution>::HitAndRunProposal(MatrixType A_,
-                                                                                        VectorType b_,
-                                                                                        VectorType currentState_) :
+    template<typename MatrixType, typename VectorType, typename ChordStepDistribution, bool Precise>
+    HitAndRunProposal<MatrixType, VectorType, ChordStepDistribution, Precise>::HitAndRunProposal(MatrixType A_,
+                                                                                                 VectorType b_,
+                                                                                                 VectorType currentState_)
+            :
             A(std::move(A_)),
             b(std::move(b_)),
             state(std::move(currentState_)) {
@@ -63,8 +64,8 @@ namespace hops {
         updateDirection = state;
     }
 
-    template<typename MatrixType, typename VectorType, typename ChordStepDistribution>
-    void HitAndRunProposal<MatrixType, VectorType, ChordStepDistribution>::propose(
+    template<typename MatrixType, typename VectorType, typename ChordStepDistribution, bool Precise>
+    void HitAndRunProposal<MatrixType, VectorType, ChordStepDistribution, Precise>::propose(
             RandomNumberGenerator &randomNumberGenerator) {
         for (long i = 0; i < updateDirection.rows(); ++i) {
             updateDirection(i) = normalDistribution(randomNumberGenerator);
@@ -81,52 +82,59 @@ namespace hops {
         proposal = state + updateDirection * step;
     }
 
-    template<typename MatrixType, typename VectorType, typename ChordStepDistribution>
-    void HitAndRunProposal<MatrixType, VectorType, ChordStepDistribution>::acceptProposal() {
+    template<typename MatrixType, typename VectorType, typename ChordStepDistribution, bool Precise>
+    void HitAndRunProposal<MatrixType, VectorType, ChordStepDistribution, Precise>::acceptProposal() {
         state = proposal;
-        slacks.noalias() -= A * updateDirection * step;
+        if (Precise) {
+            slacks = b - A * state;
+            if ((slacks.array() <= 0).any()) {
+                throw std::runtime_error("Hit-and-Run sampled point outside of polytope.");
+            }
+        } else {
+            slacks.noalias() -= A * updateDirection * step;
+        }
     }
 
-    template<typename MatrixType, typename VectorType, typename ChordStepDistribution>
-    typename HitAndRunProposal<MatrixType, VectorType, ChordStepDistribution>::StateType
-    HitAndRunProposal<MatrixType, VectorType, ChordStepDistribution>::getState() const {
+    template<typename MatrixType, typename VectorType, typename ChordStepDistribution, bool Precise>
+    typename HitAndRunProposal<MatrixType, VectorType, ChordStepDistribution, Precise>::StateType
+    HitAndRunProposal<MatrixType, VectorType, ChordStepDistribution, Precise>::getState() const {
         return state;
     }
 
-    template<typename MatrixType, typename VectorType, typename ChordStepDistribution>
-    typename HitAndRunProposal<MatrixType, VectorType, ChordStepDistribution>::StateType
-    HitAndRunProposal<MatrixType, VectorType, ChordStepDistribution>::getProposal() const {
+    template<typename MatrixType, typename VectorType, typename ChordStepDistribution, bool Precise>
+    typename HitAndRunProposal<MatrixType, VectorType, ChordStepDistribution, Precise>::StateType
+    HitAndRunProposal<MatrixType, VectorType, ChordStepDistribution, Precise>::getProposal() const {
         return proposal;
     }
 
-    template<typename MatrixType, typename VectorType, typename ChordStepDistribution>
-    void HitAndRunProposal<MatrixType, VectorType, ChordStepDistribution>::setState(StateType newState) {
+    template<typename MatrixType, typename VectorType, typename ChordStepDistribution, bool Precise>
+    void HitAndRunProposal<MatrixType, VectorType, ChordStepDistribution, Precise>::setState(StateType newState) {
         HitAndRunProposal::state = std::move(newState);
         slacks = b - A * HitAndRunProposal::state;
     }
 
-    template<typename MatrixType, typename VectorType, typename ChordStepDistribution>
-    void HitAndRunProposal<MatrixType, VectorType, ChordStepDistribution>::setStepSize(
+    template<typename MatrixType, typename VectorType, typename ChordStepDistribution, bool Precise>
+    void HitAndRunProposal<MatrixType, VectorType, ChordStepDistribution, Precise>::setStepSize(
             typename MatrixType::Scalar stepSize) {
         if constexpr (IsSetStepSizeAvailable<ChordStepDistribution>::value) {
             chordStepDistribution.setStepSize(stepSize);
         } else {
-            (void)stepSize;
+            (void) stepSize;
             throw std::runtime_error("Step size not available.");
         }
     }
 
-    template<typename MatrixType, typename VectorType, typename ChordStepDistribution>
+    template<typename MatrixType, typename VectorType, typename ChordStepDistribution, bool Precise>
     typename MatrixType::Scalar
-    HitAndRunProposal<MatrixType, VectorType, ChordStepDistribution>::getStepSize() const {
+    HitAndRunProposal<MatrixType, VectorType, ChordStepDistribution, Precise>::getStepSize() const {
         if constexpr (IsSetStepSizeAvailable<ChordStepDistribution>::value) {
             return chordStepDistribution.getStepSize();
         }
         throw std::runtime_error("Step size not available.");
     }
 
-    template<typename MatrixType, typename VectorType, typename ChordStepDistribution>
-    std::string HitAndRunProposal<MatrixType, VectorType, ChordStepDistribution>::getName() {
+    template<typename MatrixType, typename VectorType, typename ChordStepDistribution, bool Precise>
+    std::string HitAndRunProposal<MatrixType, VectorType, ChordStepDistribution, Precise>::getName() {
         return "Hit-and-Run";
     }
 }
