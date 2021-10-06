@@ -8,18 +8,17 @@ namespace hops {
     /**
      * @Brief An adapter that allows the usage of hops sampling algorithms and hops compatible models with DNest4
      * @tparam PriorSampler A chain that draws from the prior, e.g. a uniform markov chain from the MarkovChainFactory
-     * @tparam PosteriorProposer A proposal mechanism for getting samples from the posterior
+     * @tparam PosteriorSampler A proposal mechanism for getting samples from the posterior
      * @tparam Model
      */
-    template<typename PriorSampler, typename PosteriorProposer, typename Model>
-    class DNest4DAdapter {
+    template<typename PriorSampler, typename PosteriorSampler>
+    class DNest4Adapter : public PriorSampler, PosteriorSampler {
     public:
-        explicit DNest4DAdapter(const PriorSampler &priorSampler,
-                                const PosteriorProposer &posteriorProposer,
-                                const Model &model) :
+
+        DNest4Adapter(const PriorSampler &priorSampler,
+                                const PosteriorSampler &posteriorSampler):
                 PriorSampler(priorSampler),
-                PosteriorProposer(posteriorProposer),
-                Model(model) {
+                PosteriorSampler(posteriorSampler) {
             this->state = PriorSampler::getState();
         }
 
@@ -51,39 +50,41 @@ namespace hops {
         [[nodiscard]] std::string description() const;
 
     private:
-        typename PosteriorProposer::StateType state;
+        typename PosteriorSampler::StateType state;
         static constexpr const int numberOfPriorSteps = 100;
     };
 
-    template<typename PriorMarkovChain, typename PosteriorProposer, typename Model>
-    void DNest4DAdapter<PriorMarkovChain, PosteriorProposer, Model>::from_prior(DNest4::RNG &rng) {
+    template<typename PriorSampler, typename PosteriorSampler>
+    void DNest4Adapter<PriorSampler, PosteriorSampler>::from_prior(DNest4::RNG &rng) {
         for (int i = 0; i < this->numberOfPriorSteps; ++i) {
-            PriorMarkovChain::draw(rng);
+            PriorSampler::draw(rng);
         }
-        this->state = PriorMarkovChain::getStateRecords().back();
+        this->state = PriorSampler::getStateRecords().back();
     }
 
-    template<typename PriorMarkovChain, typename PosteriorProposer, typename Model>
-    double DNest4DAdapter<PriorMarkovChain, PosteriorProposer, Model>::perturb(DNest4::RNG &rng) {
-        PosteriorProposer::propose(rng);
-        PosteriorProposer::acceptProposal();
-        this->state = PosteriorProposer::getState();
-        return PosteriorProposer::computeLogAcceptanceChanceProbability();
+    template<typename PriorSampler, typename PosteriorSampler>
+    double DNest4Adapter<PriorSampler, PosteriorSampler>::perturb(DNest4::RNG &rng) {
+        // TODO check if this is correct
+        PosteriorSampler::setState(this->state);
+        PosteriorSampler::propose(rng);
+        PosteriorSampler::acceptProposal();
+        this->state = PosteriorSampler::getState();
+        return PosteriorSampler::computeLogAcceptanceChanceProbability();
     }
 
-    template<typename PriorMarkovChain, typename PosteriorProposer, typename Model>
-    double DNest4DAdapter<PriorMarkovChain, PosteriorProposer, Model>::log_likelihood() const {
-        return -Model::computeNegativeLogLikelihood(this->state);
+    template<typename PriorSampler, typename PosteriorSampler>
+    double DNest4Adapter<PriorSampler, PosteriorSampler>::log_likelihood() const {
+        return -PosteriorSampler::computeNegativeLogLikelihood(this->state);
     }
 
-    template<typename PriorMarkovChain, typename PosteriorProposer, typename Model>
-    void DNest4DAdapter<PriorMarkovChain, PosteriorProposer, Model>::print(std::ostream &out) const {
+    template<typename PriorSampler, typename PosteriorSampler>
+    void DNest4Adapter<PriorSampler, PosteriorSampler>::print(std::ostream &out) const {
         for (long i = 0; i < this->getState().get.size(); i++)
             out << this->getState(i) << " ";
     }
 
-    template<typename PriorMarkovChain, typename PosteriorProposer, typename Model>
-    std::string DNest4DAdapter<PriorMarkovChain, PosteriorProposer, Model>::description() const {
+    template<typename PriorSampler, typename PosteriorSampler>
+    std::string DNest4Adapter<PriorSampler, PosteriorSampler>::description() const {
         // TODO if implements getParameterNames() then return those as string
         std::string description;
         for (long i = 0; i < state.rows(); ++i) {
@@ -92,7 +93,6 @@ namespace hops {
         description.pop_back();
         return description;
     }
-
 }
 
 
