@@ -16,11 +16,11 @@ BOOST_AUTO_TEST_SUITE(DNest4AdapterTestSuite)
     BOOST_AUTO_TEST_CASE(TestGaussianModelEvidenceIsCorrect) {
 
         {
+
             Eigen::VectorXd mean(1);
             mean << 0;
             Eigen::MatrixXd covariance(1, 1);
             covariance << 1;
-
             // constrain to [-5, 5]
             Eigen::MatrixXd A(2, 1);
             A << 1, -1;
@@ -36,8 +36,9 @@ BOOST_AUTO_TEST_SUITE(DNest4AdapterTestSuite)
                             gaussian
                     )
             );
+            auto* const constructor = new hops::DNest4AdapterConstructor(priorSampler, posteriorSampler);
 
-            hops::DNest4Adapter modelImpl(priorSampler, posteriorSampler);
+            hops::DNest4Adapter<decltype(priorSampler), decltype(posteriorSampler), constructor> modelImpl;
 
             DNest4::Options sampler_options(5, // num_particles
                             10000, // new_level_interval
@@ -48,6 +49,11 @@ BOOST_AUTO_TEST_SUITE(DNest4AdapterTestSuite)
                             100, // beta
                             10000 // max_num_saves
             );
+
+            class DNest4Model : public decltype(modelImpl) {
+            public:
+                DNest4Model() = default;
+            };
 
             // Create sampler
             DNest4::Sampler<decltype(modelImpl)> sampler(4, // threads
