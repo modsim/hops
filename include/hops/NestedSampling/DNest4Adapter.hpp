@@ -15,10 +15,10 @@ namespace hops {
     class DNest4DAdapter {
     public:
         explicit DNest4DAdapter(const PriorSampler &priorSampler,
-                                const PosteriorProposer &PosteriorProposer,
+                                const PosteriorProposer &posteriorProposer,
                                 const Model &model) :
                 PriorSampler(priorSampler),
-                PosteriorProposer(PosteriorProposer),
+                PosteriorProposer(posteriorProposer),
                 Model(model) {
             this->state = PriorSampler::getState();
         }
@@ -51,7 +51,7 @@ namespace hops {
         [[nodiscard]] std::string description() const;
 
     private:
-        MarkovChain::StateType state;
+        typename PosteriorProposer::StateType state;
         static constexpr const int numberOfPriorSteps = 100;
     };
 
@@ -65,15 +65,15 @@ namespace hops {
 
     template<typename PriorMarkovChain, typename PosteriorProposer, typename Model>
     double DNest4DAdapter<PriorMarkovChain, PosteriorProposer, Model>::perturb(DNest4::RNG &rng) {
-        PosteriorProposer.propose(rng);
-        PosteriorProposer.acceptProposal();
-        this->state = PosteriorProposer.getState();
-        return PosteriorProposer.computeLogAcceptanceChanceProbability();
+        PosteriorProposer::propose(rng);
+        PosteriorProposer::acceptProposal();
+        this->state = PosteriorProposer::getState();
+        return PosteriorProposer::computeLogAcceptanceChanceProbability();
     }
 
     template<typename PriorMarkovChain, typename PosteriorProposer, typename Model>
     double DNest4DAdapter<PriorMarkovChain, PosteriorProposer, Model>::log_likelihood() const {
-        return -model.computeNegativeLogLikelihood(this->state);
+        return -Model::computeNegativeLogLikelihood(this->state);
     }
 
     template<typename PriorMarkovChain, typename PosteriorProposer, typename Model>
@@ -87,7 +87,7 @@ namespace hops {
         // TODO if implements getParameterNames() then return those as string
         std::string description;
         for (long i = 0; i < state.rows(); ++i) {
-            description += "dim " + std::to_string(i) + " ,"
+            description += "dim " + std::to_string(i) + " ,";
         }
         description.pop_back();
         return description;
