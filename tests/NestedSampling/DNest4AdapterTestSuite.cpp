@@ -4,25 +4,64 @@
 #include <boost/test/included/unit_test.hpp>
 #include <hops/NestedSampling/DNest4Adapter.hpp>
 #include <Eigen/Core>
+
+#include <hops/MarkovChain/Draw/NoOpDrawAdapter.hpp>
+#include <hops/MarkovChain/Draw/MetropolisHastingsFilter.hpp>
+#include <hops/MarkovChain/Proposal/GaussianProposal.hpp>
 #include <hops/Model/MultivariateGaussianModel.hpp>
+#include <hops/Model/ModelMixin.hpp>
 
 BOOST_AUTO_TEST_SUITE(DNest4AdapterTestSuite)
-BOOST_AUTO_TEST_CASE(TestGaussianModelEvidenceIsCorrect) {
-    Eigen::MatrixXd A(2, 1);
-    A << 1, -1;
-    Eigen::VectorXd b(2);
-    b << 5, 5;
 
-    Eigen::MatrixXd cov(1, 1);
-    cov << 1;
-    Eigen::VectorXd mu(1);
-    mu << 0;
+    BOOST_AUTO_TEST_CASE(TestGaussianModelEvidenceIsCorrect) {
 
-    auto model = hops::MultivariateGaussianModel(mu, cov);
+        {
+            Eigen::VectorXd mean(1);
+            mean << 0;
+            Eigen::MatrixXd covariance(1, 1);
+            covariance << 1;
 
-    auto priorSampler = ;
+            // constrain to [-5, 5]
+            Eigen::MatrixXd A(2, 1);
+            A << 1, -1;
+            Eigen::VectorXd b(2);
+            b << 5, 5;
 
-    auto posteriorSampler;
+            hops::MultivariateGaussianModel<Eigen::MatrixXd, Eigen::VectorXd> gaussian(mean, covariance);
 
-}
+            auto priorSampler = hops::NoOpDrawAdapter(hops::GaussianProposal<decltype(A), decltype(b)>(A, b, mean));
+            auto posteriorSampler = hops::MetropolisHastingsFilter(
+                    hops::ModelMixin(
+                            hops::GaussianProposal<decltype(A), decltype(b)>(A, b, mean),
+                            gaussian
+                    )
+            );
+
+            hops::DNest4Adapter modelImpl(priorSampler, posteriorSampler);
+
+            DNest4::Options sampler_options(5, // num_particles
+                            10000, // new_level_interval
+                            10000, // save_interval
+                            100, // thread_steps
+                            80, // max_num_levels
+                            10, // lambda
+                            100, // beta
+                            10000 // max_num_saves
+            );
+
+            // Create sampler
+            DNest4::Sampler<decltype(modelImpl)> sampler(4, // threads
+                                                     2.7182818284590451, // compression double
+                                                     sampler_options,
+                                                     true, // save to disk
+                                                     false // adaptive
+            );
+
+            // Seed RNGs
+//            sampler.initialise(42);
+//
+//            sampler.run();
+        }
+    }
+
 BOOST_AUTO_TEST_SUITE_END()

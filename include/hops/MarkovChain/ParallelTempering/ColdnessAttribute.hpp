@@ -15,7 +15,7 @@ namespace hops {
     public:
         explicit ColdnessAttribute(const Model &markovChainImpl, double coldness = 1)
                 : // NOLINT(cppcoreguidelines-pro-type-member-init)
-                Model(markovChainImpl) {
+                Model(markovChainImpl), Model(<#initializer#>, <#initializer#>) {
             setColdness(coldness);
         }
 
