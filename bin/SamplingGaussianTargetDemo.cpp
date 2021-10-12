@@ -1,15 +1,7 @@
 #include <Eigen/SparseCore>
-#include <hops/FileReader/CsvReader.hpp>
-#include <hops/FileWriter/FileWriterFactory.hpp>
-#include <hops/LinearProgram/LinearProgramFactory.hpp>
-#include <hops/MarkovChain/MarkovChainFactory.hpp>
-#include <hops/Model/MultivariateGaussianModel.hpp>
-#include <hops/MarkovChain/Tuning/BinarySearchAcceptanceRateTuner.hpp>
-#include <hops/Polytope/NormalizePolytope.hpp>
 #include <iostream>
-#include <hops/Polytope/MaximumVolumeEllipsoid.hpp>
-#include <hops/MarkovChain/Tuning/AcceptanceRateTuner.hpp>
 #include <filesystem>
+#include <hops/hops.hpp>
 
 int main(int argc, char **argv) {
     if (argc != 8 && argc != 7) {
