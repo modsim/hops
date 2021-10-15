@@ -6,45 +6,17 @@
 namespace hops {
 
     /**
-     * @Brief DNest4 requires ModelTypes to be default constructable. This helper class allows making the
-     *          DNest4Adapter default-constructable while still passing data about the polytope and the samplers.
-     * @tparam PriorSampler
-     * @tparam PosteriorSampler
-     */
-    template<typename PriorSampler, typename PosteriorSampler>
-    class DNest4AdapterConstructor {
-    public:
-        DNest4AdapterConstructor(PriorSampler priorSampler, PosteriorSampler posteriorSampler) :
-                priorSampler(std::move(priorSampler)),
-                posteriorSampler(std::move(posteriorSampler)) {}
-
-        PriorSampler getPriorSampler() const {
-            return priorSampler;
-        }
-
-        PosteriorSampler getPosteriorSampler() const {
-            return posteriorSampler;
-        }
-
-    private:
-        PriorSampler priorSampler;
-        PosteriorSampler posteriorSampler;
-    };
-
-    /**
      * @Brief An adapter that allows the usage of hops sampling algorithms and hops compatible models with DNest4
      * @tparam PriorSampler A chain that draws from the prior, e.g. a uniform markov chain from the MarkovChainFactory
      * @tparam PosteriorSampler A proposal mechanism for getting samples from the posterior
      * @tparam Model
      */
-    template<typename PriorSampler, typename PosteriorSampler, DNest4AdapterConstructor<PriorSampler, PosteriorSampler> *constructor>
-    class DNest4Adapter {
+    template<typename ModelImplType>
+    class DNest4Adapter : public ModelImplType {
     public:
-
         DNest4Adapter() {
-            priorSampler = constructor->getPriorSampler();
-            posteriorSampler = constructor->getPosteriorSampler();
-            this->state = priorSampler.getState();
+
+            this->state = ModelImplType::getPriorSampler()->getState();
         }
 
         /**
@@ -75,44 +47,56 @@ namespace hops {
         [[nodiscard]] std::string description() const;
 
     private:
-        typename PosteriorSampler::StateType state;
-        static constexpr const int numberOfPriorSteps = 100;
-
-        PriorSampler priorSampler;
-        PosteriorSampler posteriorSampler;
+        typename ModelImplType::StateType state;
+        static constexpr const int numberOfPriorSteps = 1;
     };
 
-    template<typename PriorSampler, typename PosteriorSampler, DNest4AdapterConstructor<PriorSampler, PosteriorSampler> * constructor>
-    void DNest4Adapter<PriorSampler, PosteriorSampler, constructor>::from_prior(DNest4::RNG &rng) {
-//        for (int i = 0; i < this->numberOfPriorSteps; ++i) {
-//            PriorSampler::draw(rng);
-//        }
-//        this->state = PriorSampler::getStateRecords().back();
+    template<typename ModelImplType>
+    void DNest4Adapter<ModelImplType>::from_prior(DNest4::RNG &rng) {
+        if(!ModelImplType::isRngInitialized()) {
+            int seed = rng.rand_int(std::numeric_limits<int>::max()-1);
+            ModelImplType::seedRng(seed);
+        }
+        for (int i = 0; i < this->numberOfPriorSteps; ++i) {
+            ModelImplType::getPriorSampler()->draw(ModelImplType::getRandomNumberGenerator());
+        }
+        this->state = ModelImplType::getPriorSampler()->getState();
+        // TODO clear records
     }
 
-    template<typename PriorSampler, typename PosteriorSampler, DNest4AdapterConstructor<PriorSampler, PosteriorSampler> * constructor>
-    double DNest4Adapter<PriorSampler, PosteriorSampler, constructor>::perturb(DNest4::RNG &rng) {
+    template<typename ModelImplType>
+    double DNest4Adapter<ModelImplType>::perturb(DNest4::RNG &rng) {
+        if(!ModelImplType::isRngInitialized()) {
+            int seed = rng.rand_int(std::numeric_limits<int>::max()-1);
+            ModelImplType::seedRng(seed);
+        }
         // TODO check if this is correct
-//        PosteriorSampler::setState(this->state);
-//        PosteriorSampler::propose(rng);
-//        PosteriorSampler::acceptProposal();
-//        this->state = PosteriorSampler::getState();
-//        return PosteriorSampler::computeLogAcceptanceChanceProbability();
+//        ModelImplType::getPosteriorSampler()->setState(this->state);
+//        ModelImplType::getPosteriorSampler()->propose(ModelImplType::getRandomNumberGenerator());
+//        double acceptanceProbability = ModelImplType::getPosteriorSampler()->computeLogAcceptanceProbability();
+//        ModelImplType::getPosteriorSampler()->acceptProposal();
+//        this->state = ModelImplType::getPosteriorSampler()->getState();
+//        return acceptanceProbability;
+        for (int i = 0; i < this->numberOfPriorSteps; ++i) {
+            ModelImplType::getPriorSampler()->draw(ModelImplType::getRandomNumberGenerator());
+        }
+        this->state = ModelImplType::getPriorSampler()->getState();
+        return 0;
     }
 
-    template<typename PriorSampler, typename PosteriorSampler, DNest4AdapterConstructor<PriorSampler, PosteriorSampler> * constructor>
-    double DNest4Adapter<PriorSampler, PosteriorSampler, constructor>::log_likelihood() const {
-//        return -PosteriorSampler::computeNegativeLogLikelihood(this->state);
+    template<typename ModelImplType>
+    double DNest4Adapter<ModelImplType>::log_likelihood() const {
+        return -ModelImplType::getPosteriorSampler()->computeNegativeLogLikelihood(this->state);
     }
 
-    template<typename PriorSampler, typename PosteriorSampler, DNest4AdapterConstructor<PriorSampler, PosteriorSampler> * constructor>
-    void DNest4Adapter<PriorSampler, PosteriorSampler, constructor>::print(std::ostream &out) const {
-        for (long i = 0; i < this->getState().get.size(); i++)
-            out << this->getState(i) << " ";
+    template<typename ModelImplType>
+    void DNest4Adapter<ModelImplType>::print(std::ostream &out) const {
+        for (long i = 0; i < ModelImplType::getPosteriorSampler()->getState().rows(); i++)
+            out << ModelImplType::getPosteriorSampler()->getState()(i) << " ";
     }
 
-    template<typename PriorSampler, typename PosteriorSampler, DNest4AdapterConstructor<PriorSampler, PosteriorSampler> * constructor>
-    std::string DNest4Adapter<PriorSampler, PosteriorSampler, constructor>::description() const {
+    template<typename ModelImplType>
+    std::string DNest4Adapter<ModelImplType>::description() const {
         // TODO if implements getParameterNames() then return those as string
         std::string description;
         for (long i = 0; i < state.rows(); ++i) {
