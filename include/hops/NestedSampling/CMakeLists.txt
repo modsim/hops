@@ -8,7 +8,7 @@ if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
                 NestedSamplerFactory.hpp
                 )
         target_include_directories(hops PRIVATE ${DNest4_INCLUDE_DIR})
-        target_link_libraries(hops PRIVATE ${DNest4_LIBRARY})
+        target_link_libraries(hops PUBLIC ${DNest4_LIBRARY})
     else (DNest4_FOUND)
         message(WARNING "Did not find DNest4 on this system. The Nested sampling feature will not be built.")
     endif (DNest4_FOUND)
