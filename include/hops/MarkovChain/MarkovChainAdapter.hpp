@@ -109,12 +109,6 @@ namespace hops {
 
         double getAttribute(MarkovChainAttribute markovChainAttribute) override {
             switch (markovChainAttribute) {
-                case MarkovChainAttribute::STEP_SIZE: {
-                    if constexpr(IsGetStepSizeAvailable<MarkovChainImpl>::value) {
-                        return MarkovChainImpl::getStepSize();
-                    }
-                    throw std::runtime_error("STEP_SIZE attribute does not exist.");
-                }
                 case MarkovChainAttribute::PARALLEL_TEMPERING_COLDNESS: {
                     if constexpr(IsGetColdnessAvailable<MarkovChainImpl>::value) {
                         return MarkovChainImpl::getColdness();
@@ -127,6 +121,15 @@ namespace hops {
                         return MarkovChainImpl::getExchangeAttemptProbability();
                     }
                     throw std::runtime_error("PARALLEL_TEMPERING_EXCHANGE_PROBABILITY attribute does not exist.");
+                }
+                case MarkovChainAttribute::PREVIOUS_STEP_ACCEPTANCE_PROBABILITY: {
+                   return MarkovChainImpl::computeLogAcceptanceProbability();
+                }
+                case MarkovChainAttribute::STEP_SIZE: {
+                    if constexpr(IsGetStepSizeAvailable<MarkovChainImpl>::value) {
+                        return MarkovChainImpl::getStepSize();
+                    }
+                    throw std::runtime_error("STEP_SIZE attribute does not exist.");
                 }
                 default: {
                     throw std::runtime_error("Attribute does not exist.");

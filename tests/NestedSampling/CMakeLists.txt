@@ -21,3 +21,6 @@ foreach (TEST_SOURCE ${TEST_SOURCES})
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
             COMMAND ${TEST_NAME} --log_format=JUNIT --log_sink=${PROJECT_BINARY_DIR}/test-reports/${TEST_NAME}.xml --log_level=all --report_level=detailed)
 endforeach (TEST_SOURCE)
+
+
+# TODO TODO add postprocessing test to check evidence

@@ -15,6 +15,9 @@ namespace hops {
         using MatrixType = Matrix;
         using VectorType = Vector;
 
+
+        MultivariateGaussianModel();
+
         MultivariateGaussianModel(VectorType mean, MatrixType covariance);
 
         /**
@@ -34,6 +37,22 @@ namespace hops {
         MatrixType inverseCovariance;
         typename MatrixType::Scalar logNormalizationConstant;
     };
+
+    template<typename MatrixType, typename VectorType>
+    MultivariateGaussianModel<MatrixType, VectorType>::MultivariateGaussianModel() {
+        this->mean = VectorType::Zero(1);
+        this->covariance = MatrixType::Identity(1, 1);
+
+        Eigen::LLT<MatrixType, Eigen::Upper> solver(this->covariance);
+        Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic> matrixL = solver.matrixL();
+        Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic> matrixU = solver.matrixU();
+        Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic> inverseMatrixL = matrixL.inverse();
+        inverseCovariance = inverseMatrixL * inverseMatrixL.transpose();
+
+        logNormalizationConstant = -static_cast<typename MatrixType::Scalar>(this->mean.rows()) / 2 *
+                                   std::log(2 * M_PI)
+                                   - matrixL.diagonal().array().log().sum();
+    }
 
     template<typename MatrixType, typename VectorType>
     MultivariateGaussianModel<MatrixType, VectorType>::MultivariateGaussianModel(VectorType mean,

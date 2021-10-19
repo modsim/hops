@@ -5,6 +5,7 @@ if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
         message(STATUS "Found DNest4 at ${DNest4_INCLUDE_DIR} (includes), ${DNest4_LIBRARY} (library)")
         target_sources(hops PRIVATE
                 DNest4Adapter.hpp
+                DNest4EnvironmentSingleton.hpp
                 NestedSamplerFactory.hpp
                 )
         target_include_directories(hops PRIVATE ${DNest4_INCLUDE_DIR})

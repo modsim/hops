@@ -7,16 +7,13 @@ namespace hops {
 
     /**
      * @Brief An adapter that allows the usage of hops sampling algorithms and hops compatible models with DNest4
-     * @tparam PriorSampler A chain that draws from the prior, e.g. a uniform markov chain from the MarkovChainFactory
-     * @tparam PosteriorSampler A proposal mechanism for getting samples from the posterior
-     * @tparam Model
      */
-    template<typename ModelImplType>
-    class DNest4Adapter : public ModelImplType {
+    template<typename Environment>
+    class DNest4Adapter{
     public:
         DNest4Adapter() {
-
-            this->state = ModelImplType::getPriorSampler()->getState();
+            environment = Environment::getInstance();
+            this->state = environment.getSampler()->getState();
         }
 
         /**
@@ -47,21 +44,18 @@ namespace hops {
         [[nodiscard]] std::string description() const;
 
     private:
-        typename ModelImplType::StateType state;
-        static constexpr const int numberOfPriorSteps = 1;
+        Environment environment;
+        typename Environment::StateType state;
     };
 
     template<typename ModelImplType>
     void DNest4Adapter<ModelImplType>::from_prior(DNest4::RNG &rng) {
-        if(!ModelImplType::isRngInitialized()) {
+        if(!environment.isRngInitialized()) {
             int seed = rng.rand_int(std::numeric_limits<int>::max()-1);
-            ModelImplType::seedRng(seed);
+            environment.seedRng(seed);
         }
-        for (int i = 0; i < this->numberOfPriorSteps; ++i) {
-            ModelImplType::getPriorSampler()->draw(ModelImplType::getRandomNumberGenerator());
-        }
-        this->state = ModelImplType::getPriorSampler()->getState();
-        // TODO clear records
+        ModelImplType::getSampler()->draw(ModelImplType::getRandomNumberGenerator());
+        this->state = ModelImplType::getSampler()->getState();
     }
 
     template<typename ModelImplType>
@@ -70,29 +64,20 @@ namespace hops {
             int seed = rng.rand_int(std::numeric_limits<int>::max()-1);
             ModelImplType::seedRng(seed);
         }
-        // TODO check if this is correct
-//        ModelImplType::getPosteriorSampler()->setState(this->state);
-//        ModelImplType::getPosteriorSampler()->propose(ModelImplType::getRandomNumberGenerator());
-//        double acceptanceProbability = ModelImplType::getPosteriorSampler()->computeLogAcceptanceProbability();
-//        ModelImplType::getPosteriorSampler()->acceptProposal();
-//        this->state = ModelImplType::getPosteriorSampler()->getState();
-//        return acceptanceProbability;
-        for (int i = 0; i < this->numberOfPriorSteps; ++i) {
-            ModelImplType::getPriorSampler()->draw(ModelImplType::getRandomNumberGenerator());
-        }
-        this->state = ModelImplType::getPriorSampler()->getState();
-        return 0;
+        ModelImplType::getSampler()->draw(ModelImplType::getRandomNumberGenerator());
+        this->state = ModelImplType::getSampler()->getState();
+        return ModelImplType::getSampler()->computeLogAcceptanceProbability();
     }
 
     template<typename ModelImplType>
     double DNest4Adapter<ModelImplType>::log_likelihood() const {
-        return -ModelImplType::getPosteriorSampler()->computeNegativeLogLikelihood(this->state);
+        return -ModelImplType::getModel()->computeNegativeLogLikelihood(this->state);
     }
 
     template<typename ModelImplType>
     void DNest4Adapter<ModelImplType>::print(std::ostream &out) const {
-        for (long i = 0; i < ModelImplType::getPosteriorSampler()->getState().rows(); i++)
-            out << ModelImplType::getPosteriorSampler()->getState()(i) << " ";
+        for (long i = 0; i < this->state.rows(); i++)
+            out << this->state(i) << " ";
     }
 
     template<typename ModelImplType>
