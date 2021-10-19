@@ -2,11 +2,13 @@
 #define HOPS_MARKOVCHAINATTRIBUTE_HPP
 
 namespace hops {
+    // TODO rename to MarkovChainProperty?
     enum class MarkovChainAttribute {
         FISHER_WEIGHT,
-        STEP_SIZE,
         PARALLEL_TEMPERING_COLDNESS,
-        PARALLEL_TEMPERING_EXCHANGE_PROBABILITY
+        PARALLEL_TEMPERING_EXCHANGE_PROBABILITY,
+        PREVIOUS_STEP_ACCEPTANCE_PROBABILITY,
+        STEP_SIZE,
     };
 }
 

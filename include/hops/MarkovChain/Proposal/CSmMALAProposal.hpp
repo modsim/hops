@@ -94,7 +94,7 @@ namespace hops {
             Model(model),
             A(std::move(A)),
             b(std::move(b)),
-            dikinEllipsoidCalculator(this->A, this->b), Model(<#initializer#>, <#initializer#>) {
+            dikinEllipsoidCalculator(this->A, this->b) {
         stateMetric = Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>::Zero(
                 currentState.rows(), currentState.rows());
         proposalMetric = Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>::Zero(
