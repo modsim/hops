@@ -47,6 +47,11 @@ namespace hops {
             return params.phiUpper - params.phiLower;
         }
 
+        RealType probabilityDensity(RealType x, RealType sigma, RealType lowerBound, RealType upperBound){
+            RealType pdf = 1./(sigma * sqrt_2pi) * std::exp(-(1./2)*std::pow(x/sigma, 2));
+            return pdf / inverseNormalization(param_type(sigma, lowerBound, upperBound));
+        }
+
     private:
         RealType inverseCumulativeDensityFunction(RealType x, const param_type &params) const {
             x *= params.phiUpper - params.phiLower;

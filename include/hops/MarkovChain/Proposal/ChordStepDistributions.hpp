@@ -31,6 +31,13 @@ namespace hops {
             return truncatedNormalDistribution(randomNumberGenerator, {stepSize, lowerLimit, upperLimit});
         }
 
+        RealType draw(RandomNumberGenerator &randomNumberGenerator,
+                          double sigma,
+                          RealType lowerLimit,
+                          RealType upperLimit) {
+            return truncatedNormalDistribution(randomNumberGenerator, {sigma, lowerLimit, upperLimit});
+        }
+
         RealType getStepSize() const {
             return stepSize;
         }
@@ -41,6 +48,10 @@ namespace hops {
 
         RealType computeInverseNormalizationConstant(RealType sigma, RealType lowerBound, RealType upperBound) {
             return truncatedNormalDistribution.inverseNormalization({sigma, lowerBound, upperBound});
+        }
+
+        RealType computeProbabilityDensity(RealType x, RealType sigma, RealType lowerBound, RealType upperBound){
+            return truncatedNormalDistribution.probabilityDensity(x, sigma, lowerBound, upperBound);
         }
 
     private:

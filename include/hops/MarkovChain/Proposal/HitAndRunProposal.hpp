@@ -7,7 +7,7 @@
 #include <random>
 
 namespace hops {
-    template<typename MatrixType, typename VectorType, typename ChordStepDistribution = UniformStepDistribution<typename MatrixType::Scalar>, bool Precise = true>
+    template<typename MatrixType, typename VectorType, typename ChordStepDistribution = UniformStepDistribution<typename MatrixType::Scalar>, bool Precise = false>
     class HitAndRunProposal {
     public:
         using StateType = VectorType;
@@ -36,11 +36,15 @@ namespace hops {
 
         std::string getName();
 
+
+    protected:
+        // state and proposal are protected to allow RJMCMC mixins to set state and proposals
+        StateType state;
+        StateType proposal;
+
     private:
         MatrixType A;
         VectorType b;
-        StateType state;
-        StateType proposal;
         VectorType slacks;
         VectorType inverseDistances;
 
@@ -75,7 +79,7 @@ namespace hops {
         inverseDistances = (A * updateDirection).cwiseQuotient(slacks);
         forwardDistance = 1. / inverseDistances.maxCoeff();
         backwardDistance = 1. / inverseDistances.minCoeff();
-        assert(backwardDistance < 0 && forwardDistance > 0);
+        assert(backwardDistance <= 0 && forwardDistance >= 0);
         assert(((b - A * state).array() >= 0).all());
 
         step = chordStepDistribution.draw(randomNumberGenerator, backwardDistance, forwardDistance);
@@ -87,7 +91,7 @@ namespace hops {
         state = proposal;
         if (Precise) {
             slacks = b - A * state;
-            if ((slacks.array() <= 0).any()) {
+            if ((slacks.array() < 0).any()) {
                 throw std::runtime_error("Hit-and-Run sampled point outside of polytope.");
             }
         } else {
