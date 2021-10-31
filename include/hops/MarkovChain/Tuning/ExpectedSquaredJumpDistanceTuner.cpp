@@ -9,7 +9,7 @@
 std::tuple<double, double> hops::internal::ExpectedSquaredJumpDistanceTarget::operator()(const Eigen::VectorXd& x) {
     double stepSize = std::pow(10, x(0));
     std::vector<double> expectedSquaredJumpDistances(markovChain.size());
-    #pragma omp parallel for
+    #pragma omp parallel for num_threads(numberOfThreads)
     for (size_t i = 0; i < markovChain.size(); ++i) {
         markovChain[i]->clearHistory();
         markovChain[i]->setAttribute(hops::MarkovChainAttribute::STEP_SIZE, stepSize);
