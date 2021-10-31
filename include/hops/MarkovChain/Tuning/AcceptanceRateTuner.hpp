@@ -6,6 +6,7 @@
 #include <hops/FileWriter/FileWriterType.hpp>
 #include <hops/MarkovChain/MarkovChain.hpp>
 #include <hops/MarkovChain/MarkovChainAttribute.hpp>
+#include <hops/Parallel/OpenMPControls.hpp>
 #include <hops/Optimization/GaussianProcess.hpp>
 #include <hops/Optimization/ThompsonSampling.hpp>
 

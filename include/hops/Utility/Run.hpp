@@ -10,6 +10,7 @@
 #include <hops/MarkovChain/Tuning/ExpectedSquaredJumpDistanceTuner.hpp>
 #include <hops/MarkovChain/Tuning/SimpleExpectedSquaredJumpDistanceTuner.hpp>
 #include <hops/MarkovChain/Tuning/ThompsonSamplingTuner.hpp>
+#include <hops/Parallel/OpenMPControls.hpp>
 #include <hops/Polytope/MaximumVolumeEllipsoid.hpp>
 #include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
 #include <hops/Utility/Data.hpp>
@@ -275,7 +276,7 @@ namespace hops {
             unsigned long k = 0;
             double convergenceStatistics = 0;
             do {
-                #pragma omp parallel for
+                #pragma omp parallel for num_threads(numberOfThreads)
                 for (unsigned long i = 0; i < numberOfChains; ++i) {
                     markovChains[i]->draw(randomNumberGenerators[i], numberOfSamples, thinning);
                 }
