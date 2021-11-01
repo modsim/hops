@@ -4,7 +4,7 @@
 #include <celero/Celero.h>
 #include <hops/FileReader/CsvReader.hpp>
 #include <hops/MarkovChain/MarkovChainFactory.hpp>
-#include <hops/Model/MultivariateGaussianModel.hpp>
+#include <hops/Model/MultivariateGaussian.hpp>
 #include <hops/Transformation/Transformation.hpp>
 #include "PolytopeSpace.hpp"
 

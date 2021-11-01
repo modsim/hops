@@ -4,7 +4,6 @@
 #include <hops/MarkovChain/MarkovChain.hpp>
 
 namespace hops {
-    template<typename Model>
     class DNest4EnvironmentSingleton {
     public:
         using StateType = Model::StateType;
@@ -36,7 +35,7 @@ namespace hops {
 
     private:
         static std::unique_ptr<hops::MarkovChain> sampler;
-        static std::unique_ptr<Model> model;
+        static std::unique_ptr<hops::Model> model;
 
         static bool rngInitialized = false;
         static hops::RandomNumberGenerator rng;

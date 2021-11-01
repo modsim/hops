@@ -6,20 +6,17 @@
 #include <hops/hops.hpp>
 
 namespace {
-    class ModelMock {
+    class ModelMock : public hops::Model {
     public:
-        using VectorType = Eigen::VectorXd;
-        using MatrixType = Eigen::MatrixXd;
-
-        [[maybe_unused]] static double computeNegativeLogLikelihood(const VectorType &) {
-            return 0.;
+        [[nodiscard]] double computeNegativeLogLikelihood(const hops::VectorType &x) const override {
+            return 0;
         }
 
-        [[maybe_unused]] static Eigen::VectorXd computeLogLikelihoodGradient(const VectorType &) {
+        [[nodiscard]] std::optional<hops::VectorType> computeLogLikelihoodGradient(const hops::VectorType &x) const override {
             return Eigen::VectorXd::Ones(2);
         }
 
-        [[maybe_unused]] static Eigen::MatrixXd computeExpectedFisherInformation(const VectorType &) {
+        [[nodiscard]] std::optional<hops::MatrixType> computeExpectedFisherInformation(const hops::VectorType &type) const override {
             return Eigen::MatrixXd::Identity(2, 2);
         }
     };
@@ -34,11 +31,12 @@ public:
         startingPoint = 0.5 * Eigen::VectorXd::Ones(2);
         N = Eigen::MatrixXd::Identity(2, 2);
         shift = Eigen::VectorXd::Ones(2);
+        model = std::make_shared<ModelMock>();
     }
 
     Eigen::MatrixXd A, N;
     Eigen::VectorXd b, startingPoint, shift;
-    ModelMock model;
+    std::shared_ptr<hops::Model> model;
 };
 
 BOOST_AUTO_TEST_SUITE(MarkovchainFactory)
@@ -197,7 +195,7 @@ BOOST_AUTO_TEST_SUITE(MarkovchainFactory)
                         fixture.N,
                         fixture.shift,
                         fixture.model),
-                std::runtime_error
+                std::invalid_argument
         );
     }
 
@@ -223,6 +221,13 @@ BOOST_AUTO_TEST_SUITE(MarkovchainFactory)
         hops::RandomNumberGenerator synchronizedRandomNumberGenerator(42);
         auto fixture = MarkovChainFactoryTestFixture();
         std::unique_ptr<hops::MarkovChain> markovChain;
+        markovChain = hops::MarkovChainFactory::createMarkovChainWithParallelTempering(
+                hops::MarkovChainType::CoordinateHitAndRun,
+                fixture.A,
+                fixture.b,
+                fixture.startingPoint,
+                fixture.model,
+                synchronizedRandomNumberGenerator);
         BOOST_CHECK_NO_THROW(
                 markovChain = hops::MarkovChainFactory::createMarkovChainWithParallelTempering(
                         hops::MarkovChainType::CoordinateHitAndRun,
@@ -299,7 +304,7 @@ BOOST_AUTO_TEST_SUITE(MarkovchainFactory)
                         fixture.shift,
                         fixture.model,
                         synchronizedRandomNumberGenerator),
-                std::runtime_error
+                std::invalid_argument
         );
     }
 

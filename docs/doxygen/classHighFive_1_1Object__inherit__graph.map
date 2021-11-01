@@ -1,0 +1,13 @@
+<map id="HighFive::Object" name="HighFive::Object">
+<area shape="rect" id="node1" title=" " alt="" coords="491,5,619,215"/>
+<area shape="rect" id="node2" href="$classHighFive_1_1Attribute.html" title="Class representing an attribute of a dataset or group." alt="" coords="5,329,151,523"/>
+<area shape="rect" id="node3" href="$classHighFive_1_1DataSet.html" title="Class representing a dataset." alt="" coords="175,292,335,560"/>
+<area shape="rect" id="node4" href="$classHighFive_1_1DataSpace.html" title="Class representing the space (dimensions) of a dataset." alt="" coords="359,263,557,589"/>
+<area shape="rect" id="node5" href="$classHighFive_1_1DataType.html" title="HDF5 Data Type." alt="" coords="581,299,727,553"/>
+<area shape="rect" id="node10" href="$classHighFive_1_1File.html" title="File class." alt="" coords="752,373,860,479"/>
+<area shape="rect" id="node11" href="$classHighFive_1_1Group.html" title="Represents an hdf5 group." alt="" coords="885,358,1010,494"/>
+<area shape="rect" id="node6" href="$classHighFive_1_1AtomicType_3_01char_0fStrLen_0e_4.html" title=" " alt="" coords="282,667,445,759"/>
+<area shape="rect" id="node7" href="$classHighFive_1_1AtomicType_3_01FixedLenStringArray_3_01StrLen_01_4_01_4.html" title=" " alt="" coords="469,659,636,766"/>
+<area shape="rect" id="node8" href="$classHighFive_1_1CompoundType.html" title="Create a compound HDF5 datatype." alt="" coords="661,637,847,788"/>
+<area shape="rect" id="node9" href="$classHighFive_1_1EnumType.html" title="Create a enum HDF5 datatype." alt="" coords="872,652,1063,773"/>
+</map>

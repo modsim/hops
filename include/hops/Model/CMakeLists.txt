@@ -1,13 +1,9 @@
 if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
     target_sources(hops PRIVATE
-            DegenerateMultivariateGaussianModel.hpp
-            DynMultimodalModel.hpp
+            DegenerateMultivariateGaussian.hpp
             GammaModels.hpp
-            IsComputeLogExpectedFisherInformationAvailable.hpp
-            IsComputeLogLikelihoodGradientAvailable.hpp
-            LinearModel.hpp
-            ModelMixin.hpp
-            MultimodalModel.hpp
-            MultivariateGaussianModel.hpp
+            Model.hpp
+            Mixture.hpp
+            MultivariateGaussian.hpp
             )
 endif (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")

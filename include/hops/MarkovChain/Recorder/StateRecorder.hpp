@@ -16,7 +16,7 @@ namespace hops {
     class StateRecorder : public MarkovChainImpl {
     public:
         explicit StateRecorder(const MarkovChainImpl &markovChainImpl) : MarkovChainImpl(markovChainImpl) {
-            records = std::make_shared<std::vector<typename MarkovChainImpl::StateType>>();
+            records = std::make_shared<std::vector<VectorType>>();
         }
 
         void installDataObject(ChainData& chainData) {
@@ -33,7 +33,7 @@ namespace hops {
             }
         }
 
-        const std::vector<typename MarkovChainImpl::StateType>& getStateRecords() const {
+        const std::vector<VectorType>& getStateRecords() const {
             return *records;
         }
 
@@ -56,7 +56,7 @@ namespace hops {
         }
 
     private:
-        std::shared_ptr<std::vector<typename MarkovChainImpl::StateType>> records;
+        std::shared_ptr<std::vector<VectorType>> records;
     };
 
 }

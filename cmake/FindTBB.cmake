@@ -74,7 +74,6 @@ if (WIN32)
     if(MSVC10)
         set(_TBB_COMPILER "vc10")
     endif(MSVC10)
-    # Todo: add other Windows compilers such as ICL.
     set(_TBB_ARCHITECTURE ${TBB_ARCHITECTURE})
 endif (WIN32)
 

@@ -12,8 +12,6 @@ namespace hops {
     class DNest4Adapter{
     public:
         DNest4Adapter() {
-            environment = Environment::getInstance();
-            this->state = environment.getSampler()->getState();
         }
 
         /**
@@ -82,13 +80,17 @@ namespace hops {
 
     template<typename ModelImplType>
     std::string DNest4Adapter<ModelImplType>::description() const {
-        // TODO if implements getParameterNames() then return those as string
+         TODO if implements getParameterNames() then return those as string
+         model->getPara
         std::string description;
         for (long i = 0; i < state.rows(); ++i) {
             description += "dim " + std::to_string(i) + " ,";
         }
         description.pop_back();
         return description;
+
+                environment = Environment::getInstance();
+        this->state = environment.getSampler()->getState();
     }
 }
 

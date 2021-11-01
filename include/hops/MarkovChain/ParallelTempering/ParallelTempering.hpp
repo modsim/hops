@@ -3,12 +3,14 @@
 
 #ifdef HOPS_MPI_SUPPORTED
 
+#include <random>
+
 #include <hops/FileWriter/FileWriter.hpp>
 #include <hops/MarkovChain/Recorder/IsStoreRecordAvailable.hpp>
 #include <hops/MarkovChain/Recorder/IsWriteRecordsToFileAvailable.hpp>
 #include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
+#include <hops/Utility/VectorType.hpp>
 #include "MpiInitializerFinalizer.hpp"
-#include <random>
 
 namespace hops {
     /**
@@ -70,7 +72,7 @@ namespace hops {
          */
         bool executeParallelTemperingStep() {
             if (shouldProposeExchange()) {
-                // TODO log acceptance?
+                // TODO store log acceptance in some kind of log?
                 std::pair<int, int> chainPair = generateChainPairForExchangeProposal();
                 int world_rank;
                 MPI_Comm_rank(communicator, &world_rank);
@@ -116,7 +118,7 @@ namespace hops {
         }
 
         void exchangeStates(int otherChainRank) {
-            typename MarkovChainImpl::StateType thisState = MarkovChainImpl::getState();
+            VectorType thisState = MarkovChainImpl::getState();
 
             MPI_Sendrecv_replace(thisState.data(), thisState.size(), MPI_DOUBLE, otherChainRank, MpiInitializerFinalizer::getInternalMpiTag(),
                                  otherChainRank, MpiInitializerFinalizer::getInternalMpiTag(), communicator, MPI_STATUS_IGNORE);

@@ -1,7 +1,8 @@
 <map id="DikinEllipsoidCalculator.hpp" name="DikinEllipsoidCalculator.hpp">
 <area shape="rect" id="node1" title=" " alt="" coords="5,5,211,32"/>
-<area shape="rect" id="node2" href="$hops_8hpp.html" title=" " alt="" coords="90,304,171,331"/>
+<area shape="rect" id="node2" href="$hops_8hpp.html" title=" " alt="" coords="91,379,173,405"/>
 <area shape="rect" id="node3" href="$DikinProposal_8hpp.html" title=" " alt="" coords="93,80,233,107"/>
-<area shape="rect" id="node4" href="$MarkovChainFactory_8hpp.html" title=" " alt="" coords="143,155,324,181"/>
-<area shape="rect" id="node5" href="$Run_8hpp.html" title=" " alt="" coords="195,229,269,256"/>
+<area shape="rect" id="node4" href="$MarkovChainFactory_8hpp.html" title=" " alt="" coords="144,229,325,256"/>
+<area shape="rect" id="node6" href="$CSmMALAProposal_8hpp.html" title=" " alt="" coords="198,155,373,181"/>
+<area shape="rect" id="node5" href="$Run_8hpp.html" title=" " alt="" coords="196,304,271,331"/>
 </map>

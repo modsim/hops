@@ -27,7 +27,7 @@
 #include "MarkovChain/Draw/MetropolisHastingsFilter.hpp"
 #include "MarkovChain/Draw/NoOpDrawAdapter.hpp"
 
-#include "MarkovChain/ParallelTempering/ColdnessAttribute.hpp"
+#include "MarkovChain/ParallelTempering/Coldness.hpp"
 #include "MarkovChain/ParallelTempering/ParallelTempering.hpp"
 
 #include "MarkovChain/Proposal/ChordStepDistributions.hpp"
@@ -67,15 +67,14 @@
 #include "MarkovChain/MarkovChainAttribute.hpp"
 #include "MarkovChain/MarkovChainFactory.hpp"
 #include "MarkovChain/MarkovChainType.hpp"
+#include "hops/MarkovChain/ModelMixin.hpp"
 #include "MarkovChain/StateTransformation.hpp"
 
-#include "Model/DegenerateMultivariateGaussianModel.hpp"
-#include "Model/DynMultimodalModel.hpp"
-#include "Model/ModelMixin.hpp"
-#include "Model/MultimodalModel.hpp"
-#include "Model/MultivariateGaussianModel.hpp"
-#include "Model/RosenbrockModel.hpp"
-#include "Model/UniformDummyModel.hpp"
+#include "Model/DegenerateMultivariateGaussian.hpp"
+#include "Model/Mixture.hpp"
+#include "Model/Model.hpp"
+#include "Model/MultivariateGaussian.hpp"
+#include "Model/Rosenbrock.hpp"
 
 #include "Parallel/OpenMPControls.hpp"
 
@@ -90,9 +89,11 @@
 #include "Utility/ChainData.hpp"
 #include "Utility/Data.hpp"
 #include "Utility/Exceptions.hpp"
+#include "Utility/MatrixType.hpp"
 #include "Utility/Problem.hpp"
 #include "Utility/Run.hpp"
 #include "Utility/Tuning.hpp"
+#include "Utility/VectorType.hpp"
 
 #ifdef HOPS_HEADER_ONLY
 

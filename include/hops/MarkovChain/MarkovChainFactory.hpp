@@ -3,12 +3,13 @@
 
 #include <type_traits>
 
+#include <hops/MarkovChain/Draw/NoOpDrawAdapter.hpp>
+#include <hops/MarkovChain/Draw/MetropolisHastingsFilter.hpp>
+#include <hops/MarkovChain/ModelMixin.hpp>
 #include <hops/MarkovChain/MarkovChain.hpp>
 #include <hops/MarkovChain/MarkovChainType.hpp>
 #include <hops/MarkovChain/MarkovChainAdapter.hpp>
-#include <hops/MarkovChain/Draw/NoOpDrawAdapter.hpp>
-#include <hops/MarkovChain/Draw/MetropolisHastingsFilter.hpp>
-#include <hops/MarkovChain/ParallelTempering/ColdnessAttribute.hpp>
+#include <hops/MarkovChain/ParallelTempering/Coldness.hpp>
 #include <hops/MarkovChain/ParallelTempering/ParallelTempering.hpp>
 #include <hops/MarkovChain/Proposal/AdaptiveMetropolisProposal.hpp>
 #include <hops/MarkovChain/Proposal/BallWalkProposal.hpp>
@@ -18,13 +19,14 @@
 #include <hops/MarkovChain/Proposal/GaussianProposal.hpp>
 #include <hops/MarkovChain/Proposal/HitAndRunProposal.hpp>
 #include <hops/MarkovChain/Recorder/AcceptanceRateRecorder.hpp>
+#include <hops/MarkovChain/Recorder/NegativeLogLikelihoodRecorder.hpp>
 #include <hops/MarkovChain/Recorder/StateRecorder.hpp>
 #include <hops/MarkovChain/Recorder/TimestampRecorder.hpp>
 #include <hops/MarkovChain/StateTransformation.hpp>
-#include <hops/Model/UniformDummyModel.hpp>
-#include <hops/Model/ModelMixin.hpp>
+#include <hops/Model/Model.hpp>
 #include <hops/Transformation/Transformation.hpp>
-#include <hops/MarkovChain/Recorder/NegativeLogLikelihoodRecorder.hpp>
+#include <utility>
+#include "ModelWrapper.hpp"
 
 namespace hops {
     class MarkovChainFactory {
@@ -62,7 +64,7 @@ namespace hops {
                 VectorType startingPoint
         ) {
             if (!isInteriorPoint(inequalityLhs, inequalityRhs, startingPoint)) {
-                throw std::runtime_error("Starting point outside polytope is always constant.");
+                throw std::domain_error("Starting point outside polytope is always constant.");
             }
 
             switch (type) {
@@ -110,7 +112,7 @@ namespace hops {
                     );
                 }
                 default: {
-                    throw std::runtime_error("MarkovChainType not supported for uniform sampling.");
+                    throw std::invalid_argument("MarkovChainType not supported for uniform sampling.");
                 }
             }
         }
@@ -162,7 +164,7 @@ namespace hops {
                 VectorType unroundingShift
         ) {
             if (!isInteriorPoint(roundedInequalityLhs, roundedInequalityRhs, startingPoint)) {
-                throw std::runtime_error("Starting point outside polytope is always constant.");
+                throw std::domain_error("Starting point outside polytope is always constant.");
             }
 
             switch (type) {
@@ -236,7 +238,7 @@ namespace hops {
                     );
                 }
                 default: {
-                    throw std::runtime_error("MarkovChainType not supported for uniform sampling.");
+                    throw std::invalid_argument("MarkovChainType not supported for uniform sampling.");
                 }
             }
         }
@@ -251,21 +253,17 @@ namespace hops {
          * @param model
          * @return
          */
-        template<typename MatrixType, typename VectorType, typename Model, typename Proposal>
+        template<typename MatrixType, typename VectorType, typename Proposal>
         static std::unique_ptr<MarkovChain> createMarkovChain(
                 Proposal proposal,
-                Model model
+                std::shared_ptr<Model> model
         ) {
-            if constexpr(std::is_same<Model, UniformDummyModel<MatrixType, VectorType>>::value) {
-                return createMarkovChain<MatrixType, VectorType>(proposal);
-            }
-
             return addRecordersAndAdapter(
                     NegativeLogLikelihoodRecorder(
                             MetropolisHastingsFilter(
                                     ModelMixin(
                                             proposal,
-                                            ColdnessAttribute(model)
+                                            Coldness(ModelWrapper(std::move(model)))
                                     )
                             )
                     )
@@ -284,23 +282,16 @@ namespace hops {
          * @param model
          * @return
          */
-        template<typename MatrixType, typename VectorType, typename Model>
+        template<typename MatrixType, typename VectorType>
         static std::unique_ptr<MarkovChain> createMarkovChain(
                 MarkovChainType type,
                 MatrixType inequalityLhs,
                 VectorType inequalityRhs,
                 VectorType startingPoint,
-                Model model
+                const std::shared_ptr<Model> &model
         ) {
             if (!isInteriorPoint(inequalityLhs, inequalityRhs, startingPoint)) {
-                throw std::runtime_error("Starting point outside polytope is always constant.");
-            }
-
-            if constexpr(std::is_same<Model, UniformDummyModel<MatrixType, VectorType>>::value) {
-                return createMarkovChain<MatrixType, VectorType>(type,
-                                                                 inequalityLhs,
-                                                                 inequalityRhs,
-                                                                 startingPoint);
+                throw std::domain_error("Starting point outside polytope is always constant.");
             }
 
             switch (type) {
@@ -311,7 +302,7 @@ namespace hops {
                                             AdaptiveMetropolisProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
                                                     decltype(inequalityRhs)>(
                                                     inequalityLhs, inequalityRhs, startingPoint),
-                                            ColdnessAttribute(model)
+                                            ModelWrapper(model)
                                     )
                             )
                     );
@@ -324,7 +315,7 @@ namespace hops {
                                                     BallWalkProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
                                                             decltype(inequalityRhs)>(
                                                             inequalityLhs, inequalityRhs, startingPoint),
-                                                    ColdnessAttribute(model)
+                                                    ModelWrapper(model)
                                             )
                                     )
                             )
@@ -339,7 +330,7 @@ namespace hops {
                                                             decltype(inequalityRhs),
                                                             GaussianStepDistribution<typename decltype(inequalityRhs)::Scalar>>(
                                                             inequalityLhs, inequalityRhs, startingPoint),
-                                                    ColdnessAttribute(model)
+                                                    ModelWrapper(model)
                                             )
                                     )
                             )
@@ -349,7 +340,7 @@ namespace hops {
                     return addRecordersAndAdapter(
                             NegativeLogLikelihoodRecorder(
                                     MetropolisHastingsFilter(
-                                            CSmMALAProposal(ColdnessAttribute(model),
+                                            CSmMALAProposal(ModelWrapper(model),
                                                             inequalityLhs,
                                                             inequalityRhs,
                                                             startingPoint)
@@ -363,7 +354,7 @@ namespace hops {
                                     MetropolisHastingsFilter(
                                             ModelMixin(
                                                     DikinProposal(inequalityLhs, inequalityRhs, startingPoint),
-                                                    ColdnessAttribute(model)
+                                                    ModelWrapper(model)
                                             )
                                     )
                             )
@@ -378,7 +369,7 @@ namespace hops {
                                                             Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
                                                             decltype(inequalityRhs)
                                                     >(inequalityLhs, inequalityRhs, startingPoint),
-                                                    ColdnessAttribute(model)
+                                                    ModelWrapper(model)
                                             )
                                     )
                             )
@@ -393,14 +384,14 @@ namespace hops {
                                                             decltype(inequalityRhs),
                                                             GaussianStepDistribution<typename decltype(inequalityRhs)::Scalar>>(
                                                             inequalityLhs, inequalityRhs, startingPoint),
-                                                    ColdnessAttribute(model)
+                                                    ModelWrapper(model)
                                             )
                                     )
                             )
                     );
                 }
                 default: {
-                    throw std::runtime_error("Type not supported.");
+                    throw std::invalid_argument("Type not supported.");
                 }
             }
         }
@@ -418,24 +409,17 @@ namespace hops {
          * @param synchronizedRandomNumberGenerator required for efficient parallel tempering
          * @return
          */
-        template<typename MatrixType, typename VectorType, typename Model>
+        template<typename MatrixType, typename VectorType>
         static std::unique_ptr<MarkovChain> createMarkovChainWithParallelTempering(
                 MarkovChainType type,
                 MatrixType inequalityLhs,
                 VectorType inequalityRhs,
                 VectorType startingPoint,
-                Model model,
+                const std::shared_ptr<Model> &model,
                 RandomNumberGenerator synchronizedRandomNumberGenerator
         ) {
             if (!isInteriorPoint(inequalityLhs, inequalityRhs, startingPoint)) {
-                throw std::runtime_error("Starting point outside polytope is always constant.");
-            }
-
-            if constexpr(std::is_same<Model, UniformDummyModel<MatrixType, VectorType>>::value) {
-                return createMarkovChain<MatrixType, VectorType>(type,
-                                                                 inequalityLhs,
-                                                                 inequalityRhs,
-                                                                 startingPoint);
+                throw std::domain_error("Starting point outside polytope is always constant.");
             }
 
             switch (type) {
@@ -446,7 +430,7 @@ namespace hops {
                                             AdaptiveMetropolisProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
                                                     decltype(inequalityRhs)>(
                                                     inequalityLhs, inequalityRhs, startingPoint),
-                                            ColdnessAttribute(model)
+                                            Coldness(ModelWrapper(model))
                                     )
                             ),
                             synchronizedRandomNumberGenerator
@@ -460,7 +444,7 @@ namespace hops {
                                                     BallWalkProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
                                                             decltype(inequalityRhs)>(
                                                             inequalityLhs, inequalityRhs, startingPoint),
-                                                    ColdnessAttribute(model)
+                                                    Coldness(ModelWrapper(model))
                                             )
                                     )
                             ),
@@ -476,7 +460,7 @@ namespace hops {
                                                             decltype(inequalityRhs),
                                                             GaussianStepDistribution<typename decltype(inequalityRhs)::Scalar>>(
                                                             inequalityLhs, inequalityRhs, startingPoint),
-                                                    ColdnessAttribute(model)
+                                                    Coldness(ModelWrapper(model))
                                             )
                                     )
                             ),
@@ -487,7 +471,7 @@ namespace hops {
                     return addRecordersAndAdapter(
                             NegativeLogLikelihoodRecorder(
                                     MetropolisHastingsFilter(
-                                            CSmMALAProposal(ColdnessAttribute(model),
+                                            CSmMALAProposal(Coldness(ModelWrapper(model)),
                                                             inequalityLhs,
                                                             inequalityRhs,
                                                             startingPoint)
@@ -502,7 +486,7 @@ namespace hops {
                                     MetropolisHastingsFilter(
                                             ModelMixin(
                                                     DikinProposal(inequalityLhs, inequalityRhs, startingPoint),
-                                                    ColdnessAttribute(model)
+                                                    Coldness(ModelWrapper(model))
                                             )
                                     )
                             ),
@@ -518,7 +502,7 @@ namespace hops {
                                                             Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
                                                             decltype(inequalityRhs)
                                                     >(inequalityLhs, inequalityRhs, startingPoint),
-                                                    ColdnessAttribute(model)
+                                                    Coldness(ModelWrapper(model))
                                             )
                                     )
                             ),
@@ -534,7 +518,7 @@ namespace hops {
                                                             decltype(inequalityRhs),
                                                             GaussianStepDistribution<typename decltype(inequalityRhs)::Scalar>>(
                                                             inequalityLhs, inequalityRhs, startingPoint),
-                                                    ColdnessAttribute(model)
+                                                    Coldness(ModelWrapper(model))
                                             )
                                     )
                             ),
@@ -542,7 +526,7 @@ namespace hops {
                     );
                 }
                 default: {
-                    throw std::runtime_error("Type not supported.");
+                    throw std::invalid_argument("Type not supported.");
                 }
             }
         }
@@ -559,18 +543,13 @@ namespace hops {
          * @param model
          * @return
          */
-        template<typename MatrixType, typename VectorType, typename Model, typename Proposal>
+        template<typename MatrixType, typename VectorType, typename Proposal>
         static std::unique_ptr<MarkovChain> createMarkovChain(
                 Proposal proposal,
                 MatrixType unroundingTransformation,
                 VectorType unroundingShift,
-                Model model
+                std::shared_ptr<Model> model
         ) {
-            if constexpr(std::is_same<Model, UniformDummyModel<MatrixType, VectorType>>::value) {
-                return createMarkovChain<MatrixType, VectorType>(proposal,
-                                                                 unroundingTransformation,
-                                                                 unroundingShift);
-            }
 
             return addRecordersAndAdapter(
                     NegativeLogLikelihoodRecorder(
@@ -580,7 +559,7 @@ namespace hops {
                                                     proposal,
                                                     Transformation(unroundingTransformation, unroundingShift)
                                             ),
-                                            ColdnessAttribute(model)
+                                            Coldness(ModelWrapper(model))
                                     )
                             )
                     )
@@ -601,7 +580,7 @@ namespace hops {
          * @param model
          * @return
          */
-        template<typename MatrixType, typename VectorType, typename Model>
+        template<typename MatrixType, typename VectorType>
         static std::unique_ptr<MarkovChain> createMarkovChain(
                 MarkovChainType type,
                 MatrixType roundedInequalityLhs,
@@ -609,19 +588,10 @@ namespace hops {
                 VectorType startingPoint,
                 MatrixType unroundingTransformation,
                 VectorType unroundingShift,
-                Model model
+                const std::shared_ptr<Model> &model
         ) {
             if (!isInteriorPoint(roundedInequalityLhs, roundedInequalityRhs, startingPoint)) {
-                throw std::runtime_error("Starting point outside polytope is always constant.");
-            }
-
-            if constexpr(std::is_same<Model, UniformDummyModel<MatrixType, VectorType>>::value) {
-                return createMarkovChain<MatrixType, VectorType>(type,
-                                                                 roundedInequalityLhs,
-                                                                 roundedInequalityRhs,
-                                                                 startingPoint,
-                                                                 unroundingTransformation,
-                                                                 unroundingShift);
+                throw std::domain_error("Starting point outside polytope is always constant.");
             }
 
             switch (type) {
@@ -638,7 +608,7 @@ namespace hops {
                                                                     startingPoint),
                                                             Transformation(unroundingTransformation, unroundingShift)
                                                     ),
-                                                    ColdnessAttribute(model)
+                                                    ModelWrapper(model)
                                             )
                                     )
                             )
@@ -658,7 +628,7 @@ namespace hops {
                                                                     startingPoint),
                                                             Transformation(unroundingTransformation, unroundingShift)
                                                     ),
-                                                    ColdnessAttribute(model)
+                                                    ModelWrapper(model)
                                             )
                                     )
                             )
@@ -679,7 +649,7 @@ namespace hops {
                                                             ),
                                                             Transformation(unroundingTransformation, unroundingShift)
                                                     ),
-                                                    ColdnessAttribute(model)
+                                                    ModelWrapper(model)
                                             )
                                     )
                             )
@@ -699,14 +669,14 @@ namespace hops {
                                                                     startingPoint),
                                                             Transformation(unroundingTransformation, unroundingShift)
                                                     ),
-                                                    ColdnessAttribute(model)
+                                                    ModelWrapper(model)
                                             )
                                     )
                             )
                     );
                 }
                 default: {
-                    throw std::runtime_error("Type not supported.");
+                    throw std::invalid_argument("Type not supported.");
                 }
             }
         }
@@ -726,7 +696,7 @@ namespace hops {
          * @param synchronizedRandomNumberGenerator (required for efficient parallel tempering)
          * @return
          */
-        template<typename MatrixType, typename VectorType, typename Model>
+        template<typename MatrixType, typename VectorType>
         static std::unique_ptr<MarkovChain> createMarkovChainWithParallelTempering(
                 MarkovChainType type,
                 MatrixType roundedInequalityLhs,
@@ -734,20 +704,11 @@ namespace hops {
                 VectorType startingPoint,
                 MatrixType unroundingTransformation,
                 VectorType unroundingShift,
-                Model model,
+                const std::shared_ptr<Model>& model,
                 RandomNumberGenerator synchronizedRandomNumberGenerator
         ) {
             if (!isInteriorPoint(roundedInequalityLhs, roundedInequalityRhs, startingPoint)) {
-                throw std::runtime_error("Starting point outside polytope is always constant.");
-            }
-
-            if constexpr(std::is_same<Model, UniformDummyModel<MatrixType, VectorType>>::value) {
-                return createMarkovChain<MatrixType, VectorType>(type,
-                                                                 roundedInequalityLhs,
-                                                                 roundedInequalityRhs,
-                                                                 startingPoint,
-                                                                 unroundingTransformation,
-                                                                 unroundingShift);
+                throw std::domain_error("Starting point outside polytope is always constant.");
             }
 
             switch (type) {
@@ -764,7 +725,7 @@ namespace hops {
                                                                     startingPoint),
                                                             Transformation(unroundingTransformation, unroundingShift)
                                                     ),
-                                                    ColdnessAttribute(model)
+                                                    Coldness(ModelWrapper(model))
                                             )
                                     )
                             ),
@@ -785,7 +746,7 @@ namespace hops {
                                                                     startingPoint),
                                                             Transformation(unroundingTransformation, unroundingShift)
                                                     ),
-                                                    ColdnessAttribute(model)
+                                                    Coldness(ModelWrapper(model))
                                             )
                                     )
                             ),
@@ -807,7 +768,7 @@ namespace hops {
                                                             ),
                                                             Transformation(unroundingTransformation, unroundingShift)
                                                     ),
-                                                    ColdnessAttribute(model)
+                                                    Coldness(ModelWrapper(model))
                                             )
                                     )
                             ),
@@ -828,7 +789,7 @@ namespace hops {
                                                                     startingPoint),
                                                             Transformation(unroundingTransformation, unroundingShift)
                                                     ),
-                                                    ColdnessAttribute(model)
+                                                    Coldness(ModelWrapper(model))
                                             )
                                     )
                             ),
@@ -836,7 +797,7 @@ namespace hops {
                     );
                 }
                 default: {
-                    throw std::runtime_error("Type not supported.");
+                    throw std::invalid_argument("Type not supported.");
                 }
             }
         }
@@ -872,7 +833,7 @@ namespace hops {
                 );
                 return std::make_unique<decltype(mc)>(mc);
             } else {
-                throw std::runtime_error("Can not use Parallel Tempering without model.");
+                throw std::invalid_argument("Can not use Parallel Tempering without model.");
             }
         };
 

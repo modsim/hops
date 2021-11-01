@@ -23,7 +23,6 @@ RUN apt-get install -y libtbb-dev
 RUN apt-get install -y vim 
 
 
-# TODO remove
 RUN useradd -ms /bin/bash hops_user
 USER hops_user
 

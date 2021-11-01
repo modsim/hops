@@ -6,7 +6,6 @@ if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
         target_sources(hops PRIVATE
                 DNest4Adapter.hpp
                 DNest4EnvironmentSingleton.hpp
-                NestedSamplerFactory.hpp
                 )
         target_include_directories(hops PRIVATE ${DNest4_INCLUDE_DIR})
         target_link_libraries(hops PUBLIC ${DNest4_LIBRARY})

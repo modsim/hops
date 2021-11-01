@@ -94,7 +94,7 @@ $(function() {
 <div class="line"><a name="l00016"></a><span class="lineno"><a class="line" href="classhops_1_1StateRecorder.html">   16</a></span>&#160;    <span class="keyword">class </span><a class="code" href="classhops_1_1StateRecorder.html">StateRecorder</a> : <span class="keyword">public</span> MarkovChainImpl {</div>
 <div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;    <span class="keyword">public</span>:</div>
 <div class="line"><a name="l00018"></a><span class="lineno"><a class="line" href="classhops_1_1StateRecorder.html#a1666dac643c5f333580f3e5a35d9ad8b">   18</a></span>&#160;        <span class="keyword">explicit</span> <a class="code" href="classhops_1_1StateRecorder.html#a1666dac643c5f333580f3e5a35d9ad8b">StateRecorder</a>(<span class="keyword">const</span> MarkovChainImpl &amp;markovChainImpl) : MarkovChainImpl(markovChainImpl) {</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;            records = std::make_shared&lt;std::vector&lt;typename MarkovChainImpl::StateType&gt;&gt;();</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;            records = std::make_shared&lt;std::vector&lt;VectorType&gt;&gt;();</div>
 <div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;        }</div>
 <div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160; </div>
 <div class="line"><a name="l00022"></a><span class="lineno"><a class="line" href="classhops_1_1StateRecorder.html#ae28245c1a630541284bed928f38fde6a">   22</a></span>&#160;        <span class="keywordtype">void</span> <a class="code" href="classhops_1_1StateRecorder.html#ae28245c1a630541284bed928f38fde6a">installDataObject</a>(<a class="code" href="classhops_1_1ChainData.html">ChainData</a>&amp; chainData) {</div>
@@ -111,7 +111,7 @@ $(function() {
 <div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;            }</div>
 <div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;        }</div>
 <div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160; </div>
-<div class="line"><a name="l00036"></a><span class="lineno"><a class="line" href="classhops_1_1StateRecorder.html#a48e583ebc67aeaf9f6278ac41252a1f9">   36</a></span>&#160;        <span class="keyword">const</span> std::vector&lt;typename MarkovChainImpl::StateType&gt;&amp; <a class="code" href="classhops_1_1StateRecorder.html#a48e583ebc67aeaf9f6278ac41252a1f9">getStateRecords</a>()<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00036"></a><span class="lineno"><a class="line" href="classhops_1_1StateRecorder.html#a4aff06b84832a2254b832065fb5ed548">   36</a></span>&#160;        <span class="keyword">const</span> std::vector&lt;VectorType&gt;&amp; <a class="code" href="classhops_1_1StateRecorder.html#a4aff06b84832a2254b832065fb5ed548">getStateRecords</a>()<span class="keyword"> const </span>{</div>
 <div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;            <span class="keywordflow">return</span> *records;</div>
 <div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;        }</div>
 <div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160; </div>
@@ -134,7 +134,7 @@ $(function() {
 <div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;        }</div>
 <div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160; </div>
 <div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    <span class="keyword">private</span>:</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;        std::shared_ptr&lt;std::vector&lt;typename MarkovChainImpl::StateType&gt;&gt; records;</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;        std::shared_ptr&lt;std::vector&lt;VectorType&gt;&gt; records;</div>
 <div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    };</div>
 <div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160; </div>
 <div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;}</div>
@@ -143,7 +143,7 @@ $(function() {
 </div><!-- fragment --></div><!-- contents -->
 <div class="ttc" id="aclasshops_1_1ChainData_html_ad42c3ac6dab6ac4cb6602537ba1be77d"><div class="ttname"><a href="classhops_1_1ChainData.html#ad42c3ac6dab6ac4cb6602537ba1be77d">hops::ChainData::setStates</a></div><div class="ttdeci">void setStates(const std::shared_ptr&lt; std::vector&lt; Eigen::VectorXd &gt;&gt; &amp;states)</div><div class="ttdef"><b>Definition:</b> ChainData.hpp:47</div></div>
 <div class="ttc" id="astructhops_1_1IsClearRecordsAvailable_html"><div class="ttname"><a href="structhops_1_1IsClearRecordsAvailable.html">hops::IsClearRecordsAvailable</a></div><div class="ttdef"><b>Definition:</b> IsClearRecordsAvailable.hpp:8</div></div>
-<div class="ttc" id="aclasshops_1_1StateRecorder_html_a48e583ebc67aeaf9f6278ac41252a1f9"><div class="ttname"><a href="classhops_1_1StateRecorder.html#a48e583ebc67aeaf9f6278ac41252a1f9">hops::StateRecorder::getStateRecords</a></div><div class="ttdeci">const std::vector&lt; typename MarkovChainImpl::StateType &gt; &amp; getStateRecords() const</div><div class="ttdef"><b>Definition:</b> StateRecorder.hpp:36</div></div>
+<div class="ttc" id="aclasshops_1_1StateRecorder_html_a4aff06b84832a2254b832065fb5ed548"><div class="ttname"><a href="classhops_1_1StateRecorder.html#a4aff06b84832a2254b832065fb5ed548">hops::StateRecorder::getStateRecords</a></div><div class="ttdeci">const std::vector&lt; VectorType &gt; &amp; getStateRecords() const</div><div class="ttdef"><b>Definition:</b> StateRecorder.hpp:36</div></div>
 <div class="ttc" id="aIsInstallDataObjectAvailable_8hpp_html"><div class="ttname"><a href="IsInstallDataObjectAvailable_8hpp.html">IsInstallDataObjectAvailable.hpp</a></div></div>
 <div class="ttc" id="aIsClearRecordsAvailable_8hpp_html"><div class="ttname"><a href="IsClearRecordsAvailable_8hpp.html">IsClearRecordsAvailable.hpp</a></div></div>
 <div class="ttc" id="aIsStoreRecordAvailable_8hpp_html"><div class="ttname"><a href="IsStoreRecordAvailable_8hpp.html">IsStoreRecordAvailable.hpp</a></div></div>

@@ -10,7 +10,8 @@ if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
 endif (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
 
 set(TEST_SOURCES
-        DNest4AdapterTestSuite.cpp
+        # TODO reinclude
+#        DNest4AdapterTestSuite.cpp
         )
 
 foreach (TEST_SOURCE ${TEST_SOURCES})
