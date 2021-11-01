@@ -5,6 +5,7 @@
 #include <hops/MarkovChain/Proposal/DikinProposal.hpp>
 #include <hops/MarkovChain/Recorder/IsAddMessageAvailabe.hpp>
 #include <random>
+#include <utility>
 
 namespace hops {
     namespace CSmMALAProposalDetails {
@@ -19,20 +20,16 @@ namespace hops {
         }
     }
 
-    template<typename Model, typename Matrix>
-    class CSmMALAProposal : public Model {
+    template<typename ModelType, typename InternalMatrixType>
+    class CSmMALAProposal : public ModelType {
     public:
-        using MatrixType = Matrix;
-        using VectorType = typename Model::VectorType;
-        using StateType = typename Model::VectorType;
-
         /**
          * @brief Constructs proposal mechanism on polytope defined as Ax<b.
          * @param A
          * @param b
          * @param currentState
          */
-        CSmMALAProposal(const Model &model, MatrixType A, VectorType b, VectorType currentState);
+        CSmMALAProposal(ModelType model, InternalMatrixType A, VectorType b, const VectorType& currentState);
 
         void propose(RandomNumberGenerator &randomNumberGenerator);
 
@@ -40,11 +37,11 @@ namespace hops {
 
         [[nodiscard]] typename MatrixType::Scalar computeLogAcceptanceProbability();
 
-        StateType getState() const;
+        VectorType getState() const;
 
-        void setState(StateType newState);
+        void setState(VectorType newState);
 
-        StateType getProposal() const;
+        VectorType getProposal() const;
 
         typename MatrixType::Scalar getStepSize() const;
 
@@ -57,41 +54,40 @@ namespace hops {
         std::string getName();
 
     private:
-        StateType computeTruncatedGradient(StateType x);
+        VectorType computeTruncatedGradient(VectorType x);
 
-        MatrixType A;
+        InternalMatrixType A;
         VectorType b;
 
-        StateType state;
-        StateType driftedState;
-        StateType proposal;
-        StateType driftedProposal;
-        typename MatrixType::Scalar stateLogSqrtDeterminant = 0;
-        typename MatrixType::Scalar proposalLogSqrtDeterminant = 0;
-        typename MatrixType::Scalar stateNegativeLogLikelihood = 0;
-        typename MatrixType::Scalar proposalNegativeLogLikelihood = 0;
-        Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic> stateSqrtInvMetric;
-        Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic> stateMetric;
-        Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic> proposalSqrtInvMetric;
-        Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic> proposalMetric;
+        VectorType state;
+        VectorType driftedState;
+        VectorType proposal;
+        VectorType driftedProposal;
+        MatrixType::Scalar stateLogSqrtDeterminant = 0;
+        MatrixType::Scalar proposalLogSqrtDeterminant = 0;
+        MatrixType::Scalar stateNegativeLogLikelihood = 0;
+        MatrixType::Scalar proposalNegativeLogLikelihood = 0;
+        MatrixType stateSqrtInvMetric;
+        MatrixType stateMetric;
+        MatrixType proposalSqrtInvMetric;
+        MatrixType proposalMetric;
 
-        typename MatrixType::Scalar stepSize;
-        typename MatrixType::Scalar fisherWeight = .5;
-        typename MatrixType::Scalar fisherScale = 1.;
-        typename MatrixType::Scalar geometricFactor;
-        typename MatrixType::Scalar covarianceFactor;
+        MatrixType::Scalar stepSize = 1;
+        MatrixType::Scalar fisherWeight = .5;
+        MatrixType::Scalar fisherScale = 1.;
+        MatrixType::Scalar geometricFactor = 0;
+        MatrixType::Scalar covarianceFactor = 0;
 
-        std::normal_distribution<typename MatrixType::Scalar> normalDistribution{0., 1.};
+        std::normal_distribution<MatrixType::Scalar> normalDistribution{0., 1.};
         DikinEllipsoidCalculator <MatrixType, VectorType> dikinEllipsoidCalculator;
     };
 
-    template<typename Model,
-            typename Matrix>
-    CSmMALAProposal<Model, Matrix>::CSmMALAProposal(const Model &model,
-                                                    MatrixType A,
-                                                    VectorType b,
-                                                    VectorType currentState) :
-            Model(model),
+    template<typename ModelType, typename InternalMatrixType>
+    CSmMALAProposal<ModelType, InternalMatrixType>::CSmMALAProposal(ModelType model,
+                                                    InternalMatrixType A,
+                                                    hops::VectorType b,
+                                                    const VectorType& currentState) :
+            ModelType(std::move(model)),
             A(std::move(A)),
             b(std::move(b)),
             dikinEllipsoidCalculator(this->A, this->b) {
@@ -104,9 +100,8 @@ namespace hops {
         proposal = state;
     }
 
-    template<typename Model,
-            typename Matrix>
-    void CSmMALAProposal<Model, Matrix>::propose(
+    template<typename ModelType, typename InternalMatrixType>
+    void CSmMALAProposal<ModelType, InternalMatrixType>::propose(
             RandomNumberGenerator &randomNumberGenerator) {
         for (long i = 0; i < proposal.rows(); ++i) {
             proposal(i) = normalDistribution(randomNumberGenerator);
@@ -114,8 +109,8 @@ namespace hops {
         proposal = driftedState + covarianceFactor * (stateSqrtInvMetric * proposal);
     }
 
-    template<typename Model, typename Matrix>
-    void CSmMALAProposal<Model, Matrix>::acceptProposal() {
+    template<typename ModelType, typename InternalMatrixType>
+    void CSmMALAProposal<ModelType, InternalMatrixType>::acceptProposal() {
         state.swap(proposal);
         driftedState.swap(driftedProposal);
         stateSqrtInvMetric.swap(proposalSqrtInvMetric);
@@ -124,20 +119,23 @@ namespace hops {
         stateNegativeLogLikelihood = proposalNegativeLogLikelihood;
     }
 
-    template<typename Model, typename Matrix>
-    typename CSmMALAProposal<Model, Matrix>::MatrixType::Scalar
-    CSmMALAProposal<Model, Matrix>::computeLogAcceptanceProbability() {
+    template<typename ModelType, typename InternalMatrixType>
+    typename MatrixType::Scalar
+    CSmMALAProposal<ModelType, InternalMatrixType>::computeLogAcceptanceProbability() {
         bool isProposalInteriorPoint = ((A * proposal - b).array() < 0).all();
         if (!isProposalInteriorPoint) {
             return -std::numeric_limits<typename MatrixType::Scalar>::infinity();
         }
 
         // Important: compute gradient before fisher info or else x3cflux2 will throw
-        StateType gradient = computeTruncatedGradient(proposal);
+        VectorType gradient = computeTruncatedGradient(proposal);
         proposalMetric.setZero();
         if (fisherWeight != 0) {
-            auto fisherInformation = fisherScale * Model::computeExpectedFisherInformation(proposal);
-            proposalMetric += fisherWeight * fisherInformation;
+            auto optionalFisherInformation = ModelType::computeExpectedFisherInformation(proposal);
+            if(optionalFisherInformation) {
+                auto fisherInformation = optionalFisherInformation.value();
+                proposalMetric += (fisherWeight * fisherScale * fisherInformation);
+            }
         }
         if (fisherWeight != 1) {
             auto dikinEllipsoid = dikinEllipsoidCalculator.computeDikinEllipsoid(proposal);
@@ -149,7 +147,7 @@ namespace hops {
         driftedProposal = proposal +
                           0.5 * std::pow(covarianceFactor, 2) * proposalSqrtInvMetric * proposalSqrtInvMetric *
                           gradient;
-        proposalNegativeLogLikelihood = Model::computeNegativeLogLikelihood(proposal);
+        proposalNegativeLogLikelihood = ModelType::computeNegativeLogLikelihood(proposal);
 
         double normDifference =
                 static_cast<double>((driftedState - proposal).transpose() * stateMetric * (driftedState - proposal)) -
@@ -162,21 +160,23 @@ namespace hops {
                + geometricFactor * normDifference;
     }
 
-    template<typename Model, typename Matrix>
-    typename CSmMALAProposal<Model, Matrix>::StateType
-    CSmMALAProposal<Model, Matrix>::getState() const {
+    template<typename ModelType, typename InternalMatrixType>
+    VectorType CSmMALAProposal<ModelType, InternalMatrixType>::getState() const {
         return state;
     }
 
-    template<typename Model, typename Matrix>
-    void CSmMALAProposal<Model, Matrix>::setState(StateType newState) {
+    template<typename ModelType, typename InternalMatrixType>
+    void CSmMALAProposal<ModelType, InternalMatrixType>::setState(VectorType newState) {
         state.swap(newState);
         // Important: compute gradient before fisher info or else x3cflux2 will throw
-        StateType gradient = computeTruncatedGradient(state);
+        VectorType gradient = computeTruncatedGradient(state);
         stateMetric.setZero();
         if (fisherWeight != 0) {
-            auto fisherInformation = fisherScale * Model::computeExpectedFisherInformation(state);
-            stateMetric += fisherWeight * fisherInformation;
+            auto optionalFisherInformation = ModelType::computeExpectedFisherInformation(proposal);
+            if(optionalFisherInformation) {
+                auto fisherInformation = optionalFisherInformation.value();
+                proposalMetric += fisherWeight * fisherScale * fisherInformation;
+            }
         }
         if (fisherWeight != 1) {
             auto dikinEllipsoid = dikinEllipsoidCalculator.computeDikinEllipsoid(state);
@@ -187,58 +187,58 @@ namespace hops {
                                                                      stateLogSqrtDeterminant);
         driftedState = state + 0.5 * std::pow(covarianceFactor, 2) * stateSqrtInvMetric * stateSqrtInvMetric *
                                gradient;
-        stateNegativeLogLikelihood = Model::computeNegativeLogLikelihood(state);
+        stateNegativeLogLikelihood = ModelType::computeNegativeLogLikelihood(state);
     }
 
-    template<typename Model, typename Matrix>
-    typename CSmMALAProposal<Model, Matrix>::StateType
-    CSmMALAProposal<Model, Matrix>::getProposal() const {
+    template<typename ModelType, typename InternalMatrixType>
+    VectorType CSmMALAProposal<ModelType, InternalMatrixType>::getProposal() const {
         return proposal;
     }
 
-    template<typename Model, typename Matrix>
-    typename CSmMALAProposal<Model, Matrix>::MatrixType::Scalar
-    CSmMALAProposal<Model, Matrix>::getStepSize() const {
+    template<typename ModelType, typename InternalMatrixType>
+    MatrixType::Scalar CSmMALAProposal<ModelType, InternalMatrixType>::getStepSize() const {
         return stepSize;
     }
 
-    template<typename Model, typename Matrix>
-    void CSmMALAProposal<Model, Matrix>::setStepSize(typename MatrixType::Scalar newStepSize) {
+    template<typename ModelType, typename InternalMatrixType>
+    void CSmMALAProposal<ModelType, InternalMatrixType>::setStepSize(typename MatrixType::Scalar newStepSize) {
         stepSize = newStepSize;
         geometricFactor = A.cols() / (2 * stepSize * stepSize);
         covarianceFactor = stepSize / std::sqrt(A.cols());
         setState(state);
     }
 
-    template<typename Model, typename Matrix>
-    void CSmMALAProposal<Model, Matrix>::setFisherWeight(
+    template<typename ModelType, typename InternalMatrixType>
+    void CSmMALAProposal<ModelType, InternalMatrixType>::setFisherWeight(
             typename MatrixType::Scalar newFisherWeight) {
         if (fisherWeight > 1 || fisherWeight < 0) {
-            throw std::runtime_error("fisherWeigth should be in [0, 1].");
+            throw std::runtime_error("fisherWeight should be in [0, 1].");
         }
         fisherWeight = newFisherWeight;
         setState(state);
     }
 
-    template<typename Model, typename Matrix>
-    double CSmMALAProposal<Model, Matrix>::getNegativeLogLikelihoodOfCurrentState() {
+    template<typename ModelType, typename InternalMatrixType>
+    double CSmMALAProposal<ModelType, InternalMatrixType>::getNegativeLogLikelihoodOfCurrentState() {
         return stateNegativeLogLikelihood;
     }
 
-    template<typename Model, typename Matrix>
-    std::string CSmMALAProposal<Model, Matrix>::getName() {
+    template<typename ModelType, typename InternalMatrixType>
+    std::string CSmMALAProposal<ModelType, InternalMatrixType>::getName() {
         return "CSmMALA";
     }
 
-    template<typename Model, typename Matrix>
-    typename CSmMALAProposal<Model, Matrix>::StateType
-    CSmMALAProposal<Model, Matrix>::computeTruncatedGradient(StateType x) {
-        StateType gradient = Model::computeLogLikelihoodGradient(x);
-        double norm = gradient.norm();
-        if (norm != 0) {
-            gradient /= norm;
+    template<typename ModelType, typename InternalMatrixType>
+    VectorType CSmMALAProposal<ModelType, InternalMatrixType>::computeTruncatedGradient(VectorType x) {
+        auto gradient = ModelType::computeLogLikelihoodGradient(x);
+        if(gradient) {
+            double norm = gradient.value().norm();
+            if (norm != 0) {
+                gradient.value() /= norm;
+            }
+            return gradient.value();
         }
-        return gradient;
+        return VectorType::Zero(x.rows());
     }
 }
 

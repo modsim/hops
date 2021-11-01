@@ -107,7 +107,7 @@ $(function() {
 <div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;                              <span class="keyword">const</span> <span class="keywordtype">size_t</span> numberOfRoundsForConvergence,</div>
 <div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;                              GaussianProcessType&amp; initialGP,</div>
 <div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;                              std::shared_ptr&lt;ThompsonSamplgTargetType&gt; targetFunction,</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;                              <span class="keyword">const</span> MatrixType&amp; inputSpaceGrid,</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;                              <span class="keyword">const</span> <a class="code" href="namespacehops.html#a7ed561c27533fdf7f05b187035bd78a7">MatrixType</a>&amp; inputSpaceGrid,</div>
 <div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;                              <a class="code" href="classpcg__detail_1_1engine.html">RandomNumberGenerator</a> randomNumberGenerator,</div>
 <div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;                              <span class="keywordtype">size_t</span>* numberOfPosteriorUpdatesNeeded = <span class="keyword">nullptr</span>,</div>
 <div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;                              <span class="keywordtype">double</span> smoothingLength = 0) {</div>
@@ -120,25 +120,25 @@ $(function() {
 <div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;            <a class="code" href="classhops_1_1UniformBallKernel.html">UniformBallKernel</a> smoothingKernel = <a class="code" href="classhops_1_1UniformBallKernel.html">UniformBallKernel&lt;MatrixType, VectorType&gt;</a>(smoothingLength);</div>
 <div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;            <a class="code" href="classhops_1_1GaussianProcess.html">GaussianProcess</a> data = <a class="code" href="classhops_1_1GaussianProcess.html">GaussianProcess&lt;MatrixType, VectorType, decltype(smoothingKernel)&gt;</a>(smoothingKernel);</div>
 <div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160; </div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;            <span class="keywordtype">size_t</span> i = 0;</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;            <span class="keywordflow">for</span> (; i &lt; numberOfPosteriorUpdates; ++i) {</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;                <span class="comment">// if the posterior mean hasn&#39;t change for the last sameMaximumCounter of rounds, </span></div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;                <span class="comment">// then we assume convergence and break</span></div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;                <span class="keywordflow">if</span> (sameMaximumCounter == numberOfRoundsForConvergence) {</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;                    isConverged = <span class="keyword">true</span>;</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;                    <span class="keywordflow">break</span>;</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;                }</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160; </div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;                std::unordered_map&lt;long, long&gt; observedInputIndex;</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;                std::vector&lt;long&gt; observedInputCount;</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;                MatrixType observedInput(0, inputSpaceGrid.cols());</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;                VectorType observedValueMean(0);</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;                VectorType observedValueErrorMean(0);</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;            std::unordered_map&lt;long, long&gt; observedInputIndex;</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;            std::vector&lt;long&gt; observedInputCount;</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;            <a class="code" href="namespacehops.html#a7ed561c27533fdf7f05b187035bd78a7">MatrixType</a> observedInput(0, inputSpaceGrid.cols());</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;            <a class="code" href="namespacehops.html#af656c1adca85c58336d70b81938df367">VectorType</a> observedValueMean(0);</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;            <a class="code" href="namespacehops.html#af656c1adca85c58336d70b81938df367">VectorType</a> observedValueErrorMean(0);</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160; </div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;            <span class="keywordtype">size_t</span> i = 0;</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;            <span class="keywordflow">for</span> (; i &lt; numberOfPosteriorUpdates; ++i) {</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;                <span class="comment">// if the posterior mean hasn&#39;t change for the last sameMaximumCounter of rounds, </span></div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;                <span class="comment">// then we assume convergence and break</span></div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;                <span class="keywordflow">if</span> (sameMaximumCounter == numberOfRoundsForConvergence) {</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;                    isConverged = <span class="keyword">true</span>;</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;                    <span class="keywordflow">break</span>;</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;                }</div>
 <div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160; </div>
 <div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;                <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> j = 0; j &lt; numberOfSamplingRounds; ++j) {</div>
 <div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;                    <span class="comment">// sample the acquisition function and obtain its maximum</span></div>
 <div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;                    gp.<a class="code" href="classhops_1_1GaussianProcess.html#ad8dbcc7473cf866ee2de5d18f25a357f">sample</a>(inputSpaceGrid, randomNumberGenerator, maxElementIndex);</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;                    VectorType testInput = inputSpaceGrid.row(maxElementIndex);</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;                    <a class="code" href="namespacehops.html#af656c1adca85c58336d70b81938df367">VectorType</a> testInput = inputSpaceGrid.row(maxElementIndex);</div>
 <div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160; </div>
 <div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;                    <span class="comment">// evaluate stepsize which maximized the sampled acquisition function</span></div>
 <div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;                    <span class="keyword">auto</span>[newObservedValue, newObservedValueError] = (*targetFunction)(testInput);</div>
@@ -154,8 +154,8 @@ $(function() {
 <div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;                        <span class="keywordtype">double</span> oldObservedValueMean = observedValueMean(k); <span class="comment">// store for variance update</span></div>
 <div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;                        observedValueMean(k) = (m * observedValueMean(k) + newObservedValue) / (m+1);</div>
 <div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;                        observedValueErrorMean(k) = </div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;                                (m * (std::pow(observedValueErrorMean(k), 2) + std::pow(oldObservedValueMean, 2)) + </div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;                                 1 * (std::pow(newObservedValueError, 2) + std::pow(newObservedValue, 2))) / (m+1) - std::pow(observedValueMean(k), 2);</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;                                (m * (observedValueErrorMean(k) + std::pow(oldObservedValueMean, 2)) + </div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;                                 1 * (newObservedValueError + std::pow(newObservedValue, 2))) / (m+1) - std::pow(observedValueMean(k), 2);</div>
 <div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;                    } <span class="keywordflow">else</span> {</div>
 <div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;                        <span class="keywordtype">size_t</span> n = observedInput.rows();</div>
 <div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;                        observedInputIndex[maxElementIndex] = n;</div>
@@ -167,56 +167,67 @@ $(function() {
 <div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;                    }</div>
 <div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;                }</div>
 <div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160; </div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;                <span class="comment">// update the data to have the combined observed inputs, values and errors</span></div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;                std::tie(observedInput, observedValueMean, observedValueErrorMean) = data.<a class="code" href="classhops_1_1GaussianProcess.html#a004348265474a48674f929d3126e4394">updateObservations</a>(</div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;                        observedInput, observedValueMean, observedValueErrorMean);</div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;                data.<a class="code" href="classhops_1_1GaussianProcess.html#a93552069d53d7f397458757f09d2c2f8">addObservations</a>(observedInput, observedValueMean, observedValueErrorMean);</div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160; </div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;                <span class="comment">// compute smoothing on unsmoothed errors</span></div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;                <span class="comment">//MatrixType weights = smoothingKernel(data.getObservedInputs(), data.getObservedInputs());</span></div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;                <span class="keyword">const</span> MatrixType&amp; weights = data.<a class="code" href="classhops_1_1GaussianProcess.html#a0cfc3d076366dfc255fa4e00532c97de">getObservedCovariance</a>();</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;                VectorType smoothedObservedValueErrors = weights * data.<a class="code" href="classhops_1_1GaussianProcess.html#a709aed7eaff99a58fac7f551cd1c7f6b">getObservedValueErrors</a>();</div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;                VectorType normalizer = weights * VectorType::Ones(weights.cols());</div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;                smoothedObservedValueErrors = smoothedObservedValueErrors.array() / normalizer.array();</div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160; </div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;                <span class="comment">//MatrixType print(smoothedObservedValueErrors.rows(), 2);</span></div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;                <span class="comment">//print &lt;&lt; data.getObservedValueErrors(), smoothedObservedValueErrors;</span></div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;                <span class="comment">//std::cout &lt;&lt; print &lt;&lt; std::endl &lt;&lt; std::endl;</span></div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160; </div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;                std::tie(observedInput, observedValueMean, smoothedObservedValueErrors) = gp.<a class="code" href="classhops_1_1GaussianProcess.html#a004348265474a48674f929d3126e4394">updateObservations</a>(</div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;                        data.<a class="code" href="classhops_1_1GaussianProcess.html#a84ae5ffd21b50139c0f38e613fd54d17">getObservedInputs</a>(), data.<a class="code" href="classhops_1_1GaussianProcess.html#a693e9aec35b93e625ccc7df721ce62e6">getObservedValues</a>(), smoothedObservedValueErrors);</div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;                gp.<a class="code" href="classhops_1_1GaussianProcess.html#a93552069d53d7f397458757f09d2c2f8">addObservations</a>(observedInput, observedValueMean, smoothedObservedValueErrors);</div>
-<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160; </div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;                <span class="comment">// check maximum of posterior mean and increment counter, if the index didnt change</span></div>
-<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;                <span class="comment">// or reset counter, if we have a new maximum</span></div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;                <span class="comment">// also, as long as the maximum is zero, we keep exploring</span></div>
-<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;                <span class="keyword">auto</span> max = gp.<a class="code" href="classhops_1_1GaussianProcess.html#a9649c7e21abaf67b48c5e573eebde82e">getPosteriorMean</a>().maxCoeff(&amp;newMaximumPosteriorMeanIndex);</div>
-<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;                <span class="keywordflow">if</span> (newMaximumPosteriorMeanIndex != oldMaximumPosteriorMeanIndex || max == 0) {</div>
-<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;                    sameMaximumCounter = 0;</div>
-<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;                } <span class="keywordflow">else</span> {</div>
-<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;                    ++sameMaximumCounter;</div>
-<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;                }</div>
-<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;                oldMaximumPosteriorMeanIndex = newMaximumPosteriorMeanIndex;</div>
-<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;            }</div>
-<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160; </div>
-<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;            <span class="keywordflow">if</span> (numberOfPosteriorUpdatesNeeded) {</div>
-<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;                *numberOfPosteriorUpdatesNeeded = i;</div>
-<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;            }</div>
-<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160; </div>
-<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;            gp.<a class="code" href="classhops_1_1GaussianProcess.html#ad8dbcc7473cf866ee2de5d18f25a357f">sample</a>(inputSpaceGrid, randomNumberGenerator, maxElementIndex);</div>
-<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;            initialGP = gp.<a class="code" href="classhops_1_1GaussianProcess.html#a0189718f0b401e0dbf6fb6c723e383a0">getPosteriorCopy</a>();</div>
-<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160; </div>
-<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;            <span class="keywordflow">return</span> isConverged;</div>
-<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;        }</div>
-<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;    };</div>
-<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;}</div>
-<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160; </div>
-<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;<span class="preprocessor">#endif // HOPS_THOMPSONSAMPLING_HPP</span></div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;                <a class="code" href="namespacehops.html#a7ed561c27533fdf7f05b187035bd78a7">MatrixType</a> newObservedInput;</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;                <a class="code" href="namespacehops.html#af656c1adca85c58336d70b81938df367">VectorType</a> newObservedValueMean;</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;                <a class="code" href="namespacehops.html#af656c1adca85c58336d70b81938df367">VectorType</a> newObservedValueErrorMean;</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160; </div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;                <span class="comment">// update the data to have the combined observed inputs, values and errors</span></div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;                std::tie(newObservedInput, newObservedValueMean, newObservedValueErrorMean) = data.<a class="code" href="classhops_1_1GaussianProcess.html#a004348265474a48674f929d3126e4394">updateObservations</a>(</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;                        observedInput, observedValueMean, observedValueErrorMean);</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;                data.<a class="code" href="classhops_1_1GaussianProcess.html#a93552069d53d7f397458757f09d2c2f8">addObservations</a>(newObservedInput, newObservedValueMean, newObservedValueErrorMean);</div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160; </div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;                <span class="comment">// compute smoothing on unsmoothed errors</span></div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;                <span class="comment">//MatrixType weights = smoothingKernel(data.getObservedInputs(), data.getObservedInputs());</span></div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;                <span class="keyword">const</span> <a class="code" href="namespacehops.html#a7ed561c27533fdf7f05b187035bd78a7">MatrixType</a>&amp; weights = data.<a class="code" href="classhops_1_1GaussianProcess.html#a0cfc3d076366dfc255fa4e00532c97de">getObservedCovariance</a>();</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;                <a class="code" href="namespacehops.html#af656c1adca85c58336d70b81938df367">VectorType</a> smoothedObservedValueErrors = weights * data.<a class="code" href="classhops_1_1GaussianProcess.html#a709aed7eaff99a58fac7f551cd1c7f6b">getObservedValueErrors</a>();</div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;                <span class="comment">//VectorType normalizer = weights * VectorType::Ones(weights.cols());</span></div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;                <a class="code" href="namespacehops.html#af656c1adca85c58336d70b81938df367">VectorType</a> normalizer = weights.rowwise().sum(); <span class="comment">// * VectorType::Ones(weights.cols());</span></div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;                smoothedObservedValueErrors = smoothedObservedValueErrors.array() / normalizer.array();</div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160; </div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;                <span class="comment">//MatrixType print(smoothedObservedValueErrors.rows(), 2);</span></div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;                <span class="comment">//print &lt;&lt; data.getObservedValueErrors(), smoothedObservedValueErrors;</span></div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;                <span class="comment">//std::cout &lt;&lt; print &lt;&lt; std::endl &lt;&lt; std::endl;</span></div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160; </div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;                std::tie(newObservedInput, newObservedValueMean, smoothedObservedValueErrors) = gp.<a class="code" href="classhops_1_1GaussianProcess.html#a004348265474a48674f929d3126e4394">updateObservations</a>(</div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;                        data.<a class="code" href="classhops_1_1GaussianProcess.html#a84ae5ffd21b50139c0f38e613fd54d17">getObservedInputs</a>(), data.<a class="code" href="classhops_1_1GaussianProcess.html#a693e9aec35b93e625ccc7df721ce62e6">getObservedValues</a>(), smoothedObservedValueErrors);</div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;                gp.<a class="code" href="classhops_1_1GaussianProcess.html#a93552069d53d7f397458757f09d2c2f8">addObservations</a>(newObservedInput, newObservedValueMean, smoothedObservedValueErrors);</div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160; </div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;                <span class="comment">//double newKernelSigma = 2*(data.getObservedValues().array() + data.getObservedValueErrors().array().sqrt()).maxCoeff();</span></div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;                <span class="comment">//double newKernelSigma = data.getObservedValues().array().maxCoeff();</span></div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;                <span class="comment">//newKernelSigma = ( newKernelSigma == 0 ? initialGP.getKernel().sigma : newKernelSigma );</span></div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;                <span class="comment">//gp.setKernelSigma(newKernelSigma);</span></div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160; </div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;                <span class="comment">// check maximum of posterior mean and increment counter, if the index didnt change</span></div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;                <span class="comment">// or reset counter, if we have a new maximum</span></div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;                <span class="comment">// also, as long as the maximum is zero, we keep exploring</span></div>
+<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;                <span class="keyword">auto</span> max = gp.<a class="code" href="classhops_1_1GaussianProcess.html#a9649c7e21abaf67b48c5e573eebde82e">getPosteriorMean</a>().maxCoeff(&amp;newMaximumPosteriorMeanIndex);</div>
+<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;                <span class="keywordflow">if</span> (newMaximumPosteriorMeanIndex != oldMaximumPosteriorMeanIndex || max == 0) {</div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;                    sameMaximumCounter = 0;</div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;                } <span class="keywordflow">else</span> {</div>
+<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;                    ++sameMaximumCounter;</div>
+<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;                }</div>
+<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;                oldMaximumPosteriorMeanIndex = newMaximumPosteriorMeanIndex;</div>
+<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;            }</div>
+<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160; </div>
+<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;            <span class="keywordflow">if</span> (numberOfPosteriorUpdatesNeeded) {</div>
+<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;                *numberOfPosteriorUpdatesNeeded = i;</div>
+<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;            }</div>
+<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160; </div>
+<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;            gp.<a class="code" href="classhops_1_1GaussianProcess.html#ad8dbcc7473cf866ee2de5d18f25a357f">sample</a>(inputSpaceGrid, randomNumberGenerator, maxElementIndex);</div>
+<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;            initialGP = gp.<a class="code" href="classhops_1_1GaussianProcess.html#a0189718f0b401e0dbf6fb6c723e383a0">getPosteriorCopy</a>();</div>
+<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160; </div>
+<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;            <span class="keywordflow">return</span> isConverged;</div>
+<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;        }</div>
+<div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;    };</div>
+<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;}</div>
+<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160; </div>
+<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;<span class="preprocessor">#endif // HOPS_THOMPSONSAMPLING_HPP</span></div>
 </div><!-- fragment --></div><!-- contents -->
 <div class="ttc" id="aclasshops_1_1GaussianProcess_html_a325bd89bcb189bf0329b1022676dcb9a"><div class="ttname"><a href="classhops_1_1GaussianProcess.html#a325bd89bcb189bf0329b1022676dcb9a">hops::GaussianProcess::getPriorCopy</a></div><div class="ttdeci">GaussianProcess getPriorCopy()</div><div class="ttdef"><b>Definition:</b> GaussianProcess.hpp:67</div></div>
 <div class="ttc" id="aclasshops_1_1GaussianProcess_html_a693e9aec35b93e625ccc7df721ce62e6"><div class="ttname"><a href="classhops_1_1GaussianProcess.html#a693e9aec35b93e625ccc7df721ce62e6">hops::GaussianProcess::getObservedValues</a></div><div class="ttdeci">const VectorType &amp; getObservedValues() const</div><div class="ttdef"><b>Definition:</b> GaussianProcess.hpp:357</div></div>
 <div class="ttc" id="aclasshops_1_1GaussianProcess_html_a84ae5ffd21b50139c0f38e613fd54d17"><div class="ttname"><a href="classhops_1_1GaussianProcess.html#a84ae5ffd21b50139c0f38e613fd54d17">hops::GaussianProcess::getObservedInputs</a></div><div class="ttdeci">const MatrixType &amp; getObservedInputs() const</div><div class="ttdef"><b>Definition:</b> GaussianProcess.hpp:356</div></div>
 <div class="ttc" id="aclasshops_1_1ThompsonSampling_html_afd1d7a314704ea972745110a2acc81ac"><div class="ttname"><a href="classhops_1_1ThompsonSampling.html#afd1d7a314704ea972745110a2acc81ac">hops::ThompsonSampling::optimize</a></div><div class="ttdeci">static bool optimize(const size_t numberOfPosteriorUpdates, const size_t numberOfSamplingRounds, const size_t numberOfRoundsForConvergence, GaussianProcessType &amp;initialGP, std::shared_ptr&lt; ThompsonSamplgTargetType &gt; targetFunction, const MatrixType &amp;inputSpaceGrid, RandomNumberGenerator randomNumberGenerator, size_t *numberOfPosteriorUpdatesNeeded=nullptr, double smoothingLength=0)</div><div class="ttdef"><b>Definition:</b> ThompsonSampling.hpp:27</div></div>
+<div class="ttc" id="anamespacehops_html_a7ed561c27533fdf7f05b187035bd78a7"><div class="ttname"><a href="namespacehops.html#a7ed561c27533fdf7f05b187035bd78a7">hops::MatrixType</a></div><div class="ttdeci">Eigen::MatrixXd MatrixType</div><div class="ttdef"><b>Definition:</b> MatrixType.hpp:7</div></div>
 <div class="ttc" id="astructhops_1_1internal_1_1ThompsonSamplingTarget_html"><div class="ttname"><a href="structhops_1_1internal_1_1ThompsonSamplingTarget.html">hops::internal::ThompsonSamplingTarget</a></div><div class="ttdef"><b>Definition:</b> ThompsonSampling.hpp:17</div></div>
 <div class="ttc" id="aclasshops_1_1GaussianProcess_html_a9649c7e21abaf67b48c5e573eebde82e"><div class="ttname"><a href="classhops_1_1GaussianProcess.html#a9649c7e21abaf67b48c5e573eebde82e">hops::GaussianProcess::getPosteriorMean</a></div><div class="ttdeci">const VectorType &amp; getPosteriorMean()</div><div class="ttdef"><b>Definition:</b> GaussianProcess.hpp:341</div></div>
 <div class="ttc" id="anamespacehops_1_1internal_html_a6f11349ed3a202e15993e96e433465d9"><div class="ttname"><a href="namespacehops_1_1internal.html#a6f11349ed3a202e15993e96e433465d9">hops::internal::append</a></div><div class="ttdeci">MatrixType append(const MatrixType &amp;rhs, const MatrixType &amp;lhs)</div><div class="ttdef"><b>Definition:</b> GaussianProcess.hpp:19</div></div>
@@ -231,6 +242,7 @@ $(function() {
 <div class="ttc" id="aclasshops_1_1GaussianProcess_html"><div class="ttname"><a href="classhops_1_1GaussianProcess.html">hops::GaussianProcess</a></div><div class="ttdef"><b>Definition:</b> GaussianProcess.hpp:53</div></div>
 <div class="ttc" id="anamespacehops_html"><div class="ttname"><a href="namespacehops.html">hops</a></div><div class="ttdef"><b>Definition:</b> CsvReader.hpp:8</div></div>
 <div class="ttc" id="aclasshops_1_1GaussianProcess_html_a93552069d53d7f397458757f09d2c2f8"><div class="ttname"><a href="classhops_1_1GaussianProcess.html#a93552069d53d7f397458757f09d2c2f8">hops::GaussianProcess::addObservations</a></div><div class="ttdeci">void addObservations(const MatrixType &amp;x, VectorType &amp;y, VectorType &amp;error)</div><div class="ttdef"><b>Definition:</b> GaussianProcess.hpp:287</div></div>
+<div class="ttc" id="anamespacehops_html_af656c1adca85c58336d70b81938df367"><div class="ttname"><a href="namespacehops.html#af656c1adca85c58336d70b81938df367">hops::VectorType</a></div><div class="ttdeci">Eigen::VectorXd VectorType</div><div class="ttdef"><b>Definition:</b> VectorType.hpp:7</div></div>
 <div class="ttc" id="aZeroKernel_8hpp_html"><div class="ttname"><a href="ZeroKernel_8hpp.html">ZeroKernel.hpp</a></div></div>
 <div class="ttc" id="aclasshops_1_1ThompsonSampling_html"><div class="ttname"><a href="classhops_1_1ThompsonSampling.html">hops::ThompsonSampling</a></div><div class="ttdef"><b>Definition:</b> ThompsonSampling.hpp:23</div></div>
 <div class="ttc" id="aclasshops_1_1UniformBallKernel_html"><div class="ttname"><a href="classhops_1_1UniformBallKernel.html">hops::UniformBallKernel</a></div><div class="ttdef"><b>Definition:</b> UniformBallKernel.hpp:8</div></div>

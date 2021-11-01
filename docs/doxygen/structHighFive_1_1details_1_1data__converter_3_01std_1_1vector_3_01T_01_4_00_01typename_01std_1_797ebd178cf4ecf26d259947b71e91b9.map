@@ -1,0 +1,6 @@
+<map id="HighFive::details::data_converter&lt; std::vector&lt; T &gt;, typename std::enable_if&lt;(std::is_same&lt; T, typename type_of_array&lt; T &gt;::type &gt;::value &amp;&amp;!std::is_same&lt; T, Reference &gt;::value)&gt;::type &gt;" name="HighFive::details::data_converter&lt; std::vector&lt; T &gt;, typename std::enable_if&lt;(std::is_same&lt; T, typename type_of_array&lt; T &gt;::type &gt;::value &amp;&amp;!std::is_same&lt; T, Reference &gt;::value)&gt;::type &gt;">
+<area shape="rect" id="node1" title=" " alt="" coords="5,853,236,1033"/>
+<area shape="rect" id="node2" href="$structHighFive_1_1details_1_1container__converter.html" title=" " alt="" coords="32,653,209,804"/>
+<area shape="rect" id="node3" href="$classHighFive_1_1DataSpace.html" title="Class representing the space (dimensions) of a dataset." alt="" coords="22,264,219,591"/>
+<area shape="rect" id="node4" href="$classHighFive_1_1Object.html" title=" " alt="" coords="57,5,185,215"/>
+</map>

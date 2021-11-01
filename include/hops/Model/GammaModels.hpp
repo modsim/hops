@@ -3,9 +3,11 @@
 
 #include <cmath>
 #include <Eigen/Core>
-#include <vector>
 #include <utility>
 #include <vector>
+
+#include <hops/Utility/MatrixType.hpp>
+#include <hops/Utility/VectorType.hpp>
 
 namespace {
     double gammaProbabilityDensityFunction(double x, double location, double scale, double shape) {
@@ -22,11 +24,8 @@ namespace {
 
 namespace hops {
 
-    template<typename Matrix=Eigen::MatrixXd, typename Vector=Eigen::VectorXd>
     class FullGammaModel {
     public:
-        using MatrixType = Matrix;
-        using VectorType = Vector;
         using FloatType = typename VectorType::Scalar;
 
         explicit FullGammaModel(std::vector<FloatType> measurements) : measurements(std::move(measurements)) {
@@ -42,7 +41,7 @@ namespace hops {
             b << 0.9, 0., 10, -0.1, 10, -0.1;
         }
 
-        FloatType computeNegativeLogLikelihood(const VectorType &parameters) const {
+        [[nodiscard]] FloatType computeNegativeLogLikelihood(const VectorType &parameters) const {
             FloatType neglike = 0;
             for (const auto &measurement : this->measurements) {
                 neglike -= std::log(
@@ -52,8 +51,6 @@ namespace hops {
                                                         parameters(2)));
 
             }
-//            if (parameters(1) != 1){
-//                neglike = INFINITY;}
             return neglike;
         }
 
@@ -83,11 +80,8 @@ namespace hops {
     };
 
 
-    template<typename Matrix=Eigen::MatrixXd, typename Vector=Eigen::VectorXd>
     class GammaModel1 {
     public:
-        using MatrixType = Matrix;
-        using VectorType = Vector;
         using FloatType = typename VectorType::Scalar;
 
         explicit GammaModel1(std::vector<FloatType> measurements) : measurements(std::move(measurements)) {
@@ -140,11 +134,8 @@ namespace hops {
         std::string modelName = "GammaModel1";
     };
 
-    template<typename Matrix=Eigen::MatrixXd, typename Vector=Eigen::VectorXd>
     class GammaModel2 {
     public:
-        using MatrixType = Matrix;
-        using VectorType = Vector;
         using FloatType = typename VectorType::Scalar;
 
         explicit GammaModel2(std::vector<FloatType> measurements) : measurements(std::move(measurements)) {
@@ -158,7 +149,7 @@ namespace hops {
             b << 10, -0.1, 10, -0.1;
         }
 
-        FloatType computeNegativeLogLikelihood(const VectorType &parameters) const {
+        [[nodiscard]] FloatType computeNegativeLogLikelihood(const VectorType &parameters) const {
             FloatType neglike = 0;
             for (const auto &measurement : this->measurements) {
                 neglike -= std::log(
@@ -175,11 +166,11 @@ namespace hops {
             return parameterNames;
         }
 
-        VectorType getB() const {
+        [[nodiscard]] VectorType getB() const {
             return b;
         }
 
-        MatrixType getA() const {
+        [[nodiscard]] MatrixType getA() const {
             return A;
         }
 
@@ -199,11 +190,8 @@ namespace hops {
     };
 
 
-    template<typename Matrix=Eigen::MatrixXd, typename Vector=Eigen::VectorXd>
     class MinimalGammaModel {
     public:
-        using MatrixType = Matrix;
-        using VectorType = Vector;
         using FloatType = typename VectorType::Scalar;
 
         explicit MinimalGammaModel(std::vector<FloatType> measurements) : measurements(std::move(measurements)) {
@@ -213,7 +201,7 @@ namespace hops {
             b << 10, -0.1;
         }
 
-        FloatType computeNegativeLogLikelihood(const VectorType &parameters) const {
+        [[nodiscard]] FloatType computeNegativeLogLikelihood(const VectorType &parameters) const {
             FloatType neglike = 0;
             for (const auto &measurement : this->measurements) {
                 neglike -= std::log(
@@ -230,11 +218,11 @@ namespace hops {
             return parameterNames;
         }
 
-        VectorType getB() const {
+        [[nodiscard]] VectorType getB() const {
             return b;
         }
 
-        MatrixType getA() const {
+        [[nodiscard]] MatrixType getA() const {
             return A;
         }
 

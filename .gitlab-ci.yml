@@ -8,24 +8,6 @@ stages:
   - build
   - test
 
-build-header-only-debug:
-  stage: build
-  script:
-    - mkdir cmake-build-header-only-debug && cd cmake-build-header-only-debug && CXX=clang++ CC=clang cmake .. -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu -DCMAKE_BUILD_TYPE=Release -DHOPS_HDF5_SUPPORT=ON -DHOPS_BENCHMARKS=OFF -DHOPS_LIBRARY_TYPE=HEADER_ONLY && make && cd -
-  artifacts:
-    paths:
-      - cmake-build-header-only-debug
-    expire_in: 2 days
-
-build-header-only-release:
-  stage: build
-  script:
-    - mkdir cmake-build-header-only-release && cd cmake-build-header-only-release && CXX=clang++ CC=clang cmake .. -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu -DCMAKE_BUILD_TYPE=Release -DHOPS_HDF5_SUPPORT=ON -DHOPS_BENCHMARKS=OFF -DHOPS_LIBRARY_TYPE=HEADER_ONLY && make && cd -
-  artifacts:
-    paths:
-      - cmake-build-header-only-release
-    expire_in: 2 days
-
 build-debug:
   stage: build
   script:
@@ -62,25 +44,5 @@ test-release:
     when: always
     reports:
       junit: cmake-build-release/tests/test-reports/*.xml
-    expire_in: 10 weeks
-
-test-header-only-debug:
-  stage: test
-  script:
-    - cd cmake-build-header-only-debug && make test && cd -
-  artifacts:
-    when: always
-    reports:
-      junit: cmake-build-header-only-debug/tests/test-reports/*.xml
-    expire_in: 10 weeks
-
-test-header-only-release:
-  stage: test
-  script:
-    - cd cmake-build-header-only-release && make test && cd -
-  artifacts:
-    when: always
-    reports:
-      junit: cmake-build-header-only-release/tests/test-reports/*.xml
     expire_in: 10 weeks
 

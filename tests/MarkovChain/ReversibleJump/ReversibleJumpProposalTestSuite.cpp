@@ -88,7 +88,6 @@ BOOST_AUTO_TEST_SUITE(ReversibleJumpProposal)
             );
         }
 
-
         // TODO add checks the parameter inferences are correct
     }
 

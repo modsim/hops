@@ -1,9 +1,9 @@
 #include <hops/FileReader/CsvReader.hpp>
 #include <hops/FileWriter/FileWriterFactory.hpp>
 #include <hops/MarkovChain/MarkovChainFactory.hpp>
-#include <hops/Model/ModelMixin.hpp>
-#include <hops/Model/MultivariateGaussianModel.hpp>
-#include <hops/Model/MultimodalModel.hpp>
+#include <hops/MarkovChain/ModelMixin.hpp>
+#include <hops/Model/MultivariateGaussian.hpp>
+#include <hops/Model/Mixture.hpp>
 
 /**
  * @brief Run with mpiexec

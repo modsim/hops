@@ -1,6 +1,7 @@
 <map id="DikinProposal.hpp" name="DikinProposal.hpp">
 <area shape="rect" id="node1" title=" " alt="" coords="5,5,145,32"/>
-<area shape="rect" id="node2" href="$hops_8hpp.html" title=" " alt="" coords="24,229,105,256"/>
-<area shape="rect" id="node3" href="$MarkovChainFactory_8hpp.html" title=" " alt="" coords="49,80,230,107"/>
-<area shape="rect" id="node4" href="$Run_8hpp.html" title=" " alt="" coords="102,155,177,181"/>
+<area shape="rect" id="node2" href="$hops_8hpp.html" title=" " alt="" coords="37,304,119,331"/>
+<area shape="rect" id="node3" href="$MarkovChainFactory_8hpp.html" title=" " alt="" coords="62,155,243,181"/>
+<area shape="rect" id="node5" href="$CSmMALAProposal_8hpp.html" title=" " alt="" coords="113,80,288,107"/>
+<area shape="rect" id="node4" href="$Run_8hpp.html" title=" " alt="" coords="115,229,190,256"/>
 </map>

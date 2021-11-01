@@ -11,6 +11,8 @@ if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
             MarkovChainAttribute.hpp
             MarkovChainFactory.hpp
             MarkovChainType.hpp
+            ModelMixin.hpp
+            ModelWrapper.hpp
             StateTransformation.hpp
             )
 endif (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")

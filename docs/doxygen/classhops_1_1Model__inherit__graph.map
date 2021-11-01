@@ -1,0 +1,8 @@
+<map id="hops::Model" name="hops::Model">
+<area shape="rect" id="node1" title=" " alt="" coords="611,5,889,141"/>
+<area shape="rect" id="node2" href="$classhops_1_1DegenerateMultivariateGaussian.html" title=" " alt="" coords="5,226,284,362"/>
+<area shape="rect" id="node3" href="$classhops_1_1Mixture.html" title=" " alt="" coords="308,226,587,362"/>
+<area shape="rect" id="node4" href="$classhops_1_1MultivariateGaussian.html" title=" " alt="" coords="611,219,889,369"/>
+<area shape="rect" id="node5" href="$classhops_1_1ReversibleJumpProposal.html" title=" " alt="" coords="913,189,1184,399"/>
+<area shape="rect" id="node6" href="$classhops_1_1Rosenbrock.html" title="multi&#45;dimensional extension of rosenbrock function to N dimensions. Only defined on spaces of even N!" alt="" coords="1208,226,1487,362"/>
+</map>

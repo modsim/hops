@@ -14,6 +14,8 @@ set(TEST_SOURCES
         IsSetFisherWeightAvailableTestSuite.cpp
         IsSetStepSizeAvailableTestSuite.cpp
         MarkovChainFactoryTestSuite.cpp
+        ModelMixinTestSuite.cpp
+        ModelWrapperTestSuite.cpp
         )
 
 foreach (TEST_SOURCE ${TEST_SOURCES})
