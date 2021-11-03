@@ -2,7 +2,7 @@
 #include <hops/FileWriter/FileWriterFactory.hpp>
 #include <hops/MarkovChain/MarkovChainFactory.hpp>
 #include <hops/MarkovChain/ModelMixin.hpp>
-#include <hops/Model/MultivariateGaussian.hpp>
+#include <hops/Model/Gaussian.hpp>
 #include <hops/Model/Mixture.hpp>
 
 /**

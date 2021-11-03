@@ -4,6 +4,10 @@
 #include <type_traits>
 
 namespace hops {
+    /**
+     * @Brief deprecated. TODO remove
+     * @tparam T
+     */
     template<typename T, typename = void>
     struct IsCalculateLogAcceptanceProbabilityAvailable : std::false_type {
     };

@@ -12,7 +12,8 @@ namespace hops {
     public:
         RealType draw(RandomNumberGenerator &randomNumberGenerator, RealType lowerLimit, RealType upperLimit) {
             typename std::uniform_real_distribution<RealType>::param_type params(lowerLimit, upperLimit);
-            return uniformRealDistribution(randomNumberGenerator, params);
+            auto val = uniformRealDistribution(randomNumberGenerator, params);
+            return val;
         }
 
         constexpr RealType computeInverseNormalizationConstant(RealType, RealType, RealType) {

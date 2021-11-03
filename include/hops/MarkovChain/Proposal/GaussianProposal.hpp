@@ -1,17 +1,16 @@
 #ifndef HOPS_GAUSSIANPROPOSAL_HPP
 #define HOPS_GAUSSIANPROPOSAL_HPP
 
-#include "../IsSetStepSizeAvailable.hpp"
-#include "../../RandomNumberGenerator/RandomNumberGenerator.hpp"
-#include "../../FileWriter/CsvWriter.hpp"
 #include <random>
+#include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
+
+#include "IsSetStepSizeAvailable.hpp"
+#include "Proposal.hpp"
 
 namespace hops {
-    template<typename MatrixType, typename VectorType>
-    class GaussianProposal {
+    template<typename InternalMatrixType, typename InternalVectorType>
+    class GaussianProposal : public Proposal {
     public:
-        using StateType = VectorType;
-
         /**
          * @brief Constructs classical Gaussian random walk proposal mechanism on polytope defined as Ax<b.
          * @param A
@@ -19,105 +18,91 @@ namespace hops {
          * @param currentState
          * @param stepSize         The standard deviation of the isotropic Gaussian proposal distribution
          */
-        GaussianProposal(MatrixType A, VectorType b, StateType currentState, typename MatrixType::Scalar stepSize = 1);
+        GaussianProposal(InternalMatrixType A, InternalVectorType b, VectorType currentState, double stepSize = 1);
 
-        void propose(RandomNumberGenerator &randomNumberGenerator);
+        std::pair<double, VectorType> propose(RandomNumberGenerator &rng) override;
 
-        void acceptProposal();
+        VectorType acceptProposal() override;
 
-        StateType getState() const;
+        void setState(VectorType state) override;
 
-        StateType getProposal() const;
+        [[nodiscard]] std::optional<double> getStepSize() const override;
 
-        void setState(StateType newState);
+        void setStepSize(double stepSize) override;
 
-        void setStepSize(typename MatrixType::Scalar stepSize);
-
-        typename MatrixType::Scalar getStepSize() const;
-
-        [[nodiscard]] typename MatrixType::Scalar computeLogAcceptanceProbability() {
-            bool isProposalInteriorPoint = ((b - A * proposal).array() >= 0).all();
-            if (!isProposalInteriorPoint) {
-                return -std::numeric_limits<typename MatrixType::Scalar>::infinity();
-            }
-            return 0;
-        }
-
-        std::string getName();
+        [[nodiscard]] std::string getProposalName() const override;
 
     private:
-        MatrixType A;
-        VectorType b;
-        StateType state;
-        StateType proposal;
+        [[nodiscard]] double computeLogAcceptanceProbability();
 
-        typename MatrixType::Scalar stepSize;
+        InternalMatrixType A;
+        InternalVectorType b;
+        VectorType state;
+        VectorType proposal;
 
-        std::normal_distribution<typename MatrixType::Scalar> normal;
+        double stepSize;
+
+        std::normal_distribution<typename InternalMatrixType::Scalar> normal;
     };
 
-    template<typename MatrixType, typename VectorType>
-    GaussianProposal<MatrixType, VectorType>::GaussianProposal(MatrixType A_,
-                                                               VectorType b_,
+    template<typename InternalMatrixType, typename InternalVectorType>
+    GaussianProposal<InternalMatrixType, InternalVectorType>::GaussianProposal(InternalMatrixType A_,
+                                                               InternalVectorType b_,
                                                                VectorType currentState_,
-                                                               typename MatrixType::Scalar stepSize_) :
+                                                               double stepSize_) :
             A(std::move(A_)),
             b(std::move(b_)),
             state(std::move(currentState_)),
             proposal(this->state),
             stepSize(stepSize_) {
-        normal = std::normal_distribution<typename MatrixType::Scalar>(0, stepSize);
+        normal = std::normal_distribution<typename InternalMatrixType::Scalar>(0, stepSize);
     }
 
-    template<typename MatrixType, typename VectorType>
-    void GaussianProposal<MatrixType, VectorType>::propose(
-            RandomNumberGenerator &randomNumberGenerator) {
+    template<typename InternalMatrixType, typename InternalVectorType>
+    std::pair<double, VectorType> GaussianProposal<InternalMatrixType, InternalVectorType>::propose(RandomNumberGenerator &rng) {
         for (long i = 0; i < proposal.rows(); ++i) {
-            proposal(i) = normal(randomNumberGenerator);
+            proposal(i) = normal(rng);
         }
 
         proposal.noalias() += state;
+
+        return {computeLogAcceptanceProbability(), proposal};
     }
 
-    template<typename MatrixType, typename VectorType>
-    void
-    GaussianProposal<MatrixType, VectorType>::acceptProposal() {
+    template<typename InternalMatrixType, typename InternalVectorType>
+    VectorType GaussianProposal<InternalMatrixType, InternalVectorType>::acceptProposal() {
         state.swap(proposal);
-    }
-
-    template<typename MatrixType, typename VectorType>
-    typename GaussianProposal<MatrixType, VectorType>::StateType
-    GaussianProposal<MatrixType, VectorType>::getState() const {
         return state;
     }
 
-    template<typename MatrixType, typename VectorType>
-    typename GaussianProposal<MatrixType, VectorType>::StateType
-    GaussianProposal<MatrixType, VectorType>::getProposal() const {
-        return proposal;
+    template<typename InternalMatrixType, typename InternalVectorType>
+    void GaussianProposal<InternalMatrixType, InternalVectorType>::setState(VectorType state) {
+        GaussianProposal::state = std::move(state);
     }
 
-    template<typename MatrixType, typename VectorType>
-    void GaussianProposal<MatrixType, VectorType>::setState(VectorType newState) {
-        GaussianProposal::state = std::move(newState);
-    }
-
-    template<typename MatrixType, typename VectorType>
-    void GaussianProposal<MatrixType, VectorType>::setStepSize(
-            typename MatrixType::Scalar newStepSize) {
-        stepSize = newStepSize;
-        normal = std::normal_distribution<typename MatrixType::Scalar>(0, stepSize);
-    }
-
-    template<typename MatrixType, typename VectorType>
-    typename MatrixType::Scalar
-    GaussianProposal<MatrixType, VectorType>::getStepSize() const {
+    template<typename InternalMatrixType, typename InternalVectorType>
+    std::optional<double> GaussianProposal<InternalMatrixType, InternalVectorType>::getStepSize() const {
         return stepSize;
     }
 
-    template<typename MatrixType, typename VectorType>
-    std::string GaussianProposal<MatrixType, VectorType>::getName() {
+    template<typename InternalMatrixType, typename InternalVectorType>
+    void GaussianProposal<InternalMatrixType, InternalVectorType>::setStepSize(double stepSize) {
+        GaussianProposal::stepSize = stepSize;
+        normal = std::normal_distribution<typename InternalMatrixType::Scalar>(0, stepSize);
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    std::string GaussianProposal<InternalMatrixType, InternalVectorType>::getProposalName() const {
         return "Gaussian";
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    double GaussianProposal<InternalMatrixType, InternalVectorType>::computeLogAcceptanceProbability() {
+        bool isProposalInteriorPoint = ((b - A * proposal).array() >= 0).all();
+        if (!isProposalInteriorPoint) {
+            return -std::numeric_limits<double>::infinity();
+        }
+        return 0;
     }
 }
 

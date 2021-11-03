@@ -1,5 +1,5 @@
-#ifndef HOPS_MULTIVARIATEGAUSSIAN_HPP
-#define HOPS_MULTIVARIATEGAUSSIAN_HPP
+#ifndef HOPS_GAUSSIAN_HPP
+#define HOPS_GAUSSIAN_HPP
 
 #define _USE_MATH_DEFINES
 #include <math.h> // Using deprecated math for windows
@@ -10,9 +10,9 @@
 #include <hops/Model/Model.hpp>
 
 namespace hops {
-    class MultivariateGaussian : public Model {
+    class Gaussian : public Model {
     public:
-        MultivariateGaussian(VectorType mean, MatrixType covariance);
+        Gaussian(VectorType mean, MatrixType covariance);
 
         /**
          * @brief Evaluates the negative log likelihood for input x.
@@ -36,13 +36,13 @@ namespace hops {
         typename MatrixType::Scalar logNormalizationConstant;
     };
 
-    MultivariateGaussian::MultivariateGaussian(VectorType mean, MatrixType covariance) :
+    Gaussian::Gaussian(VectorType mean, MatrixType covariance) :
             mean(std::move(mean)),
             covariance(std::move(covariance)) {
         Eigen::LLT<MatrixType> solver(this->covariance);
         if (!this->covariance.isApprox(this->covariance.transpose()) || solver.info() == Eigen::NumericalIssue) {
             throw std::domain_error(
-                    "Possibly non semi-positive definite covariance in initialization for MultivariateGaussian.");
+                    "Possibly non semi-positive definite covariance in initialization for Gaussian.");
         }
         Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic> matrixL = solver.matrixL();
         Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic> inverseMatrixL = matrixL.inverse();
@@ -54,26 +54,26 @@ namespace hops {
     }
 
     typename MatrixType::Scalar
-    MultivariateGaussian::computeNegativeLogLikelihood(const VectorType &x) const {
+    Gaussian::computeNegativeLogLikelihood(const VectorType &x) const {
         return -logNormalizationConstant +
                0.5 * static_cast<typename MatrixType::Scalar>((x - mean).transpose() * inverseCovariance * (x - mean));
     }
 
-    std::optional<VectorType> MultivariateGaussian::computeLogLikelihoodGradient(const VectorType &x) const {
+    std::optional<VectorType> Gaussian::computeLogLikelihoodGradient(const VectorType &x) const {
         return -inverseCovariance * (x - mean);
     }
 
-    std::optional<MatrixType> MultivariateGaussian::computeExpectedFisherInformation(const VectorType &) const {
+    std::optional<MatrixType> Gaussian::computeExpectedFisherInformation(const VectorType &) const {
         return inverseCovariance;
     }
 
-    const VectorType &MultivariateGaussian::getMean() const {
+    const VectorType &Gaussian::getMean() const {
         return mean;
     }
 
-    const MatrixType &MultivariateGaussian::getCovariance() const {
+    const MatrixType &Gaussian::getCovariance() const {
         return covariance;
     }
 }
 
-#endif //HOPS_MULTIVARIATEGAUSSIAN_HPP
+#endif //HOPS_GAUSSIAN_HPP

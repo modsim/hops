@@ -1,44 +1,56 @@
 #ifndef HOPS_DNEST4ENVIRONMENTSINGLETON_HPP
 #define HOPS_DNEST4ENVIRONMENTSINGLETON_HPP
 
-#include <hops/MarkovChain/MarkovChain.hpp>
+#include <hops/MarkovChain/Proposal/Proposal.hpp>
+#include <hops/Model/Model.hpp>
 
 namespace hops {
     class DNest4EnvironmentSingleton {
     public:
-        using StateType = Model::StateType;
-
         static DNest4EnvironmentSingleton &getInstance() {
             static DNest4EnvironmentSingleton instance;
             return instance;
         }
 
-        [[nodiscard]] static bool isRngInitialized() const {
+        [[nodiscard]] bool isRngInitialized() const {
             return rngInitialized;
         }
 
-        static hops::RandomNumberGenerator &getRandomNumberGenerator() {
+        void initializeRng(int seed, int stream=0) {
+            rngInitialized = true;
+            rng = RandomNumberGenerator(seed, stream);
+        }
+
+        hops::RandomNumberGenerator &getRandomNumberGenerator() {
             return rng;
         }
 
-        static const hops::MarkovChain *getSampler() const {
-            return sampler.get();
+        [[nodiscard]] std::shared_ptr<hops::Proposal> getProposer() const {
+            return proposer;
         }
 
-        static const Model *getModel() const {
-            return model.get();
+        [[nodiscard]] std::shared_ptr<Model> getModel() const {
+            return model;
         }
 
-        DNest4EnvironmentSingleton(const DNest4ModelSingleton &) = delete;
+        void setProposer(const std::shared_ptr<hops::Proposal> &newProposer) {
+            DNest4EnvironmentSingleton::proposer = newProposer;
+        }
 
-        DNest4EnvironmentSingleton &operator=(const DNest4ModelSingleton &) = delete;
+        void setModel(const std::shared_ptr<hops::Model> &newModel) {
+            DNest4EnvironmentSingleton::model = newModel;
+        }
+
+        DNest4EnvironmentSingleton(const DNest4EnvironmentSingleton &) = delete;
+
+        DNest4EnvironmentSingleton &operator=(const DNest4EnvironmentSingleton &) = delete;
 
     private:
-        static std::unique_ptr<hops::MarkovChain> sampler;
-        static std::unique_ptr<hops::Model> model;
+        std::shared_ptr<hops::Proposal> proposer;
+        std::shared_ptr<hops::Model> model;
 
-        static bool rngInitialized = false;
-        static hops::RandomNumberGenerator rng;
+        bool rngInitialized = false;
+        hops::RandomNumberGenerator rng;
 
         DNest4EnvironmentSingleton() = default;
 

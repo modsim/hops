@@ -1,76 +1,73 @@
 #ifndef HOPS_COORDINATEHITANDRUNPROPOSAL_HPP
 #define HOPS_COORDINATEHITANDRUNPROPOSAL_HPP
 
-#include "ChordStepDistributions.hpp"
-#include "../IsSetStepSizeAvailable.hpp"
-#include "../../RandomNumberGenerator/RandomNumberGenerator.hpp"
 #include <random>
-#include "../../FileWriter/CsvWriter.hpp"
+
+#include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
+
+#include "ChordStepDistributions.hpp"
+#include "IsSetStepSizeAvailable.hpp"
+#include "Proposal.hpp"
 
 namespace hops {
-    template<typename MatrixType, typename VectorType, typename ChordStepDistribution = UniformStepDistribution<typename MatrixType::Scalar>>
-    class CoordinateHitAndRunProposal {
+    template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution = UniformStepDistribution<typename InternalMatrixType::Scalar>>
+    class CoordinateHitAndRunProposal : public Proposal {
     public:
-        using StateType = VectorType;
-
         /**
          * @brief Constructs Coordinate Hit and Run proposal mechanism on polytope defined as Ax<b.
          * @param A
          * @param b
          * @param currentState
          */
-        CoordinateHitAndRunProposal(MatrixType A, VectorType b, VectorType currentState);
+        CoordinateHitAndRunProposal(InternalMatrixType A, InternalVectorType b, InternalVectorType currentState);
 
-        void propose(RandomNumberGenerator &randomNumberGenerator);
+        std::pair<double, InternalVectorType> propose(RandomNumberGenerator &rng) override;
 
-        void acceptProposal();
+        VectorType acceptProposal() override;
 
-        StateType getState() const;
+        void setState(InternalVectorType state) override;
 
-        StateType getProposal() const;
+        std::optional<double> getStepSize() const override;
 
-        void setState(StateType newState);
+        void setStepSize(double stepSize) override;
 
-        void setStepSize(typename MatrixType::Scalar stepSize);
+        std::string getProposalName() const override;
 
-        typename MatrixType::Scalar getStepSize() const;
-
-        [[nodiscard]] typename MatrixType::Scalar computeLogAcceptanceProbability() {
-            return chordStepDistribution.computeInverseNormalizationConstant(0, backwardDistance, forwardDistance)
-                   - chordStepDistribution.computeInverseNormalizationConstant(0, backwardDistance - step,
-                                                                                 forwardDistance - step);
-        }
-
-        std::string getName();
 
     private:
-        MatrixType A;
-        VectorType b;
-        StateType state;
-        VectorType slacks;
-        VectorType inverseDistances;
+        [[nodiscard]] typename InternalMatrixType::Scalar computeLogAcceptanceProbability();
+
+        InternalMatrixType A;
+        InternalVectorType b;
+        VectorType state;
+        VectorType proposal;
+        InternalVectorType slacks;
+        InternalVectorType inverseDistances;
 
         long coordinateToUpdate = 0;
-        typename MatrixType::Scalar step = 0;
+        typename InternalMatrixType::Scalar step = 0;
         ChordStepDistribution chordStepDistribution;
-        typename MatrixType::Scalar forwardDistance;
-        typename MatrixType::Scalar backwardDistance;
+        typename InternalMatrixType::Scalar forwardDistance;
+        typename InternalMatrixType::Scalar backwardDistance;
     };
 
-    template<typename MatrixType, typename VectorType, typename ChordStepDistribution>
-    CoordinateHitAndRunProposal<MatrixType, VectorType, ChordStepDistribution>::CoordinateHitAndRunProposal(
-            MatrixType A_,
-            VectorType b_,
-            VectorType currentState_) :
+    template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
+    CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::CoordinateHitAndRunProposal(
+            InternalMatrixType A_,
+            InternalVectorType b_,
+            InternalVectorType currentState_) :
             A(std::move(A_)),
             b(std::move(b_)),
-            state(std::move(currentState_)) {
+            state(std::move(currentState_)),
+            proposal(this->state) {
         slacks = this->b - this->A * this->state;
     }
 
-    template<typename MatrixType, typename VectorType, typename ChordStepDistribution>
-    void CoordinateHitAndRunProposal<MatrixType, VectorType, ChordStepDistribution>::propose(
-            RandomNumberGenerator &randomNumberGenerator) {
+    template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
+    std::pair<double, InternalVectorType>
+    CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::propose(
+            RandomNumberGenerator &rng) {
+        proposal(coordinateToUpdate) -= step;
         ++coordinateToUpdate %= state.rows();
 
         inverseDistances = A.col(coordinateToUpdate).cwiseQuotient(slacks);
@@ -79,60 +76,61 @@ namespace hops {
         assert(backwardDistance < 0 && forwardDistance > 0);
         assert(((b - A * state).array() > 0).all());
 
-        step = chordStepDistribution.draw(randomNumberGenerator, backwardDistance, forwardDistance);
+        step = chordStepDistribution.draw(rng, backwardDistance, forwardDistance);
+
+        proposal(coordinateToUpdate) += step;
+
+        return {computeLogAcceptanceProbability(), proposal};
     }
 
-    template<typename MatrixType, typename VectorType, typename ChordStepDistribution>
-    void
-    CoordinateHitAndRunProposal<MatrixType, VectorType, ChordStepDistribution>::acceptProposal() {
+    template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
+    VectorType
+    CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::acceptProposal() {
         state(coordinateToUpdate) += step;
+        proposal(coordinateToUpdate) += step;
         slacks.noalias() -= A.col(coordinateToUpdate) * step;
-        step = 0;
-    }
-
-    template<typename MatrixType, typename VectorType, typename ChordStepDistribution>
-    typename CoordinateHitAndRunProposal<MatrixType, VectorType, ChordStepDistribution>::StateType
-    CoordinateHitAndRunProposal<MatrixType, VectorType, ChordStepDistribution>::getState() const {
         return state;
     }
 
-    template<typename MatrixType, typename VectorType, typename ChordStepDistribution>
-    typename CoordinateHitAndRunProposal<MatrixType, VectorType, ChordStepDistribution>::StateType
-    CoordinateHitAndRunProposal<MatrixType, VectorType, ChordStepDistribution>::getProposal() const {
-        StateType proposal = state;
-        proposal(coordinateToUpdate) += step;
-        return proposal;
-    }
-
-    template<typename MatrixType, typename VectorType, typename ChordStepDistribution>
-    void CoordinateHitAndRunProposal<MatrixType, VectorType, ChordStepDistribution>::setState(VectorType newState) {
-        CoordinateHitAndRunProposal::state = std::move(newState);
+    template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
+    void CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::setState(
+            InternalVectorType state) {
+        CoordinateHitAndRunProposal::state = std::move(state);
         slacks = b - A * CoordinateHitAndRunProposal::state;
     }
 
-    template<typename MatrixType, typename VectorType, typename ChordStepDistribution>
-    void CoordinateHitAndRunProposal<MatrixType, VectorType, ChordStepDistribution>::setStepSize(
-            typename MatrixType::Scalar stepSize) {
-        if constexpr (IsSetStepSizeAvailable<ChordStepDistribution>::value) {
-            chordStepDistribution.setStepSize(stepSize);
-        } else {
-            (void)stepSize;
-            throw std::runtime_error("Step size not available.");
-        }
-    }
-
-    template<typename MatrixType, typename VectorType, typename ChordStepDistribution>
-    typename MatrixType::Scalar
-    CoordinateHitAndRunProposal<MatrixType, VectorType, ChordStepDistribution>::getStepSize() const {
+    template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
+    std::optional<double>
+    CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::getStepSize() const {
         if constexpr (IsSetStepSizeAvailable<ChordStepDistribution>::value) {
             return chordStepDistribution.getStepSize();
         }
-        throw std::runtime_error("Step size not available.");
+        return std::nullopt;
     }
 
-    template<typename MatrixType, typename VectorType, typename ChordStepDistribution>
-    std::string CoordinateHitAndRunProposal<MatrixType, VectorType, ChordStepDistribution>::getName() {
-        return "Coordinate Hit-and-Run";
+    template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
+    void CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::setStepSize(
+            double stepSize) {
+        if constexpr (IsSetStepSizeAvailable<ChordStepDistribution>::value) {
+            chordStepDistribution.setStepSize(stepSize);
+        } else {
+            (void) stepSize;
+            throw std::invalid_argument("Step size not available.");
+        }
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
+    std::string
+    CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::getProposalName() const {
+        return "CoordinateHitAndRun";
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
+    typename InternalMatrixType::Scalar
+    CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::computeLogAcceptanceProbability() {
+        return chordStepDistribution.computeInverseNormalizationConstant(0, backwardDistance, forwardDistance)
+               - chordStepDistribution.computeInverseNormalizationConstant(0, backwardDistance - step,
+                                                                           forwardDistance - step);
     }
 }
 

@@ -5,7 +5,7 @@ if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
             IsGetStepSizeAvailable.hpp
             IsSetColdnessAvailable.hpp
             IsSetExchangeAttemptProbabilityAvailable.hpp
-            IsSetStepSizeAvailable.hpp
+            Proposal/IsSetStepSizeAvailable.hpp
             MarkovChain.hpp
             MarkovChainAdapter.hpp
             MarkovChainAttribute.hpp

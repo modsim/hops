@@ -12,11 +12,8 @@
 #include <hops/MarkovChain/ParallelTempering/Coldness.hpp>
 #include <hops/MarkovChain/ParallelTempering/ParallelTempering.hpp>
 #include <hops/MarkovChain/Proposal/AdaptiveMetropolisProposal.hpp>
-#include <hops/MarkovChain/Proposal/BallWalkProposal.hpp>
-#include <hops/MarkovChain/Proposal/CoordinateHitAndRunProposal.hpp>
 #include <hops/MarkovChain/Proposal/CSmMALAProposal.hpp>
 #include <hops/MarkovChain/Proposal/DikinProposal.hpp>
-#include <hops/MarkovChain/Proposal/GaussianProposal.hpp>
 #include <hops/MarkovChain/Proposal/HitAndRunProposal.hpp>
 #include <hops/MarkovChain/Recorder/AcceptanceRateRecorder.hpp>
 #include <hops/MarkovChain/Recorder/NegativeLogLikelihoodRecorder.hpp>
@@ -68,37 +65,10 @@ namespace hops {
             }
 
             switch (type) {
-                case MarkovChainType::BallWalk : {
-                    return addRecordersAndAdapter(
-                            NoOpDrawAdapter(
-                                    BallWalkProposal(
-                                            Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>(
-                                                    inequalityLhs), inequalityRhs, startingPoint)
-                            )
-                    );
-                }
-                case MarkovChainType::CoordinateHitAndRun : {
-                    return addRecordersAndAdapter(
-                            NoOpDrawAdapter(
-                                    CoordinateHitAndRunProposal(
-                                            Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>(
-                                                    inequalityLhs), inequalityRhs, startingPoint)
-                            )
-                    );
-                }
                 case MarkovChainType::DikinWalk : {
                     return addRecordersAndAdapter(
                             MetropolisHastingsFilter(
                                     DikinProposal(inequalityLhs, inequalityRhs, startingPoint)
-                            )
-                    );
-                }
-                case MarkovChainType::Gaussian : {
-                    return addRecordersAndAdapter(
-                            MetropolisHastingsFilter(
-                                    GaussianProposal(
-                                            Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>(
-                                                    inequalityLhs), inequalityRhs, startingPoint)
                             )
                     );
                 }
@@ -168,54 +138,12 @@ namespace hops {
             }
 
             switch (type) {
-                case MarkovChainType::BallWalk : {
-                    return addRecordersAndAdapter(
-                            NoOpDrawAdapter(
-                                    StateTransformation(
-                                            BallWalkProposal(
-                                                    Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>(
-                                                            roundedInequalityLhs),
-                                                    roundedInequalityRhs,
-                                                    startingPoint),
-                                            Transformation(unroundingTransformation, unroundingShift)
-                                    )
-                            )
-                    );
-                }
-                case MarkovChainType::CoordinateHitAndRun : {
-                    return addRecordersAndAdapter(
-                            NoOpDrawAdapter(
-                                    StateTransformation(
-                                            CoordinateHitAndRunProposal(
-                                                    Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>(
-                                                            roundedInequalityLhs),
-                                                    roundedInequalityRhs,
-                                                    startingPoint),
-                                            Transformation(unroundingTransformation, unroundingShift)
-                                    )
-                            )
-                    );
-                }
                 case MarkovChainType::DikinWalk : {
                     return addRecordersAndAdapter(
                             MetropolisHastingsFilter(
                                     StateTransformation(
                                             DikinProposal(
                                                     roundedInequalityLhs,
-                                                    roundedInequalityRhs,
-                                                    startingPoint),
-                                            Transformation(unroundingTransformation, unroundingShift)
-                                    )
-                            )
-                    );
-                }
-                case MarkovChainType::Gaussian : {
-                    return addRecordersAndAdapter(
-                            MetropolisHastingsFilter(
-                                    StateTransformation(
-                                            GaussianProposal(
-                                                    Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>(
-                                                            roundedInequalityLhs),
                                                     roundedInequalityRhs,
                                                     startingPoint),
                                             Transformation(unroundingTransformation, unroundingShift)
@@ -307,35 +235,6 @@ namespace hops {
                             )
                     );
                 }
-                case MarkovChainType::BallWalk : {
-                    return addRecordersAndAdapter(
-                            NegativeLogLikelihoodRecorder(
-                                    MetropolisHastingsFilter(
-                                            ModelMixin(
-                                                    BallWalkProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
-                                                            decltype(inequalityRhs)>(
-                                                            inequalityLhs, inequalityRhs, startingPoint),
-                                                    ModelWrapper(model)
-                                            )
-                                    )
-                            )
-                    );
-                }
-                case MarkovChainType::CoordinateHitAndRun : {
-                    return addRecordersAndAdapter(
-                            NegativeLogLikelihoodRecorder(
-                                    MetropolisHastingsFilter(
-                                            ModelMixin(
-                                                    CoordinateHitAndRunProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
-                                                            decltype(inequalityRhs),
-                                                            GaussianStepDistribution<typename decltype(inequalityRhs)::Scalar>>(
-                                                            inequalityLhs, inequalityRhs, startingPoint),
-                                                    ModelWrapper(model)
-                                            )
-                                    )
-                            )
-                    );
-                }
                 case MarkovChainType::CSmMALA: {
                     return addRecordersAndAdapter(
                             NegativeLogLikelihoodRecorder(
@@ -354,21 +253,6 @@ namespace hops {
                                     MetropolisHastingsFilter(
                                             ModelMixin(
                                                     DikinProposal(inequalityLhs, inequalityRhs, startingPoint),
-                                                    ModelWrapper(model)
-                                            )
-                                    )
-                            )
-                    );
-                }
-                case MarkovChainType::Gaussian : {
-                    return addRecordersAndAdapter(
-                            NegativeLogLikelihoodRecorder(
-                                    MetropolisHastingsFilter(
-                                            ModelMixin(
-                                                    GaussianProposal<
-                                                            Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
-                                                            decltype(inequalityRhs)
-                                                    >(inequalityLhs, inequalityRhs, startingPoint),
                                                     ModelWrapper(model)
                                             )
                                     )
@@ -436,37 +320,6 @@ namespace hops {
                             synchronizedRandomNumberGenerator
                     );
                 }
-                case MarkovChainType::BallWalk : {
-                    return addRecordersAndAdapter(
-                            NegativeLogLikelihoodRecorder(
-                                    MetropolisHastingsFilter(
-                                            ModelMixin(
-                                                    BallWalkProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
-                                                            decltype(inequalityRhs)>(
-                                                            inequalityLhs, inequalityRhs, startingPoint),
-                                                    Coldness(ModelWrapper(model))
-                                            )
-                                    )
-                            ),
-                            synchronizedRandomNumberGenerator
-                    );
-                }
-                case MarkovChainType::CoordinateHitAndRun : {
-                    return addRecordersAndAdapter(
-                            NegativeLogLikelihoodRecorder(
-                                    MetropolisHastingsFilter(
-                                            ModelMixin(
-                                                    CoordinateHitAndRunProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
-                                                            decltype(inequalityRhs),
-                                                            GaussianStepDistribution<typename decltype(inequalityRhs)::Scalar>>(
-                                                            inequalityLhs, inequalityRhs, startingPoint),
-                                                    Coldness(ModelWrapper(model))
-                                            )
-                                    )
-                            ),
-                            synchronizedRandomNumberGenerator
-                    );
-                }
                 case MarkovChainType::CSmMALA: {
                     return addRecordersAndAdapter(
                             NegativeLogLikelihoodRecorder(
@@ -486,22 +339,6 @@ namespace hops {
                                     MetropolisHastingsFilter(
                                             ModelMixin(
                                                     DikinProposal(inequalityLhs, inequalityRhs, startingPoint),
-                                                    Coldness(ModelWrapper(model))
-                                            )
-                                    )
-                            ),
-                            synchronizedRandomNumberGenerator
-                    );
-                }
-                case MarkovChainType::Gaussian : {
-                    return addRecordersAndAdapter(
-                            NegativeLogLikelihoodRecorder(
-                                    MetropolisHastingsFilter(
-                                            ModelMixin(
-                                                    GaussianProposal<
-                                                            Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
-                                                            decltype(inequalityRhs)
-                                                    >(inequalityLhs, inequalityRhs, startingPoint),
                                                     Coldness(ModelWrapper(model))
                                             )
                                     )
@@ -595,66 +432,6 @@ namespace hops {
             }
 
             switch (type) {
-                case MarkovChainType::BallWalk : {
-                    return addRecordersAndAdapter(
-                            NegativeLogLikelihoodRecorder(
-                                    MetropolisHastingsFilter(
-                                            ModelMixin(
-                                                    StateTransformation(
-                                                            BallWalkProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
-                                                                    decltype(roundedInequalityRhs)>(
-                                                                    roundedInequalityLhs,
-                                                                    roundedInequalityRhs,
-                                                                    startingPoint),
-                                                            Transformation(unroundingTransformation, unroundingShift)
-                                                    ),
-                                                    ModelWrapper(model)
-                                            )
-                                    )
-                            )
-                    );
-                }
-                case MarkovChainType::CoordinateHitAndRun : {
-                    return addRecordersAndAdapter(
-                            NegativeLogLikelihoodRecorder(
-                                    MetropolisHastingsFilter(
-                                            ModelMixin(
-                                                    StateTransformation(
-                                                            CoordinateHitAndRunProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
-                                                                    decltype(roundedInequalityRhs),
-                                                                    GaussianStepDistribution<typename decltype(roundedInequalityRhs)::Scalar>>(
-                                                                    roundedInequalityLhs,
-                                                                    roundedInequalityRhs,
-                                                                    startingPoint),
-                                                            Transformation(unroundingTransformation, unroundingShift)
-                                                    ),
-                                                    ModelWrapper(model)
-                                            )
-                                    )
-                            )
-                    );
-                }
-                case MarkovChainType::Gaussian : {
-                    return addRecordersAndAdapter(
-                            NegativeLogLikelihoodRecorder(
-                                    MetropolisHastingsFilter(
-                                            ModelMixin(
-                                                    StateTransformation(
-                                                            GaussianProposal<
-                                                                    Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
-                                                                    decltype(roundedInequalityRhs)>(
-                                                                    roundedInequalityLhs,
-                                                                    roundedInequalityRhs,
-                                                                    startingPoint
-                                                            ),
-                                                            Transformation(unroundingTransformation, unroundingShift)
-                                                    ),
-                                                    ModelWrapper(model)
-                                            )
-                                    )
-                            )
-                    );
-                }
                 case MarkovChainType::HitAndRun: {
                     return addRecordersAndAdapter(
                             NegativeLogLikelihoodRecorder(
@@ -712,69 +489,6 @@ namespace hops {
             }
 
             switch (type) {
-                case MarkovChainType::BallWalk : {
-                    return addRecordersAndAdapter(
-                            NegativeLogLikelihoodRecorder(
-                                    MetropolisHastingsFilter(
-                                            ModelMixin(
-                                                    StateTransformation(
-                                                            BallWalkProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
-                                                                    decltype(roundedInequalityRhs)>(
-                                                                    roundedInequalityLhs,
-                                                                    roundedInequalityRhs,
-                                                                    startingPoint),
-                                                            Transformation(unroundingTransformation, unroundingShift)
-                                                    ),
-                                                    Coldness(ModelWrapper(model))
-                                            )
-                                    )
-                            ),
-                            synchronizedRandomNumberGenerator
-                    );
-                }
-                case MarkovChainType::CoordinateHitAndRun : {
-                    return addRecordersAndAdapter(
-                            NegativeLogLikelihoodRecorder(
-                                    MetropolisHastingsFilter(
-                                            ModelMixin(
-                                                    StateTransformation(
-                                                            CoordinateHitAndRunProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
-                                                                    decltype(roundedInequalityRhs),
-                                                                    GaussianStepDistribution<typename decltype(roundedInequalityRhs)::Scalar>>(
-                                                                    roundedInequalityLhs,
-                                                                    roundedInequalityRhs,
-                                                                    startingPoint),
-                                                            Transformation(unroundingTransformation, unroundingShift)
-                                                    ),
-                                                    Coldness(ModelWrapper(model))
-                                            )
-                                    )
-                            ),
-                            synchronizedRandomNumberGenerator
-                    );
-                }
-                case MarkovChainType::Gaussian : {
-                    return addRecordersAndAdapter(
-                            NegativeLogLikelihoodRecorder(
-                                    MetropolisHastingsFilter(
-                                            ModelMixin(
-                                                    StateTransformation(
-                                                            GaussianProposal<
-                                                                    Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
-                                                                    decltype(roundedInequalityRhs)>(
-                                                                    roundedInequalityLhs,
-                                                                    roundedInequalityRhs,
-                                                                    startingPoint
-                                                            ),
-                                                            Transformation(unroundingTransformation, unroundingShift)
-                                                    ),
-                                                    Coldness(ModelWrapper(model))
-                                            )
-                                    )
-                            ),
-                            synchronizedRandomNumberGenerator
-                    );
-                }
                 case MarkovChainType::HitAndRun: {
                     return addRecordersAndAdapter(
                             NegativeLogLikelihoodRecorder(

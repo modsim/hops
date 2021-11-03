@@ -1,5 +1,5 @@
-#ifndef HOPS_DEGENERATEMULTIVARIATEGAUSSIAN_HPP
-#define HOPS_DEGENERATEMULTIVARIATEGAUSSIAN_HPP
+#ifndef HOPS_DEGENERATEGAUSSIAN_HPP
+#define HOPS_DEGENERATEGAUSSIAN_HPP
 
 #include <Eigen/Cholesky>
 #include <Eigen/Core>
@@ -9,17 +9,17 @@
 #include <math.h> // Using deprecated math for windows
 #include <utility>
 
-#include "MultivariateGaussian.hpp"
+#include "Gaussian.hpp"
 #include <hops/Utility/MatrixType.hpp>
 #include <hops/Utility/VectorType.hpp>
 
 
 namespace hops {
-    class DegenerateMultivariateGaussian : public Model {
+    class DegenerateGaussian : public Model {
     public:
 
-        DegenerateMultivariateGaussian(VectorType mean, MatrixType covariance,
-                                       std::vector<long> inactive = std::vector<long>(0));
+        DegenerateGaussian(VectorType mean, MatrixType covariance,
+                           std::vector<long> inactive = std::vector<long>(0));
 
         [[nodiscard]] MatrixType::Scalar computeNegativeLogLikelihood(const VectorType &x) const override;
 
@@ -28,7 +28,7 @@ namespace hops {
         [[nodiscard]] std::optional<MatrixType> computeExpectedFisherInformation(const VectorType &) const override;
 
     private:
-        std::optional<MultivariateGaussian> gaussian;
+        std::optional<Gaussian> gaussian;
         std::vector<long> inactive;
 
         void removeRow(Eigen::MatrixXd &matrix, unsigned int rowToRemove) const {
@@ -77,34 +77,34 @@ namespace hops {
         }
     };
 
-    DegenerateMultivariateGaussian::DegenerateMultivariateGaussian(VectorType mean,
-                                                                   MatrixType covariance,
-                                                                   std::vector<long> inactive) :
+    DegenerateGaussian::DegenerateGaussian(VectorType mean,
+                                           MatrixType covariance,
+                                           std::vector<long> inactive) :
             inactive(std::move(inactive)) {
         stripInactive(mean);
         stripInactive(covariance);
-        gaussian = MultivariateGaussian(mean, covariance);
+        gaussian = Gaussian(mean, covariance);
     }
 
     MatrixType::Scalar
-    DegenerateMultivariateGaussian::computeNegativeLogLikelihood(const VectorType &x) const {
+    DegenerateGaussian::computeNegativeLogLikelihood(const VectorType &x) const {
         VectorType _x = x;
         stripInactive(_x);
         return gaussian.value().computeNegativeLogLikelihood(_x);
     }
 
     std::optional<MatrixType>
-    DegenerateMultivariateGaussian::computeExpectedFisherInformation(const VectorType &x) const {
+    DegenerateGaussian::computeExpectedFisherInformation(const VectorType &x) const {
         // Saves performance and skips stripping x here, because the FIM is constant anyways.
         return gaussian.value().computeExpectedFisherInformation(x);
     }
 
     std::optional<VectorType>
-    DegenerateMultivariateGaussian::computeLogLikelihoodGradient(const VectorType &x) const {
+    DegenerateGaussian::computeLogLikelihoodGradient(const VectorType &x) const {
         VectorType _x = x;
         stripInactive(_x);
         return gaussian.value().computeLogLikelihoodGradient(_x);
     }
 }
 
-#endif //HOPS_DEGENERATEMULTIVARIATEGAUSSIAN_HPP
+#endif //HOPS_DEGENERATEGAUSSIAN_HPP

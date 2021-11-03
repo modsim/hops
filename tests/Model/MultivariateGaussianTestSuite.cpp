@@ -3,7 +3,7 @@
 
 #include <boost/test/included/unit_test.hpp>
 #include <Eigen/Core>
-#include <hops/Model/MultivariateGaussian.hpp>
+#include <hops/Model/Gaussian.hpp>
 
 BOOST_AUTO_TEST_SUITE(MultivariateGaussianModel)
 
@@ -16,8 +16,8 @@ BOOST_AUTO_TEST_SUITE(MultivariateGaussianModel)
         Eigen::MatrixXd covariance(2, 2);
         covariance << 0.04, 0, 0, 0.04;
 
-        hops::MultivariateGaussian multivariateGaussianModel1(mean1, covariance);
-        hops::MultivariateGaussian multivariateGaussianModel2(mean2, covariance);
+        hops::Gaussian multivariateGaussianModel1(mean1, covariance);
+        hops::Gaussian multivariateGaussianModel2(mean2, covariance);
 
         Eigen::VectorXd evaluationPoint(2);
         evaluationPoint << 0.8, 0.8;
@@ -35,7 +35,7 @@ BOOST_AUTO_TEST_SUITE(MultivariateGaussianModel)
         Eigen::MatrixXd covariance(2, 2);
         covariance << 0.04, 0, 0, 0.04;
 
-        hops::MultivariateGaussian multivariateGaussianModel(mean, covariance);
+        hops::Gaussian multivariateGaussianModel(mean, covariance);
 
         Eigen::VectorXd evaluationPoint1(2);
         evaluationPoint1 << 0.8, 0.8;
@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_SUITE(MultivariateGaussianModel)
         Eigen::MatrixXd expectedExpectedFisherInformation(2, 2);
         expectedExpectedFisherInformation << 1./7, -1./14, -1./14, 2./7;
 
-        hops::MultivariateGaussian multivariateGaussianModel(mean, covariance);
+        hops::Gaussian multivariateGaussianModel(mean, covariance);
 
         Eigen::VectorXd evaluationPoint1(2);
         evaluationPoint1 << 0.8, 0.8;

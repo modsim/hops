@@ -12,11 +12,13 @@ namespace {
             return 0;
         }
 
-        [[nodiscard]] std::optional<hops::VectorType> computeLogLikelihoodGradient(const hops::VectorType &x) const override {
+        [[nodiscard]] std::optional<hops::VectorType>
+        computeLogLikelihoodGradient(const hops::VectorType &x) const override {
             return Eigen::VectorXd::Ones(2);
         }
 
-        [[nodiscard]] std::optional<hops::MatrixType> computeExpectedFisherInformation(const hops::VectorType &type) const override {
+        [[nodiscard]] std::optional<hops::MatrixType>
+        computeExpectedFisherInformation(const hops::VectorType &type) const override {
             return Eigen::MatrixXd::Identity(2, 2);
         }
     };
@@ -40,19 +42,6 @@ public:
 };
 
 BOOST_AUTO_TEST_SUITE(MarkovchainFactory)
-
-    BOOST_AUTO_TEST_CASE(createUniformCoordinateHitAndRun) {
-        std::unique_ptr<hops::MarkovChain> markovChain;
-        auto fixture = MarkovChainFactoryTestFixture();
-        BOOST_CHECK_NO_THROW(
-                markovChain = hops::MarkovChainFactory::createMarkovChain(
-                        hops::MarkovChainType::CoordinateHitAndRun,
-                        fixture.A,
-                        fixture.b,
-                        fixture.startingPoint)
-        );
-        BOOST_CHECK(markovChain != nullptr);
-    }
 
     BOOST_AUTO_TEST_CASE(createUniformDikinWalk) {
         std::unique_ptr<hops::MarkovChain> markovChain;
@@ -80,20 +69,6 @@ BOOST_AUTO_TEST_SUITE(MarkovchainFactory)
         BOOST_CHECK(markovChain != nullptr);
     }
 
-    BOOST_AUTO_TEST_CASE(createUniformCoordinateHitAndRunRounded) {
-        std::unique_ptr<hops::MarkovChain> markovChain;
-        auto fixture = MarkovChainFactoryTestFixture();
-        BOOST_CHECK_NO_THROW(
-                markovChain = hops::MarkovChainFactory::createMarkovChain(
-                        hops::MarkovChainType::CoordinateHitAndRun,
-                        fixture.A,
-                        fixture.b,
-                        fixture.startingPoint,
-                        fixture.N,
-                        fixture.shift)
-        );
-        BOOST_CHECK(markovChain != nullptr);
-    }
 
     BOOST_AUTO_TEST_CASE(createUniformDikinWalkRounded) {
         std::unique_ptr<hops::MarkovChain> markovChain;
@@ -125,20 +100,6 @@ BOOST_AUTO_TEST_SUITE(MarkovchainFactory)
         BOOST_CHECK(markovChain != nullptr);
     }
 
-    BOOST_AUTO_TEST_CASE(createNonUniformCoordinateHitAndRun) {
-        auto fixture = MarkovChainFactoryTestFixture();
-        std::unique_ptr<hops::MarkovChain> markovChain;
-        BOOST_CHECK_NO_THROW(
-                markovChain = hops::MarkovChainFactory::createMarkovChain(
-                        hops::MarkovChainType::CoordinateHitAndRun,
-                        fixture.A,
-                        fixture.b,
-                        fixture.startingPoint,
-                        fixture.model)
-        );
-        BOOST_CHECK(markovChain != nullptr);
-    }
-
     BOOST_AUTO_TEST_CASE(createNonUniformDikinWalk) {
         auto fixture = MarkovChainFactoryTestFixture();
         std::unique_ptr<hops::MarkovChain> markovChain;
@@ -162,22 +123,6 @@ BOOST_AUTO_TEST_SUITE(MarkovchainFactory)
                         fixture.A,
                         fixture.b,
                         fixture.startingPoint,
-                        fixture.model)
-        );
-        BOOST_CHECK(markovChain != nullptr);
-    }
-
-    BOOST_AUTO_TEST_CASE(createNonUniformCoordinateHitAndRunRounded) {
-        auto fixture = MarkovChainFactoryTestFixture();
-        std::unique_ptr<hops::MarkovChain> markovChain;
-        BOOST_CHECK_NO_THROW(
-                markovChain = hops::MarkovChainFactory::createMarkovChain(
-                        hops::MarkovChainType::CoordinateHitAndRun,
-                        fixture.A,
-                        fixture.b,
-                        fixture.startingPoint,
-                        fixture.N,
-                        fixture.shift,
                         fixture.model)
         );
         BOOST_CHECK(markovChain != nullptr);
@@ -217,28 +162,6 @@ BOOST_AUTO_TEST_SUITE(MarkovchainFactory)
 
 #ifdef HOPS_MPI_SUPPORTED
 
-    BOOST_AUTO_TEST_CASE(createNonUniformCoordinateHitAndRunWithParallelTempering) {
-        hops::RandomNumberGenerator synchronizedRandomNumberGenerator(42);
-        auto fixture = MarkovChainFactoryTestFixture();
-        std::unique_ptr<hops::MarkovChain> markovChain;
-        markovChain = hops::MarkovChainFactory::createMarkovChainWithParallelTempering(
-                hops::MarkovChainType::CoordinateHitAndRun,
-                fixture.A,
-                fixture.b,
-                fixture.startingPoint,
-                fixture.model,
-                synchronizedRandomNumberGenerator);
-        BOOST_CHECK_NO_THROW(
-                markovChain = hops::MarkovChainFactory::createMarkovChainWithParallelTempering(
-                        hops::MarkovChainType::CoordinateHitAndRun,
-                        fixture.A,
-                        fixture.b,
-                        fixture.startingPoint,
-                        fixture.model,
-                        synchronizedRandomNumberGenerator)
-        );
-        BOOST_CHECK(markovChain != nullptr);
-    }
 
     BOOST_AUTO_TEST_CASE(createNonUniformDikinWalkWithParallelTempering) {
         hops::RandomNumberGenerator synchronizedRandomNumberGenerator(42);
@@ -266,24 +189,6 @@ BOOST_AUTO_TEST_SUITE(MarkovchainFactory)
                         fixture.A,
                         fixture.b,
                         fixture.startingPoint,
-                        fixture.model,
-                        synchronizedRandomNumberGenerator)
-        );
-        BOOST_CHECK(markovChain != nullptr);
-    }
-
-    BOOST_AUTO_TEST_CASE(createNonUniformCoordinateHitAndRunRoundedWithParallelTempering) {
-        hops::RandomNumberGenerator synchronizedRandomNumberGenerator(42);
-        auto fixture = MarkovChainFactoryTestFixture();
-        std::unique_ptr<hops::MarkovChain> markovChain;
-        BOOST_CHECK_NO_THROW(
-                markovChain = hops::MarkovChainFactory::createMarkovChainWithParallelTempering(
-                        hops::MarkovChainType::CoordinateHitAndRun,
-                        fixture.A,
-                        fixture.b,
-                        fixture.startingPoint,
-                        fixture.N,
-                        fixture.shift,
                         fixture.model,
                         synchronizedRandomNumberGenerator)
         );

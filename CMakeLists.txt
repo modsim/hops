@@ -250,10 +250,10 @@ if(NOT HOPS_NO_INSTALL)
     install(DIRECTORY include/ DESTINATION include/ FILES_MATCHING PATTERN "*.hpp")
     install(DIRECTORY include/ DESTINATION include/ FILES_MATCHING PATTERN "*.cpp")
     install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/hops/hops.hpp DESTINATION include/hops)
-
-    if (HOPS_BINARIES)
-        install(TARGETS hops-sampler DESTINATION bin/)
-    endif ()
+#    TODO reinclude when hops-sampelr is fixed
+#    if (HOPS_BINARIES)
+#        install(TARGETS hops-sampler DESTINATION bin/)
+#    endif ()
 
     install(TARGETS hops EXPORT hops-config LIBRARY DESTINATION "lib")
     install(EXPORT hops-config DESTINATION "lib")

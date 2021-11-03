@@ -2,17 +2,18 @@
 #define HOPS_DNEST4ADAPTER_HPP
 
 #include <dnest4/DNest4.h>
+#include <hops/MarkovChain/MarkovChain.hpp>
+
+#include "DNest4EnvironmentSingleton.hpp"
 
 namespace hops {
 
     /**
      * @Brief An adapter that allows the usage of hops sampling algorithms and hops compatible models with DNest4
      */
-    template<typename Environment>
-    class DNest4Adapter{
+    class DNest4Adapter {
     public:
-        DNest4Adapter() {
-        }
+        DNest4Adapter() = default;
 
         /**
          * @Brief generates a state from the prior for DNest4
@@ -42,55 +43,71 @@ namespace hops {
         [[nodiscard]] std::string description() const;
 
     private:
-        Environment environment;
-        typename Environment::StateType state;
+        static void checkAndInitializeRNG(DNest4::RNG& externalRng);
+
+        std::uniform_real_distribution<double> uniformRealDistribution;
+
+        VectorType state;
     };
 
-    template<typename ModelImplType>
-    void DNest4Adapter<ModelImplType>::from_prior(DNest4::RNG &rng) {
-        if(!environment.isRngInitialized()) {
-            int seed = rng.rand_int(std::numeric_limits<int>::max()-1);
-            environment.seedRng(seed);
+    void DNest4Adapter::from_prior(DNest4::RNG &rng) {
+        hops::DNest4Adapter::checkAndInitializeRNG(rng);
+        hops::RandomNumberGenerator& internal_rng = DNest4EnvironmentSingleton::getInstance().getRandomNumberGenerator();
+        std::shared_ptr<hops::Proposal> proposer = DNest4EnvironmentSingleton::getInstance().getProposer();
+        auto [logAcceptanceProbability, proposal] = proposer->propose(internal_rng);
+        double logAcceptanceChance = std::log(uniformRealDistribution(internal_rng));
+        if (logAcceptanceChance < logAcceptanceProbability) {
+            this->state = proposal;
         }
-        ModelImplType::getSampler()->draw(ModelImplType::getRandomNumberGenerator());
-        this->state = ModelImplType::getSampler()->getState();
     }
 
-    template<typename ModelImplType>
-    double DNest4Adapter<ModelImplType>::perturb(DNest4::RNG &rng) {
-        if(!ModelImplType::isRngInitialized()) {
-            int seed = rng.rand_int(std::numeric_limits<int>::max()-1);
-            ModelImplType::seedRng(seed);
+    double DNest4Adapter::perturb(DNest4::RNG &rng) {
+        hops::DNest4Adapter::checkAndInitializeRNG(rng);
+        hops::RandomNumberGenerator& internal_rng = DNest4EnvironmentSingleton::getInstance().getRandomNumberGenerator();
+        std::shared_ptr<hops::Proposal> proposer = DNest4EnvironmentSingleton::getInstance().getProposer();
+        auto [logAcceptanceProbability, proposal] = proposer->propose(internal_rng);
+        if(std::isfinite(logAcceptanceProbability)) {
+            // If logAcceptanceProbability is finite do the internal setting of new state
+            this->state = proposer->acceptProposal();
         }
-        ModelImplType::getSampler()->draw(ModelImplType::getRandomNumberGenerator());
-        this->state = ModelImplType::getSampler()->getState();
-        return ModelImplType::getSampler()->computeLogAcceptanceProbability();
+        else {
+            // If logAcceptanceProbability is not finite, do not set state internally, only set it here for DNest4
+            this->state = proposal;
+        }
+        return logAcceptanceProbability;
     }
 
-    template<typename ModelImplType>
-    double DNest4Adapter<ModelImplType>::log_likelihood() const {
-        return -ModelImplType::getModel()->computeNegativeLogLikelihood(this->state);
+    double DNest4Adapter::log_likelihood() const {
+        return -DNest4EnvironmentSingleton::getInstance().getModel()->computeNegativeLogLikelihood(this->state);
     }
 
-    template<typename ModelImplType>
-    void DNest4Adapter<ModelImplType>::print(std::ostream &out) const {
+    void DNest4Adapter::print(std::ostream &out) const {
         for (long i = 0; i < this->state.rows(); i++)
             out << this->state(i) << " ";
     }
 
-    template<typename ModelImplType>
-    std::string DNest4Adapter<ModelImplType>::description() const {
-         TODO if implements getParameterNames() then return those as string
-         model->getPara
+    std::string DNest4Adapter::description() const {
+        auto parameterNames = DNest4EnvironmentSingleton::getInstance().getModel()->getParameterNames();
         std::string description;
-        for (long i = 0; i < state.rows(); ++i) {
-            description += "dim " + std::to_string(i) + " ,";
+        if (parameterNames) {
+            for (const auto &p: parameterNames.value()) {
+                description += p + " ,";
+            }
+            description.pop_back();
+        } else {
+            for (long i = 0; i < state.rows(); ++i) {
+                description += "dim " + std::to_string(i) + " ,";
+            }
+            description.pop_back();
         }
-        description.pop_back();
         return description;
+    }
 
-                environment = Environment::getInstance();
-        this->state = environment.getSampler()->getState();
+    void DNest4Adapter::checkAndInitializeRNG(DNest4::RNG &externalRng) {
+        if (!DNest4EnvironmentSingleton::getInstance().isRngInitialized()) {
+            int seed = externalRng.rand_int(std::numeric_limits<int>::max() - 1);
+            DNest4EnvironmentSingleton::getInstance().initializeRng(seed);
+        }
     }
 }
 
