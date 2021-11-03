@@ -13,7 +13,16 @@ namespace hops {
      */
     class DNest4Adapter {
     public:
-        DNest4Adapter() = default;
+        DNest4Adapter() {
+            std::random_device seedDevice;
+            std::uniform_int_distribution<int> dist(std::numeric_limits<int>::min(), std::numeric_limits<int>::max());
+            int seed = dist(seedDevice);
+            DNest4::RNG rng(seed);
+            const int numberOfInitializationSamples = 100;
+            for(int i=0; i<numberOfInitializationSamples; ++i) {
+                from_prior(rng);
+            }
+        };
 
         /**
          * @Brief generates a state from the prior for DNest4
@@ -43,7 +52,7 @@ namespace hops {
         [[nodiscard]] std::string description() const;
 
     private:
-        static void checkAndInitializeRNG(DNest4::RNG& externalRng);
+        static void checkAndInitializeRNG(DNest4::RNG &externalRng);
 
         std::uniform_real_distribution<double> uniformRealDistribution;
 
@@ -53,9 +62,9 @@ namespace hops {
 
     void DNest4Adapter::from_prior(DNest4::RNG &rng) {
         hops::DNest4Adapter::checkAndInitializeRNG(rng);
-        hops::RandomNumberGenerator& internal_rng = DNest4EnvironmentSingleton::getInstance().getRandomNumberGenerator();
+        hops::RandomNumberGenerator &internal_rng = DNest4EnvironmentSingleton::getInstance().getRandomNumberGenerator();
         std::shared_ptr<hops::Proposal> proposer = DNest4EnvironmentSingleton::getInstance().getProposer();
-        auto [logAcceptanceProbability, proposal] = proposer->propose(internal_rng);
+        auto[logAcceptanceProbability, proposal] = proposer->propose(internal_rng);
         double logAcceptanceChance = std::log(uniformRealDistribution(internal_rng));
         if (logAcceptanceChance < logAcceptanceProbability) {
             this->state = proposal;
@@ -65,14 +74,13 @@ namespace hops {
 
     double DNest4Adapter::perturb(DNest4::RNG &rng) {
         hops::DNest4Adapter::checkAndInitializeRNG(rng);
-        hops::RandomNumberGenerator& internal_rng = DNest4EnvironmentSingleton::getInstance().getRandomNumberGenerator();
+        hops::RandomNumberGenerator &internal_rng = DNest4EnvironmentSingleton::getInstance().getRandomNumberGenerator();
         std::shared_ptr<hops::Proposal> proposer = DNest4EnvironmentSingleton::getInstance().getProposer();
-        auto [logAcceptanceProbability, proposal] = proposer->propose(internal_rng);
-        if(std::isfinite(logAcceptanceProbability)) {
+        auto[logAcceptanceProbability, proposal] = proposer->propose(internal_rng);
+        if (std::isfinite(logAcceptanceProbability)) {
             // If logAcceptanceProbability is finite do the internal setting of new state
             this->state = proposer->acceptProposal();
-        }
-        else {
+        } else {
             // If logAcceptanceProbability is not finite, do not set state internally, only set it here for DNest4
             this->state = proposal;
         }
@@ -81,7 +89,7 @@ namespace hops {
     }
 
     double DNest4Adapter::log_likelihood() const {
-        if(std::isfinite(stateLogAcceptanceProbability)) {
+        if (std::isfinite(stateLogAcceptanceProbability)) {
             return -DNest4EnvironmentSingleton::getInstance().getModel()->computeNegativeLogLikelihood(this->state);
         }
         return -std::numeric_limits<double>::infinity();
