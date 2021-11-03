@@ -6,7 +6,7 @@
 
 #include <hops/Model/Model.hpp>
 #include <hops/Model/Mixture.hpp>
-#include <hops/Model/MultivariateGaussian.hpp>
+#include <hops/Model/Gaussian.hpp>
 
 namespace {
     class ModelMock : public hops::Model {
@@ -47,8 +47,8 @@ BOOST_AUTO_TEST_SUITE(Mixture)
         Eigen::VectorXd mean2 = -2 * Eigen::VectorXd::Ones(1);
         Eigen::MatrixXd covariance = 0.1 * Eigen::MatrixXd::Identity(1, 1);
 
-        auto model1 = std::make_shared<hops::MultivariateGaussian>(mean1, covariance);
-        auto model2 = std::make_shared<hops::MultivariateGaussian>(mean2, covariance);
+        auto model1 = std::make_shared<hops::Gaussian>(mean1, covariance);
+        auto model2 = std::make_shared<hops::Gaussian>(mean2, covariance);
 
         hops::Mixture mixture(std::vector<std::shared_ptr<hops::Model>>{model1, model2});
 
@@ -78,10 +78,10 @@ BOOST_AUTO_TEST_SUITE(Mixture)
         unsigned d = 1;
         Eigen::VectorXd expectedLogLikelihoodGradient = 0.166667 * Eigen::VectorXd::Ones(d);
 
-        auto model1 = std::make_shared<hops::MultivariateGaussian>(Eigen::VectorXd::Zero(d),
-                                                                        Eigen::MatrixXd::Identity(d, d));
-        auto model2 = std::make_shared<hops::MultivariateGaussian>(Eigen::VectorXd::Ones(d),
-                                                                        Eigen::MatrixXd::Identity(d, d));
+        auto model1 = std::make_shared<hops::Gaussian>(Eigen::VectorXd::Zero(d),
+                                                       Eigen::MatrixXd::Identity(d, d));
+        auto model2 = std::make_shared<hops::Gaussian>(Eigen::VectorXd::Ones(d),
+                                                       Eigen::MatrixXd::Identity(d, d));
 
         hops::Mixture mixture(std::vector<std::shared_ptr<hops::Model>>{model1, model2}, {1, 2});
 

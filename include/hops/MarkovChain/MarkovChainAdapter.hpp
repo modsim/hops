@@ -10,7 +10,7 @@
 #include "IsSetColdnessAvailable.hpp"
 #include "IsSetExchangeAttemptProbabilityAvailable.hpp"
 #include "IsSetFisherWeightAvailable.hpp"
-#include "IsSetStepSizeAvailable.hpp"
+#include "hops/MarkovChain/Proposal/IsSetStepSizeAvailable.hpp"
 
 
 namespace hops {

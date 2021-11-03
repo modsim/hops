@@ -1,7 +1,7 @@
 #ifndef HOPS_ADAPTIVEMETROPOLISPROPOSAL_HPP
 #define HOPS_ADAPTIVEMETROPOLISPROPOSAL_HPP
 
-#include "../IsSetStepSizeAvailable.hpp"
+#include "IsSetStepSizeAvailable.hpp"
 #include "../../RandomNumberGenerator/RandomNumberGenerator.hpp"
 #include "../../FileWriter/CsvWriter.hpp"
 #include "../../Polytope/MaximumVolumeEllipsoid.hpp"

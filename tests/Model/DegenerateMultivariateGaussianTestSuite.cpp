@@ -3,7 +3,7 @@
 
 #include <boost/test/included/unit_test.hpp>
 #include <Eigen/Core>
-#include <hops/Model/DegenerateMultivariateGaussian.hpp>
+#include <hops/Model/DegenerateGaussian.hpp>
 
 BOOST_AUTO_TEST_SUITE(DegenerateMultivariateGaussianModel)
 
@@ -17,8 +17,8 @@ BOOST_AUTO_TEST_SUITE(DegenerateMultivariateGaussianModel)
         covariance << 0.04, 0, 0, 0, 0.04, 0, 0, 0, 500;
 
         std::vector<long> inactive_indices = {2};
-        hops::DegenerateMultivariateGaussian model1(mean1, covariance, inactive_indices);
-        hops::DegenerateMultivariateGaussian model2(mean2, covariance, inactive_indices);
+        hops::DegenerateGaussian model1(mean1, covariance, inactive_indices);
+        hops::DegenerateGaussian model2(mean2, covariance, inactive_indices);
 
         Eigen::VectorXd evaluationPoint(3);
         evaluationPoint << 0.8, 0.8, -2354;
@@ -37,7 +37,7 @@ BOOST_AUTO_TEST_SUITE(DegenerateMultivariateGaussianModel)
         covariance << 0.04, 0, 0, 0, 0.04, 0, 0, 0, 500;
 
         std::vector<long> inactive_indices = {2};
-        hops::DegenerateMultivariateGaussian model(mean, covariance, inactive_indices);
+        hops::DegenerateGaussian model(mean, covariance, inactive_indices);
 
         Eigen::VectorXd evaluationPoint1(3);
         evaluationPoint1 << 0.8, 0.8, 123;
@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_SUITE(DegenerateMultivariateGaussianModel)
         covariance << 8, 2, 5, 2, 4, 5, 5, 5, 500;
 
         std::vector<long> inactive_indices = {2};
-        hops::DegenerateMultivariateGaussian model(mean, covariance, inactive_indices);
+        hops::DegenerateGaussian model(mean, covariance, inactive_indices);
         Eigen::MatrixXd expectedExpectedFisherInformation(2, 2);
         expectedExpectedFisherInformation << 1. / 7, -1. / 14, -1. / 14, 2. / 7;
 

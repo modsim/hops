@@ -61,7 +61,7 @@
 #include "MarkovChain/IsSetColdnessAvailable.hpp"
 #include "MarkovChain/IsSetExchangeAttemptProbabilityAvailable.hpp"
 #include "MarkovChain/IsSetFisherWeightAvailable.hpp"
-#include "MarkovChain/IsSetStepSizeAvailable.hpp"
+#include "hops/MarkovChain/Proposal/IsSetStepSizeAvailable.hpp"
 #include "MarkovChain/MarkovChain.hpp"
 #include "MarkovChain/MarkovChainAdapter.hpp"
 #include "MarkovChain/MarkovChainAttribute.hpp"
@@ -70,10 +70,10 @@
 #include "hops/MarkovChain/ModelMixin.hpp"
 #include "MarkovChain/StateTransformation.hpp"
 
-#include "Model/DegenerateMultivariateGaussian.hpp"
+#include "Model/DegenerateGaussian.hpp"
 #include "Model/Mixture.hpp"
 #include "Model/Model.hpp"
-#include "Model/MultivariateGaussian.hpp"
+#include "Model/Gaussian.hpp"
 #include "Model/Rosenbrock.hpp"
 
 #include "Parallel/OpenMPControls.hpp"

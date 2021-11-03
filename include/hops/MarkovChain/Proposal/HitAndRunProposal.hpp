@@ -2,7 +2,7 @@
 #define HOPS_HITANDRUNPROPOSAL_HPP
 
 #include "ChordStepDistributions.hpp"
-#include "../IsSetStepSizeAvailable.hpp"
+#include "IsSetStepSizeAvailable.hpp"
 #include "../../RandomNumberGenerator/RandomNumberGenerator.hpp"
 #include <random>
 
