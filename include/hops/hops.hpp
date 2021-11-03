@@ -1,3 +1,4 @@
+// TODO check this is complete
 #include "Statistics/Autocorrelation.hpp"
 #include "Statistics/Covariance.hpp"
 #include "Statistics/EffectiveSampleSize.hpp"
@@ -35,6 +36,9 @@
 #include "MarkovChain/Proposal/DikinEllipsoidCalculator.hpp"
 #include "MarkovChain/Proposal/DikinProposal.hpp"
 #include "MarkovChain/Proposal/HitAndRunProposal.hpp"
+#include "MarkovChain/Proposal/GaussianProposal.hpp"
+#include "MarkovChain/Proposal/ProposalFactory.hpp"
+#include "MarkovChain/Proposal/Proposal.hpp"
 #include "MarkovChain/Proposal/TruncatedNormalDistribution.hpp"
 
 #include "MarkovChain/Recorder/AcceptanceRateRecorder.hpp"
@@ -77,6 +81,8 @@
 #include "Model/Rosenbrock.hpp"
 
 #include "Parallel/OpenMPControls.hpp"
+#include "NestedSampling/DNest4EnvironmentSingleton.hpp"
+#include "NestedSampling/DNest4Adapter.hpp"
 
 #include "Polytope/MaximumVolumeEllipsoid.hpp"
 #include "Polytope/NormalizePolytope.hpp"
