@@ -48,6 +48,7 @@ namespace hops {
         std::uniform_real_distribution<double> uniformRealDistribution;
 
         VectorType state;
+        double stateLogAcceptanceProbability = 0;
     };
 
     void DNest4Adapter::from_prior(DNest4::RNG &rng) {
@@ -58,6 +59,7 @@ namespace hops {
         double logAcceptanceChance = std::log(uniformRealDistribution(internal_rng));
         if (logAcceptanceChance < logAcceptanceProbability) {
             this->state = proposal;
+            stateLogAcceptanceProbability = logAcceptanceProbability;
         }
     }
 
@@ -74,11 +76,15 @@ namespace hops {
             // If logAcceptanceProbability is not finite, do not set state internally, only set it here for DNest4
             this->state = proposal;
         }
+        stateLogAcceptanceProbability = logAcceptanceProbability;
         return logAcceptanceProbability;
     }
 
     double DNest4Adapter::log_likelihood() const {
-        return -DNest4EnvironmentSingleton::getInstance().getModel()->computeNegativeLogLikelihood(this->state);
+        if(std::isfinite(stateLogAcceptanceProbability)) {
+            return -DNest4EnvironmentSingleton::getInstance().getModel()->computeNegativeLogLikelihood(this->state);
+        }
+        return -std::numeric_limits<double>::infinity();
     }
 
     void DNest4Adapter::print(std::ostream &out) const {
