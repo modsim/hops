@@ -39,9 +39,24 @@ namespace hops {
         virtual void setStepSize(double stepSize) = 0;
 
         /**
+         * @Brief Returns whether underlying implementation has step size. Useful because tuning should be skipped
+         * if it doesn't have a step size.
+         */
+         virtual bool hasStepSize() = 0;
+
+        /**
          * @Brief Returns name of proposal class.
          */
         [[nodiscard]] virtual std::string getProposalName() const = 0;
+
+        /**
+         * @brief Returns the negative log likelihood value associated with the current state.
+         * @details This function is only useful, if the underlying proposal implementation has access to the model.
+         * If the proposal implementation does not have access, it returns 0.
+         */
+        [[nodiscard]] virtual double getNegativeLogLikelihood() const {
+            return 0.;
+        };
 
         virtual ~Proposal() = default;
     };

@@ -1,5 +1,8 @@
-set(TEST_SOURCES ChordStepDistributionsTestSuite.cpp
-        DikinEllipsoidCalculatorTestSuite.cpp)
+set(TEST_SOURCES
+        ChordStepDistributionsTestSuite.cpp
+        DikinEllipsoidCalculatorTestSuite.cpp
+        ProposalFactoryTestSuite.cpp
+        )
 
 foreach (TEST_SOURCE ${TEST_SOURCES})
     get_filename_component(TEST_NAME ${TEST_SOURCE} NAME_WE)

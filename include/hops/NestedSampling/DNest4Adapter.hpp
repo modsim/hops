@@ -63,7 +63,7 @@ namespace hops {
     void DNest4Adapter::from_prior(DNest4::RNG &rng) {
         hops::DNest4Adapter::checkAndInitializeRNG(rng);
         hops::RandomNumberGenerator &internal_rng = DNest4EnvironmentSingleton::getInstance().getRandomNumberGenerator();
-        std::shared_ptr<hops::Proposal> proposer = DNest4EnvironmentSingleton::getInstance().getProposer();
+        std::shared_ptr<hops::Proposal> proposer = DNest4EnvironmentSingleton::getInstance().getPriorProposer();
         auto[logAcceptanceProbability, proposal] = proposer->propose(internal_rng);
         double logAcceptanceChance = std::log(uniformRealDistribution(internal_rng));
         if (logAcceptanceChance < logAcceptanceProbability) {
@@ -75,13 +75,14 @@ namespace hops {
     double DNest4Adapter::perturb(DNest4::RNG &rng) {
         hops::DNest4Adapter::checkAndInitializeRNG(rng);
         hops::RandomNumberGenerator &internal_rng = DNest4EnvironmentSingleton::getInstance().getRandomNumberGenerator();
-        std::shared_ptr<hops::Proposal> proposer = DNest4EnvironmentSingleton::getInstance().getProposer();
+        std::shared_ptr<hops::Proposal> proposer = DNest4EnvironmentSingleton::getInstance().getPosteriorProposer();
         auto[logAcceptanceProbability, proposal] = proposer->propose(internal_rng);
         if (std::isfinite(logAcceptanceProbability)) {
             // If logAcceptanceProbability is finite do the internal setting of new state
             this->state = proposer->acceptProposal();
         } else {
-            // If logAcceptanceProbability is not finite, do not set state internally, only set it here for DNest4
+            // If logAcceptanceProbability is not finite, do not set state internally, only set it here, so DNEST4
+            // can associate the bad likelihood with a state without having to simulate it.
             this->state = proposal;
         }
         stateLogAcceptanceProbability = logAcceptanceProbability;
