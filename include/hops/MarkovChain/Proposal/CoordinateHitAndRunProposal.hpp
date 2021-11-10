@@ -25,13 +25,15 @@ namespace hops {
 
         VectorType acceptProposal() override;
 
-        void setState(InternalVectorType state) override;
+        void setState(VectorType state) override;
 
-        std::optional<double> getStepSize() const override;
+        [[nodiscard]] std::optional<double> getStepSize() const override;
 
         void setStepSize(double stepSize) override;
 
-        std::string getProposalName() const override;
+        bool hasStepSize() override;
+
+        [[nodiscard]] std::string getProposalName() const override;
 
 
     private:
@@ -94,7 +96,7 @@ namespace hops {
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
     void CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::setState(
-            InternalVectorType state) {
+            VectorType state) {
         CoordinateHitAndRunProposal::state = std::move(state);
         slacks = b - A * CoordinateHitAndRunProposal::state;
     }
@@ -113,9 +115,6 @@ namespace hops {
             double stepSize) {
         if constexpr (IsSetStepSizeAvailable<ChordStepDistribution>::value) {
             chordStepDistribution.setStepSize(stepSize);
-        } else {
-            (void) stepSize;
-            throw std::invalid_argument("Step size not available.");
         }
     }
 
@@ -131,6 +130,14 @@ namespace hops {
         return chordStepDistribution.computeInverseNormalizationConstant(0, backwardDistance, forwardDistance)
                - chordStepDistribution.computeInverseNormalizationConstant(0, backwardDistance - step,
                                                                            forwardDistance - step);
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
+    bool CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::hasStepSize() {
+        if constexpr (IsSetStepSizeAvailable<ChordStepDistribution>::value) {
+            return true;
+        }
+        return false;
     }
 }
 

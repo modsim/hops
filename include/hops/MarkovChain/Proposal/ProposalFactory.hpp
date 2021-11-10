@@ -1,32 +1,72 @@
 #ifndef HOPS_PROPOSALFACTORY_HPP
 #define HOPS_PROPOSALFACTORY_HPP
 
-#include <hops/MarkovChain/Draw/MetropolisHastingsFilter.hpp>
-#include <hops/MarkovChain/ModelMixin.hpp>
-#include <hops/MarkovChain/ModelWrapper.hpp>
-#include "BallWalk.hpp"
-#include "CoordinateHitAndRunProposal.hpp"
+#include <Eigen/SparseCore>
+
+#include <hops/Model/Model.hpp>
+#include <hops/Utility/VectorType.hpp>
 
 namespace hops {
+    /**
+     * @details Implementation detail Proposal Factory is an abstract factory, see
+     * https://refactoring.guru/design-patterns/abstract-factory/cpp/example
+     */
     class ProposalFactory {
     public:
-        ProposalFactory() = delete;
+        ~ProposalFactory() = default;
 
         /**
-         * @brief Creates uniform proposers.
+         * @brief Creates model and likelihood unaware proposal.
+         * @param inequalityLhs
+         * @param inequalityRhs
+         * @param startingPoint
+         * @return
          */
-        template<typename InternalMatrixType, typename InternalVectorType, typename ProposalType>
-        static std::unique_ptr<Proposal> createProposal(const InternalMatrixType &inequalityLhs,
-                                                        const InternalVectorType &inequalityRhs,
-                                                        VectorType startingPoint);
-    };
+        virtual std::unique_ptr<Proposal> createProposal(Eigen::MatrixXd inequalityLhs,
+                                                         Eigen::VectorXd inequalityRhs,
+                                                         VectorType startingPoint) = 0;
 
-    template <typename InternalMatrixType, typename InternalVectorType, typename ProposalType>
-    std::unique_ptr<Proposal>
-    ProposalFactory::createProposal(const InternalMatrixType &inequalityLhs, const InternalVectorType &inequalityRhs,
-                                    VectorType startingPoint) {
-        return std::make_unique<ProposalType>(inequalityLhs, inequalityRhs, startingPoint);
-    }
+        /**
+         * @brief Creates model and likelihood unaware proposal.
+         * @param inequalityLhs
+         * @param inequalityRhs
+         * @param startingPoint
+         * @return
+         */
+        virtual std::unique_ptr<Proposal> createProposal(Eigen::SparseMatrix<double> inequalityLhs,
+                                                         Eigen::VectorXd inequalityRhs,
+                                                         VectorType startingPoint) = 0;
+
+        /**
+         * @brief Creates model aware proposal. These proposals might use any of the functions
+         * of the model interface.
+         * @param model the factory transfers ownership of the model to the proposal. This is enforced by
+         * passing the model as unique_ptr.
+         * @param inequalityLhs
+         * @param inequalityRhs
+         * @param startingPoint
+         * @return
+         */
+        virtual std::unique_ptr<Proposal> createProposal(std::unique_ptr<Model> model,
+                                                         Eigen::MatrixXd inequalityLhs,
+                                                         Eigen::VectorXd inequalityRhs,
+                                                         VectorType startingPoint) = 0;
+
+        /**
+         * @brief Creates model aware proposal. These proposals might use any of the functions
+         * of the model interface.
+         * @param model the factory transfers ownership of the model to the proposal. This is enforced by
+         * passing the model as unique_ptr.
+         * @param inequalityLhs
+         * @param inequalityRhs
+         * @param startingPoint
+         * @return
+         */
+        virtual std::unique_ptr<Proposal> createProposal(std::unique_ptr<Model> model,
+                                                         Eigen::SparseMatrix<double> inequalityLhs,
+                                                         Eigen::VectorXd inequalityRhs,
+                                                         VectorType startingPoint) = 0;
+    };
 }
 
 #endif //HOPS_PROPOSALFACTORY_HPP

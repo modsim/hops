@@ -32,6 +32,8 @@ namespace hops {
 
         [[nodiscard]] std::string getProposalName() const override;
 
+        bool hasStepSize() override;
+
     private:
         [[nodiscard]] double computeLogAcceptanceProbability();
 
@@ -103,6 +105,11 @@ namespace hops {
             return -std::numeric_limits<double>::infinity();
         }
         return 0;
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    bool GaussianProposal<InternalMatrixType, InternalVectorType>::hasStepSize() {
+        return true;
     }
 }
 

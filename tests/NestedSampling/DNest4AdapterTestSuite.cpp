@@ -25,9 +25,11 @@ BOOST_AUTO_TEST_SUITE(DNest4AdapterTestSuite)
             b << 5, 5;
 
             auto gaussian = std::make_shared<hops::Gaussian>(mean, covariance);
-            auto proposer = hops::ProposalFactory::createProposal<decltype(A), decltype(b), hops::GaussianProposal<decltype(A), decltype(b)>>(A, b, mean);
+            auto priorProposer = hops::ProposalFactory::createProposal<decltype(A), decltype(b), hops::CoordinateHitAndRunProposal<decltype(A), decltype(b)>>(A, b, mean);
+            auto posteriorProposer = hops::ProposalFactory::createProposal<decltype(A), decltype(b), hops::GaussianProposal<decltype(A), decltype(b)>>(A, b, mean);
 
-            hops::DNest4EnvironmentSingleton::getInstance().setProposer(std::move(proposer));
+            hops::DNest4EnvironmentSingleton::getInstance().setPriorProposer(std::move(priorProposer));
+            hops::DNest4EnvironmentSingleton::getInstance().setPosteriorProposer(std::move(posteriorProposer));
             hops::DNest4EnvironmentSingleton::getInstance().setModel(gaussian);
             hops::DNest4Adapter DNest4Model;
 
@@ -47,13 +49,14 @@ BOOST_AUTO_TEST_SUITE(DNest4AdapterTestSuite)
             DNest4::Sampler<decltype(DNest4Model)> sampler(1, // threads
                                                            2.7182818284590451, // compression double
                                                            sampler_options,
-                                                           true, // save to disk
+                                                           false, // save to disk
                                                            true // adaptive
             );
 
             sampler.initialise(42);
             sampler.run();
             std::cout.clear();
+            sampler.get_levels();
         }
     }
 

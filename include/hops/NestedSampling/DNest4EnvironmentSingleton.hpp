@@ -16,7 +16,7 @@ namespace hops {
             return rngInitialized;
         }
 
-        void initializeRng(int seed, int stream=0) {
+        void initializeRng(int seed, int stream = 0) {
             rngInitialized = true;
             rng = RandomNumberGenerator(seed, stream);
         }
@@ -25,28 +25,46 @@ namespace hops {
             return rng;
         }
 
-        [[nodiscard]] std::shared_ptr<hops::Proposal> getProposer() const {
-            return proposer;
+        [[nodiscard]] std::shared_ptr<hops::Proposal> getPriorProposer() const {
+            return priorProposer;
         }
 
         [[nodiscard]] std::shared_ptr<Model> getModel() const {
             return model;
         }
 
-        void setProposer(const std::shared_ptr<hops::Proposal> &newProposer) {
-            DNest4EnvironmentSingleton::proposer = newProposer;
+        [[nodiscard]] std::shared_ptr<hops::Proposal> getPosteriorProposer() const {
+            return posteriorProposer;
+        }
+
+
+        /**
+         * @brief The prior proposer should be maximally efficient in proposing states from the uniform prior
+         * (e.g. a proposer based on CHRR).
+         */
+        void setPriorProposer(const std::shared_ptr<hops::Proposal> &newProposer) {
+            DNest4EnvironmentSingleton::priorProposer = newProposer;
         }
 
         void setModel(const std::shared_ptr<hops::Model> &newModel) {
             DNest4EnvironmentSingleton::model = newModel;
         }
 
+        /**
+         * @brief The posterior proposer should be geared towards efficiently sampling the posterior distribution
+         */
+        void setPosteriorProposer(const std::shared_ptr<hops::Proposal> &newPosteriorProposer) {
+            DNest4EnvironmentSingleton::posteriorProposer = newPosteriorProposer;
+        }
+
+
         DNest4EnvironmentSingleton(const DNest4EnvironmentSingleton &) = delete;
 
         DNest4EnvironmentSingleton &operator=(const DNest4EnvironmentSingleton &) = delete;
 
     private:
-        std::shared_ptr<hops::Proposal> proposer;
+        std::shared_ptr<hops::Proposal> priorProposer;
+        std::shared_ptr<hops::Proposal> posteriorProposer;
         std::shared_ptr<hops::Model> model;
 
         bool rngInitialized = false;

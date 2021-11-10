@@ -20,10 +20,7 @@ namespace hops {
          * @param currentState
          * @param stepSize The radius of the ball from which the proposal move is drawn
          */
-        BallWalk(InternalMatrixType A,
-                 InternalVectorType b,
-                 VectorType currentState,
-                 double stepSize = 1);
+        BallWalk(InternalMatrixType A, InternalVectorType b, VectorType currentState, double stepSize = 1);
 
         std::pair<double, VectorType> propose(RandomNumberGenerator &randomNumberGenerator) override;
 
@@ -36,6 +33,8 @@ namespace hops {
         [[nodiscard]] std::string getProposalName() const override;
 
         [[nodiscard]] std::optional<double> getStepSize() const override;
+
+        bool hasStepSize() override;
 
 
     private:
@@ -114,6 +113,11 @@ namespace hops {
             return -std::numeric_limits<typename InternalMatrixType::Scalar>::infinity();
         }
         return 0;
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    bool BallWalk<InternalMatrixType, InternalVectorType>::hasStepSize() {
+        return true;
     }
 }
 

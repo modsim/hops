@@ -2,41 +2,39 @@
 #define HOPS_DIKINPROPOSAL_HPP
 
 #include <Eigen/LU>
-#include "DikinEllipsoidCalculator.hpp"
-#include "../../RandomNumberGenerator/RandomNumberGenerator.hpp"
 #include <random>
 
-namespace hops {
-    template<typename MatrixType, typename VectorType>
-    class DikinProposal {
-    public:
-        using StateType = VectorType;
+#include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
 
+#include "Proposal.hpp"
+#include "DikinEllipsoidCalculator.hpp"
+
+namespace hops {
+    template<typename InternalMatrixType, typename InternalVectorType>
+    class DikinProposal : public Proposal {
+    public:
         /**
          * @brief Constructs Gaussian Dikin proposal mechanism on polytope defined as Ax<b.
          * @param A
          * @param b
          * @param currentState
+         * @param stepSize radius of dikin ellipsoids. Default is from https://doi.org/10.1287/moor.1110.0519.
          */
-        DikinProposal(MatrixType A, VectorType b, VectorType currentState);
+        DikinProposal(InternalMatrixType A, InternalVectorType b, const VectorType& currentState, double stepSize = 0.075);
 
-        void propose(RandomNumberGenerator &randomNumberGenerator);
+        std::pair<double, VectorType> propose(RandomNumberGenerator &randomNumberGenerator) override;
 
-        void acceptProposal();
+        VectorType acceptProposal() override;
 
-        typename MatrixType::Scalar computeLogAcceptanceProbability();
+        void setState(VectorType newState) override;
 
-        StateType getState() const;
+        void setStepSize(double stepSize) override;
 
-        void setState(StateType newState);
+        [[nodiscard]] std::string getProposalName() const override;
 
-        StateType getProposal() const;
+        [[nodiscard]] std::optional<double> getStepSize() const override;
 
-        typename MatrixType::Scalar getStepSize() const;
-
-        void setStepSize(typename MatrixType::Scalar newStepSize);
-
-        std::string getName();
+        bool hasStepSize() override;
 
 
     protected:
@@ -52,7 +50,7 @@ namespace hops {
         Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic> stateCholeskyOfDikinEllipsoid;
         Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic> proposalCholeskyOfDikinEllipsoid;
 
-        typename MatrixType::Scalar stepSize = 0.075; // value  from dikin walk publication
+        typename MatrixType::Scalar stepSize = 0.075; // value from dikin walk publication
         typename MatrixType::Scalar geometricFactor;
         typename MatrixType::Scalar covarianceFactor;
         constexpr static typename MatrixType::Scalar boundaryCushion = 0;
@@ -61,66 +59,41 @@ namespace hops {
         DikinEllipsoidCalculator<MatrixType, VectorType> dikinEllipsoidCalculator;
     };
 
-    template<typename MatrixType, typename VectorType>
-    DikinProposal<MatrixType, VectorType>::DikinProposal(MatrixType A,
-                                                         VectorType b,
-                                                         VectorType currentState) :
+    template<typename InternalMatrixType, typename InternalVectorType>
+    DikinProposal<InternalMatrixType, InternalVectorType>::DikinProposal(InternalMatrixType A,
+                                                         InternalVectorType b,
+                                                         const VectorType& currentState,
+                                                         double stepSize) :
             A(std::move(A)),
             b(std::move(b)),
             dikinEllipsoidCalculator(this->A, this->b) {
-        setStepSize(1.);
-        setState(std::move(currentState));
+        DikinProposal::setStepSize(stepSize);
+        DikinProposal::setState(currentState);
         proposal = state;
     }
 
-    template<typename MatrixType, typename VectorType>
-    void DikinProposal<MatrixType, VectorType>::propose(RandomNumberGenerator &randomNumberGenerator) {
+    template<typename InternalMatrixType, typename InternalVectorType>
+    std::pair<double, VectorType> DikinProposal<InternalMatrixType, InternalVectorType>::propose(RandomNumberGenerator &randomNumberGenerator) {
         for (long i = 0; i < proposal.rows(); ++i) {
             proposal(i) = normalDistribution(randomNumberGenerator);
         }
         proposal = state + covarianceFactor *
                            stateCholeskyOfDikinEllipsoid.template triangularView<Eigen::Lower>().solve(proposal);
+
+
+        return {computeLogAcceptanceProbability(), proposal};
     }
 
-    template<typename MatrixType, typename VectorType>
-    void DikinProposal<MatrixType, VectorType>::acceptProposal() {
+    template<typename InternalMatrixType, typename InternalVectorType>
+    VectorType DikinProposal<InternalMatrixType, InternalVectorType>::acceptProposal() {
         state.swap(proposal);
         stateCholeskyOfDikinEllipsoid = std::move(proposalCholeskyOfDikinEllipsoid);
         stateLogSqrtDeterminant = proposalLogSqrtDeterminant;
-    }
-
-    template<typename MatrixType, typename VectorType>
-    typename MatrixType::Scalar
-    DikinProposal<MatrixType, VectorType>::computeLogAcceptanceProbability() {
-        bool isProposalInteriorPoint = ((A * proposal - b).array() < -boundaryCushion).all();
-        if (!isProposalInteriorPoint) {
-            return -std::numeric_limits<typename MatrixType::Scalar>::infinity();
-        }
-
-        auto choleskyResult = dikinEllipsoidCalculator.computeCholeskyFactorOfDikinEllipsoid(proposal);
-        if (!choleskyResult.first) {
-            return -std::numeric_limits<typename MatrixType::Scalar>::infinity();
-        }
-        proposalCholeskyOfDikinEllipsoid = std::move(choleskyResult.second);
-
-        proposalLogSqrtDeterminant = proposalCholeskyOfDikinEllipsoid.diagonal().array().log().sum();
-        VectorType stateDifference = state - proposal;
-
-        return proposalLogSqrtDeterminant
-               - stateLogSqrtDeterminant
-               + geometricFactor * ((stateCholeskyOfDikinEllipsoid * stateDifference).squaredNorm()
-                                    - (proposalCholeskyOfDikinEllipsoid * stateDifference).squaredNorm()
-        );
-    }
-
-    template<typename MatrixType, typename VectorType>
-    typename DikinProposal<MatrixType, VectorType>::StateType
-    DikinProposal<MatrixType, VectorType>::getState() const {
         return state;
     }
 
-    template<typename MatrixType, typename VectorType>
-    void DikinProposal<MatrixType, VectorType>::setState(StateType newState) {
+    template<typename InternalMatrixType, typename InternalVectorType>
+    void DikinProposal<InternalMatrixType, InternalVectorType>::setState(VectorType newState) {
         state.swap(newState);
         auto choleskyResult = dikinEllipsoidCalculator.computeCholeskyFactorOfDikinEllipsoid(state);
         if (!choleskyResult.first) {
@@ -130,27 +103,50 @@ namespace hops {
         stateLogSqrtDeterminant = stateCholeskyOfDikinEllipsoid.diagonal().array().log().sum();
     }
 
-    template<typename MatrixType, typename VectorType>
-    typename DikinProposal<MatrixType, VectorType>::StateType
-    DikinProposal<MatrixType, VectorType>::getProposal() const {
-        return proposal;
+    template<typename InternalMatrixType, typename InternalVectorType>
+    typename InternalMatrixType::Scalar
+    DikinProposal<InternalMatrixType, InternalVectorType>::computeLogAcceptanceProbability() {
+        bool isProposalInteriorPoint = ((A * proposal - b).array() < -boundaryCushion).all();
+        if (!isProposalInteriorPoint) {
+            return -std::numeric_limits<typename InternalMatrixType::Scalar>::infinity();
+        }
+
+        auto choleskyResult = dikinEllipsoidCalculator.computeCholeskyFactorOfDikinEllipsoid(proposal);
+        if (!choleskyResult.first) {
+            return -std::numeric_limits<typename InternalMatrixType::Scalar>::infinity();
+        }
+        proposalCholeskyOfDikinEllipsoid = std::move(choleskyResult.second);
+
+        proposalLogSqrtDeterminant = proposalCholeskyOfDikinEllipsoid.diagonal().array().log().sum();
+        InternalVectorType stateDifference = state - proposal;
+
+        return proposalLogSqrtDeterminant
+               - stateLogSqrtDeterminant
+               + geometricFactor * ((stateCholeskyOfDikinEllipsoid * stateDifference).squaredNorm()
+                                    - (proposalCholeskyOfDikinEllipsoid * stateDifference).squaredNorm()
+        );
     }
 
-    template<typename MatrixType, typename VectorType>
-    typename MatrixType::Scalar DikinProposal<MatrixType, VectorType>::getStepSize() const {
-        return stepSize;
-    }
-
-    template<typename MatrixType, typename VectorType>
-    void DikinProposal<MatrixType, VectorType>::setStepSize(typename MatrixType::Scalar newStepSize) {
+    template<typename InternalMatrixType, typename InternalVectorType>
+    void DikinProposal<InternalMatrixType, InternalVectorType>::setStepSize(double newStepSize) {
         stepSize = newStepSize;
         geometricFactor = A.cols() / (2 * stepSize);
         covarianceFactor = std::sqrt(stepSize / A.cols());
     }
 
-    template<typename MatrixType, typename VectorType>
-    std::string DikinProposal<MatrixType, VectorType>::getName() {
-        return "Dikin Walk";
+    template<typename InternalMatrixType, typename InternalVectorType>
+    std::string DikinProposal<InternalMatrixType, InternalVectorType>::getProposalName() const {
+        return "DikinWalk";
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    std::optional<double> DikinProposal<InternalMatrixType, InternalVectorType>::getStepSize() const {
+        return stepSize;
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    bool DikinProposal<InternalMatrixType, InternalVectorType>::hasStepSize() {
+        return true;
     }
 }
 
