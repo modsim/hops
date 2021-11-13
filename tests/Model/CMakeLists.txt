@@ -1,7 +1,7 @@
 set(TEST_SOURCES
         DegenerateMultivariateGaussianTestSuite.cpp
         MixtureTestSuite.cpp
-        MultivariateGaussianTestSuite.cpp
+        GaussianTestSuite.cpp
         RosenbrockTestSuite.cpp
         )
 

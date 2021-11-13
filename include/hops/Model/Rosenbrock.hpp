@@ -42,6 +42,14 @@ namespace hops {
          */
         [[nodiscard]] std::optional<MatrixType> computeExpectedFisherInformation(const VectorType &x) const override;
 
+        double getScaleParameter() const;
+
+        const VectorType &getShiftParameter() const;
+
+        long getNumberOfDimensions() const;
+
+        std::unique_ptr<Model> deepCopy() const override;
+
     private:
         typename MatrixType::Scalar scaleParameter;
         VectorType shiftParameter;
@@ -106,6 +114,22 @@ namespace hops {
         hessian = (expPositive + expNegative) * hessian * (expPositive - expNegative).inverse();
         return
                 hessian;
+    }
+
+    std::unique_ptr<Model> Rosenbrock::deepCopy() const {
+        return std::make_unique<Rosenbrock>(scaleParameter, shiftParameter);
+    }
+
+    double Rosenbrock::getScaleParameter() const {
+        return scaleParameter;
+    }
+
+    const VectorType &Rosenbrock::getShiftParameter() const {
+        return shiftParameter;
+    }
+
+    long Rosenbrock::getNumberOfDimensions() const {
+        return numberOfDimensions;
     }
 }
 

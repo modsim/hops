@@ -6,6 +6,7 @@
 #include <Eigen/LU>
 
 #define _USE_MATH_DEFINES
+
 #include <math.h> // Using deprecated math for windows
 #include <utility>
 
@@ -26,6 +27,14 @@ namespace hops {
         [[nodiscard]] std::optional<VectorType> computeLogLikelihoodGradient(const VectorType &x) const override;
 
         [[nodiscard]] std::optional<MatrixType> computeExpectedFisherInformation(const VectorType &) const override;
+
+        [[nodiscard]] const VectorType &getMean() const;
+
+        [[nodiscard]] const MatrixType &getCovariance() const;
+
+        const std::vector<long> &getInactive() const;
+
+        [[nodiscard]] std::unique_ptr<Model> deepCopy() const override;
 
     private:
         std::optional<Gaussian> gaussian;
@@ -104,6 +113,23 @@ namespace hops {
         VectorType _x = x;
         stripInactive(_x);
         return gaussian.value().computeLogLikelihoodGradient(_x);
+    }
+
+    std::unique_ptr<Model> DegenerateGaussian::deepCopy() const {
+        return std::make_unique<DegenerateGaussian>(gaussian.value().getMean(), gaussian.value().getCovariance(),
+                                                    inactive);
+    }
+
+    const VectorType &DegenerateGaussian::getMean() const {
+        return gaussian.value().getMean();
+    }
+
+    const MatrixType &DegenerateGaussian::getCovariance() const {
+        return gaussian.value().getCovariance();
+    }
+
+    const std::vector<long> &DegenerateGaussian::getInactive() const {
+        return inactive;
     }
 }
 

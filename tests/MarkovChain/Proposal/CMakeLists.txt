@@ -1,7 +1,7 @@
 set(TEST_SOURCES
         ChordStepDistributionsTestSuite.cpp
         DikinEllipsoidCalculatorTestSuite.cpp
-        ProposalFactoryTestSuite.cpp
+#        ProposalFactoryTestSuite.cpp
         )
 
 foreach (TEST_SOURCE ${TEST_SOURCES})

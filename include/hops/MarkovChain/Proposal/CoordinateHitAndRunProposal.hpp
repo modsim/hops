@@ -31,10 +31,11 @@ namespace hops {
 
         void setStepSize(double stepSize) override;
 
-        bool hasStepSize() override;
+        bool hasStepSize() const override;
 
         [[nodiscard]] std::string getProposalName() const override;
 
+        std::unique_ptr<Proposal> deepCopy() const override;
 
     private:
         [[nodiscard]] typename InternalMatrixType::Scalar computeLogAcceptanceProbability();
@@ -77,6 +78,12 @@ namespace hops {
         backwardDistance = 1. / inverseDistances.minCoeff();
         assert(backwardDistance < 0 && forwardDistance > 0);
         assert(((b - A * state).array() > 0).all());
+        if(! ( backwardDistance < 0 && forwardDistance > 0)) {
+            throw std::runtime_error("omg");
+        }
+        if(!((b - A * state).array() > 0).all()) {
+            throw std::runtime_error("omg2");
+        }
 
         step = chordStepDistribution.draw(rng, backwardDistance, forwardDistance);
 
@@ -96,8 +103,8 @@ namespace hops {
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
     void CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::setState(
-            VectorType state) {
-        CoordinateHitAndRunProposal::state = std::move(state);
+            VectorType newState) {
+        CoordinateHitAndRunProposal::state = std::move(newState);
         slacks = b - A * CoordinateHitAndRunProposal::state;
     }
 
@@ -133,11 +140,17 @@ namespace hops {
     }
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
-    bool CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::hasStepSize() {
+    bool CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::hasStepSize() const {
         if constexpr (IsSetStepSizeAvailable<ChordStepDistribution>::value) {
             return true;
         }
         return false;
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
+    std::unique_ptr<Proposal>
+    CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::deepCopy() const {
+        return std::make_unique<CoordinateHitAndRunProposal>(*this);
     }
 }
 

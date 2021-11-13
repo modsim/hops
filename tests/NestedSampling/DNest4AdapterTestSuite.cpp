@@ -5,10 +5,11 @@
 #include <hops/NestedSampling/DNest4Adapter.hpp>
 #include <Eigen/Core>
 
-#include <hops/MarkovChain/Proposal/ProposalFactory.hpp>
 #include <hops/Model/Gaussian.hpp>
 #include <hops/Model/ModelMixin.hpp>
 #include <hops/MarkovChain/Proposal/GaussianProposal.hpp>
+#include <hops/MarkovChain/Proposal/CoordinateHitAndRunProposal.hpp>
+#include <hops/MarkovChain/Proposal/DikinProposal.hpp>
 
 BOOST_AUTO_TEST_SUITE(DNest4AdapterTestSuite)
 
@@ -25,38 +26,42 @@ BOOST_AUTO_TEST_SUITE(DNest4AdapterTestSuite)
             b << 5, 5;
 
             auto gaussian = std::make_shared<hops::Gaussian>(mean, covariance);
-            auto priorProposer = hops::ProposalFactory::createProposal<decltype(A), decltype(b), hops::CoordinateHitAndRunProposal<decltype(A), decltype(b)>>(A, b, mean);
-            auto posteriorProposer = hops::ProposalFactory::createProposal<decltype(A), decltype(b), hops::GaussianProposal<decltype(A), decltype(b)>>(A, b, mean);
+            std::unique_ptr<hops::Proposal> priorProposer =
+                    std::make_unique<hops::CoordinateHitAndRunProposal<decltype(A), decltype(b)>>(A, b, mean);
+//            std::make_unique<hops::GaussianProposal<decltype(A), decltype(b)>>(A, b, mean);
+            std::unique_ptr<hops::Proposal> posteriorProposer =
+//                    std::make_unique<hops::CoordinateHitAndRunProposal<decltype(A),
+//                            decltype(b),
+//                            hops::GaussianStepDistribution<double>>>(A, b, mean);
+                    std::make_unique<hops::GaussianProposal<decltype(A), decltype(b)>>(A, b, mean);
 
             hops::DNest4EnvironmentSingleton::getInstance().setPriorProposer(std::move(priorProposer));
             hops::DNest4EnvironmentSingleton::getInstance().setPosteriorProposer(std::move(posteriorProposer));
             hops::DNest4EnvironmentSingleton::getInstance().setModel(gaussian);
-            hops::DNest4Adapter DNest4Model;
+            hops::DNest4EnvironmentSingleton::getInstance().setStartingPoint(mean);
 
             DNest4::Options sampler_options(5, // num_particles
                                             10000, // new_level_interval
                                             10000, // save_interval
-                                            100, // thread_steps
+                                            200, // thread_steps
                                             80, // max_num_levels
                                             10, // lambda
                                             100, // beta
                                             10000 // max_num_saves
             );
 
-
             // Disable output
             std::cout.setstate(std::ios_base::failbit);
-            DNest4::Sampler<decltype(DNest4Model)> sampler(1, // threads
-                                                           2.7182818284590451, // compression double
-                                                           sampler_options,
-                                                           false, // save to disk
-                                                           true // adaptive
+            DNest4::Sampler<hops::DNest4Adapter> sampler(5, // threads
+                                                         2.7182818284590451, // compression double
+                                                         sampler_options,
+                                                         true, // save to disk
+                                                         true // adaptive
             );
 
             sampler.initialise(42);
             sampler.run();
             std::cout.clear();
-            sampler.get_levels();
         }
     }
 

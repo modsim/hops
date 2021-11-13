@@ -2,6 +2,7 @@
 #define HOPS_MODELWRAPPER_HPP
 
 #include <hops/Model/Model.hpp>
+#include <utility>
 
 namespace hops {
 
@@ -11,6 +12,10 @@ namespace hops {
     class ModelWrapper {
     public:
         explicit ModelWrapper(std::shared_ptr<Model> model) : model(std::move(model)) {}
+
+        ModelWrapper(const ModelWrapper &modelWrapper) {
+            this->model = std::move(modelWrapper.getModel()->deepCopy());
+        }
 
         /**
          * @Brief Virtual because later mixins are allowed to override, e.g. Coldness

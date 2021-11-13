@@ -12,8 +12,6 @@
 #include <hops/MarkovChain/ParallelTempering/Coldness.hpp>
 #include <hops/MarkovChain/ParallelTempering/ParallelTempering.hpp>
 #include <hops/MarkovChain/Proposal/AdaptiveMetropolisProposal.hpp>
-#include <hops/MarkovChain/Proposal/CSmMALAProposal.hpp>
-#include <hops/MarkovChain/Proposal/DikinProposal.hpp>
 #include <hops/MarkovChain/Proposal/HitAndRunProposal.hpp>
 #include <hops/MarkovChain/Recorder/AcceptanceRateRecorder.hpp>
 #include <hops/MarkovChain/Recorder/NegativeLogLikelihoodRecorder.hpp>
@@ -65,13 +63,6 @@ namespace hops {
             }
 
             switch (type) {
-                case MarkovChainType::DikinWalk : {
-                    return addRecordersAndAdapter(
-                            MetropolisHastingsFilter(
-                                    DikinProposal(inequalityLhs, inequalityRhs, startingPoint)
-                            )
-                    );
-                }
                 case MarkovChainType::HitAndRun: {
                     return addRecordersAndAdapter(
                             NoOpDrawAdapter(
@@ -138,19 +129,6 @@ namespace hops {
             }
 
             switch (type) {
-                case MarkovChainType::DikinWalk : {
-                    return addRecordersAndAdapter(
-                            MetropolisHastingsFilter(
-                                    StateTransformation(
-                                            DikinProposal(
-                                                    roundedInequalityLhs,
-                                                    roundedInequalityRhs,
-                                                    startingPoint),
-                                            Transformation(unroundingTransformation, unroundingShift)
-                                    )
-                            )
-                    );
-                }
                 case MarkovChainType::HitAndRun: {
                     return addRecordersAndAdapter(
                             NoOpDrawAdapter(
@@ -235,30 +213,6 @@ namespace hops {
                             )
                     );
                 }
-                case MarkovChainType::CSmMALA: {
-                    return addRecordersAndAdapter(
-                            NegativeLogLikelihoodRecorder(
-                                    MetropolisHastingsFilter(
-                                            CSmMALAProposal(ModelWrapper(model),
-                                                            inequalityLhs,
-                                                            inequalityRhs,
-                                                            startingPoint)
-                                    )
-                            )
-                    );
-                }
-                case MarkovChainType::DikinWalk : {
-                    return addRecordersAndAdapter(
-                            NegativeLogLikelihoodRecorder(
-                                    MetropolisHastingsFilter(
-                                            ModelMixin(
-                                                    DikinProposal(inequalityLhs, inequalityRhs, startingPoint),
-                                                    ModelWrapper(model)
-                                            )
-                                    )
-                            )
-                    );
-                }
                 case MarkovChainType::HitAndRun: {
                     return addRecordersAndAdapter(
                             NegativeLogLikelihoodRecorder(
@@ -315,32 +269,6 @@ namespace hops {
                                                     decltype(inequalityRhs)>(
                                                     inequalityLhs, inequalityRhs, startingPoint),
                                             Coldness(ModelWrapper(model))
-                                    )
-                            ),
-                            synchronizedRandomNumberGenerator
-                    );
-                }
-                case MarkovChainType::CSmMALA: {
-                    return addRecordersAndAdapter(
-                            NegativeLogLikelihoodRecorder(
-                                    MetropolisHastingsFilter(
-                                            CSmMALAProposal(Coldness(ModelWrapper(model)),
-                                                            inequalityLhs,
-                                                            inequalityRhs,
-                                                            startingPoint)
-                                    )
-                            ),
-                            synchronizedRandomNumberGenerator
-                    );
-                }
-                case MarkovChainType::DikinWalk : {
-                    return addRecordersAndAdapter(
-                            NegativeLogLikelihoodRecorder(
-                                    MetropolisHastingsFilter(
-                                            ModelMixin(
-                                                    DikinProposal(inequalityLhs, inequalityRhs, startingPoint),
-                                                    Coldness(ModelWrapper(model))
-                                            )
                                     )
                             ),
                             synchronizedRandomNumberGenerator

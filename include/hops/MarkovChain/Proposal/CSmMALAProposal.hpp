@@ -46,11 +46,13 @@ namespace hops {
 
         void setStepSize(double stepSize) override;
 
-        bool hasStepSize() override;
+        bool hasStepSize() const override;
 
         [[nodiscard]] std::string getProposalName() const override;
 
         [[nodiscard]] double getNegativeLogLikelihood() const override;
+
+        std::unique_ptr<Proposal> deepCopy() const override;
 
     private:
         [[nodiscard]] double computeLogAcceptanceProbability();
@@ -231,8 +233,14 @@ namespace hops {
     }
 
     template<typename ModelType, typename InternalMatrixType>
-    bool CSmMALAProposal<ModelType, InternalMatrixType>::hasStepSize() {
+    bool CSmMALAProposal<ModelType, InternalMatrixType>::hasStepSize() const {
         return true;
+    }
+
+    template<typename ModelType, typename InternalMatrixType>
+    std::unique_ptr<Proposal> CSmMALAProposal<ModelType, InternalMatrixType>::deepCopy() const {
+        // TODO check if we need to clone model, probably we do!
+        return std::make_unique<CSmMALAProposal>(*this);
     }
 }
 

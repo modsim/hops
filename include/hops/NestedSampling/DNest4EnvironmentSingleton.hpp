@@ -12,19 +12,6 @@ namespace hops {
             return instance;
         }
 
-        [[nodiscard]] bool isRngInitialized() const {
-            return rngInitialized;
-        }
-
-        void initializeRng(int seed, int stream = 0) {
-            rngInitialized = true;
-            rng = RandomNumberGenerator(seed, stream);
-        }
-
-        hops::RandomNumberGenerator &getRandomNumberGenerator() {
-            return rng;
-        }
-
         [[nodiscard]] std::shared_ptr<hops::Proposal> getPriorProposer() const {
             return priorProposer;
         }
@@ -37,6 +24,9 @@ namespace hops {
             return posteriorProposer;
         }
 
+        [[nodiscard]] const VectorType &getStartingPoint() const {
+            return startingPoint;
+        }
 
         /**
          * @brief The prior proposer should be maximally efficient in proposing states from the uniform prior
@@ -57,6 +47,9 @@ namespace hops {
             DNest4EnvironmentSingleton::posteriorProposer = newPosteriorProposer;
         }
 
+        void setStartingPoint(const VectorType &newStartingPoint) {
+            DNest4EnvironmentSingleton::startingPoint = newStartingPoint;
+        }
 
         DNest4EnvironmentSingleton(const DNest4EnvironmentSingleton &) = delete;
 
@@ -66,12 +59,9 @@ namespace hops {
         std::shared_ptr<hops::Proposal> priorProposer;
         std::shared_ptr<hops::Proposal> posteriorProposer;
         std::shared_ptr<hops::Model> model;
-
-        bool rngInitialized = false;
-        hops::RandomNumberGenerator rng;
+        VectorType startingPoint;
 
         DNest4EnvironmentSingleton() = default;
-
         ~DNest4EnvironmentSingleton() = default;
     };
 }

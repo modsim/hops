@@ -19,6 +19,10 @@ namespace {
             return negativeLogLikelihoodConstant;
         }
 
+        [[nodiscard]] std::unique_ptr<Model> deepCopy() const override {
+            return std::make_unique<ModelMock>();
+        }
+
     private:
         double negativeLogLikelihoodConstant = 0;
     };
@@ -42,6 +46,10 @@ namespace {
         [[nodiscard]] std::optional<hops::MatrixType>
         computeExpectedFisherInformation(const hops::VectorType &type) const override {
             return hops::MatrixType::Identity(1, 1);
+        }
+
+        [[nodiscard]] std::unique_ptr<Model> deepCopy() const override {
+            return std::make_unique<ModelMockWithGradient>();
         }
 
     private:
@@ -145,11 +153,11 @@ BOOST_AUTO_TEST_SUITE(Coldness)
     BOOST_AUTO_TEST_CASE(computeGradient) {
         auto modelMock = ModelMockWithGradient();
         double coldness = 0.5;
-        hops::Coldness markovChainWithColdness(modelMock,coldness);
+        hops::Coldness markovChainWithColdness(modelMock, coldness);
         hops::VectorType mockState = Eigen::VectorXd::Zero(1);
         auto gradient = markovChainWithColdness.computeLogLikelihoodGradient(mockState);
         BOOST_REQUIRE(gradient.has_value());
-        if(gradient) {
+        if (gradient) {
             BOOST_CHECK(gradient = mockState * coldness);
         }
     }
@@ -157,11 +165,11 @@ BOOST_AUTO_TEST_SUITE(Coldness)
     BOOST_AUTO_TEST_CASE(computeFisherInformation) {
         auto modelMock = ModelMockWithGradient();
         double coldness = 0.5;
-        hops::Coldness markovChainWithColdness(modelMock,coldness);
+        hops::Coldness markovChainWithColdness(modelMock, coldness);
         hops::VectorType mockState = Eigen::VectorXd::Zero(1);
         auto fisherInformation = markovChainWithColdness.computeExpectedFisherInformation(mockState);
         BOOST_REQUIRE(fisherInformation.has_value());
-        if(fisherInformation) {
+        if (fisherInformation) {
             // coldness enters twice because fisherInformation is jacobian^T * cov^-1 * jacobian
             BOOST_CHECK(fisherInformation = coldness * mockState * coldness);
         }

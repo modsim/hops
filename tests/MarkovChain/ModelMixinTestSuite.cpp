@@ -17,6 +17,10 @@ namespace {
             return state(0);
         }
 #pragma clang diagnostic pop
+
+        std::unique_ptr<Model> deepCopy() const override {
+            return std::make_unique<ModelMock>();
+        }
     };
 
     class MarkovChainMock {
