@@ -32,7 +32,9 @@ namespace hops {
 
         [[nodiscard]] std::string getProposalName() const override;
 
-        bool hasStepSize() override;
+        bool hasStepSize() const override;
+
+        std::unique_ptr<Proposal> deepCopy() const override;
 
     private:
         [[nodiscard]] double computeLogAcceptanceProbability();
@@ -108,8 +110,13 @@ namespace hops {
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    bool GaussianProposal<InternalMatrixType, InternalVectorType>::hasStepSize() {
+    bool GaussianProposal<InternalMatrixType, InternalVectorType>::hasStepSize() const {
         return true;
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    std::unique_ptr<Proposal> GaussianProposal<InternalMatrixType, InternalVectorType>::deepCopy() const {
+        return std::make_unique<GaussianProposal>(*this);
     }
 }
 

@@ -42,7 +42,7 @@ namespace hops {
          * @Brief Returns whether underlying implementation has step size. Useful because tuning should be skipped
          * if it doesn't have a step size.
          */
-         virtual bool hasStepSize() = 0;
+         virtual bool hasStepSize() const = 0;
 
         /**
          * @Brief Returns name of proposal class.
@@ -57,6 +57,8 @@ namespace hops {
         [[nodiscard]] virtual double getNegativeLogLikelihood() const {
             return 0.;
         };
+
+        [[nodiscard]] virtual std::unique_ptr<Proposal> deepCopy() const = 0;
 
         virtual ~Proposal() = default;
     };

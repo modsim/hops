@@ -34,7 +34,9 @@ namespace hops {
 
         [[nodiscard]] std::optional<double> getStepSize() const override;
 
-        bool hasStepSize() override;
+        [[nodiscard]] bool hasStepSize() const override;
+
+        [[nodiscard]] std::unique_ptr<Proposal> deepCopy() const override;
 
 
     private:
@@ -116,8 +118,13 @@ namespace hops {
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    bool BallWalk<InternalMatrixType, InternalVectorType>::hasStepSize() {
+    bool BallWalk<InternalMatrixType, InternalVectorType>::hasStepSize() const {
         return true;
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    std::unique_ptr<Proposal> BallWalk<InternalMatrixType, InternalVectorType>::deepCopy() const {
+        return std::make_unique<BallWalk>(*this);
     }
 }
 

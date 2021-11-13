@@ -34,7 +34,9 @@ namespace hops {
 
         [[nodiscard]] std::optional<double> getStepSize() const override;
 
-        bool hasStepSize() override;
+        bool hasStepSize() const override;
+
+        std::unique_ptr<Proposal> deepCopy() const override;
 
 
     protected:
@@ -145,8 +147,13 @@ namespace hops {
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    bool DikinProposal<InternalMatrixType, InternalVectorType>::hasStepSize() {
+    bool DikinProposal<InternalMatrixType, InternalVectorType>::hasStepSize() const {
         return true;
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    std::unique_ptr<Proposal> DikinProposal<InternalMatrixType, InternalVectorType>::deepCopy() const {
+        return std::make_unique<DikinProposal>(*this);
     }
 }
 

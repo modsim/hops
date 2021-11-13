@@ -1,11 +1,11 @@
-#define BOOST_TEST_MODULE MultivariateGaussianModelTestSuite
+#define BOOST_TEST_MODULE GaussianModelTestSuite
 #define BOOST_TEST_DYN_LINK
 
 #include <boost/test/included/unit_test.hpp>
 #include <Eigen/Core>
 #include <hops/Model/Gaussian.hpp>
 
-BOOST_AUTO_TEST_SUITE(MultivariateGaussianModel)
+BOOST_AUTO_TEST_SUITE(GaussianModel)
 
     BOOST_AUTO_TEST_CASE(computeNegativeLogLikelihood) {
         double expectedValue = 1.98943678865;

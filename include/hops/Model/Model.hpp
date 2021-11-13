@@ -31,6 +31,8 @@ namespace hops {
         [[nodiscard]] virtual std::optional<std::vector<std::string>> getParameterNames() const {
             return std::nullopt;
         }
+
+        [[nodiscard]] virtual std::unique_ptr<Model> deepCopy() const = 0;
     };
 }
 

@@ -79,6 +79,10 @@ namespace hops {
             return std::nullopt;
         }
 
+        std::unique_ptr<Model> deepCopy() const override {
+            return std::make_unique<Mixture>(models, weights);
+        }
+
     private:
         std::vector<std::shared_ptr<Model>> models;
         std::vector<double> weights;

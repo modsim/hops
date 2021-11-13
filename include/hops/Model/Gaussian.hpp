@@ -29,6 +29,8 @@ namespace hops {
 
         [[nodiscard]] const MatrixType &getCovariance() const;
 
+        [[nodiscard]] std::unique_ptr<Model> deepCopy() const override;
+
     private:
         VectorType mean;
         MatrixType covariance;
@@ -73,6 +75,10 @@ namespace hops {
 
     const MatrixType &Gaussian::getCovariance() const {
         return covariance;
+    }
+
+    std::unique_ptr<Model> Gaussian::deepCopy() const {
+        return std::make_unique<Gaussian>(mean, covariance);
     }
 }
 

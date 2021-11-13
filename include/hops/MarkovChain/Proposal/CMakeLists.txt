@@ -4,6 +4,7 @@ if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
             BallWalk.hpp
             ChordStepDistributions.hpp
             CoordinateHitAndRunProposal.hpp
+            CSmMALAProposal.hpp
             DikinEllipsoidCalculator.hpp
             DikinProposal.hpp
             GaussianProposal.hpp

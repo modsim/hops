@@ -13,20 +13,22 @@ namespace {
     public:
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "readability-convert-member-functions-to-static"
-
         [[nodiscard]] hops::MatrixType::Scalar
         computeNegativeLogLikelihood(const Eigen::VectorXd &state) const override {
             return state(0);
         }
-
 #pragma clang diagnostic pop
+
+        [[nodiscard]] std::unique_ptr<Model> deepCopy() const override {
+            return std::make_unique<ModelMock>();
+        }
     };
 }
 
 BOOST_AUTO_TEST_SUITE(ModelWrapper)
 
     BOOST_AUTO_TEST_CASE(getModel) {
-        auto modelImp = std::make_shared<ModelMock>();
+        std::shared_ptr<hops::Model> modelImp = std::make_shared<ModelMock>();
         auto model = hops::ModelWrapper(modelImp);
 
         BOOST_CHECK(model.getModel() == modelImp);

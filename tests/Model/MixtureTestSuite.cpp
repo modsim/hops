@@ -10,6 +10,7 @@
 
 namespace {
     class ModelMock : public hops::Model {
+    public:
         [[nodiscard]] double computeNegativeLogLikelihood(const hops::VectorType &) const override {
             return 3;
         }
@@ -22,6 +23,10 @@ namespace {
         [[nodiscard]] std::optional<hops::MatrixType>
         computeExpectedFisherInformation(const hops::VectorType &x) const override {
             return Eigen::MatrixXd::Ones(x.rows(), x.rows());
+        }
+
+        [[nodiscard]] std::unique_ptr<Model> deepCopy() const override {
+            return std::make_unique<ModelMock>();
         }
     };
 }
