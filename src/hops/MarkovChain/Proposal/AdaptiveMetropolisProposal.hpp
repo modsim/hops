@@ -2,14 +2,16 @@
 #define HOPS_ADAPTIVEMETROPOLISPROPOSAL_HPP
 
 #include "IsSetStepSizeAvailable.hpp"
-#include "../../RandomNumberGenerator/RandomNumberGenerator.hpp"
-#include "../../FileWriter/CsvWriter.hpp"
-#include "../../Polytope/MaximumVolumeEllipsoid.hpp"
+#include <hops/FileWriter/CsvWriter.hpp>
+#include <hops/MarkovChain/Proposal/Proposal.hpp>
+#include <hops/Polytope/MaximumVolumeEllipsoid.hpp>
+#include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
+#include <hops/Utility/MatrixType.hpp>
+#include <hops/Utility/VectorType.hpp>
 #include <random>
 
 namespace hops {
-    template<typename MatrixType, typename VectorType>
-    class AdaptiveMetropolisProposal {
+    class AdaptiveMetropolisProposal : public Proposal {
     public:
         using StateType = VectorType;
 
@@ -31,23 +33,23 @@ namespace hops {
                                    typename MatrixType::Scalar eps = 1.e-3, 
                                    unsigned long warmUp = 100);
 
-        void propose(RandomNumberGenerator &randomNumberGenerator);
+        std::pair<double, VectorType> propose(RandomNumberGenerator &randomNumberGenerator) override;
 
-        void acceptProposal();
+        VectorType acceptProposal() override;
 
-        StateType getState() const;
+        //StateType getState() const;
 
-        StateType getProposal() const;
+        //StateType getProposal() const;
 
-        void setState(StateType newState);
+        void setState(StateType newState) override;
 
-        void setStepSize(typename MatrixType::Scalar stepSize);
+        void setStepSize(double stepSize) override;
 
-        typename MatrixType::Scalar getStepSize() const;
+        [[nodiscard]] std::optional<double> getStepSize() const override;
 
-        [[nodiscard]] typename MatrixType::Scalar computeLogAcceptanceProbability(); 
+        bool hasStepSize() const override;
 
-        std::string getName();
+        [[nodiscard]] std::string getProposalName() const override;
 
     private:
         MatrixType A;
@@ -77,6 +79,8 @@ namespace hops {
 
         std::normal_distribution<typename MatrixType::Scalar> normal;
 
+        [[nodiscard]] double computeLogAcceptanceProbability();
+
         MatrixType updateCovariance(const MatrixType& covariance, const StateType& mean, const StateType& newState) {
             assert(t > 0 && "cannot update covariance without samples having been drawn");
 
@@ -91,13 +95,12 @@ namespace hops {
         }
     };
 
-    template<typename MatrixType, typename VectorType>
-    AdaptiveMetropolisProposal<MatrixType, VectorType>::AdaptiveMetropolisProposal(MatrixType A_,
-                                                               VectorType b_,
-                                                               VectorType currentState_,
-                                                               typename MatrixType::Scalar stepSize_,
-                                                               typename MatrixType::Scalar eps_,
-                                                               unsigned long warmUp_) :
+    AdaptiveMetropolisProposal::AdaptiveMetropolisProposal(MatrixType A_,
+                                                           VectorType b_,
+                                                           VectorType currentState_,
+                                                           typename MatrixType::Scalar stepSize_,
+                                                           typename MatrixType::Scalar eps_,
+                                                           unsigned long warmUp_) :
             A(std::move(A_)),
             b(std::move(b_)),
             state(std::move(currentState_)),
@@ -113,18 +116,17 @@ namespace hops {
         stateMean = state; // actual content is irrelevant as long as dimensions match
 
         maximumVolumeEllipsoid = MaximumVolumeEllipsoid<double>::construct(A, b, 10000).getEllipsoid();
-        Eigen::LLT<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>> solverMaximumVolumeEllipsoid(maximumVolumeEllipsoid);
+        Eigen::LLT<MatrixType> solverMaximumVolumeEllipsoid(maximumVolumeEllipsoid);
         choleskyOfMaximumVolumeEllipsoid = solverMaximumVolumeEllipsoid.matrixL();
 
         stateCovariance = maximumVolumeEllipsoid;
-        Eigen::LLT<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>> solverStateCovariance(stateCovariance);
+        Eigen::LLT<MatrixType> solverStateCovariance(stateCovariance);
         stateCholeskyOfCovariance = solverStateCovariance.matrixL();
 
         stateLogSqrtDeterminant = stateCholeskyOfCovariance.diagonal().array().log().sum(); 
     }
 
-    template<typename MatrixType, typename VectorType>
-    void AdaptiveMetropolisProposal<MatrixType, VectorType>::propose(
+    std::pair<double, VectorType>  AdaptiveMetropolisProposal::propose(
             RandomNumberGenerator &randomNumberGenerator) {
         stateMean = (t * stateMean + state) / (t + 1);
 
@@ -139,20 +141,11 @@ namespace hops {
         }
 ;
         ++t; // increment time
+        
+        return {computeLogAcceptanceProbability(), proposal};
     }
 
-    template<typename MatrixType, typename VectorType>
-    void
-    AdaptiveMetropolisProposal<MatrixType, VectorType>::acceptProposal() {
-        state.swap(proposal);
-        stateCovariance = proposalCovariance;
-        stateCholeskyOfCovariance = proposalCholeskyOfCovariance;
-        stateLogSqrtDeterminant = proposalLogSqrtDeterminant;
-    }
-
-    template<typename MatrixType, typename VectorType>
-    typename MatrixType::Scalar 
-    AdaptiveMetropolisProposal<MatrixType, VectorType>::computeLogAcceptanceProbability() {
+    double AdaptiveMetropolisProposal::computeLogAcceptanceProbability() {
         bool isProposalInteriorPoint = ((A * proposal - b).array() < -boundaryCushion).all();
         if (!isProposalInteriorPoint) {
             return -std::numeric_limits<typename MatrixType::Scalar>::infinity();
@@ -171,7 +164,7 @@ namespace hops {
         double alpha = 0;
 
         // before warm up we have a symmetrical proposal distribution
-        if (t > warmUp) {
+        if (t <= warmUp) {
             alpha =  stateLogSqrtDeterminant 
                      - proposalLogSqrtDeterminant 
                      - 0.5 * (
@@ -183,38 +176,33 @@ namespace hops {
         return alpha;
     }
 
-    template<typename MatrixType, typename VectorType>
-    typename AdaptiveMetropolisProposal<MatrixType, VectorType>::StateType
-    AdaptiveMetropolisProposal<MatrixType, VectorType>::getState() const {
+    VectorType AdaptiveMetropolisProposal::acceptProposal() {
+        state.swap(proposal);
+        stateCovariance = proposalCovariance;
+        stateCholeskyOfCovariance = proposalCholeskyOfCovariance;
+        stateLogSqrtDeterminant = proposalLogSqrtDeterminant;
         return state;
     }
 
-    template<typename MatrixType, typename VectorType>
-    typename AdaptiveMetropolisProposal<MatrixType, VectorType>::StateType
-    AdaptiveMetropolisProposal<MatrixType, VectorType>::getProposal() const {
-        return proposal;
-    }
-
-    template<typename MatrixType, typename VectorType>
-    void AdaptiveMetropolisProposal<MatrixType, VectorType>::setState(VectorType newState) {
+    void AdaptiveMetropolisProposal::setState(VectorType newState) {
         AdaptiveMetropolisProposal::state = std::move(newState);
     }
 
-    template<typename MatrixType, typename VectorType>
-    void AdaptiveMetropolisProposal<MatrixType, VectorType>::setStepSize(
-            typename MatrixType::Scalar newStepSize) {
+    void AdaptiveMetropolisProposal::setStepSize(double newStepSize) {
         stepSize = newStepSize;
         normal = std::normal_distribution<typename MatrixType::Scalar>(0, stepSize);
     }
 
-    template<typename MatrixType, typename VectorType>
-    typename MatrixType::Scalar
-    AdaptiveMetropolisProposal<MatrixType, VectorType>::getStepSize() const {
+    
+    std::optional<double> AdaptiveMetropolisProposal::getStepSize() const {
         return stepSize;
     }
 
-    template<typename MatrixType, typename VectorType>
-    std::string AdaptiveMetropolisProposal<MatrixType, VectorType>::getName() {
+    bool AdaptiveMetropolisProposal::hasStepSize() const {
+        return true;
+    }
+
+    std::string AdaptiveMetropolisProposal::getProposalName() const {
         return "AdaptiveMetropolis";
     }
 }
