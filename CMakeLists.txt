@@ -35,6 +35,7 @@ set(MKL_USE_interface lp64)
 
 option(HOPS_SBML_SUPPORT "Enables SBML support. Use -DHOPS_SBML_SUPPORT=ON to enable." OFF)
 option(HOPS_HDF5_SUPPORT "Enables HDF5 support with HighFive. Use -DHOPS_HDF5_SUPPORT=ON to enable." OFF)
+option(HOPS_DNEST4_SUPPORT "Enables Nested Sampling support with DNEST4. Use -DHOPS_DNEST4_SUPPORT=ON to enable." OFF)
 option(HOPS_BENCHMARKS "Enables compilation of Benchmarks (Requires Celero). Use -DHOPS_BENCHMARKS=ON to enable." OFF)
 option(HOPS_DOCS "Enables generation of documentation. Use -DHOPS_DOCS=OFF to disable." ON)
 option(HOPS_BINARIES "Enables compilation of hops executables. Use -DHOPS_BINARIES=OFF to disable." ON)
@@ -114,9 +115,14 @@ if (HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
     add_library(hops INTERFACE)
 
     target_compile_definitions(hops INTERFACE HOPS_HEADER_ONLY)
+
     if (HOPS_HDF5_SUPPORT)
         target_compile_definitions(hops INTERFACE HOPS_HDF5_SUPPORT)
     endif (HOPS_HDF5_SUPPORT)
+
+    if (HOPS_DNEST4_SUPPORT)
+        target_compile_definitions(hops INTERFACE HOPS_DNEST4_SUPPORT)
+    endif (HOPS_DNEST4_SUPPORT)
 
     target_include_directories(hops INTERFACE ${EIGEN3_INCLUDE_DIR}
             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
