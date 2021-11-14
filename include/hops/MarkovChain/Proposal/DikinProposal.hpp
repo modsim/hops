@@ -36,7 +36,7 @@ namespace hops {
 
         bool hasStepSize() const override;
 
-        std::unique_ptr<Proposal> deepCopy() const override;
+        [[nodiscard]] std::unique_ptr<Proposal> deepCopy() const override;
 
 
     protected:

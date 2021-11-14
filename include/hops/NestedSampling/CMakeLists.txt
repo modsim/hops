@@ -1,16 +1,16 @@
 if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
-    find_package(DNest4)
+    target_include_directories(hops PUBLIC
+            $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/extern/DNest4/code>
+            $<INSTALL_INTERFACE:include/>  # <prefix>/include/mylib
+    )
+    target_link_libraries(hops PUBLIC dnest4)
 
-    if (DNest4_FOUND)
-        message(STATUS "Found DNest4 at ${DNest4_INCLUDE_DIR} (includes), ${DNest4_LIBRARY} (library)")
-        target_sources(hops PRIVATE
-                DNest4Adapter.hpp
-                DNest4EnvironmentSingleton.hpp
-                )
-        target_include_directories(hops PRIVATE ${DNest4_INCLUDE_DIR})
-        target_link_libraries(hops PUBLIC ${DNest4_LIBRARY})
-    else (DNest4_FOUND)
-        message(WARNING "Did not find DNest4 on this system. The Nested sampling feature will not be built.")
-    endif (DNest4_FOUND)
+    target_sources(hops PRIVATE
+            DNest4Adapter.hpp
+            DNest4EnvironmentSingleton.hpp
+            )
 
+
+elseif (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
+    target_link_libraries(hops INTERFACE dnest4)
 endif (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")

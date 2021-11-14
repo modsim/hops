@@ -32,9 +32,9 @@ namespace hops {
 
         [[nodiscard]] std::string getProposalName() const override;
 
-        bool hasStepSize() const override;
+        [[nodiscard]] bool hasStepSize() const override;
 
-        std::unique_ptr<Proposal> deepCopy() const override;
+        [[nodiscard]] std::unique_ptr<Proposal> deepCopy() const override;
 
     private:
         [[nodiscard]] double computeLogAcceptanceProbability();
