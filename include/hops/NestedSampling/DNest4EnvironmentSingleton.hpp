@@ -12,16 +12,16 @@ namespace hops {
             return instance;
         }
 
-        [[nodiscard]] std::shared_ptr<hops::Proposal> getPriorProposer() const {
-            return priorProposer;
+        [[nodiscard]] std::unique_ptr<hops::Proposal> getPriorProposer() const {
+            return priorProposer->deepCopy();
         }
 
-        [[nodiscard]] std::shared_ptr<Model> getModel() const {
-            return model;
+        [[nodiscard]] std::unique_ptr<Model> getModel() const {
+            return model->deepCopy();
         }
 
-        [[nodiscard]] std::shared_ptr<hops::Proposal> getPosteriorProposer() const {
-            return posteriorProposer;
+        [[nodiscard]] std::unique_ptr<hops::Proposal> getPosteriorProposer() const {
+            return posteriorProposer->deepCopy();
         }
 
         [[nodiscard]] const VectorType &getStartingPoint() const {
@@ -32,19 +32,19 @@ namespace hops {
          * @brief The prior proposer should be maximally efficient in proposing states from the uniform prior
          * (e.g. a proposer based on CHRR).
          */
-        void setPriorProposer(const std::shared_ptr<hops::Proposal> &newProposer) {
-            DNest4EnvironmentSingleton::priorProposer = newProposer;
+        void setPriorProposer(std::unique_ptr<hops::Proposal> newProposer) {
+            DNest4EnvironmentSingleton::priorProposer = std::move(newProposer);
         }
 
-        void setModel(const std::shared_ptr<hops::Model> &newModel) {
-            DNest4EnvironmentSingleton::model = newModel;
+        void setModel(std::unique_ptr<hops::Model> newModel) {
+            DNest4EnvironmentSingleton::model = std::move(newModel);
         }
 
         /**
          * @brief The posterior proposer should be geared towards efficiently sampling the posterior distribution
          */
-        void setPosteriorProposer(const std::shared_ptr<hops::Proposal> &newPosteriorProposer) {
-            DNest4EnvironmentSingleton::posteriorProposer = newPosteriorProposer;
+        void setPosteriorProposer(std::unique_ptr<hops::Proposal> newPosteriorProposer) {
+            DNest4EnvironmentSingleton::posteriorProposer = std::move(newPosteriorProposer);
         }
 
         void setStartingPoint(const VectorType &newStartingPoint) {
@@ -56,9 +56,9 @@ namespace hops {
         DNest4EnvironmentSingleton &operator=(const DNest4EnvironmentSingleton &) = delete;
 
     private:
-        std::shared_ptr<hops::Proposal> priorProposer;
-        std::shared_ptr<hops::Proposal> posteriorProposer;
-        std::shared_ptr<hops::Model> model;
+        std::unique_ptr<hops::Proposal> priorProposer;
+        std::unique_ptr<hops::Proposal> posteriorProposer;
+        std::unique_ptr<hops::Model> model;
         VectorType startingPoint;
 
         DNest4EnvironmentSingleton() = default;

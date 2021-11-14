@@ -31,11 +31,11 @@ namespace hops {
 
         void setStepSize(double stepSize) override;
 
-        bool hasStepSize() const override;
+        [[nodiscard]] bool hasStepSize() const override;
 
         [[nodiscard]] std::string getProposalName() const override;
 
-        std::unique_ptr<Proposal> deepCopy() const override;
+        [[nodiscard]] std::unique_ptr<Proposal> deepCopy() const override;
 
     private:
         [[nodiscard]] typename InternalMatrixType::Scalar computeLogAcceptanceProbability();
@@ -70,7 +70,7 @@ namespace hops {
     std::pair<double, InternalVectorType>
     CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::propose(
             RandomNumberGenerator &rng) {
-        proposal(coordinateToUpdate) -= step;
+        proposal(coordinateToUpdate) = state(coordinateToUpdate);
         ++coordinateToUpdate %= state.rows();
 
         inverseDistances = A.col(coordinateToUpdate).cwiseQuotient(slacks);
@@ -78,12 +78,6 @@ namespace hops {
         backwardDistance = 1. / inverseDistances.minCoeff();
         assert(backwardDistance < 0 && forwardDistance > 0);
         assert(((b - A * state).array() > 0).all());
-        if(! ( backwardDistance < 0 && forwardDistance > 0)) {
-            throw std::runtime_error("omg");
-        }
-        if(!((b - A * state).array() > 0).all()) {
-            throw std::runtime_error("omg2");
-        }
 
         step = chordStepDistribution.draw(rng, backwardDistance, forwardDistance);
 
@@ -96,7 +90,6 @@ namespace hops {
     VectorType
     CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::acceptProposal() {
         state(coordinateToUpdate) += step;
-        proposal(coordinateToUpdate) += step;
         slacks.noalias() -= A.col(coordinateToUpdate) * step;
         return state;
     }

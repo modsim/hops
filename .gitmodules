@@ -1,0 +1,4 @@
+[submodule "extern/DNest4"]
+	path = extern/DNest4
+	url = git@github.com:modsim/DNest4.git
+  branch = feature/#39-efficient-perturbation-without-model-copy

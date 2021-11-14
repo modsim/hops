@@ -25,34 +25,33 @@ BOOST_AUTO_TEST_SUITE(DNest4AdapterTestSuite)
             hops::VectorType b(2);
             b << 5, 5;
 
-            auto gaussian = std::make_shared<hops::Gaussian>(mean, covariance);
+            auto gaussian = std::make_unique<hops::Gaussian>(mean, covariance);
             std::unique_ptr<hops::Proposal> priorProposer =
                     std::make_unique<hops::CoordinateHitAndRunProposal<decltype(A), decltype(b)>>(A, b, mean);
-//            std::make_unique<hops::GaussianProposal<decltype(A), decltype(b)>>(A, b, mean);
+
             std::unique_ptr<hops::Proposal> posteriorProposer =
-//                    std::make_unique<hops::CoordinateHitAndRunProposal<decltype(A),
-//                            decltype(b),
-//                            hops::GaussianStepDistribution<double>>>(A, b, mean);
-                    std::make_unique<hops::GaussianProposal<decltype(A), decltype(b)>>(A, b, mean);
+                    std::make_unique<hops::CoordinateHitAndRunProposal<decltype(A), decltype(b),
+                            hops::GaussianStepDistribution<double>>>(A, b, mean);
+            posteriorProposer->setStepSize(0.5);
 
             hops::DNest4EnvironmentSingleton::getInstance().setPriorProposer(std::move(priorProposer));
             hops::DNest4EnvironmentSingleton::getInstance().setPosteriorProposer(std::move(posteriorProposer));
-            hops::DNest4EnvironmentSingleton::getInstance().setModel(gaussian);
+            hops::DNest4EnvironmentSingleton::getInstance().setModel(std::move(gaussian));
             hops::DNest4EnvironmentSingleton::getInstance().setStartingPoint(mean);
 
-            DNest4::Options sampler_options(5, // num_particles
+            DNest4::Options sampler_options(32, // num_particles
                                             10000, // new_level_interval
                                             10000, // save_interval
                                             200, // thread_steps
                                             80, // max_num_levels
-                                            10, // lambda
+                                            20, // lambda
                                             100, // beta
-                                            10000 // max_num_saves
+                                            20000 // max_num_saves
             );
 
             // Disable output
             std::cout.setstate(std::ios_base::failbit);
-            DNest4::Sampler<hops::DNest4Adapter> sampler(5, // threads
+            DNest4::Sampler<hops::DNest4Adapter> sampler(32, // threads
                                                          2.7182818284590451, // compression double
                                                          sampler_options,
                                                          true, // save to disk

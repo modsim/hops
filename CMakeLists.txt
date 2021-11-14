@@ -1,5 +1,6 @@
 ########################################################################################################################
-# CMAKE Settings ########################################################################################################################
+# CMAKE Settings
+########################################################################################################################
 
 cmake_minimum_required(VERSION 3.14)
 set(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")
@@ -93,6 +94,9 @@ find_package(Eigen3 REQUIRED)
 find_package(MKL)
 find_package(OpenMP)
 message(STATUS "FOUND MKL ? ${MKL_FOUND}")
+
+# Add external dependencies for which source code is included in hops.
+add_subdirectory(extern)
 
 ########################################################################################################################
 # Post-Third-Party-Search Definitions
@@ -250,12 +254,13 @@ if(NOT HOPS_NO_INSTALL)
     install(DIRECTORY include/ DESTINATION include/ FILES_MATCHING PATTERN "*.hpp")
     install(DIRECTORY include/ DESTINATION include/ FILES_MATCHING PATTERN "*.cpp")
     install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/hops/hops.hpp DESTINATION include/hops)
-#    TODO reinclude when hops-sampelr is fixed
+
+#    TODO reinclude when hops-sampler is fixed
 #    if (HOPS_BINARIES)
 #        install(TARGETS hops-sampler DESTINATION bin/)
 #    endif ()
 
-    install(TARGETS hops EXPORT hops-config LIBRARY DESTINATION "lib")
+    install(TARGETS hops dnest4 EXPORT hops-config LIBRARY DESTINATION "lib")
     install(EXPORT hops-config DESTINATION "lib")
 endif()
 

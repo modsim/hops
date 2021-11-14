@@ -1,4 +1,5 @@
-// TODO check this is complete
+// TODO check if headers are complete
+
 #include "Statistics/Autocorrelation.hpp"
 #include "Statistics/Covariance.hpp"
 #include "Statistics/EffectiveSampleSize.hpp"
