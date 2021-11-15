@@ -34,6 +34,7 @@
 
 #include "MarkovChain/Proposal/ChordStepDistributions.hpp"
 #include "MarkovChain/Proposal/CoordinateHitAndRunProposal.hpp"
+#include "MarkovChain/Proposal/CSmMALAProposal.hpp"
 #include "MarkovChain/Proposal/DikinEllipsoidCalculator.hpp"
 #include "MarkovChain/Proposal/DikinProposal.hpp"
 #include "MarkovChain/Proposal/HitAndRunProposal.hpp"
