@@ -167,8 +167,8 @@ namespace hops {
 
         double alpha = 0;
 
-        // before warm up we have a symmetrical proposal distribution
-        if (t <= warmUp) {
+        // before warm up we have a symmetrical proposal distribution, so we do the next bit only after warm up
+        if (t > warmUp) {
             alpha =  stateLogSqrtDeterminant 
                      - proposalLogSqrtDeterminant 
                      - 0.5 * (
