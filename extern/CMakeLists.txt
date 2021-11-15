@@ -1,9 +1,8 @@
-include(ExternalProject)
-
 ########################################################################################################################
 # DNest44
 ########################################################################################################################
 
+# DNest4 has to be built from makefile here.
 add_library(dnest4 SHARED)
 
 target_sources(dnest4 PRIVATE
@@ -54,3 +53,29 @@ target_sources(dnest4 PRIVATE
         )
 
 ########################################################################################################################
+# HighFive
+########################################################################################################################
+
+find_package(HDF5 COMPONENTS C CXX)
+
+if (HDF5_FOUND AND HOPS_HDF5_SUPPORT)
+    message(STATUS "Found HDF5 libraries.")
+    target_include_directories(hops INTERFACE ${HDF5_INCLUDE_DIRS})
+    target_include_directories(hops ${SCOPE} ${HDF5_INCLUDE_DIRS})
+    target_link_libraries(hops INTERFACE ${HDF5_LIBRARIES})
+    target_link_libraries(hops ${SCOPE} ${HDF5_LIBRARIES})
+    target_compile_definitions(hops INTERFACE HOPS_HDF5_FOUND)
+    target_compile_definitions(hops ${SCOPE} HOPS_HDF5_FOUND)
+    set(HIGHFIVE_USE_EIGEN ON)
+    set(HIGHFIVE_USE_BOOST ON)
+    set(HIGHFIVE_UNIT_TESTS OFF)
+    set(HIGHFIVE_EXAMPLES OFF)
+
+    add_subdirectory(HighFive)
+    add_dependencies(hops HighFive)
+    target_link_libraries(hops INTERFACE HighFive)
+    target_link_libraries(hops ${SCOPE} HighFive)
+
+else (HDF5_FOUND AND HOPS_HDF5_SUPPORT)
+    message(STATUS "HDF5 disabled or libraries not found. Continuing without HDF5 support.")
+endif (HDF5_FOUND AND HOPS_HDF5_SUPPORT)

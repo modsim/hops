@@ -12,7 +12,6 @@ add_subdirectory(NestedSampling)
 add_subdirectory(Optimization)
 add_subdirectory(Polytope)
 add_subdirectory(RandomNumberGenerator)
-add_subdirectory(Third-party)
 add_subdirectory(Transformation)
 add_subdirectory(Utility)
 

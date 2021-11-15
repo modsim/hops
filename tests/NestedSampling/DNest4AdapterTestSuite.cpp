@@ -2,14 +2,13 @@
 #define BOOST_TEST_DYN_LINK
 
 #include <boost/test/included/unit_test.hpp>
-#include <hops/NestedSampling/DNest4Adapter.hpp>
 #include <Eigen/Core>
 
-#include <hops/Model/Gaussian.hpp>
-#include <hops/Model/ModelMixin.hpp>
+#include <hops/MarkovChain/ModelMixin.hpp>
 #include <hops/MarkovChain/Proposal/GaussianProposal.hpp>
 #include <hops/MarkovChain/Proposal/CoordinateHitAndRunProposal.hpp>
-#include <hops/MarkovChain/Proposal/DikinProposal.hpp>
+#include <hops/Model/Gaussian.hpp>
+#include <hops/NestedSampling/DNest4Adapter.hpp>
 
 BOOST_AUTO_TEST_SUITE(DNest4AdapterTestSuite)
 
