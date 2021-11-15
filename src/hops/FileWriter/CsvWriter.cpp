@@ -8,8 +8,8 @@ namespace fs = std::filesystem;
 namespace fs = std::experimental::filesystem;
 #endif // __cpp_lib_filesystem
 
-#include <hops/FileWriter/CsvWriter.hpp>
-#include <hops/FileWriter/CsvWriterImpl.hpp>
+#include "CsvWriter.hpp"
+#include "CsvWriterImpl.hpp"
 
 
 namespace {

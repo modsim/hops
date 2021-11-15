@@ -1,6 +1,7 @@
 #include <Eigen/Core>
-#include <hops/FileWriter/CsvWriterImpl.hpp>
 #include <iostream>
+
+#include "CsvWriterImpl.hpp"
 
 template<typename Derived>
 void hops::internal::CsvWriterImpl::writeOneDimensionalRecords(std::ostream &out, const std::vector<Derived> &records) {

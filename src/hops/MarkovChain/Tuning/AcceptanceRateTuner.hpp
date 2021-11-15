@@ -1,6 +1,19 @@
 #ifndef HOPS_ACCEPTANCERATETUNER_HPP
 #define HOPS_ACCEPTANCERATETUNER_HPP
 
+#include <Eigen/Core>
+#include <chrono>
+#include <cmath>
+#include <memory>
+
+#ifdef _OPENMP
+
+#include <omp.h>
+
+#endif
+
+#include <vector>
+
 #include <hops/FileWriter/FileWriter.hpp>
 #include <hops/FileWriter/FileWriterFactory.hpp>
 #include <hops/FileWriter/FileWriterType.hpp>
@@ -10,16 +23,6 @@
 #include <hops/Optimization/GaussianProcess.hpp>
 #include <hops/Optimization/ThompsonSampling.hpp>
 
-#include <Eigen/Core>
-
-#include <chrono>
-#include <cmath>
-#include <memory>
-#include <vector>
-
-#ifdef _OPENMP
-#include <omp.h>
-#endif 
 
 namespace hops {
     class AcceptanceRateTuner {
@@ -61,8 +64,8 @@ namespace hops {
          * @return true if markov chain is tuned
          */
         static bool
-        tune(std::vector<std::shared_ptr<MarkovChain>>& markovChain, 
-             std::vector<RandomNumberGenerator>& randomNumberGenerator, 
+        tune(std::vector<std::shared_ptr<MarkovChain>> &markovChain,
+             std::vector<RandomNumberGenerator> &randomNumberGenerator,
              param_type &parameters);
 
         /**
@@ -74,10 +77,10 @@ namespace hops {
          * @return true if markov chain is tuned
          */
         static bool
-        tune(double& stepSize, 
-             double& deltaAcceptanceRate, 
-             std::vector<std::shared_ptr<MarkovChain>>& markovChain, 
-             std::vector<RandomNumberGenerator>& randomNumberGenerator, 
+        tune(double &stepSize,
+             double &deltaAcceptanceRate,
+             std::vector<std::shared_ptr<MarkovChain>> &markovChain,
+             std::vector<RandomNumberGenerator> &randomNumberGenerator,
              param_type &parameters);
 
         /**
@@ -89,13 +92,13 @@ namespace hops {
          * @return true if markov chain is tuned
          */
         static bool
-        tune(double& stepSize, 
-             double& deltaAcceptanceRate, 
-             std::vector<std::shared_ptr<MarkovChain>>& markovChain, 
-             std::vector<RandomNumberGenerator>& randomNumberGenerator, 
-             param_type&,
-             Eigen::MatrixXd&,
-             Eigen::MatrixXd&);
+        tune(double &stepSize,
+             double &deltaAcceptanceRate,
+             std::vector<std::shared_ptr<MarkovChain>> &markovChain,
+             std::vector<RandomNumberGenerator> &randomNumberGenerator,
+             param_type &,
+             Eigen::MatrixXd &,
+             Eigen::MatrixXd &);
 
         AcceptanceRateTuner() = delete;
     };
@@ -103,12 +106,12 @@ namespace hops {
     namespace internal {
         struct AcceptanceRateTarget {
             std::vector<std::shared_ptr<hops::MarkovChain>> markovChain;
-            std::vector<RandomNumberGenerator>* randomNumberGenerator;
+            std::vector<RandomNumberGenerator> *randomNumberGenerator;
             AcceptanceRateTuner::param_type parameters;
 
-            AcceptanceRateTarget(std::vector<std::shared_ptr<hops::MarkovChain>>& markovChain,
-                                              std::vector<hops::RandomNumberGenerator>& randomNumberGenerator,
-                                              const hops::AcceptanceRateTuner::param_type& parameters) :
+            AcceptanceRateTarget(std::vector<std::shared_ptr<hops::MarkovChain>> &markovChain,
+                                 std::vector<hops::RandomNumberGenerator> &randomNumberGenerator,
+                                 const hops::AcceptanceRateTuner::param_type &parameters) :
                     markovChain(markovChain),
                     randomNumberGenerator(&randomNumberGenerator),
                     parameters(parameters) {}

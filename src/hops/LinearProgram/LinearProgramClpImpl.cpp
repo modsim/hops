@@ -5,8 +5,8 @@
 
 #include <Eigen/Sparse>
 
-#include <hops/LinearProgram/LinearProgramClpImpl.hpp>
-#include <hops/LinearProgram/LinearProgramStatus.hpp>
+#include "LinearProgramClpImpl.hpp"
+#include "LinearProgramStatus.hpp"
 
 namespace {
     hops::LinearProgramStatus parseClpStatus(int returnCode) {

@@ -2,7 +2,6 @@ if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
     target_sources(hops PRIVATE
             GurobiEnvironmentSingleton.hpp
             LinearProgram.hpp
-            LinearProgram.cpp
             LinearProgramClpImpl.hpp
             LinearProgramFactory.hpp
             LinearProgramGurobiImpl.hpp

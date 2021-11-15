@@ -28,7 +28,7 @@ ADD benchmarks /home/hops_user/benchmarks
 ADD cmake /home/hops_user/cmake
 ADD docs /home/hops_user/docs
 ADD examples /home/hops_user/examples
-ADD include /home/hops_user/include
+ADD src /home/hops_user/src
 ADD resources /home/hops_user/resources
 ADD tests /home/hops_user/tests
 ADD CMakeLists.txt /home/hops_user/CMakeLists.txt

@@ -1,6 +1,6 @@
-#include <hops/FileWriter/FileWriterFactory.hpp>
-#include <hops/FileWriter/FileWriterType.hpp>
-#include <hops/FileWriter/CsvWriter.hpp>
+#include "FileWriterFactory.hpp"
+#include "FileWriterType.hpp"
+#include "CsvWriter.hpp"
 
 std::unique_ptr<hops::FileWriter>
 hops::FileWriterFactory::createFileWriter(const std::string &filename, FileWriterType fileWriterType) {

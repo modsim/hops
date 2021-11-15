@@ -1,4 +1,4 @@
-#include <hops/MarkovChain/Tuning/SimpleExpectedSquaredJumpDistanceTuner.hpp>
+#include "SimpleExpectedSquaredJumpDistanceTuner.hpp"
 
 //extern std::vector<double> measureExpectedSquaredJumpDistance(double stepSize,
 //                                                              std::vector<std::shared_ptr<hops::MarkovChain>>& markovChain,

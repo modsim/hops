@@ -86,7 +86,7 @@ else ()
 endif (NOT ${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 
 ########################################################################################################################
-# Third-Party Dependencies
+# System-Installed Third-Party Dependencies
 ########################################################################################################################
 
 find_package(Doxygen)
@@ -94,9 +94,6 @@ find_package(Eigen3 REQUIRED)
 find_package(MKL)
 find_package(OpenMP)
 message(STATUS "FOUND MKL ? ${MKL_FOUND}")
-
-# Add external dependencies for which source code is included in hops.
-add_subdirectory(extern)
 
 ########################################################################################################################
 # Post-Third-Party-Search Definitions
@@ -122,7 +119,7 @@ if (HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
     endif (HOPS_HDF5_SUPPORT)
 
     target_include_directories(hops INTERFACE ${EIGEN3_INCLUDE_DIR}
-            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
             $<INSTALL_INTERFACE:include>
             )
 else (HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
@@ -132,7 +129,7 @@ else (HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
     target_compile_definitions(hops ${SCOPE} HOPS_HDF5_SUPPORT)
 
     target_include_directories(hops PUBLIC ${EIGEN3_INCLUDE_DIR}
-            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
             $<INSTALL_INTERFACE:include>
             )
 endif (HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
@@ -146,7 +143,8 @@ else (OpenMP_CXX_FOUND)
     message(WARNING "OPENMP not found.")
 endif (OpenMP_CXX_FOUND)
 
-add_subdirectory(include)
+add_subdirectory(src)
+
 
 ########################################################################################################################
 # MKL support for faster linear algebra
@@ -174,7 +172,7 @@ if (HOPS_DOCS)
         message(STATUS "Enabled Doxygen documentation. Use -DHOPS_DOCS=OFF to disable.")
         set(DOCUMENTATION_DIR "docs")
 
-        set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")
+        set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
         set(doxy_main_page "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
         set(doxyfile_in "${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in")
@@ -250,17 +248,17 @@ endif ()
 # Install
 ########################################################################################################################
 
-if(NOT HOPS_NO_INSTALL)
-    install(DIRECTORY include/ DESTINATION include/ FILES_MATCHING PATTERN "*.hpp")
-    install(DIRECTORY include/ DESTINATION include/ FILES_MATCHING PATTERN "*.cpp")
-    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/hops/hops.hpp DESTINATION include/hops)
+if (NOT HOPS_NO_INSTALL)
+    install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/ DESTINATION include/
+            FILES_MATCHING
+            PATTERN "*.hpp"
+            PATTERN "*.h")
 
-#    TODO reinclude when hops-sampler is fixed
-#    if (HOPS_BINARIES)
-#        install(TARGETS hops-sampler DESTINATION bin/)
-#    endif ()
+    #    TODO reinclude when hops-sampler is fixed
+    #    if (HOPS_BINARIES)
+    #        install(TARGETS hops-sampler DESTINATION bin/)
+    #    endif ()
 
-    install(TARGETS hops dnest4 EXPORT hops-config LIBRARY DESTINATION "lib")
+    install(TARGETS hops EXPORT hops-config LIBRARY DESTINATION "lib")
     install(EXPORT hops-config DESTINATION "lib")
-endif()
-
+endif (NOT HOPS_NO_INSTALL)

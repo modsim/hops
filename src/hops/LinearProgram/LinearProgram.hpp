@@ -12,7 +12,7 @@ namespace hops {
 
         virtual ~LinearProgram() = default;
 
-        virtual LinearProgramSolution solve(const Eigen::VectorXd &objective) const = 0;
+        [[nodiscard]] virtual LinearProgramSolution solve(const Eigen::VectorXd &objective) const = 0;
 
         /**
          * @brief Removes redundant constraints and returns system matrices. Changes to the system matrices

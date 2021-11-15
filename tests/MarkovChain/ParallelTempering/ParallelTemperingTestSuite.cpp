@@ -1,13 +1,13 @@
 //#define BOOST_TEST_MODULE ParallelTemperingTestSuite
 //#define BOOST_TEST_DYN_LINK
 //
-//#include <boost/test/included/unit_test.hpp>
-//#include <Eigen/Core>
-//#include <hops/MarkovChain/ParallelTempering/ParallelTempering.hpp>
-//#include <hops/MarkovChain/ParallelTempering/Coldness.hpp>
-//#include <hops/Model/Model.hpp>
-//#include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
-//#include <random>
+//#src <boost/test/included/unit_test.hpp>
+//#src <Eigen/Core>
+//#src <hops/MarkovChain/ParallelTempering/ParallelTempering.hpp>
+//#src <hops/MarkovChain/ParallelTempering/Coldness.hpp>
+//#src <hops/Model/Model.hpp>
+//#src <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
+//#src <random>
 //
 //namespace {
 //    class MarkovChainMock  {

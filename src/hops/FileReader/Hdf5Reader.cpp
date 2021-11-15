@@ -1,7 +1,8 @@
-#include "hops/FileReader/Hdf5Reader.hpp"
 #include <highfive/H5Easy.hpp>
 #include <Eigen/Core>
 #include <Eigen/Sparse>
+
+#include "Hdf5Reader.hpp"
 
 template<typename T>
 T hops::Hdf5Reader::read(const std::string &file, const std::string &pathToDataset) {

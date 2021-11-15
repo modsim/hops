@@ -1,7 +1,7 @@
 #ifndef HOPS_DNEST4ADAPTER_HPP
 #define HOPS_DNEST4ADAPTER_HPP
 
-#include <DNest4.h>
+#include <hops/extern/DNest4.hpp>
 
 #include <hops/MarkovChain/MarkovChain.hpp>
 

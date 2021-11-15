@@ -1,6 +1,7 @@
-#include <hops/FileReader/CsvReader.hpp>
 #include <Eigen/Core>
 #include <Eigen/Sparse>
+
+#include "CsvReader.hpp"
 
 template<typename VectorType>
 VectorType hops::CsvReader::readVector(const std::string &file) {

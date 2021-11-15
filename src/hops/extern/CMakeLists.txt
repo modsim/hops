@@ -1,11 +1,19 @@
 ########################################################################################################################
+# pcg64
+########################################################################################################################
+
+target_sources(hops PRIVATE
+        pcg-cpp/pcg_extras.hpp
+        pcg-cpp/pcg_random.hpp
+        pcg-cpp/pcg_uint128.hpp
+        )
+
+########################################################################################################################
 # DNest44
 ########################################################################################################################
 
-# DNest4 has to be built from makefile here.
-add_library(dnest4 SHARED)
-
-target_sources(dnest4 PRIVATE
+target_sources(hops PRIVATE
+        DNest4.hpp
         DNest4/code/Barrier.cpp
         DNest4/code/Barrier.h
         DNest4/code/CommandLineOptions.cpp

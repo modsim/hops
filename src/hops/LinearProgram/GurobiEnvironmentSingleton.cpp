@@ -1,6 +1,6 @@
 #ifdef HOPS_GUROBI_FOUND
 
-#include <hops/LinearProgram/GurobiEnvironmentSingleton.hpp>
+#include "GurobiEnvironmentSingleton.hpp"
 
 hops::GurobiEnvironmentSingleton &hops::GurobiEnvironmentSingleton::getInstance() {
     static GurobiEnvironmentSingleton instance;

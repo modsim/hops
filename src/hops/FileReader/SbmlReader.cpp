@@ -1,8 +1,9 @@
-#include "hops/FileReader/SbmlReader.hpp"
 #include <Eigen/Core>
 #include <Eigen/Sparse>
 #include <sbml/SBMLTypes.h>
 #include <sbml/packages/fbc/common/FbcExtensionTypes.h>
+
+#include "SbmlReader.hpp"
 
 Eigen::SparseMatrix<double> parseStoichiometry(Model *model) {
     std::map<const std::string, unsigned int> speciesIdAttributeToIndex;

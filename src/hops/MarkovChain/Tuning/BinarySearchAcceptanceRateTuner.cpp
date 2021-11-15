@@ -1,6 +1,7 @@
-#include <hops/MarkovChain/MarkovChainAttribute.hpp>
-#include <hops/MarkovChain/Tuning/BinarySearchAcceptanceRateTuner.hpp>
 #include <cmath>
+
+#include <hops/MarkovChain/MarkovChainAttribute.hpp>
+#include "BinarySearchAcceptanceRateTuner.hpp"
 
 namespace {
     enum class Case {

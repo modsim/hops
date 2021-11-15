@@ -2,8 +2,8 @@
 
 #include <Eigen/Core>
 
-#include <hops/LinearProgram/LinearProgramGurobiImpl.hpp>
-#include <hops/LinearProgram/GurobiEnvironmentSingleton.hpp>
+#include "LinearProgramGurobiImpl.hpp"
+#include "GurobiEnvironmentSingleton.hpp"
 
 namespace {
     std::vector<GRBVar> addVariablesToModel(GRBModel *model, size_t numberOfVariables) {
