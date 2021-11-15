@@ -38,19 +38,19 @@ BOOST_AUTO_TEST_SUITE(DNest4AdapterTestSuite)
             hops::DNest4EnvironmentSingleton::getInstance().setModel(std::move(gaussian));
             hops::DNest4EnvironmentSingleton::getInstance().setStartingPoint(mean);
 
-            DNest4::Options sampler_options(32, // num_particles
+            DNest4::Options sampler_options(4, // num_particles
                                             10000, // new_level_interval
                                             10000, // save_interval
                                             200, // thread_steps
                                             80, // max_num_levels
-                                            20, // lambda
+                                            10, // lambda
                                             100, // beta
-                                            20000 // max_num_saves
+                                            1000 // max_num_saves
             );
 
             // Disable output
             std::cout.setstate(std::ios_base::failbit);
-            DNest4::Sampler<hops::DNest4Adapter> sampler(32, // threads
+            DNest4::Sampler<hops::DNest4Adapter> sampler(4, // threads
                                                          2.7182818284590451, // compression double
                                                          sampler_options,
                                                          true, // save to disk

@@ -6,6 +6,7 @@
 #include <Eigen/Sparse>
 #include <iostream>
 #include <memory>
+
 #include <hops/hops.hpp> // TODO include only what we need
 
 
