@@ -21,6 +21,7 @@ RUN apt-get install -y clang
 RUN apt-get install -y libboost-all-dev 
 RUN apt-get install -y libtbb-dev
 RUN apt-get install -y vim 
+RUN apt-get install ssh-client
 
 
 RUN useradd -ms /bin/bash hops_user
@@ -28,29 +29,5 @@ USER hops_user
 
 WORKDIR /home/hops_user
 
-ADD Doxyfile.in /home/hops_user/Doxyfile.in
-ADD bin /home/hops_user/bin
-ADD benchmarks /home/hops_user/benchmarks
-ADD cmake /home/hops_user/cmake
-ADD docs /home/hops_user/docs
-ADD examples /home/hops_user/examples
-ADD include /home/hops_user/include
-ADD resources /home/hops_user/resources
-ADD tests /home/hops_user/tests
-ADD CMakeLists.txt /home/hops_user/CMakeLists.txt
-
-RUN mkdir cmake-build-debug
-WORKDIR /home/hops_user/cmake-build-debug
-RUN cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu
-RUN make -j16
-RUN make test | echo test
-
-
-WORKDIR /home/hops_user/
-RUN mkdir cmake-build-release
-WORKDIR /home/hops_user/cmake-build-release
-RUN cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu
-RUN make -j16
-RUN make test | echo test
 
 CMD tail -f /dev/null
