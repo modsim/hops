@@ -15,7 +15,7 @@ target_link_libraries(HighFive INTERFACE libheaders libdeps)
 # Generate ${PROJECT_NAME}Config.cmake
 
 include(CMakePackageConfigHelpers)
-configure_package_config_file(${CMAKE_CURRENT_LIST_DIR}/HighFiveConfig.cmake.in
+configure_package_config_file(HighFiveConfig.cmake.in
   ${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
   INSTALL_DESTINATION share/${PROJECT_NAME}/CMake)
 

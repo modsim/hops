@@ -7,7 +7,7 @@ endif()
 
 project(HighFive VERSION 2.2.2)
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/highfive/H5Version.hpp.in
+configure_file(include/highfive/H5Version.hpp.in
                ${CMAKE_CURRENT_BINARY_DIR}/include/highfive/H5Version.hpp)
 # INCLUDES
 list(APPEND CMAKE_MODULE_PATH
@@ -69,7 +69,7 @@ include(${PROJECT_SOURCE_DIR}/CMake/HighFiveTargetDeps.cmake)
 include(${PROJECT_SOURCE_DIR}/CMake/HighFiveTargetExport.cmake)
 
 # Installation of headers (HighFive is only interface)
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
+install(DIRECTORY include
   DESTINATION "include"
   PATTERN "*.in" EXCLUDE)
 
