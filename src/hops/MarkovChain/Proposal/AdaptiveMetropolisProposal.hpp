@@ -11,6 +11,7 @@
 #include <random>
 
 namespace hops {
+    template<typename InternalMatrixType = MatrixType, typename InternalVectorType = VectorType>
     class AdaptiveMetropolisProposal : public Proposal {
     public:
         using StateType = VectorType;
@@ -26,8 +27,8 @@ namespace hops {
          * @param warmUp            Number of warm up samples during which the maximum volume ellipsoid is used as covariance of 
          *                          the proposal distribution. After the warm up, the adaptive covariance is used.
          */
-        AdaptiveMetropolisProposal(MatrixType A, 
-                                   VectorType b, 
+        AdaptiveMetropolisProposal(InternalMatrixType A, 
+                                   InternalVectorType b, 
                                    StateType currentState, 
                                    typename MatrixType::Scalar stepSize = 1, 
                                    typename MatrixType::Scalar eps = 1.e-3, 
@@ -95,12 +96,13 @@ namespace hops {
         }
     };
 
-    AdaptiveMetropolisProposal::AdaptiveMetropolisProposal(MatrixType A_,
-                                                           VectorType b_,
-                                                           VectorType currentState_,
-                                                           typename MatrixType::Scalar stepSize_,
-                                                           typename MatrixType::Scalar eps_,
-                                                           unsigned long warmUp_) :
+    template<typename InternalMatrixType, typename InternalVectorType>
+    AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::AdaptiveMetropolisProposal(InternalMatrixType A_,
+                                                                                                   InternalVectorType b_,
+                                                                                                   VectorType currentState_,
+                                                                                                   typename MatrixType::Scalar stepSize_,
+                                                                                                   typename MatrixType::Scalar eps_,
+                                                                                                   unsigned long warmUp_) :
             A(std::move(A_)),
             b(std::move(b_)),
             state(std::move(currentState_)),
@@ -126,7 +128,8 @@ namespace hops {
         stateLogSqrtDeterminant = stateCholeskyOfCovariance.diagonal().array().log().sum(); 
     }
 
-    std::pair<double, VectorType>  AdaptiveMetropolisProposal::propose(
+    template<typename InternalMatrixType, typename InternalVectorType>
+    std::pair<double, VectorType> AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::propose(
             RandomNumberGenerator &randomNumberGenerator) {
         stateMean = (t * stateMean + state) / (t + 1);
 
@@ -145,7 +148,8 @@ namespace hops {
         return {computeLogAcceptanceProbability(), proposal};
     }
 
-    double AdaptiveMetropolisProposal::computeLogAcceptanceProbability() {
+    template<typename InternalMatrixType, typename InternalVectorType>
+    double AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::computeLogAcceptanceProbability() {
         bool isProposalInteriorPoint = ((A * proposal - b).array() < -boundaryCushion).all();
         if (!isProposalInteriorPoint) {
             return -std::numeric_limits<typename MatrixType::Scalar>::infinity();
@@ -176,7 +180,8 @@ namespace hops {
         return alpha;
     }
 
-    VectorType AdaptiveMetropolisProposal::acceptProposal() {
+    template<typename InternalMatrixType, typename InternalVectorType>
+    VectorType AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::acceptProposal() {
         state.swap(proposal);
         stateCovariance = proposalCovariance;
         stateCholeskyOfCovariance = proposalCholeskyOfCovariance;
@@ -184,25 +189,30 @@ namespace hops {
         return state;
     }
 
-    void AdaptiveMetropolisProposal::setState(VectorType newState) {
+    template<typename InternalMatrixType, typename InternalVectorType>
+    void AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::setState(VectorType newState) {
         AdaptiveMetropolisProposal::state = std::move(newState);
     }
 
-    void AdaptiveMetropolisProposal::setStepSize(double newStepSize) {
+    template<typename InternalMatrixType, typename InternalVectorType>
+    void AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::setStepSize(double newStepSize) {
         stepSize = newStepSize;
         normal = std::normal_distribution<typename MatrixType::Scalar>(0, stepSize);
     }
 
     
-    std::optional<double> AdaptiveMetropolisProposal::getStepSize() const {
+    template<typename InternalMatrixType, typename InternalVectorType>
+    std::optional<double> AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::getStepSize() const {
         return stepSize;
     }
 
-    bool AdaptiveMetropolisProposal::hasStepSize() const {
+    template<typename InternalMatrixType, typename InternalVectorType>
+    bool AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::hasStepSize() const {
         return true;
     }
 
-    std::string AdaptiveMetropolisProposal::getProposalName() const {
+    template<typename InternalMatrixType, typename InternalVectorType>
+    std::string AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::getProposalName() const {
         return "AdaptiveMetropolis";
     }
 }

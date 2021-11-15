@@ -203,12 +203,13 @@ namespace hops {
             switch (type) {
                 case MarkovChainType::AdaptiveMetropolis : {
                     return addRecordersAndAdapter(
-                            MetropolisHastingsFilter(
-                                    ModelMixin(
-                                            AdaptiveMetropolisProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
-                                                    decltype(inequalityRhs)>(
-                                                    inequalityLhs, inequalityRhs, startingPoint),
-                                            ModelWrapper(model)
+                            NegativeLogLikelihoodRecorder(
+                                    MetropolisHastingsFilter(
+                                            ModelMixin(
+                                                    AdaptiveMetropolisProposal(inequalityLhs, inequalityRhs, startingPoint),
+                                                    //GaussianProposal(inequalityLhs, inequalityRhs, startingPoint),
+                                                    ModelWrapper(model)
+                                            )
                                     )
                             )
                     );
@@ -265,9 +266,8 @@ namespace hops {
                     return addRecordersAndAdapter(
                             MetropolisHastingsFilter(
                                     ModelMixin(
-                                            AdaptiveMetropolisProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
-                                                    decltype(inequalityRhs)>(
-                                                    inequalityLhs, inequalityRhs, startingPoint),
+                                            AdaptiveMetropolisProposal(inequalityLhs, inequalityRhs, startingPoint),
+                                            //GaussianProposal(inequalityLhs, inequalityRhs, startingPoint),
                                             Coldness(ModelWrapper(model))
                                     )
                             ),
