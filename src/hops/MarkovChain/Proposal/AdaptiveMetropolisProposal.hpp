@@ -48,9 +48,11 @@ namespace hops {
 
         [[nodiscard]] std::optional<double> getStepSize() const override;
 
-        bool hasStepSize() const override;
+        [[nodiscard]] bool hasStepSize() const override;
 
         [[nodiscard]] std::string getProposalName() const override;
+
+        std::unique_ptr<Proposal> deepCopy() const override;
 
     private:
         MatrixType A;
@@ -214,6 +216,11 @@ namespace hops {
     template<typename InternalMatrixType, typename InternalVectorType>
     std::string AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::getProposalName() const {
         return "AdaptiveMetropolis";
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    std::unique_ptr<Proposal> AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::deepCopy() const {
+        return std::make_unique<AdaptiveMetropolisProposal>(*this);
     }
 }
 
