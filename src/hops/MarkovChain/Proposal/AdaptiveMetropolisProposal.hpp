@@ -38,10 +38,6 @@ namespace hops {
 
         VectorType acceptProposal() override;
 
-        //StateType getState() const;
-
-        //StateType getProposal() const;
-
         void setState(StateType newState) override;
 
         void setStepSize(double stepSize) override;

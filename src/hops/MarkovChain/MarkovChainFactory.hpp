@@ -201,19 +201,6 @@ namespace hops {
             }
 
             switch (type) {
-                case MarkovChainType::AdaptiveMetropolis : {
-                    return addRecordersAndAdapter(
-                            NegativeLogLikelihoodRecorder(
-                                    MetropolisHastingsFilter(
-                                            ModelMixin(
-                                                    AdaptiveMetropolisProposal(inequalityLhs, inequalityRhs, startingPoint),
-                                                    //GaussianProposal(inequalityLhs, inequalityRhs, startingPoint),
-                                                    ModelWrapper(model)
-                                            )
-                                    )
-                            )
-                    );
-                }
                 case MarkovChainType::HitAndRun: {
                     return addRecordersAndAdapter(
                             NegativeLogLikelihoodRecorder(
@@ -262,18 +249,6 @@ namespace hops {
             }
 
             switch (type) {
-                case MarkovChainType::AdaptiveMetropolis : {
-                    return addRecordersAndAdapter(
-                            MetropolisHastingsFilter(
-                                    ModelMixin(
-                                            AdaptiveMetropolisProposal(inequalityLhs, inequalityRhs, startingPoint),
-                                            //GaussianProposal(inequalityLhs, inequalityRhs, startingPoint),
-                                            Coldness(ModelWrapper(model))
-                                    )
-                            ),
-                            synchronizedRandomNumberGenerator
-                    );
-                }
                 case MarkovChainType::HitAndRun: {
                     return addRecordersAndAdapter(
                             NegativeLogLikelihoodRecorder(
