@@ -28,6 +28,8 @@ namespace hops {
 
         void setState(VectorType newState) override;
 
+        [[nodiscard]] VectorType getState() const override;
+
         void setStepSize(double stepSize) override;
 
         [[nodiscard]] std::string getProposalName() const override;
@@ -125,6 +127,11 @@ namespace hops {
     template<typename InternalMatrixType, typename InternalVectorType>
     std::unique_ptr<Proposal> BallWalk<InternalMatrixType, InternalVectorType>::deepCopy() const {
         return std::make_unique<BallWalk>(*this);
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    VectorType BallWalk<InternalMatrixType, InternalVectorType>::getState() const {
+        return state;
     }
 }
 

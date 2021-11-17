@@ -28,13 +28,15 @@ namespace hops {
 
         void setState(VectorType newState) override;
 
+        VectorType getState() const override;
+
         void setStepSize(double stepSize) override;
 
         [[nodiscard]] std::string getProposalName() const override;
 
         [[nodiscard]] std::optional<double> getStepSize() const override;
 
-        bool hasStepSize() const override;
+        [[nodiscard]] bool hasStepSize() const override;
 
         [[nodiscard]] std::unique_ptr<Proposal> deepCopy() const override;
 
@@ -155,6 +157,12 @@ namespace hops {
     std::unique_ptr<Proposal> DikinProposal<InternalMatrixType, InternalVectorType>::deepCopy() const {
         return std::make_unique<DikinProposal>(*this);
     }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    VectorType DikinProposal<InternalMatrixType, InternalVectorType>::getState() const {
+        return state;
+    }
+
 }
 
 #endif //HOPS_DIKINPROPOSAL_HPP

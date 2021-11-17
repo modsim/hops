@@ -42,6 +42,8 @@ namespace hops {
 
         void setState(VectorType state) override;
 
+        VectorType getState() const override;
+
         [[nodiscard]] std::optional<double> getStepSize() const override;
 
         void setStepSize(double stepSize) override;
@@ -241,6 +243,11 @@ namespace hops {
     std::unique_ptr<Proposal> CSmMALAProposal<ModelType, InternalMatrixType>::deepCopy() const {
         // TODO check if we need to clone model, probably we do!
         return std::make_unique<CSmMALAProposal>(*this);
+    }
+
+    template<typename ModelType, typename InternalMatrixType>
+    VectorType CSmMALAProposal<ModelType, InternalMatrixType>::getState() const {
+        return state;
     }
 }
 
