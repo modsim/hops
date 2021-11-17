@@ -3,35 +3,19 @@
 
 #include <utility>
 
+#include <hops/Utility/MatrixType.hpp>
+#include <hops/Utility/VectorType.hpp>
+
 namespace hops {
 
     /**
      * @tparam MatrixType
      * @tparam VectorType
      */
-    template<typename MatrixType, typename VectorType>
     class Transformation {
     public:
-        Transformation() = default;
-
-        Transformation(MatrixType matrix, VectorType shift) : matrix(matrix), shift(shift) {}
-
-        /**
-         * @brief Transforms vector from rounded space to unrounded space.
-         */
-        VectorType apply(VectorType vector) {
-            return matrix * vector + shift;
-        }
-
-        VectorType applyInverse(VectorType vector) {
-            if (!matrix.isLowerTriangular()) {
-                return matrix.inverse() * (vector - shift);
-            }
-            return matrix.template triangularView<Eigen::Lower>().solve(vector - shift);
-        }
-
-        MatrixType matrix;
-        VectorType shift;
+        virtual VectorType apply(const VectorType& vector) const { return vector; }
+        virtual VectorType revert(const VectorType& vector) const { return vector; }
     };
 }
 
