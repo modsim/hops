@@ -27,6 +27,8 @@ namespace hops {
 
         void setState(VectorType state) override;
 
+        VectorType getState() const override;
+
         [[nodiscard]] std::optional<double> getStepSize() const override;
 
         void setStepSize(double stepSize) override;
@@ -98,6 +100,7 @@ namespace hops {
     void CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::setState(
             VectorType newState) {
         CoordinateHitAndRunProposal::state = std::move(newState);
+        CoordinateHitAndRunProposal::proposal = CoordinateHitAndRunProposal::state;
         slacks = b - A * CoordinateHitAndRunProposal::state;
     }
 
@@ -144,6 +147,12 @@ namespace hops {
     std::unique_ptr<Proposal>
     CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::deepCopy() const {
         return std::make_unique<CoordinateHitAndRunProposal>(*this);
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
+    VectorType
+    CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::getState() const {
+        return state;
     }
 }
 

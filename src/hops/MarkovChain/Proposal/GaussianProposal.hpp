@@ -26,6 +26,8 @@ namespace hops {
 
         void setState(VectorType state) override;
 
+        VectorType getState() const override;
+
         [[nodiscard]] std::optional<double> getStepSize() const override;
 
         void setStepSize(double stepSize) override;
@@ -117,6 +119,11 @@ namespace hops {
     template<typename InternalMatrixType, typename InternalVectorType>
     std::unique_ptr<Proposal> GaussianProposal<InternalMatrixType, InternalVectorType>::deepCopy() const {
         return std::make_unique<GaussianProposal>(*this);
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    VectorType GaussianProposal<InternalMatrixType, InternalVectorType>::getState() const {
+        return state;
     }
 }
 

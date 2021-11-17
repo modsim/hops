@@ -28,6 +28,8 @@ namespace hops {
          */
         virtual void setState(VectorType state) = 0;
 
+        [[nodiscard]] virtual VectorType getState() const = 0;
+
         /**
          * @Brief Returns step size if proposal mechanism has one, std::nullopt otherwise.
          */
