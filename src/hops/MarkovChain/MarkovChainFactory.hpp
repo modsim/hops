@@ -345,6 +345,5 @@ namespace hops {
         }
     };
 }
->>>>>>> 7232101... add getState to proposal interface
 
 #endif //HOPS_MARKOVCHAINFACTORY_HPP
