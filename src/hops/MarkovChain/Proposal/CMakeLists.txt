@@ -11,6 +11,7 @@ if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
             HitAndRunProposal.hpp
             Proposal.hpp
             ProposalFactory.hpp
+            ProposalParameter.hpp
             TruncatedNormalDistribution.hpp
             )
 endif (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
