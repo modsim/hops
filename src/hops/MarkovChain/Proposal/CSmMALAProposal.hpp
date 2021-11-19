@@ -34,7 +34,7 @@ namespace hops {
                         InternalMatrixType A,
                         VectorType b,
                         const VectorType &currentState,
-                        double newFisherWeight);
+                        double newFisherWeight = 0.5);
 
         std::pair<double, VectorType> propose(RandomNumberGenerator &rng) override;
 
@@ -42,23 +42,25 @@ namespace hops {
 
         void setState(VectorType state) override;
 
-        VectorType getState() const override;
+        [[nodiscard]] VectorType getState() const override;
+
+        [[nodiscard]] VectorType getProposal() const override;
 
         [[nodiscard]] std::optional<double> getStepSize() const override;
 
         void setStepSize(double stepSize) override;
 
-        bool hasStepSize() const override;
+        [[nodiscard]] bool hasStepSize() const override;
 
         [[nodiscard]] std::string getProposalName() const override;
 
         [[nodiscard]] double getNegativeLogLikelihood() const override;
 
-        std::unique_ptr<Proposal> deepCopy() const override;
+        [[nodiscard]] std::unique_ptr<Proposal> deepCopy() const override;
 
-    private:
         [[nodiscard]] double computeLogAcceptanceProbability();
 
+    private:
         VectorType computeTruncatedGradient(VectorType x);
 
         InternalMatrixType A;
@@ -248,6 +250,11 @@ namespace hops {
     template<typename ModelType, typename InternalMatrixType>
     VectorType CSmMALAProposal<ModelType, InternalMatrixType>::getState() const {
         return state;
+    }
+
+    template<typename ModelType, typename InternalMatrixType>
+    VectorType CSmMALAProposal<ModelType, InternalMatrixType>::getProposal() const {
+        return proposal;
     }
 }
 

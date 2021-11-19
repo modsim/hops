@@ -28,6 +28,8 @@ namespace hops {
 
         VectorType getState() const override;
 
+        VectorType getProposal() const override;
+
         [[nodiscard]] std::optional<double> getStepSize() const override;
 
         void setStepSize(double stepSize) override;
@@ -38,9 +40,9 @@ namespace hops {
 
         [[nodiscard]] std::unique_ptr<Proposal> deepCopy() const override;
 
-    private:
         [[nodiscard]] double computeLogAcceptanceProbability();
 
+    private:
         InternalMatrixType A;
         InternalVectorType b;
         VectorType state;
@@ -124,6 +126,11 @@ namespace hops {
     template<typename InternalMatrixType, typename InternalVectorType>
     VectorType GaussianProposal<InternalMatrixType, InternalVectorType>::getState() const {
         return state;
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    VectorType GaussianProposal<InternalMatrixType, InternalVectorType>::getProposal() const {
+        return proposal;
     }
 }
 

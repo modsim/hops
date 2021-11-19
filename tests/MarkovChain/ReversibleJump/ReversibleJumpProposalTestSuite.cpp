@@ -7,6 +7,8 @@
 #include <utility>
 #include <vector>
 
+#include <hops/Utility/MatrixType.hpp>
+#include <hops/Utility/VectorType.hpp>
 
 #include <hops/MarkovChain/ReversibleJump/ReversibleJumpProposal.hpp>
 #include <hops/MarkovChain/MarkovChainAdapter.hpp>
@@ -30,11 +32,9 @@ namespace {
     class FullGammaModel {
     public:
         using FloatType = double;
-        using MatrixType = Eigen::MatrixXd;
-        using VectorType = Eigen::VectorXd;
 
         explicit FullGammaModel(std::vector<FloatType> measurements) : measurements(std::move(measurements)) {
-            A = MatrixType(6, 3);
+            A = hops::MatrixType(6, 3);
             A << 1, 0, 0,
                     -1, 0, 0,
                     0, 1, 0,
@@ -42,11 +42,11 @@ namespace {
                     0, 0, 1,
                     0, 0, -1;
 
-            b = VectorType(6);
+            b = hops::VectorType(6);
             b << 0.9, 0., 10, -0.1, 10, -0.1;
         }
 
-        [[nodiscard]] FloatType computeNegativeLogLikelihood(const VectorType &parameters) const {
+        [[nodiscard]] FloatType computeNegativeLogLikelihood(const hops::VectorType &parameters) const {
             FloatType neglike = 0;
             for (const auto &measurement : this->measurements) {
                 neglike -= std::log(
@@ -63,11 +63,11 @@ namespace {
             return parameterNames;
         }
 
-        VectorType getB() const {
+        hops::VectorType getB() const {
             return b;
         }
 
-        MatrixType getA() const {
+        hops::MatrixType getA() const {
             return A;
         }
 
@@ -78,8 +78,8 @@ namespace {
     private:
         std::vector<std::string> parameterNames = {"location", "scale", "shape"};
 
-        VectorType b;
-        MatrixType A;
+        hops::VectorType b;
+        hops::MatrixType A;
         std::vector<FloatType> measurements;
         std::string modelName = "FullGammaModel";
     };
@@ -88,21 +88,19 @@ namespace {
     class GammaModel1 {
     public:
         using FloatType = double;
-        using MatrixType = Eigen::MatrixXd;
-        using VectorType = Eigen::VectorXd;
 
         explicit GammaModel1(std::vector<FloatType> measurements) : measurements(std::move(measurements)) {
-            A = MatrixType(4, 2);
+            A = hops::MatrixType(4, 2);
             A << 1, 0,
                     -1, 0,
                     0, 1,
                     0, -1;
 
-            b = VectorType(4);
+            b = hops::VectorType(4);
             b << 0.9, 0., 10, -0.1;
         }
 
-        FloatType computeNegativeLogLikelihood(const VectorType &parameters) const {
+        FloatType computeNegativeLogLikelihood(const hops::VectorType &parameters) const {
             FloatType neglike = 0;
             for (const auto &measurement : this->measurements) {
                 neglike -= std::log(
@@ -119,11 +117,11 @@ namespace {
             return parameterNames;
         }
 
-        VectorType getB() const {
+        hops::VectorType getB() const {
             return b;
         }
 
-        MatrixType getA() const {
+        hops::MatrixType getA() const {
             return A;
         }
 
@@ -134,8 +132,8 @@ namespace {
     private:
         std::vector<std::string> parameterNames = {"location", "shape"};
 
-        VectorType b;
-        MatrixType A;
+        hops::VectorType b;
+        hops::MatrixType A;
         std::vector<FloatType> measurements;
         constexpr static const double scale = 1;
         std::string modelName = "GammaModel1";
@@ -144,21 +142,19 @@ namespace {
     class GammaModel2 {
     public:
         using FloatType = double;
-        using MatrixType = Eigen::MatrixXd;
-        using VectorType = Eigen::VectorXd;
 
         explicit GammaModel2(std::vector<FloatType> measurements) : measurements(std::move(measurements)) {
-            A = MatrixType(4, 2);
+            A = hops::MatrixType(4, 2);
             A << 1, 0,
                     -1, 0,
                     0, 1,
                     0, -1;
 
-            b = VectorType(4);
+            b = hops::VectorType(4);
             b << 10, -0.1, 10, -0.1;
         }
 
-        [[nodiscard]] FloatType computeNegativeLogLikelihood(const VectorType &parameters) const {
+        [[nodiscard]] FloatType computeNegativeLogLikelihood(const hops::VectorType &parameters) const {
             FloatType neglike = 0;
             for (const auto &measurement : this->measurements) {
                 neglike -= std::log(
@@ -175,11 +171,11 @@ namespace {
             return parameterNames;
         }
 
-        [[nodiscard]] VectorType getB() const {
+        [[nodiscard]] hops::VectorType getB() const {
             return b;
         }
 
-        [[nodiscard]] MatrixType getA() const {
+        [[nodiscard]] hops::MatrixType getA() const {
             return A;
         }
 
@@ -190,8 +186,8 @@ namespace {
     private:
         std::vector<std::string> parameterNames = {"scale", "shape"};
 
-        VectorType b;
-        MatrixType A;
+        hops::VectorType b;
+        hops::MatrixType A;
         std::vector<FloatType> measurements;
 
         constexpr static double location = 0;
@@ -202,17 +198,15 @@ namespace {
     class MinimalGammaModel {
     public:
         using FloatType = double;
-        using MatrixType = Eigen::MatrixXd;
-        using VectorType = Eigen::VectorXd;
 
         explicit MinimalGammaModel(std::vector<FloatType> measurements) : measurements(std::move(measurements)) {
-            A = MatrixType(2, 1);
+            A = hops::MatrixType(2, 1);
             A << 1, -1;
-            b = VectorType(2);
+            b = hops::VectorType(2);
             b << 10, -0.1;
         }
 
-        [[nodiscard]] FloatType computeNegativeLogLikelihood(const VectorType &parameters) const {
+        [[nodiscard]] FloatType computeNegativeLogLikelihood(const hops::VectorType &parameters) const {
             FloatType neglike = 0;
             for (const auto &measurement : this->measurements) {
                 neglike -= std::log(
@@ -229,11 +223,11 @@ namespace {
             return parameterNames;
         }
 
-        [[nodiscard]] VectorType getB() const {
+        [[nodiscard]] hops::VectorType getB() const {
             return b;
         }
 
-        [[nodiscard]] MatrixType getA() const {
+        [[nodiscard]] hops::MatrixType getA() const {
             return A;
         }
 
@@ -244,8 +238,8 @@ namespace {
     private:
         std::vector<std::string> parameterNames = {"shape"};
 
-        VectorType b;
-        MatrixType A;
+        hops::VectorType b;
+        hops::MatrixType A;
         std::vector<FloatType> measurements;
 
         constexpr static double location = 0;

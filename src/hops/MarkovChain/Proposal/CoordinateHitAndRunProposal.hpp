@@ -27,7 +27,9 @@ namespace hops {
 
         void setState(VectorType state) override;
 
-        VectorType getState() const override;
+        [[nodiscard]] VectorType getState() const override;
+
+        VectorType getProposal() const override;
 
         [[nodiscard]] std::optional<double> getStepSize() const override;
 
@@ -39,9 +41,9 @@ namespace hops {
 
         [[nodiscard]] std::unique_ptr<Proposal> deepCopy() const override;
 
-    private:
-        [[nodiscard]] typename InternalMatrixType::Scalar computeLogAcceptanceProbability();
+        [[nodiscard]] double computeLogAcceptanceProbability();
 
+    private:
         InternalMatrixType A;
         InternalVectorType b;
         VectorType state;
@@ -128,7 +130,7 @@ namespace hops {
     }
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
-    typename InternalMatrixType::Scalar
+    double
     CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::computeLogAcceptanceProbability() {
         return chordStepDistribution.computeInverseNormalizationConstant(0, backwardDistance, forwardDistance)
                - chordStepDistribution.computeInverseNormalizationConstant(0, backwardDistance - step,
@@ -136,7 +138,8 @@ namespace hops {
     }
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
-    bool CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::hasStepSize() const {
+    bool
+    CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::hasStepSize() const {
         if constexpr (IsSetStepSizeAvailable<ChordStepDistribution>::value) {
             return true;
         }
@@ -153,6 +156,12 @@ namespace hops {
     VectorType
     CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::getState() const {
         return state;
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
+    VectorType
+    CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::getProposal() const {
+        return proposal;
     }
 }
 

@@ -1,5 +1,5 @@
 set(TEST_SOURCES
-        ReversibleJumpProposalTestSuite.cpp
+        #ReversibleJumpProposalTestSuite.cpp
         )
 
 foreach (TEST_SOURCE ${TEST_SOURCES})

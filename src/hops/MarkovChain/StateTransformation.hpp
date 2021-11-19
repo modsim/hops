@@ -1,6 +1,8 @@
 #ifndef HOPS_STATETRANSFORMATION_HPP
 #define HOPS_STATETRANSFORMATION_HPP
 
+#include <hops/Utility/VectorType.hpp>
+
 namespace hops {
     /**
      * @brief Mixin for undoing transformations to the Markov chain state.
@@ -14,16 +16,16 @@ namespace hops {
                 MarkovChainImpl(markovChainImpl),
                 transformation(transformation) {}
 
-        typename MarkovChainImpl::StateType getState() {
+        VectorType getState() {
             return transformation.apply(MarkovChainImpl::getState());
         }
 
-        typename MarkovChainImpl::StateType getProposal() {
+         VectorType getProposal() {
             return transformation.apply(MarkovChainImpl::getProposal());
         }
 
-        void setState(const typename MarkovChainImpl::StateType &state) {
-            MarkovChainImpl::setState(transformation.applyInverse(state));
+        void setState(const VectorType &state) {
+            MarkovChainImpl::setState(transformation.revert(state));
         }
 
     private:

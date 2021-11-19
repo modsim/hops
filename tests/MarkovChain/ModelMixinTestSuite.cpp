@@ -3,10 +3,11 @@
 
 #include <boost/test/included/unit_test.hpp>
 #include <memory>
-
-#include <hops/Model/Model.hpp>
-#include <hops/MarkovChain/ModelMixin.hpp>
 #include <utility>
+
+#include <hops/MarkovChain/ModelMixin.hpp>
+#include <hops/Model/Model.hpp>
+#include <hops/Utility/VectorType.hpp>
 
 namespace {
     class ModelMock : public hops::Model {
@@ -18,7 +19,7 @@ namespace {
         }
 #pragma clang diagnostic pop
 
-        std::unique_ptr<Model> deepCopy() const override {
+        [[nodiscard]] std::unique_ptr<Model> deepCopy() const override {
             return std::make_unique<ModelMock>();
         }
     };
@@ -41,8 +42,9 @@ namespace {
             MarkovChainMock::state = std::move(newState);
         }
 
-        void acceptProposal() {
+        hops::VectorType acceptProposal() {
             state = proposal;
+            return state;
         }
 
         [[nodiscard]] double computeLogAcceptanceProbability() const {

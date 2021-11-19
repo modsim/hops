@@ -20,7 +20,8 @@ namespace hops {
          * @param currentState
          * @param stepSize radius of dikin ellipsoids. Default is from https://doi.org/10.1287/moor.1110.0519.
          */
-        DikinProposal(InternalMatrixType A, InternalVectorType b, const VectorType& currentState, double stepSize = 0.075);
+        DikinProposal(InternalMatrixType A, InternalVectorType b, const VectorType &currentState,
+                      double stepSize = 0.075);
 
         std::pair<double, VectorType> propose(RandomNumberGenerator &randomNumberGenerator) override;
 
@@ -29,6 +30,8 @@ namespace hops {
         void setState(VectorType newState) override;
 
         VectorType getState() const override;
+
+        VectorType getProposal() const override;
 
         void setStepSize(double stepSize) override;
 
@@ -46,6 +49,8 @@ namespace hops {
         StateType proposal;
 
     private:
+        double computeLogAcceptanceProbability();
+
         MatrixType A;
         VectorType b;
 
@@ -61,13 +66,14 @@ namespace hops {
 
         std::normal_distribution<typename MatrixType::Scalar> normalDistribution{0., 1.};
         DikinEllipsoidCalculator<MatrixType, VectorType> dikinEllipsoidCalculator;
+
     };
 
     template<typename InternalMatrixType, typename InternalVectorType>
     DikinProposal<InternalMatrixType, InternalVectorType>::DikinProposal(InternalMatrixType A,
-                                                         InternalVectorType b,
-                                                         const VectorType& currentState,
-                                                         double stepSize) :
+                                                                         InternalVectorType b,
+                                                                         const VectorType &currentState,
+                                                                         double stepSize) :
             A(std::move(A)),
             b(std::move(b)),
             dikinEllipsoidCalculator(this->A, this->b) {
@@ -77,7 +83,8 @@ namespace hops {
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    std::pair<double, VectorType> DikinProposal<InternalMatrixType, InternalVectorType>::propose(RandomNumberGenerator &randomNumberGenerator) {
+    std::pair<double, VectorType>
+    DikinProposal<InternalMatrixType, InternalVectorType>::propose(RandomNumberGenerator &randomNumberGenerator) {
         for (long i = 0; i < proposal.rows(); ++i) {
             proposal(i) = normalDistribution(randomNumberGenerator);
         }
@@ -108,8 +115,7 @@ namespace hops {
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    typename InternalMatrixType::Scalar
-    DikinProposal<InternalMatrixType, InternalVectorType>::computeLogAcceptanceProbability() {
+    double DikinProposal<InternalMatrixType, InternalVectorType>::computeLogAcceptanceProbability() {
         bool isProposalInteriorPoint = ((A * proposal - b).array() < -boundaryCushion).all();
         if (!isProposalInteriorPoint) {
             return -std::numeric_limits<typename InternalMatrixType::Scalar>::infinity();
@@ -161,6 +167,11 @@ namespace hops {
     template<typename InternalMatrixType, typename InternalVectorType>
     VectorType DikinProposal<InternalMatrixType, InternalVectorType>::getState() const {
         return state;
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    VectorType DikinProposal<InternalMatrixType, InternalVectorType>::getProposal() const {
+        return proposal;
     }
 
 }

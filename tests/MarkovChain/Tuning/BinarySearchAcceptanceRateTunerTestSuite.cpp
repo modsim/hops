@@ -13,21 +13,25 @@ namespace {
 
         using StateType = Eigen::VectorXd;
 
-        void propose(hops::RandomNumberGenerator) { numberOfStepsTaken++; }
+        std::pair<double, StateType> propose(hops::RandomNumberGenerator) { numberOfStepsTaken++;
+        return {computeLogAcceptanceProbability(), getState()};
+        }
 
-        void acceptProposal() {};
+        StateType acceptProposal() {
+            return getState();
+        };
 
         [[nodiscard]] double computeLogAcceptanceProbability() const {
             return std::log(1 - stepSize);
         };
 
         const std::vector<Eigen::VectorXd> &getStateRecords() {
-            throw 0;
+            throw std::runtime_error("no records");
         }
 
         [[nodiscard]] StateType getState() const { return Eigen::VectorXd::Zero(1); };
 
-        [[nodiscard]] std::string getName() const { return "ProposerMock"; };
+        [[nodiscard]] std::string getProposalName() const { return "ProposerMock"; };
 
         void setStepSize(double newStepSize) {
             stepSize = newStepSize;
@@ -35,7 +39,7 @@ namespace {
 
         void setState(Eigen::VectorXd) {};
 
-        [[nodiscard]] double getStepSize() const {
+        [[nodiscard]] std::optional<double> getStepSize() const {
             return stepSize;
         }
 

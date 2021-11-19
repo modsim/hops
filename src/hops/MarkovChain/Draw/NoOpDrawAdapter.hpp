@@ -16,9 +16,7 @@ namespace hops {
 
         void draw(RandomNumberGenerator &randomNumberGenerator) {
             MarkovChainProposer::propose(randomNumberGenerator);
-            if constexpr(IsAcceptProposalAvailable<MarkovChainProposer>::value) {
-                MarkovChainProposer::acceptProposal();
-            }
+            MarkovChainProposer::acceptProposal();
         }
     };
 }

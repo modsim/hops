@@ -17,22 +17,23 @@ namespace hops {
     public:
         LinearTransformation() = default;
 
-        LinearTransformation(const MatrixType& matrix, const VectorType& shift) : matrix(matrix), shift(shift) {}
+        LinearTransformation(const MatrixType &matrix, const VectorType &shift) : matrix(matrix), shift(shift) {}
 
         /**
          * @brief Transforms vector from rounded space to unrounded space.
          */
-        VectorType apply(VectorType vector) const override {
+        VectorType apply(const VectorType &vector) const override {
             return matrix * vector + shift;
         }
 
-        VectorType revert(VectorType vector) const override {
+        VectorType revert(const VectorType &vector) const override {
             if (!matrix.isLowerTriangular()) {
                 return matrix.inverse() * (vector - shift);
             }
             return matrix.template triangularView<Eigen::Lower>().solve(vector - shift);
         }
 
+    private:
         MatrixType matrix;
         VectorType shift;
     };

@@ -16,7 +16,10 @@ namespace {
 
         using StateType = Eigen::VectorXd;
 
-        void propose(hops::RandomNumberGenerator) { numberOfStepsTaken++; }
+        std::pair<double, StateType> propose(hops::RandomNumberGenerator) {
+            numberOfStepsTaken++;
+            return std::make_pair(std::log(1 - stepSize), Eigen::VectorXd::Zero(1));
+        }
 
         void acceptProposal() {};
 
@@ -30,7 +33,7 @@ namespace {
 
         [[nodiscard]] StateType getState() const { return Eigen::VectorXd::Zero(1); };
 
-        [[nodiscard]] std::string getName() const { return "ProposerMock"; };
+        [[nodiscard]] std::string getProposalName() const { return "ProposerMock"; };
 
         void setStepSize(double newStepSize) {
             stepSize = newStepSize;
@@ -38,7 +41,7 @@ namespace {
 
         void setState(Eigen::VectorXd) {};
 
-        [[nodiscard]] double getStepSize() const {
+        [[nodiscard]] std::optional<double> getStepSize() const {
             return stepSize;
         }
 
@@ -76,18 +79,18 @@ BOOST_AUTO_TEST_SUITE(AcceptanceRateTuner)
         size_t iterationsForConvergence = 5;
 
         hops::AcceptanceRateTuner::param_type parameters{
-                        targetAcceptanceRate,
-                        iterationsToTestStepSize,
-                        maxPosteriorUpdates,
-                        maxPureSamplingRounds,
-                        iterationsForConvergence,
-                        stepSizeGridSize,
-                        lowerLimitStepSize,
-                        upperLimitStepSize,
-                        smoothingLength,
-                        42,
-                        false
-                };
+                targetAcceptanceRate,
+                iterationsToTestStepSize,
+                maxPosteriorUpdates,
+                maxPureSamplingRounds,
+                iterationsForConvergence,
+                stepSizeGridSize,
+                lowerLimitStepSize,
+                upperLimitStepSize,
+                smoothingLength,
+                42,
+                false
+        };
 
         std::vector<std::shared_ptr<hops::MarkovChain>> mcs{markovChain};
         std::vector<hops::RandomNumberGenerator> generators{generator};
@@ -95,16 +98,16 @@ BOOST_AUTO_TEST_SUITE(AcceptanceRateTuner)
                 mcs,
                 generators,
                 parameters
-                );
+        );
 
 
         markovChain->draw(generator, 5000);
         double actualAcceptanceRate = markovChain->getAcceptanceRate();
-        std::cout<< actualAcceptanceRate << std::endl;
+        std::cout << actualAcceptanceRate << std::endl;
         BOOST_CHECK(isTuned);
         BOOST_CHECK_LE(markovChain->getNumberOfStepsTaken(),
                        maxPosteriorUpdates *
-                       iterationsToTestStepSize + 5000);
+                               iterationsToTestStepSize + 5000);
         double upperLimitAcceptanceRate = 0.85;
         double lowerLimitAcceptanceRate = 0.75;
         BOOST_CHECK_LE(actualAcceptanceRate,

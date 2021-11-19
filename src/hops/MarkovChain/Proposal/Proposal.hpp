@@ -30,6 +30,8 @@ namespace hops {
 
         [[nodiscard]] virtual VectorType getState() const = 0;
 
+        [[nodiscard]] virtual VectorType getProposal() const = 0;
+
         /**
          * @Brief Returns step size if proposal mechanism has one, std::nullopt otherwise.
          */
@@ -44,7 +46,7 @@ namespace hops {
          * @Brief Returns whether underlying implementation has step size. Useful because tuning should be skipped
          * if it doesn't have a step size.
          */
-         virtual bool hasStepSize() const = 0;
+         [[nodiscard]] virtual bool hasStepSize() const = 0;
 
         /**
          * @Brief Returns name of proposal class.

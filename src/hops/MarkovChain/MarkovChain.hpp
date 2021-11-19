@@ -8,6 +8,7 @@
 #include "MarkovChainAttribute.hpp"
 #include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
 #include <hops/Utility/ChainData.hpp>
+#include <hops/Utility/VectorType.hpp>
 
 
 namespace hops {
@@ -75,7 +76,7 @@ namespace hops {
 
         virtual void setAttribute(MarkovChainAttribute markovChainAttribute, double value) = 0;
 
-        virtual void setState(StateType state) = 0;
+        virtual void setState(const VectorType &state) = 0;
 
         virtual double getAttribute(MarkovChainAttribute markovChainAttribute) = 0;
 
