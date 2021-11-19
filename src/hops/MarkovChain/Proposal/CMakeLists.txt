@@ -1,7 +1,7 @@
 if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
     target_sources(hops PRIVATE
             AdaptiveMetropolisProposal.hpp
-            BallWalk.hpp
+            BallWalkProposal.hpp
             ChordStepDistributions.hpp
             CoordinateHitAndRunProposal.hpp
             CSmMALAProposal.hpp

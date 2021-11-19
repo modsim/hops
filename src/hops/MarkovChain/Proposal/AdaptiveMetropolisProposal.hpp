@@ -40,7 +40,9 @@ namespace hops {
 
         void setState(StateType newState) override;
 
-        VectorType getState() const override;
+        [[nodiscard]] VectorType getState() const override;
+
+        VectorType getProposal() const override;
 
         void setStepSize(double stepSize) override;
 
@@ -51,6 +53,8 @@ namespace hops {
         [[nodiscard]] std::string getProposalName() const override;
 
         [[nodiscard]] std::unique_ptr<Proposal> deepCopy() const override;
+
+        [[nodiscard]] double computeLogAcceptanceProbability();
 
     private:
         MatrixType A;
@@ -79,8 +83,6 @@ namespace hops {
         constexpr static typename MatrixType::Scalar boundaryCushion = 1e-10;
 
         std::normal_distribution<typename MatrixType::Scalar> normal;
-
-        [[nodiscard]] double computeLogAcceptanceProbability();
 
         MatrixType updateCovariance(const MatrixType& covariance, const StateType& mean, const StateType& newState) {
             assert(t > 0 && "cannot update covariance without samples having been drawn");
@@ -224,6 +226,11 @@ namespace hops {
     template<typename InternalMatrixType, typename InternalVectorType>
     VectorType AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::getState() const {
         return state;
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    VectorType AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::getProposal() const {
+        return proposal;
     }
 }
 

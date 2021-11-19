@@ -36,10 +36,9 @@ namespace hops {
 
     template<typename MarkovChainProposer>
     void MetropolisHastingsFilter<MarkovChainProposer>::draw(hops::RandomNumberGenerator &randomNumberGenerator) {
-        MarkovChainProposer::propose(randomNumberGenerator);
+        auto [acceptanceProbability, proposal] = MarkovChainProposer::propose(randomNumberGenerator);
         numberOfProposals++;
         double acceptanceChance = std::log(uniformRealDistribution(randomNumberGenerator));
-        double acceptanceProbability = MarkovChainProposer::computeLogAcceptanceProbability();
         if constexpr(IsAddMessageAvailable<MarkovChainProposer>::value) {
             MarkovChainProposer::addMessage("interior(");
             MarkovChainProposer::addMessage(std::isfinite(acceptanceProbability) ? "true" : "false");

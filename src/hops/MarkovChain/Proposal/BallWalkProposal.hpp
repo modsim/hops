@@ -1,5 +1,5 @@
-#ifndef HOPS_BALLWALK_HPP
-#define HOPS_BALLWALK_HPP
+#ifndef HOPS_BALLWALKPROPOSAL_HPP
+#define HOPS_BALLWALKPROPOSAL_HPP
 
 #include <random>
 
@@ -11,7 +11,7 @@
 
 namespace hops {
     template<typename InternalMatrixType, typename InternalVectorType>
-    class BallWalk : public Proposal {
+    class BallWalkProposal : public Proposal {
     public:
         /**
          * @brief Constructs Ballwalk proposal mechanism on polytope defined as Ax<b.
@@ -20,7 +20,7 @@ namespace hops {
          * @param currentState
          * @param stepSize The radius of the ball from which the proposal move is drawn
          */
-        BallWalk(InternalMatrixType A, InternalVectorType b, VectorType currentState, double stepSize = 1);
+        BallWalkProposal(InternalMatrixType A, InternalVectorType b, VectorType currentState, double stepSize = 1);
 
         std::pair<double, VectorType> propose(RandomNumberGenerator &randomNumberGenerator) override;
 
@@ -29,6 +29,8 @@ namespace hops {
         void setState(VectorType newState) override;
 
         [[nodiscard]] VectorType getState() const override;
+
+        VectorType getProposal() const override;
 
         void setStepSize(double stepSize) override;
 
@@ -40,10 +42,9 @@ namespace hops {
 
         [[nodiscard]] std::unique_ptr<Proposal> deepCopy() const override;
 
+        [[nodiscard]] double computeLogAcceptanceProbability();
 
     private:
-        [[nodiscard]] typename InternalMatrixType::Scalar computeLogAcceptanceProbability();
-
         InternalMatrixType A;
         InternalVectorType b;
         VectorType state;
@@ -56,10 +57,10 @@ namespace hops {
     };
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    BallWalk<InternalMatrixType, InternalVectorType>::BallWalk(InternalMatrixType A_,
-                                                               InternalVectorType b_,
-                                                               VectorType currentState_,
-                                                               double stepSize_) :
+    BallWalkProposal<InternalMatrixType, InternalVectorType>::BallWalkProposal(InternalMatrixType A_,
+                                                                               InternalVectorType b_,
+                                                                               VectorType currentState_,
+                                                                               double stepSize_) :
             A(std::move(A_)),
             b(std::move(b_)),
             state(std::move(currentState_)),
@@ -67,7 +68,7 @@ namespace hops {
             stepSize(stepSize_) {}
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    std::pair<double, VectorType> BallWalk<InternalMatrixType, InternalVectorType>::propose(
+    std::pair<double, VectorType> BallWalkProposal<InternalMatrixType, InternalVectorType>::propose(
             RandomNumberGenerator &randomNumberGenerator) {
         // Creates proposal on Ballsurface
         for (long i = 0; i < proposal.rows(); ++i) {
@@ -84,34 +85,33 @@ namespace hops {
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    VectorType BallWalk<InternalMatrixType, InternalVectorType>::acceptProposal() {
+    VectorType BallWalkProposal<InternalMatrixType, InternalVectorType>::acceptProposal() {
         state.swap(proposal);
         return state;
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    void BallWalk<InternalMatrixType, InternalVectorType>::setState(VectorType newState) {
-        BallWalk::state = std::move(newState);
+    void BallWalkProposal<InternalMatrixType, InternalVectorType>::setState(VectorType newState) {
+        BallWalkProposal::state = std::move(newState);
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    void BallWalk<InternalMatrixType, InternalVectorType>::setStepSize(double stepSize) {
-        BallWalk::stepSize = stepSize;
+    void BallWalkProposal<InternalMatrixType, InternalVectorType>::setStepSize(double stepSize) {
+        BallWalkProposal::stepSize = stepSize;
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    std::optional<double> BallWalk<InternalMatrixType, InternalVectorType>::getStepSize() const {
+    std::optional<double> BallWalkProposal<InternalMatrixType, InternalVectorType>::getStepSize() const {
         return stepSize;
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    std::string BallWalk<InternalMatrixType, InternalVectorType>::getProposalName() const {
-        return "BallWalk";
+    std::string BallWalkProposal<InternalMatrixType, InternalVectorType>::getProposalName() const {
+        return "BallWalkProposal";
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    typename InternalMatrixType::Scalar
-    BallWalk<InternalMatrixType, InternalVectorType>::computeLogAcceptanceProbability() {
+    double BallWalkProposal<InternalMatrixType, InternalVectorType>::computeLogAcceptanceProbability() {
         bool isProposalInteriorPoint = ((A * proposal - b).array() < 0).all();
         if (!isProposalInteriorPoint) {
             return -std::numeric_limits<typename InternalMatrixType::Scalar>::infinity();
@@ -120,20 +120,25 @@ namespace hops {
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    bool BallWalk<InternalMatrixType, InternalVectorType>::hasStepSize() const {
+    bool BallWalkProposal<InternalMatrixType, InternalVectorType>::hasStepSize() const {
         return true;
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    std::unique_ptr<Proposal> BallWalk<InternalMatrixType, InternalVectorType>::deepCopy() const {
-        return std::make_unique<BallWalk>(*this);
+    std::unique_ptr<Proposal> BallWalkProposal<InternalMatrixType, InternalVectorType>::deepCopy() const {
+        return std::make_unique<BallWalkProposal>(*this);
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    VectorType BallWalk<InternalMatrixType, InternalVectorType>::getState() const {
+    VectorType BallWalkProposal<InternalMatrixType, InternalVectorType>::getState() const {
         return state;
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    VectorType BallWalkProposal<InternalMatrixType, InternalVectorType>::getProposal() const {
+        return proposal;
     }
 }
 
 
-#endif //HOPS_BALLWALK_HPP
+#endif //HOPS_BALLWALKPROPOSAL_HPP

@@ -21,7 +21,9 @@ namespace hops {
 
         void setState(VectorType state) override;
 
-        VectorType getState() const override;
+        [[nodiscard]] VectorType getState() const override;
+
+        VectorType getProposal() const override;
 
         [[nodiscard]] std::optional<double> getStepSize() const override;
 
@@ -33,9 +35,9 @@ namespace hops {
 
         [[nodiscard]] std::unique_ptr<Proposal> deepCopy() const override;
 
-    private:
         [[nodiscard]] double computeLogAcceptanceProbability();
 
+    private:
         VectorType state;
         VectorType proposal;
 
@@ -107,6 +109,7 @@ namespace hops {
         } else {
             slacks.noalias() -= A * updateDirection * step;
         }
+        return state;
     }
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
@@ -159,6 +162,12 @@ namespace hops {
     VectorType
     HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::getState() const {
         return state;
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
+    VectorType
+    HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::getProposal() const {
+        return proposal;
     }
 }
 

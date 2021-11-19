@@ -10,6 +10,7 @@
 #include <hops/MarkovChain/Recorder/IsStoreRecordAvailable.hpp>
 #include <hops/MarkovChain/Recorder/IsWriteRecordsToFileAvailable.hpp>
 #include <hops/Utility/ChainData.hpp>
+#include <hops/Utility/VectorType.hpp>
 
 namespace hops {
     template<typename MarkovChainImpl>

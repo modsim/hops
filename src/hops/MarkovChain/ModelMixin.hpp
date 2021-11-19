@@ -5,6 +5,7 @@
 
 #include <hops/MarkovChain/Draw/IsCalculateLogAcceptanceProbabilityAvailable.hpp>
 #include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
+#include <hops/Utility/VectorType.hpp>
 
 namespace hops {
     /**
@@ -23,7 +24,7 @@ namespace hops {
             stateNegativeLogLikelihood = ModelType::computeNegativeLogLikelihood(MarkovChainProposer::getState());
         }
 
-        void acceptProposal();
+        VectorType acceptProposal();
 
         double computeLogAcceptanceProbability();
 
@@ -35,9 +36,9 @@ namespace hops {
     };
 
     template<typename MarkovChainProposer, typename ModelType>
-    void ModelMixin<MarkovChainProposer, ModelType>::acceptProposal() {
-        MarkovChainProposer::acceptProposal();
+    VectorType ModelMixin<MarkovChainProposer, ModelType>::acceptProposal() {
         stateNegativeLogLikelihood = proposalNegativeLogLikelihood;
+        return MarkovChainProposer::acceptProposal();
     }
 
     template<typename MarkovChainProposer, typename ModelType>

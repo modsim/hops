@@ -58,7 +58,7 @@ namespace hops {
         }
 
         std::string getName() override {
-            return MarkovChainImpl::getName();
+            return MarkovChainImpl::getProposalName();
         }
 
         double getAcceptanceRate() override {
@@ -102,7 +102,7 @@ namespace hops {
             }
         }
 
-        void setState(Eigen::Matrix<double, -1, 1, 0, -1, 1> state) override {
+        void setState(const VectorType &state) override {
             MarkovChainImpl::setState(state);
         }
 
@@ -125,14 +125,20 @@ namespace hops {
                    return MarkovChainImpl::computeLogAcceptanceProbability();
                 }
                 case MarkovChainAttribute::STEP_SIZE: {
-                    if constexpr(IsGetStepSizeAvailable<MarkovChainImpl>::value) {
-                        return MarkovChainImpl::getStepSize();
+                    auto optionalStepSize = MarkovChainImpl::getStepSize();
+                    if (optionalStepSize) {
+                        return optionalStepSize.value();
                     }
                     throw std::runtime_error("STEP_SIZE attribute does not exist.");
                 }
-                default: {
-                    throw std::runtime_error("Attribute does not exist.");
+                case MarkovChainAttribute::FISHER_WEIGHT: {
+                    if constexpr(IsSetFisherWeightAvailable<MarkovChainImpl>::value) {
+                        return MarkovChainImpl::getFisherWeight();
+                    }
+                    throw std::runtime_error("FISHER_WEIGHT attribute does not exist.");
                 }
+                default:
+                    throw std::runtime_error("No attribute.");
             }
         }
     };
