@@ -3,7 +3,6 @@
 
 #include <boost/test/included/unit_test.hpp>
 #include <Eigen/Core>
-#include <Eigen/Sparse>
 #include <iostream>
 #include <memory>
 

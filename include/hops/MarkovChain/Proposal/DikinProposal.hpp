@@ -38,12 +38,15 @@ namespace hops {
 
         std::string getName();
 
+
+    protected:
+        StateType state;
+        StateType proposal;
+
     private:
         MatrixType A;
         VectorType b;
 
-        StateType state;
-        StateType proposal;
         typename MatrixType::Scalar stateLogSqrtDeterminant = 0;
         typename MatrixType::Scalar proposalLogSqrtDeterminant = 0;
         Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic> stateCholeskyOfDikinEllipsoid;

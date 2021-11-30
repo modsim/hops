@@ -12,11 +12,23 @@
 
 namespace {
     std::pair<double, double>
-    distanceInCoordinateDirection(Eigen::MatrixXd A, Eigen::VectorXd b, Eigen::VectorXd x, long coordinate) {
+    distanceInCoordinateDirection(const Eigen::MatrixXd &A,
+                                  const Eigen::VectorXd &b,
+                                  const Eigen::VectorXd &x,
+                                  long coordinate) {
+        std::cout << "x " << x.transpose() << std::endl;
         Eigen::VectorXd slacks = b - A * x;
         Eigen::VectorXd inverseDistances = A.col(coordinate).cwiseQuotient(slacks);
         double forwardDistance = 1. / inverseDistances.maxCoeff();
         double backwardDistance = 1. / inverseDistances.minCoeff();
+
+        for (long i = 0; i < inverseDistances.rows(); ++i) {
+            if (inverseDistances(i) == -std::numeric_limits<double>::infinity()) {
+                backwardDistance=0;
+            } else if (inverseDistances(i) == std::numeric_limits<double>::infinity()) {
+                forwardDistance=0;
+            }
+        }
         assert(backwardDistance <= 0 && forwardDistance >= 0);
         return std::make_pair(backwardDistance, forwardDistance);
     }
@@ -81,8 +93,8 @@ namespace hops {
         void drawInParameterSpace(RandomNumberGenerator &randomNumberGenerator) {
             numberOfProposals++;
             MarkovChainImpl::propose(randomNumberGenerator);
-            for(long i=0; i<MarkovChainImpl::proposal.rows(); ++i) {
-                if(!parameterActivationStates_[i]) {
+            for (long i = 0; i < MarkovChainImpl::proposal.rows(); ++i) {
+                if (!parameterActivationStates_[i]) {
                     // If parameter is not active, reset proposal to state
                     MarkovChainImpl::proposal(i) = MarkovChainImpl::state(i);
                 }
@@ -157,8 +169,8 @@ namespace hops {
                          std::vector<int> &proposalActivationState,
                          typename MarkovChainImpl::StateType &proposal,
                          typename MarkovChainImpl::StateType &defaultValues) {
-            Eigen::VectorXi activationTracker = Eigen::VectorXi::Zero(jumpIndices_.size());
-            Eigen::VectorXi deactivationTracker = Eigen::VectorXi::Zero(jumpIndices_.size());
+            Eigen::VectorXi activationTracker = Eigen::VectorXi::Zero(defaultValues.rows());
+            Eigen::VectorXi deactivationTracker = Eigen::VectorXi::Zero(defaultValues.rows());
 
             Eigen::PermutationMatrix<Eigen::Dynamic, Eigen::Dynamic> permutationMatrix(jumpIndices_.size());
             permutationMatrix.setIdentity();
@@ -208,19 +220,19 @@ namespace hops {
                                 shuffledJumpIndices(index));
 
                         double width = (forwardsDistance - backwardsDistance);
-                        //THIS IS A TEMPORARY CHECK, SPECIFIC FOR THE GAMMA EXAMPLE
-                        assert((std::abs(width - 0.9) < 1e-12) || (std::abs(width - 9.9) < 1e-12));
                         // RESETTING THE BOUNDS OF THE GAUSSIAN STEP DISTRIBUTION IS A WASTE (DEPENDING ON GENERALITY), WE COULD INSTEAD SAVE
                         // ONE DISTRIBUTION PER JUMPSTATE
                         proposal[shuffledJumpIndices(index)] += gaussianStepDistribution.draw(randomNumberGenerator,
                                                                                               stepSize * width,
                                                                                               backwardsDistance,
                                                                                               forwardsDistance);
-                        assert(defaultValue + backwardsDistance <= proposal[shuffledJumpIndices(index)] && forwardsDistance  + defaultValue >= proposal[shuffledJumpIndices(index)]);
+                        assert(defaultValue + backwardsDistance <= proposal[shuffledJumpIndices(index)] &&
+                               forwardsDistance + defaultValue >= proposal[shuffledJumpIndices(index)]);
                         activationTracker(shuffledJumpIndices(index)) = 1;
                         // GET THE DENSITY OF THE TAKEN STEP
                         double temp = gaussianStepDistribution.computeProbabilityDensity(
-                                proposal[shuffledJumpIndices(index)] - defaultValue, stepSize * width, backwardsDistance,
+                                proposal[shuffledJumpIndices(index)] - defaultValue, stepSize * width,
+                                backwardsDistance,
                                 forwardsDistance);
                         tester.push_back(proposal[shuffledJumpIndices(index)] - defaultValue);
                         tester.push_back(stepSize * width);
@@ -257,16 +269,17 @@ namespace hops {
                         double defaultValue = defaultValues[shuffledJumpIndices(index)];
                         // NOW TRACK PROBABILITY FROM DEFAULT TO PREVIOUS STATE, GET BETTER WAY OF RETRIEVING PAST STATE WITHOUT + 1!!!!
                         auto temp_old_state = this->getState()[shuffledJumpIndices(index) + 1];
-                        assert(defaultValue + backwardsDistance <= temp_old_state && forwardsDistance  + defaultValue >= temp_old_state);
+                        assert(defaultValue + backwardsDistance <= temp_old_state &&
+                               forwardsDistance + defaultValue >= temp_old_state);
                         // also here we have to take the width into account
                         double width = (forwardsDistance - backwardsDistance);
-                        //THIS IS A TEMPORARY CHECK, SPECIFIC FOR THE GAMMA EXAMPLE
-                        assert((std::abs(width - 0.9) < 1e-12) || (std::abs(width - 9.9) < 1e-12));
+
                         double temp = gaussianStepDistribution.computeProbabilityDensity(
-                                this->getState()[shuffledJumpIndices(index) + 1] - defaultValue, stepSize * width, backwardsDistance,
+                                this->getState()[shuffledJumpIndices(index) + 1] - defaultValue, stepSize * width,
+                                backwardsDistance,
                                 forwardsDistance);
                         //tester.push_back(temp);
-                        if (temp <= 0){
+                        if (temp <= 0) {
                             temp += 0;
                         }
                         //assert(temp > 0);
@@ -285,8 +298,6 @@ namespace hops {
                             defaultValues,
                             shuffledJumpIndices(index));
                     double width = (forwardsDistance - backwardsDistance);
-                    //THIS IS A TEMPORARY CHECK, SPECIFIC FOR THE GAMMA EXAMPLE
-                    assert((std::abs(width - 0.9) < 1e-12) || (std::abs(width - 9.9) < 1e-12));
                     //double defaultDistance = std::abs(proposal[shuffledJumpIndices(index)] - defaultValue);
                     //defaultDistance = defaultDistance / width;
 
