@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_SUITE(ReversibleJumpProposal)
             31, // 0.31479786
         };
 
-        BOOST_ASSERT(actualModelProbabilities.size() == expectedModelProbabilities.size());
+        BOOST_ASSERT(actualModelProbabilities.size() == expectedModelProbabilityPercentages.size());
         for(long i=0; i<actualModelProbabilities.size(); ++i) {
             BOOST_CHECK_EQUAL(
                     actualModelProbabilities[i],
