@@ -29,20 +29,20 @@ build-release:
 test-debug:
   stage: test
   script:
-    - cd cmake-build-debug &&  make test && cd -
+    - cd cmake-build-debug && env CTEST_OUTPUT_ON_FAILURE=1 make test && cd -
   artifacts:
     when: always
     reports:
-      junit: cmake-build-debug/tests/test-reports/*.xml
+      junit: cmake-build-debug/tests/reports/*.xml
     expire_in: 10 weeks
 
 test-release:
   stage: test
   script:
-    - cd cmake-build-release && make test && cd -
+    - cd cmake-build-release && env CTEST_OUTPUT_ON_FAILURE=1 make test && cd -
   artifacts:
     when: always
     reports:
-      junit: cmake-build-release/tests/test-reports/*.xml
+      junit: cmake-build-release/tests/reports/*.xml
     expire_in: 10 weeks
 

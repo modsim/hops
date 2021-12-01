@@ -93,12 +93,7 @@ namespace hops {
         void drawInParameterSpace(RandomNumberGenerator &randomNumberGenerator) {
             numberOfProposals++;
             MarkovChainImpl::propose(randomNumberGenerator, parameterActivationStates_);
-            for(long i=0; i<MarkovChainImpl::proposal.rows(); ++i) {
-                if(!parameterActivationStates_[i]) {
-                    // If parameter is not active, reset proposal to state
-                    MarkovChainImpl::proposal(i) = MarkovChainImpl::state(i);
-                }
-            }
+
             double acceptanceProbability = computeParameterDrawAcceptanceProbability();
             double acceptanceChance = std::log(uniformRealDistribution(randomNumberGenerator));
             if (acceptanceChance < acceptanceProbability) {

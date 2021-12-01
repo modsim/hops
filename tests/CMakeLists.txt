@@ -4,7 +4,7 @@
 
 find_package(Boost REQUIRED COMPONENTS unit_test_framework)
 
-file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test-reports)
+file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/tests/reports)
 
 add_subdirectory(FileReader)
 add_subdirectory(FileWriter)

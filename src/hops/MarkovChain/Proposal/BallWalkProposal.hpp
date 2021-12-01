@@ -30,7 +30,9 @@ namespace hops {
 
         [[nodiscard]] VectorType getState() const override;
 
-        VectorType getProposal() const override;
+        [[nodiscard]] VectorType getProposal() const override;
+
+        void setParameter(ProposalParameterName parameterName, const std::any &value) override;
 
         void setStepSize(double stepSize);
 
@@ -137,6 +139,19 @@ namespace hops {
     template<typename InternalMatrixType, typename InternalVectorType>
     VectorType BallWalkProposal<InternalMatrixType, InternalVectorType>::getProposal() const {
         return proposal;
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    void BallWalkProposal<InternalMatrixType, InternalVectorType>::setParameter(ProposalParameterName parameterName,
+                                                                                const std::any &value) {
+        switch (parameterName) {
+            case ProposalParameterName::STEP_SIZE: {
+                setStepSize(std::any_cast<double>(value));
+                break;
+            }
+            default:
+                throw std::invalid_argument("Can't set parameter which doesn't exist in BallWalkProposal.");
+        }
     }
 }
 

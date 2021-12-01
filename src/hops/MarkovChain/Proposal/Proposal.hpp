@@ -2,8 +2,11 @@
 #define HOPS_PROPOSAL_HPP
 
 #include <any>
+
 #include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
 #include <hops/Utility/VectorType.hpp>
+
+#include "ProposalParameterName.hpp"
 
 
 namespace hops {
@@ -39,11 +42,11 @@ namespace hops {
 //        [[nodiscard]] virtual std::any getParameter(const std::string& name) const = 0;
 //
 //        [[nodiscard]] virtual std::string getParameterType(const std::string& name) const = 0;
-
-        /**
-         * @sets parameter with value. Throws exception if any contains incompatible type for parameter
-         */
-        virtual void setParameter(const std::string &name, const std::any &value) = 0;
+//
+//        /**
+//         * @sets parameter with value. Throws exception if any contains incompatible type for parameter
+//         */
+        virtual void setParameter(ProposalParameterName parameterName, const std::any &value) = 0;
 
 
         /**

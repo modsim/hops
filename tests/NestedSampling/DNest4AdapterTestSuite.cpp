@@ -31,7 +31,7 @@ BOOST_AUTO_TEST_SUITE(DNest4AdapterTestSuite)
             std::unique_ptr<hops::Proposal> posteriorProposer =
                     std::make_unique<hops::CoordinateHitAndRunProposal<decltype(A), decltype(b),
                             hops::GaussianStepDistribution<double>>>(A, b, mean);
-            posteriorProposer->setStepSize(0.5);
+            posteriorProposer->setParameter(hops::ProposalParameterName::STEP_SIZE, 0.5);
 
             hops::DNest4EnvironmentSingleton::getInstance().setPriorProposer(std::move(priorProposer));
             hops::DNest4EnvironmentSingleton::getInstance().setPosteriorProposer(std::move(posteriorProposer));
