@@ -1,6 +1,7 @@
 #ifndef HOPS_PROPOSAL_HPP
 #define HOPS_PROPOSAL_HPP
 
+#include <any>
 #include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
 #include <hops/Utility/VectorType.hpp>
 
@@ -12,14 +13,14 @@ namespace hops {
          * @Brief Proposes new state and returns the log probability of accepting the new state (Detailed Balance) and
          * the new state.
          */
-        virtual std::pair<double, VectorType> propose(RandomNumberGenerator& rng) = 0;
+        virtual std::pair<double, VectorType> propose(RandomNumberGenerator &rng) = 0;
 
         /**
          * @Brief Accepts latest proposal as new state and then returns new state.
          * @Detailed Might use optimizations with internal data to speed up accepting proposal. Therefore,
          * it has no input data, because all data is moved internally.
          */
-         virtual VectorType acceptProposal() = 0;
+        virtual VectorType acceptProposal() = 0;
 
         /**
          * @Brief Sets new state to start from. Useful for resuming sampling. DO NOT use it to accept a proposal!
@@ -32,21 +33,24 @@ namespace hops {
 
         [[nodiscard]] virtual VectorType getProposal() const = 0;
 
-        /**
-         * @Brief Returns step size if proposal mechanism has one, std::nullopt otherwise.
-         */
-        [[nodiscard]] virtual std::optional<double> getStepSize() const = 0;
+//      TODO include and implement
+//        [[nodiscard]] virtual std::vector<std::string> getParameterNames() const = 0;
+//
+//        [[nodiscard]] virtual std::any getParameter(const std::string& name) const = 0;
+//
+//        [[nodiscard]] virtual std::string getParameterType(const std::string& name) const = 0;
 
         /**
-         * @Brief Sets step size if proposal mechanism has one, does nothing otherwise.
+         * @sets parameter with value. Throws exception if any contains incompatible type for parameter
          */
-        virtual void setStepSize(double stepSize) = 0;
+        virtual void setParameter(const std::string &name, const std::any &value) = 0;
+
 
         /**
          * @Brief Returns whether underlying implementation has step size. Useful because tuning should be skipped
          * if it doesn't have a step size.
          */
-         [[nodiscard]] virtual bool hasStepSize() const = 0;
+        [[nodiscard]] virtual bool hasStepSize() const = 0;
 
         /**
          * @Brief Returns name of proposal class.
@@ -60,6 +64,10 @@ namespace hops {
          */
         [[nodiscard]] virtual double getNegativeLogLikelihood() const {
             return 0.;
+        };
+
+        [[nodiscard]] virtual bool hasNegativeLogLikelihood() const {
+            return false;
         };
 
         [[nodiscard]] virtual std::unique_ptr<Proposal> deepCopy() const = 0;
