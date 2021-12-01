@@ -46,9 +46,9 @@ namespace hops {
 
         [[nodiscard]] VectorType getProposal() const override;
 
-        [[nodiscard]] std::optional<double> getStepSize() const override;
+        [[nodiscard]] std::optional<double> getStepSize() const;
 
-        void setStepSize(double stepSize) override;
+        void setStepSize(double stepSize);
 
         [[nodiscard]] bool hasStepSize() const override;
 
@@ -119,6 +119,8 @@ namespace hops {
             proposal(i) = normalDistribution(rng);
         }
         proposal = driftedState + covarianceFactor * (stateSqrtInvMetric * proposal);
+
+       return {computeLogAcceptanceProbability(), proposal};
     }
 
     template<typename ModelType, typename InternalMatrixType>
@@ -216,8 +218,7 @@ namespace hops {
                 static_cast<double>((driftedState - proposal).transpose() * stateMetric * (driftedState - proposal)) -
                 static_cast<double>((state - driftedProposal).transpose() * proposalMetric * (state - driftedProposal));
 
-        return -proposalNegativeLogLikelihood
-               + stateNegativeLogLikelihood
+        return // TODO remove likelihoods here -proposalNegativeLogLikelihood + stateNegativeLogLikelihood
                + proposalLogSqrtDeterminant
                - stateLogSqrtDeterminant
                + geometricFactor * normDifference;

@@ -44,9 +44,9 @@ namespace hops {
 
         VectorType getProposal() const override;
 
-        void setStepSize(double stepSize) override;
+        void setStepSize(double stepSize);
 
-        [[nodiscard]] std::optional<double> getStepSize() const override;
+        [[nodiscard]] std::optional<double> getStepSize() const;
 
         [[nodiscard]] bool hasStepSize() const override;
 

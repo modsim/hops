@@ -17,17 +17,19 @@ namespace hops {
 
         std::pair<double, VectorType> propose(RandomNumberGenerator &rng) override;
 
+        std::pair<double, VectorType> propose(RandomNumberGenerator &rng, std::vector<int> activeSubSpace);
+
         VectorType acceptProposal() override;
 
         void setState(VectorType state) override;
 
         [[nodiscard]] VectorType getState() const override;
 
-        VectorType getProposal() const override;
+        [[nodiscard]] VectorType getProposal() const override;
 
-        [[nodiscard]] std::optional<double> getStepSize() const override;
+        [[nodiscard]] std::optional<double> getStepSize() const;
 
-        void setStepSize(double stepSize) override;
+        void setStepSize(double stepSize);
 
         [[nodiscard]] bool hasStepSize() const override;
 
@@ -82,6 +84,32 @@ namespace hops {
             RandomNumberGenerator &rng) {
         for (long i = 0; i < updateDirection.rows(); ++i) {
             updateDirection(i) = normalDistribution(rng);
+        }
+        updateDirection.normalize();
+
+        inverseDistances = (A * updateDirection).cwiseQuotient(slacks);
+        forwardDistance = 1. / inverseDistances.maxCoeff();
+        backwardDistance = 1. / inverseDistances.minCoeff();
+        assert(backwardDistance <= 0 && forwardDistance >= 0);
+        assert(((b - A * state).array() >= 0).all());
+
+        step = chordStepDistribution.draw(rng, backwardDistance, forwardDistance);
+        proposal = state + updateDirection * step;
+
+        return {computeLogAcceptanceProbability(), proposal};
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
+    std::pair<double, VectorType>
+    HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::propose(
+            RandomNumberGenerator &rng, std::vector<int> activeSubSpace) {
+        for (long i = 0; i < updateDirection.rows(); ++i) {
+            if (activeSubSpace[i]) {
+                updateDirection(i) = normalDistribution(rng);
+            }
+            else {
+                updateDirection[i]=0;
+            }
         }
         updateDirection.normalize();
 
