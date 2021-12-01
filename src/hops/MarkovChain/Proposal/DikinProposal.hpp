@@ -29,9 +29,11 @@ namespace hops {
 
         void setState(VectorType newState) override;
 
-        VectorType getState() const override;
+        [[nodiscard]] VectorType getState() const override;
 
-        VectorType getProposal() const override;
+        [[nodiscard]] VectorType getProposal() const override;
+
+        void setParameter(ProposalParameterName parameterName, const std::any &value) override;
 
         void setStepSize(double stepSize);
 
@@ -43,13 +45,13 @@ namespace hops {
 
         [[nodiscard]] std::unique_ptr<Proposal> deepCopy() const override;
 
+        double computeLogAcceptanceProbability();
 
     protected:
-        StateType state;
-        StateType proposal;
+        VectorType state;
+        VectorType proposal;
 
     private:
-        double computeLogAcceptanceProbability();
 
         MatrixType A;
         VectorType b;
@@ -172,6 +174,20 @@ namespace hops {
     template<typename InternalMatrixType, typename InternalVectorType>
     VectorType DikinProposal<InternalMatrixType, InternalVectorType>::getProposal() const {
         return proposal;
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    void DikinProposal<InternalMatrixType, InternalVectorType>::setParameter(ProposalParameterName parameterName,
+                                                                             const std::any &value) {
+        switch (parameterName) {
+            case ProposalParameterName::STEP_SIZE: {
+                setStepSize(std::any_cast<double>(value));
+                break;
+            }
+            default:
+                throw std::invalid_argument("Can't set parameter which doesn't exist in DikinProposal.");
+        }
+
     }
 
 }

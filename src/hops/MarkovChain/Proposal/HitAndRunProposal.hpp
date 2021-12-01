@@ -27,6 +27,8 @@ namespace hops {
 
         [[nodiscard]] VectorType getProposal() const override;
 
+        void setParameter(ProposalParameterName parameterName, const std::any &value) override;
+
         [[nodiscard]] std::optional<double> getStepSize() const;
 
         void setStepSize(double stepSize);
@@ -196,6 +198,19 @@ namespace hops {
     VectorType
     HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::getProposal() const {
         return proposal;
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
+    void HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::setParameter(
+            ProposalParameterName parameterName, const std::any &value) {
+        switch (parameterName) {
+            case ProposalParameterName::STEP_SIZE: {
+                setStepSize(std::any_cast<double>(value));
+                break;
+            }
+            default:
+                throw std::invalid_argument("Can't set parameter which doesn't exist in HitAndRunProposal.");
+        }
     }
 }
 

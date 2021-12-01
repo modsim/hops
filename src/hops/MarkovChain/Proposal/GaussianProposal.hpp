@@ -11,6 +11,7 @@ namespace hops {
     template<typename InternalMatrixType, typename InternalVectorType>
     class GaussianProposal : public Proposal {
     public:
+
         /**
          * @brief Constructs classical Gaussian random walk proposal mechanism on polytope defined as Ax<b.
          * @param A
@@ -26,9 +27,11 @@ namespace hops {
 
         void setState(VectorType state) override;
 
-        VectorType getState() const override;
+        [[nodiscard]] VectorType getState() const override;
 
-        VectorType getProposal() const override;
+        [[nodiscard]] VectorType getProposal() const override;
+
+        void setParameter(ProposalParameterName parameterName, const std::any &value) override;
 
         [[nodiscard]] std::optional<double> getStepSize() const;
 
@@ -131,6 +134,20 @@ namespace hops {
     template<typename InternalMatrixType, typename InternalVectorType>
     VectorType GaussianProposal<InternalMatrixType, InternalVectorType>::getProposal() const {
         return proposal;
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    void GaussianProposal<InternalMatrixType, InternalVectorType>::setParameter(ProposalParameterName parameterName,
+                                                                                const std::any &value) {
+        switch (parameterName) {
+            case ProposalParameterName::STEP_SIZE: {
+                setStepSize(std::any_cast<double>(value));
+                break;
+            }
+            default:
+                throw std::invalid_argument("Can't set parameter which doesn't exist in GaussianProposal.");
+        }
+
     }
 }
 

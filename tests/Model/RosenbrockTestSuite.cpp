@@ -1,21 +1,22 @@
-#define BOOST_TEST_MODULE RosenbrockModelTestSuite
+#define BOOST_TEST_MODULE RosenbrockTestSuite
 #define BOOST_TEST_DYN_LINK
 
 #include <boost/test/included/unit_test.hpp>
 #include <Eigen/Core>
+
 #include <hops/Model/Rosenbrock.hpp>
 
-BOOST_AUTO_TEST_SUITE(RosenbrockModelTestSuite)
+BOOST_AUTO_TEST_SUITE(RosenbrockTestSuite)
 
     BOOST_AUTO_TEST_CASE(CalculateNegativeLogLikelihoodAtMinimum) {
         double expectedValue = 0;
         double scaleParameter = 1;
         hops::VectorType shiftParameter = hops::VectorType::Ones(2);
 
-        hops::Rosenbrock rosenbrockModel(scaleParameter, shiftParameter);
+        hops::Rosenbrock rosenbrock(scaleParameter, shiftParameter);
         hops::VectorType evaluationPoint = hops::VectorType::Ones(4);
 
-        double actualValue = rosenbrockModel.computeNegativeLogLikelihood(evaluationPoint);
+        double actualValue = rosenbrock.computeNegativeLogLikelihood(evaluationPoint);
 
         BOOST_CHECK_EQUAL(actualValue, expectedValue);
     }
@@ -25,10 +26,10 @@ BOOST_AUTO_TEST_SUITE(RosenbrockModelTestSuite)
         double scaleParameter = 3.15;
         hops::VectorType shiftParameter = hops::VectorType::Ones(2);
 
-        hops::Rosenbrock rosenbrockModel(scaleParameter, shiftParameter);
+        hops::Rosenbrock rosenbrock(scaleParameter, shiftParameter);
         hops::VectorType evaluationPoint = hops::VectorType::Ones(4);
 
-        double actualValue = rosenbrockModel.computeNegativeLogLikelihood(evaluationPoint);
+        double actualValue = rosenbrock.computeNegativeLogLikelihood(evaluationPoint);
 
         BOOST_CHECK_EQUAL(actualValue, expectedValue);
     }
@@ -39,11 +40,11 @@ BOOST_AUTO_TEST_SUITE(RosenbrockModelTestSuite)
         hops::VectorType shiftParameter(4);
         shiftParameter << -5, 1125, 3.14, 2.71;
 
-        hops::Rosenbrock rosenbrockModel(scaleParameter, shiftParameter);
+        hops::Rosenbrock rosenbrock(scaleParameter, shiftParameter);
         hops::VectorType evaluationPoint(8);
         evaluationPoint << -5, 5 * 5, 1125, 1125 * 1125, 3.14, 3.14 * 3.14, 2.71, 2.71 * 2.71;
 
-        double actualValue = rosenbrockModel.computeNegativeLogLikelihood(evaluationPoint);
+        double actualValue = rosenbrock.computeNegativeLogLikelihood(evaluationPoint);
 
         BOOST_CHECK_SMALL(actualValue - expectedValue, 1e-8);
     }
@@ -54,10 +55,10 @@ BOOST_AUTO_TEST_SUITE(RosenbrockModelTestSuite)
         hops::VectorType shiftParameter(4);
         shiftParameter << -5, 1125, 3.14, 2.71;
 
-        hops::Rosenbrock rosenbrockModel(scaleParameter, shiftParameter);
+        hops::Rosenbrock rosenbrock(scaleParameter, shiftParameter);
         hops::VectorType evaluationPoint = 10 * hops::VectorType::Ones(8);
 
-        double actualValue = rosenbrockModel.computeNegativeLogLikelihood(evaluationPoint);
+        double actualValue = rosenbrock.computeNegativeLogLikelihood(evaluationPoint);
 
         BOOST_CHECK_EQUAL(actualValue, expectedValue);
     }
@@ -68,10 +69,10 @@ BOOST_AUTO_TEST_SUITE(RosenbrockModelTestSuite)
         hops::VectorType shiftParameter(4);
         shiftParameter << -5, 1125, 3.14, 2.71;
 
-        hops::Rosenbrock rosenbrockModel(scaleParameter, shiftParameter);
+        hops::Rosenbrock rosenbrock(scaleParameter, shiftParameter);
         hops::VectorType evaluationPoint = 10 * hops::VectorType::Ones(8);
 
-        double actualValue = rosenbrockModel.computeNegativeLogLikelihood(evaluationPoint);
+        double actualValue = rosenbrock.computeNegativeLogLikelihood(evaluationPoint);
 
         BOOST_CHECK_SMALL(actualValue - expectedValue, 1e-8);
     }
@@ -83,11 +84,11 @@ BOOST_AUTO_TEST_SUITE(RosenbrockModelTestSuite)
         hops::VectorType shiftParameter(4);
         shiftParameter << -5, 1125, 3.14, 2.71;
 
-        hops::Rosenbrock rosenbrockModel(scaleParameter, shiftParameter);
+        hops::Rosenbrock rosenbrock(scaleParameter, shiftParameter);
         hops::VectorType evaluationPoint(8);
         evaluationPoint << -5, 5 * 5, 1125, 1125 * 1125, 3.14, 3.14 * 3.14, 2.71, 2.71 * 2.71;
 
-        auto actualValue = rosenbrockModel.computeLogLikelihoodGradient(evaluationPoint);
+        auto actualValue = rosenbrock.computeLogLikelihoodGradient(evaluationPoint);
         if(actualValue) {
             BOOST_CHECK(actualValue.value().isApprox(expectedValue));
         } else {
@@ -103,10 +104,10 @@ BOOST_AUTO_TEST_SUITE(RosenbrockModelTestSuite)
         hops::VectorType shiftParameter(4);
         shiftParameter << -5, 1125, 3.14, 2.71;
 
-        hops::Rosenbrock rosenbrockModel(scaleParameter, shiftParameter);
+        hops::Rosenbrock rosenbrock(scaleParameter, shiftParameter);
         hops::VectorType evaluationPoint = 10 * hops::VectorType::Ones(8);
 
-        auto actualValue = rosenbrockModel.computeLogLikelihoodGradient(evaluationPoint);
+        auto actualValue = rosenbrock.computeLogLikelihoodGradient(evaluationPoint);
         if(actualValue) {
             BOOST_CHECK(actualValue.value().isApprox(expectedValue));
         } else {
@@ -123,10 +124,10 @@ BOOST_AUTO_TEST_SUITE(RosenbrockModelTestSuite)
         hops::VectorType shiftParameter(4);
         shiftParameter << -5, 1125, 3.14, 2.71;
 
-        hops::Rosenbrock rosenbrockModel(scaleParameter, shiftParameter);
+        hops::Rosenbrock rosenbrock(scaleParameter, shiftParameter);
         hops::VectorType evaluationPoint = 10 * hops::VectorType::Ones(8);
 
-        auto actualValue = rosenbrockModel.computeLogLikelihoodGradient(evaluationPoint); if(actualValue) {
+        auto actualValue = rosenbrock.computeLogLikelihoodGradient(evaluationPoint); if(actualValue) {
             BOOST_CHECK(actualValue.value().isApprox(expectedValue));
         } else {
             BOOST_FAIL("Gradient optional should not be empty.");
@@ -154,11 +155,11 @@ BOOST_AUTO_TEST_SUITE(RosenbrockModelTestSuite)
         hops::VectorType shiftParameter(3);
         shiftParameter << -5, 1125, 3.14;
 
-        hops::Rosenbrock rosenbrockModel(scaleParameter, shiftParameter);
+        hops::Rosenbrock rosenbrock(scaleParameter, shiftParameter);
         hops::VectorType evaluationPoint(6);
         evaluationPoint << -5, 5 * 5, 1125, 1125 * 1125, 3.14, 3.14 * 3.14;
 
-        Eigen::MatrixXd actualValue = rosenbrockModel.computeHessian(evaluationPoint);
+        Eigen::MatrixXd actualValue = rosenbrock.computeHessian(evaluationPoint);
 
         BOOST_CHECK(actualValue.isApprox(expectedValue));
     }
@@ -185,11 +186,11 @@ BOOST_AUTO_TEST_SUITE(RosenbrockModelTestSuite)
         hops::VectorType shiftParameter(3);
         shiftParameter << -5, 1125, 3.14;
 
-        hops::Rosenbrock rosenbrockModel(scaleParameter, shiftParameter);
+        hops::Rosenbrock rosenbrock(scaleParameter, shiftParameter);
         hops::VectorType evaluationPoint(6);
         evaluationPoint << -5, 5 * 5, 1125, 1125 * 1125, 3.14, 3.14 * 3.14;
 
-        Eigen::MatrixXd actualValue = rosenbrockModel.computeHessian(evaluationPoint);
+        Eigen::MatrixXd actualValue = rosenbrock.computeHessian(evaluationPoint);
 
         BOOST_CHECK(actualValue.isApprox(expectedValue));
     }

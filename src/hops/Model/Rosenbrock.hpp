@@ -44,11 +44,11 @@ namespace hops {
 
         double getScaleParameter() const;
 
-        const VectorType &getShiftParameter() const;
+        [[nodiscard]] const VectorType &getShiftParameter() const;
 
         long getNumberOfDimensions() const;
 
-        std::unique_ptr<Model> deepCopy() const override;
+        [[nodiscard]] std::unique_ptr<Model> deepCopy() const override;
 
     private:
         typename MatrixType::Scalar scaleParameter;
@@ -79,22 +79,22 @@ namespace hops {
 
     MatrixType
     Rosenbrock::computeHessian(const VectorType &x) const {
-        MatrixType observedFisherInformation(x.rows(), x.rows());
+        MatrixType hessian = MatrixType::Zero(x.rows(), x.rows());
 
         for (long i = 0; i < shiftParameter.rows(); ++i) {
-            observedFisherInformation(2 * i, 2 * i) =
+            hessian(2 * i, 2 * i) =
                     scaleParameter * (1200 * std::pow(x(2 * i), 2) - 400 * x(2 * i + 1) + 2);
-            observedFisherInformation(2 * i + 1, 2 * i) = scaleParameter * -400 * x(2 * i);
-            observedFisherInformation(2 * i, 2 * i + 1) = scaleParameter * -400 * x(2 * i);
-            observedFisherInformation(2 * i + 1, 2 * i + 1) = scaleParameter * 200;
+            hessian(2 * i + 1, 2 * i) = scaleParameter * -400 * x(2 * i);
+            hessian(2 * i, 2 * i + 1) = scaleParameter * -400 * x(2 * i);
+            hessian(2 * i + 1, 2 * i + 1) = scaleParameter * 200;
         }
 
-        return observedFisherInformation;
+        return hessian;
     }
 
     std::optional<VectorType>
     Rosenbrock::computeLogLikelihoodGradient(const VectorType &x) const {
-        VectorType gradient(x.rows());
+        VectorType gradient = VectorType::Zero(x.rows());
         for (long i = 0; i < shiftParameter.rows(); ++i) {
             gradient(2 * i) = scaleParameter * (4 * 100 * (x(2 * i + 1) - std::pow(x(2 * i), 2)) * (-2 * x(2 * i)) +
                                                 2 * (x(2 * i) - shiftParameter(i)));
