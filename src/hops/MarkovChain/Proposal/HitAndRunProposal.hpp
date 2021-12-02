@@ -17,7 +17,7 @@ namespace hops {
 
         std::pair<double, VectorType> propose(RandomNumberGenerator &rng) override;
 
-        std::pair<double, VectorType> propose(RandomNumberGenerator &rng, std::vector<int> activeSubSpace);
+        std::pair<double, VectorType> propose(RandomNumberGenerator &rng, const std::vector<int> &activeSubspace);
 
         VectorType acceptProposal() override;
 
@@ -104,13 +104,12 @@ namespace hops {
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
     std::pair<double, VectorType>
     HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::propose(
-            RandomNumberGenerator &rng, std::vector<int> activeSubSpace) {
+            RandomNumberGenerator &rng, const std::vector<int> &activeSubspace) {
         for (long i = 0; i < updateDirection.rows(); ++i) {
-            if (activeSubSpace[i]) {
+            if (activeSubspace[i]) {
                 updateDirection(i) = normalDistribution(rng);
-            }
-            else {
-                updateDirection[i]=0;
+            } else {
+                updateDirection[i] = 0;
             }
         }
         updateDirection.normalize();
@@ -123,6 +122,7 @@ namespace hops {
 
         step = chordStepDistribution.draw(rng, backwardDistance, forwardDistance);
         proposal = state + updateDirection * step;
+        assert(((b - A * proposal).array() >= 0).all());
 
         return {computeLogAcceptanceProbability(), proposal};
     }
