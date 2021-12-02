@@ -2,13 +2,20 @@
 #define HOPS_REVERSIBLEJUMPPROPOSAL_HPP
 
 #include <Eigen/Core>
-#include <hops/MarkovChain/Proposal/ChordStepDistributions.hpp>
-#include <hops/MarkovChain/Draw/IsCalculateLogAcceptanceProbabilityAvailable.hpp>
-#include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
-#include <random>
 #include <string>
 #include <utility>
 #include <vector>
+#include <random>
+
+#include <hops/MarkovChain/Proposal/ChordStepDistributions.hpp>
+#include <hops/MarkovChain/Draw/IsCalculateLogAcceptanceProbabilityAvailable.hpp>
+#include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
+#include <hops/Utility/VectorType.hpp>
+
+
+// TODO list
+// change default values from Eigen::VectorXd to collection?
+// MarkovCHainImpl -> proposalImpl
 
 namespace {
     std::pair<double, double>
@@ -16,7 +23,6 @@ namespace {
                                   const Eigen::VectorXd &b,
                                   const Eigen::VectorXd &x,
                                   long coordinate) {
-        std::cout << "x " << x.transpose() << std::endl;
         Eigen::VectorXd slacks = b - A * x;
         Eigen::VectorXd inverseDistances = A.col(coordinate).cwiseQuotient(slacks);
         double forwardDistance = 1. / inverseDistances.maxCoeff();
@@ -24,9 +30,9 @@ namespace {
 
         for (long i = 0; i < inverseDistances.rows(); ++i) {
             if (inverseDistances(i) == -std::numeric_limits<double>::infinity()) {
-                backwardDistance=0;
+                backwardDistance = 0;
             } else if (inverseDistances(i) == std::numeric_limits<double>::infinity()) {
-                forwardDistance=0;
+                forwardDistance = 0;
             }
         }
         assert(backwardDistance <= 0 && forwardDistance >= 0);
@@ -35,66 +41,29 @@ namespace {
 }
 
 namespace hops {
+    // TODO what if model is already in markov chain?
     template<typename MarkovChainImpl, typename Model>
     class ReversibleJumpProposal : public MarkovChainImpl, public Model {
     public:
         ReversibleJumpProposal(const MarkovChainImpl &markovChainImpl,
                                const Model &model,
                                Eigen::VectorXi jumpIndices,
-                               const typename MarkovChainImpl::StateType parameterDefaultValues) :
-                MarkovChainImpl(markovChainImpl),
-                Model(model),
-                jumpIndices_(std::move(jumpIndices)),
-                defaultParameterValues(parameterDefaultValues) {
-            for (long i = 0; i < parameterDefaultValues.rows(); i++) {
-                parameterActivationStates_.emplace_back(1);
-            }
-            // Starts with all optional parameters deactivated
-            typename MarkovChainImpl::StateType parameterState = MarkovChainImpl::getState();
-            for (long i = 0; i < jumpIndices_.rows(); ++i) {
-                parameterActivationStates_[jumpIndices_(i)] = 0;
-                parameterState[jumpIndices_(i)] = defaultParameterValues[jumpIndices_(i)];
-            }
-            MarkovChainImpl::setState(parameterState);
-        }
+                               const VectorType& parameterDefaultValues);
 
-        void draw(RandomNumberGenerator &randomNumberGenerator) {
-            if (uniformRealDistribution(randomNumberGenerator) < modelJumpProbability) {
-                drawInModelSpace(randomNumberGenerator, parameterActivationStates_, defaultParameterValues);
-            } else {
-                drawInParameterSpace(randomNumberGenerator);
-            }
-        }
+        void draw(RandomNumberGenerator &randomNumberGenerator);
 
         void drawInModelSpace(RandomNumberGenerator &randomNumberGenerator,
                               std::vector<int> &parameterActivationStates,
-                              typename MarkovChainImpl::StateType defaultValues) {
-            typename MarkovChainImpl::StateType proposal = MarkovChainImpl::getState();
-            std::vector<int> proposalActivationStates(parameterActivationStates_);
-
-            double logModelJumpProbabilityDifferential = jumpModel(randomNumberGenerator,
-                                                                   proposalActivationStates,
-                                                                   proposal,
-                                                                   defaultValues);
-
-            proposalNegativeLogLikelihood = Model::computeNegativeLogLikelihood(proposal);
-            double modelJumpAcceptanceProbability = stateNegativeLogLikelihood - proposalNegativeLogLikelihood +
-                                                    logModelJumpProbabilityDifferential;
-            if (std::log(uniformRealDistribution(randomNumberGenerator)) <= modelJumpAcceptanceProbability) {
-                stateNegativeLogLikelihood = proposalNegativeLogLikelihood;
-                proposalActivationStates.swap(parameterActivationStates_);
-                MarkovChainImpl::setState(proposal);
-            } else {
-                // TODO update rejection stats
-            }
-        }
-
+                              const VectorType &defaultValues);
 
         void drawInParameterSpace(RandomNumberGenerator &randomNumberGenerator) {
             numberOfProposals++;
-            MarkovChainImpl::propose(randomNumberGenerator, parameterActivationStates_);
+            auto [acceptanceProbability, proposal] = MarkovChainImpl::propose(randomNumberGenerator, parameterActivationStates_);
+            if (std::isfinite(acceptanceProbability)) {
+                proposalNegativeLogLikelihood = Model::computeNegativeLogLikelihood(proposal);
+                acceptanceProbability += stateNegativeLogLikelihood - proposalNegativeLogLikelihood;
+            }
 
-            double acceptanceProbability = computeParameterDrawAcceptanceProbability();
             double acceptanceChance = std::log(uniformRealDistribution(randomNumberGenerator));
             if (acceptanceChance < acceptanceProbability) {
                 MarkovChainImpl::acceptProposal();
@@ -103,26 +72,13 @@ namespace hops {
             }
         }
 
-        double computeParameterDrawAcceptanceProbability() {
-            double acceptanceProbability = 0;
-            if constexpr(IsCalculateLogAcceptanceProbabilityAvailable<MarkovChainImpl>::value) {
-                acceptanceProbability += MarkovChainImpl::computeLogAcceptanceProbability();
-            }
-            if (std::isfinite(acceptanceProbability)) {
-                proposalNegativeLogLikelihood = Model::computeNegativeLogLikelihood(
-                        MarkovChainImpl::getProposal());
-                acceptanceProbability += stateNegativeLogLikelihood - proposalNegativeLogLikelihood;
-            }
-            return acceptanceProbability;
-        }
-
         double getAcceptanceRate() {
             return static_cast<double>(numberOfAcceptedProposals) / numberOfProposals;
         }
 
-        typename MarkovChainImpl::StateType getState() {
-            typename MarkovChainImpl::StateType parameterState = MarkovChainImpl::getState();
-            typename MarkovChainImpl::StateType state(parameterState.rows() + 1);
+        VectorType getState() {
+            VectorType parameterState = MarkovChainImpl::getState();
+            VectorType state(parameterState.rows() + 1);
             long modelIndex = std::accumulate(parameterActivationStates_.begin(),
                                               parameterActivationStates_.end(),
                                               0,
@@ -144,14 +100,14 @@ namespace hops {
         double proposalNegativeLogLikelihood = 0;
 
         // fixed value from https://doi.org/10.1093/bioinformatics/btz500
-        typename MarkovChainImpl::StateType::Scalar modelJumpProbability = 0.5;
-        typename MarkovChainImpl::StateType::Scalar parameterActivationProbability = 0.1;
-        typename MarkovChainImpl::StateType::Scalar parameterDeactivationProbability = 0.1;
-        typename MarkovChainImpl::StateType::Scalar stepSize = 0.1;
+        VectorType::Scalar modelJumpProbability = 0.5;
+        VectorType::Scalar parameterActivationProbability = 0.1;
+        VectorType::Scalar parameterDeactivationProbability = 0.1;
+        VectorType::Scalar stepSize = 0.1;
         std::uniform_real_distribution<double> uniformRealDistribution;
         hops::GaussianStepDistribution<double> gaussianStepDistribution;
 
-        typename MarkovChainImpl::StateType defaultParameterValues;
+        VectorType defaultParameterValues;
         Eigen::VectorXi jumpIndices_;
 
         std::vector<int> parameterActivationStates_;
@@ -159,11 +115,10 @@ namespace hops {
         long numberOfAcceptedProposals = 0;
         long numberOfProposals = 0;
 
-
         double jumpModel(hops::RandomNumberGenerator &randomNumberGenerator,
                          std::vector<int> &proposalActivationState,
-                         typename MarkovChainImpl::StateType &proposal,
-                         typename MarkovChainImpl::StateType &defaultValues) {
+                         VectorType &proposal,
+                         const VectorType &defaultValues) {
             Eigen::VectorXi activationTracker = Eigen::VectorXi::Zero(defaultValues.rows());
             Eigen::VectorXi deactivationTracker = Eigen::VectorXi::Zero(defaultValues.rows());
 
@@ -221,6 +176,7 @@ namespace hops {
                                                                                               stepSize * width,
                                                                                               backwardsDistance,
                                                                                               forwardsDistance);
+                        // What does this assert do?
                         assert(defaultValue + backwardsDistance <= proposal[shuffledJumpIndices(index)] &&
                                forwardsDistance + defaultValue >= proposal[shuffledJumpIndices(index)]);
                         activationTracker(shuffledJumpIndices(index)) = 1;
@@ -314,6 +270,60 @@ namespace hops {
             return std::log(j_bck * u_bck / (j_fwd * u_fwd));
         }
     };
+
+    template<typename MarkovChainImpl, typename Model>
+    ReversibleJumpProposal<MarkovChainImpl, Model>::ReversibleJumpProposal(const MarkovChainImpl &markovChainImpl,
+                                                                           const Model &model,
+                                                                           Eigen::VectorXi jumpIndices,
+                                                                           const VectorType &parameterDefaultValues) :
+            MarkovChainImpl(markovChainImpl),
+            Model(model),
+            jumpIndices_(std::move(jumpIndices)),
+            defaultParameterValues(parameterDefaultValues) {
+        for (long i = 0; i < parameterDefaultValues.rows(); i++) {
+            parameterActivationStates_.emplace_back(1);
+        }
+        // Starts with all optional parameters deactivated
+        VectorType parameterState = MarkovChainImpl::getState();
+        for (long i = 0; i < jumpIndices_.rows(); ++i) {
+            parameterActivationStates_[jumpIndices_(i)] = 0;
+            parameterState[jumpIndices_(i)] = defaultParameterValues[jumpIndices_(i)];
+        }
+        MarkovChainImpl::setState(parameterState);
+    }
+
+    template<typename MarkovChainImpl, typename Model>
+    void ReversibleJumpProposal<MarkovChainImpl, Model>::draw(RandomNumberGenerator &randomNumberGenerator) {
+//        if (uniformRealDistribution(randomNumberGenerator) < modelJumpProbability) {
+//            drawInModelSpace(randomNumberGenerator, parameterActivationStates_, defaultParameterValues);
+//        } else {
+            drawInParameterSpace(randomNumberGenerator);
+//        }
+    }
+
+    template<typename MarkovChainImpl, typename Model>
+    void ReversibleJumpProposal<MarkovChainImpl, Model>::drawInModelSpace(RandomNumberGenerator &randomNumberGenerator,
+                                                                          std::vector<int> &parameterActivationStates,
+                                                                          const VectorType &defaultValues) {
+        VectorType proposal = MarkovChainImpl::getState();
+        std::vector<int> proposalActivationStates(parameterActivationStates_);
+
+        double logModelJumpProbabilityDifferential = jumpModel(randomNumberGenerator,
+                                                               proposalActivationStates,
+                                                               proposal,
+                                                               defaultValues);
+
+        proposalNegativeLogLikelihood = Model::computeNegativeLogLikelihood(proposal);
+        double modelJumpAcceptanceProbability = stateNegativeLogLikelihood - proposalNegativeLogLikelihood +
+                                                logModelJumpProbabilityDifferential;
+        if (std::log(uniformRealDistribution(randomNumberGenerator)) <= modelJumpAcceptanceProbability) {
+            stateNegativeLogLikelihood = proposalNegativeLogLikelihood;
+            proposalActivationStates.swap(parameterActivationStates_);
+            MarkovChainImpl::setState(proposal);
+        } else {
+            // TODO update rejection stats
+        }
+    }
 }
 
 #endif //HOPS_REVERSIBLEJUMPPROPOSAL_HPP
