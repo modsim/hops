@@ -56,7 +56,7 @@ namespace hops {
 
         [[nodiscard]] std::string getProposalName() const override;
 
-        [[nodiscard]] double getNegativeLogLikelihood() const override;
+        [[nodiscard]] double getStateNegativeLogLikelihood() const override;
 
         [[nodiscard]] std::unique_ptr<Proposal> deepCopy() const override;
 
@@ -182,7 +182,7 @@ namespace hops {
     }
 
     template<typename ModelType, typename InternalMatrixType>
-    double CSmMALAProposal<ModelType, InternalMatrixType>::getNegativeLogLikelihood() const {
+    double CSmMALAProposal<ModelType, InternalMatrixType>::getStateNegativeLogLikelihood() const {
         return stateNegativeLogLikelihood;
     }
 

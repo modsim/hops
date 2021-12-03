@@ -289,13 +289,15 @@ BOOST_AUTO_TEST_SUITE(ReversibleJumpProposal)
         for (auto p : markovChain->getParameterNames()) {
             std::cout << p << std::endl;
         }
-        long thinning = 100;
-        long numberOfSamples = 10'000;
+        long thinning = 10;
+        long numberOfSamples = 100'0000;
         markovChain->draw(randomNumberGenerator, numberOfSamples, thinning);
 
 
         std::vector<double> model_visit_counts = {0, 0, 0, 0};
-        std::vector<double> parameters = {0, 0, 0};
+        std::vector<double> location;
+        std::vector<double> scale;
+        std::vector<double> shape;
 
         for (auto state: markovChain->getStateRecords()) {
             double model_binary_name = state(0);
@@ -305,6 +307,9 @@ BOOST_AUTO_TEST_SUITE(ReversibleJumpProposal)
                         model_binary_name == 3 ? 2 : 3;
 
             model_visit_counts[index]++;
+            location.emplace_back(state(1));
+            scale.emplace_back(state(2));
+            shape.emplace_back(state(3));
         }
 
         std::vector<int> actualModelProbabilities;
@@ -317,7 +322,7 @@ BOOST_AUTO_TEST_SUITE(ReversibleJumpProposal)
         std::vector<int> expectedModelProbabilityPercentages{
                 18, // 0.18335007
                 34, // 0.34859468
-                16, // 0.15325739
+                15, // 0.15325739
                 31, // 0.31479786
         };
 

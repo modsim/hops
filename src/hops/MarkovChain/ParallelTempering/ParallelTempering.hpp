@@ -97,7 +97,7 @@ namespace hops {
 
         double computeExchangeAcceptanceProbability(int otherChainRank) {
             double coldness = this->getColdness();
-            double coldNegativeLogLikelihood = this->getNegativeLogLikelihood() / coldness;
+            double coldNegativeLogLikelihood = this->getStateNegativeLogLikelihood() / coldness;
             double thisChainProperties[] = {
                     coldness,
                     coldNegativeLogLikelihood

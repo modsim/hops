@@ -23,6 +23,8 @@ namespace hops {
 
         std::pair<double, InternalVectorType> propose(RandomNumberGenerator &rng) override;
 
+        std::pair<double, VectorType> propose(RandomNumberGenerator &rng, const std::vector<int> &activeSubspace);
+
         VectorType acceptProposal() override;
 
         void setState(VectorType state) override;
@@ -84,6 +86,36 @@ namespace hops {
         backwardDistance = 1. / inverseDistances.minCoeff();
         assert(backwardDistance < 0 && forwardDistance > 0);
         assert(((b - A * state).array() > 0).all());
+
+        step = chordStepDistribution.draw(rng, backwardDistance, forwardDistance);
+
+        proposal(coordinateToUpdate) += step;
+
+        return {computeLogAcceptanceProbability(), proposal};
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
+    std::pair<double, VectorType>
+    CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::propose(
+            RandomNumberGenerator &rng, const std::vector<int> &activeSubspace) {
+        proposal(coordinateToUpdate) = state(coordinateToUpdate);
+        // Check that at least some spaces are active
+        assert(std::accumulate(activeSubspace.begin(), activeSubspace.end(), 0) > 0);
+        do {
+            ++coordinateToUpdate %= state.rows();
+        } while (activeSubspace[coordinateToUpdate] == 0);
+
+        inverseDistances = A.col(coordinateToUpdate).cwiseQuotient(slacks);
+        // Inverse distance are potentially nan due to default values on the boundary of the polytope.
+        // Replaces nan because nan should not influence the distances.
+        inverseDistances = inverseDistances
+                .array()
+                .unaryExpr([](double value) { return std::isfinite(value) ? value : 0.; })
+                .matrix();
+        forwardDistance = 1. / inverseDistances.maxCoeff();
+        backwardDistance = 1. / inverseDistances.minCoeff();
+        assert(backwardDistance < 0 && forwardDistance > 0);
+        assert(((b - A * state).array() >= 0).all());
 
         step = chordStepDistribution.draw(rng, backwardDistance, forwardDistance);
 

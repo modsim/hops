@@ -47,14 +47,12 @@ namespace hops {
 
         double computeLogAcceptanceProbability();
 
-    protected:
-        VectorType state;
-        VectorType proposal;
-
     private:
-
         MatrixType A;
         VectorType b;
+
+        VectorType state;
+        VectorType proposal;
 
         typename MatrixType::Scalar stateLogSqrtDeterminant = 0;
         typename MatrixType::Scalar proposalLogSqrtDeterminant = 0;

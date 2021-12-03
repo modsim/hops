@@ -52,7 +52,7 @@ namespace hops {
 
         [[nodiscard]] std::optional<VectorType> computeLogLikelihoodGradient(const VectorType &x) const override {
             VectorType gradient = Eigen::VectorXd::Zero(x.rows());
-            for (long i = 0; i < gradient.rows(); ++ ++i) {
+            for (long i = 0; i < measurements[0].rows(); ++ ++i) {
                 // reference https://en.wikipedia.org/wiki/Gamma_distribution
                 double k = x(2 * i);
                 double theta = x(2 * i + 1);
@@ -67,7 +67,7 @@ namespace hops {
 
         [[nodiscard]] std::optional<MatrixType> computeExpectedFisherInformation(const VectorType &x) const override {
             MatrixType fisherInformation = Eigen::MatrixXd::Zero(x.rows(), x.rows());
-            for (long i = 0; i < x.rows(); ++ ++i) {
+            for (long i = 0; i < measurements[0].rows(); ++ ++i) {
                 // reference http://www.stats.org.uk/priors/noninformative/YangBerger1998.pdf
                 double k = x(2 * i);
                 double theta = x(2 * i + 1);

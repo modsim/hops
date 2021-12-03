@@ -34,7 +34,7 @@ namespace hops {
         }
 
         void storeRecord() {
-            records->emplace_back(MarkovChainImpl::getNegativeLogLikelihood());
+            records->emplace_back(MarkovChainImpl::getStateNegativeLogLikelihood());
             if constexpr(IsStoreRecordAvailable<MarkovChainImpl>::value) {
                 MarkovChainImpl::storeRecord();
             }
