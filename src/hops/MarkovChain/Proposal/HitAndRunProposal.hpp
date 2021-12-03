@@ -115,6 +115,13 @@ namespace hops {
         updateDirection.normalize();
 
         inverseDistances = (A * updateDirection).cwiseQuotient(slacks);
+        // Inverse distance are potentially nan due to default values on the boundary of the polytope.
+        // Replaces nan because nan should not influence the distances.
+        inverseDistances = inverseDistances
+                .array()
+                .unaryExpr([](double value) { return std::isfinite(value) ? value : 0.; })
+                .matrix();
+
         forwardDistance = 1. / inverseDistances.maxCoeff();
         backwardDistance = 1. / inverseDistances.minCoeff();
         assert(backwardDistance <= 0 && forwardDistance >= 0);
@@ -145,6 +152,7 @@ namespace hops {
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
     void HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::setState(
             VectorType newState) {
+        assert(((b - A * newState).array() >= 0).all());
         HitAndRunProposal::state = std::move(newState);
         HitAndRunProposal::proposal = state;
         slacks = b - A * HitAndRunProposal::state;

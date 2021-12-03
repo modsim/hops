@@ -13,15 +13,35 @@ namespace hops {
     class Proposal {
     public:
         /**
-         * @Brief Proposes new state and returns the log probability of accepting the new state (Detailed Balance) and
+         * @Brief Proposes new state and returns it. The returned state can be stored, transformed or use in conjunction with
+         * a metropolis-hastings filter and other techniques
          * the new state.
          */
-        virtual std::pair<double, VectorType> propose(RandomNumberGenerator &rng) = 0;
+        virtual VectorType propose(RandomNumberGenerator &rng) = 0;
+
+        /**
+         * @Brief Proposes new state on a subspace and returns it. The returned state can be stored, transformed or use in conjunction with
+         * a metropolis-hastings filter, reversible jump mcmc and other techniques
+         * the new state.
+          * @param activeSubspace vector should contain 1 for active dimensions and 0 for inactive dimensions.
+         */
+        virtual VectorType propose(RandomNumberGenerator &rng, const std::vector<int> &activeSubspace) {
+            throw std::runtime_error("Not implemented");
+        };
+
+        /**
+         * @Brief Proposes new state and returns it. The returned state can be stored, transformed or use in conjunction with
+         * a metropolis-hastings filter and other techniques
+         * the new state.
+         * @detailed Potentially changes internal state, because quantities related to the proposal might have to be evaluated in order to calculate the correct probability.
+         */
+        [[nodiscard]] virtual double computeLogAcceptanceProbability(const VectorType& proposal) = 0;
 
         /**
          * @Brief Accepts latest proposal as new state and then returns new state.
          * @Detailed Might use optimizations with internal data to speed up accepting proposal. Therefore,
-         * it has no input data, because all data is moved internally.
+         * it has no input data, because all data is moved internally. The internal data manipulations happen
+         * inside of computeLogAcceptanceProbability
          */
         virtual VectorType acceptProposal() = 0;
 
@@ -36,17 +56,22 @@ namespace hops {
 
         [[nodiscard]] virtual VectorType getProposal() const = 0;
 
-//      TODO include and implement
-//        [[nodiscard]] virtual std::vector<std::string> getParameterNames() const = 0;
-//
-//        [[nodiscard]] virtual std::any getParameter(const std::string& name) const = 0;
-//
-//        [[nodiscard]] virtual std::string getParameterType(const std::string& name) const = 0;
-//
-//        /**
-//         * @sets parameter with value. Throws exception if any contains incompatible type for parameter
-//         */
-        virtual void setParameter(ProposalParameterName parameterName, const std::any &value) = 0;
+        [[nodiscard]] virtual std::vector<std::string> getParameterNames() const = 0;
+
+        [[nodiscard]] virtual std::any getParameter(const std::string& parameterName) const = 0;
+
+        /**
+         * @brief returns string representation of parameter type, e.g. double, int, Eigen::MatrixXd.
+         * @param name
+         * @return
+         */
+        [[nodiscard]] virtual std::string getParameterType(const std::string& name) const = 0;
+
+        /**
+         * @brief sets parameter with value. Throws exception if any contains incompatible type for parameter.
+         * @details Implementations should list possible parameterNames in the exception message.
+         */
+        virtual void setParameter(std::string parameterName, const std::any &value) = 0;
 
 
         /**
@@ -65,7 +90,16 @@ namespace hops {
          * @details This function is only useful, if the underlying proposal implementation has access to the model.
          * If the proposal implementation does not have access, it returns 0.
          */
-        [[nodiscard]] virtual double getNegativeLogLikelihood() const {
+        [[nodiscard]] virtual double getStateNegativeLogLikelihood() const {
+            return 0.;
+        };
+
+        /**
+         * @brief Returns the negative log likelihood value associated with the currently proposed state.
+         * @details This function is only useful, if the underlying proposal implementation has access to the model.
+         * If the proposal implementation does not have access, it returns 0.
+         */
+        [[nodiscard]] virtual double getProposalNegativeLogLikelihood() const {
             return 0.;
         };
 
