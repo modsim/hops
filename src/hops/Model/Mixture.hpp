@@ -1,7 +1,6 @@
 #ifndef HOPS_MIXTURE_HPP
 #define HOPS_MIXTURE_HPP
 
-#include <execution>
 #include <numeric>
 #include <utility>
 #include <vector>
@@ -26,8 +25,7 @@ namespace hops {
         }
 
         [[nodiscard]] MatrixType::Scalar computeNegativeLogLikelihood(const VectorType &x) const override {
-            double likelihood = std::transform_reduce(std::execution::seq,
-                                                      models.begin(),
+            double likelihood = std::transform_reduce(models.begin(),
                                                       models.end(),
                                                       weights.begin(),
                                                       double(0.),
@@ -79,7 +77,7 @@ namespace hops {
             return std::nullopt;
         }
 
-        std::unique_ptr<Model> deepCopy() const override {
+        [[nodiscard]] std::unique_ptr<Model> deepCopy() const override {
             return std::make_unique<Mixture>(models, weights);
         }
 
