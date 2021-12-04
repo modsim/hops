@@ -10,7 +10,7 @@
 #include <hops/Utility/MatrixType.hpp>
 #include <hops/Utility/VectorType.hpp>
 
-#include <hops/MarkovChain/ReversibleJump/ReversibleJumpProposal.hpp>
+#include <hops/MarkovChain/Proposal/ReversibleJumpProposal.hpp>
 #include <hops/MarkovChain/MarkovChainAdapter.hpp>
 #include <hops/MarkovChain/Recorder/StateRecorder.hpp>
 #include <hops/MarkovChain/Proposal/HitAndRunProposal.hpp>

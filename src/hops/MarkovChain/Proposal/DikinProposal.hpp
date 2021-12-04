@@ -5,6 +5,7 @@
 #include <random>
 
 #include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
+#include <hops/Utility/StringUtility.hpp>
 
 #include "Proposal.hpp"
 #include "DikinEllipsoidCalculator.hpp"
@@ -23,17 +24,25 @@ namespace hops {
         DikinProposal(InternalMatrixType A, InternalVectorType b, const VectorType &currentState,
                       double stepSize = 0.075);
 
-        std::pair<double, VectorType> propose(RandomNumberGenerator &randomNumberGenerator) override;
+        VectorType &propose(RandomNumberGenerator &randomNumberGenerator) override;
 
-        VectorType acceptProposal() override;
+        VectorType &acceptProposal() override;
 
-        void setState(VectorType newState) override;
+        void setState(const VectorType &newState) override;
 
         [[nodiscard]] VectorType getState() const override;
 
         [[nodiscard]] VectorType getProposal() const override;
 
-        void setParameter(ProposalParameterName parameterName, const std::any &value) override;
+        std::vector<std::string> getDimensionNames() const override;
+
+        [[nodiscard]] std::vector<std::string> getParameterNames() const override;
+
+        [[nodiscard]] std::any getParameter(const std::string &parameterName) const override;
+
+        [[nodiscard]] std::string getParameterType(const std::string &name) const override;
+
+        void setParameter(const std::string &parameterName, const std::any &value) override;
 
         void setStepSize(double stepSize);
 
@@ -45,7 +54,7 @@ namespace hops {
 
         [[nodiscard]] std::unique_ptr<Proposal> deepCopy() const override;
 
-        double computeLogAcceptanceProbability();
+        double computeLogAcceptanceProbability() override;
 
     private:
         MatrixType A;
@@ -60,8 +69,8 @@ namespace hops {
         Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic> proposalCholeskyOfDikinEllipsoid;
 
         typename MatrixType::Scalar stepSize = 0.075; // value from dikin walk publication
-        typename MatrixType::Scalar geometricFactor;
-        typename MatrixType::Scalar covarianceFactor;
+        typename MatrixType::Scalar geometricFactor = 0;
+        typename MatrixType::Scalar covarianceFactor = 0;
         constexpr static typename MatrixType::Scalar boundaryCushion = 0;
 
         std::normal_distribution<typename MatrixType::Scalar> normalDistribution{0., 1.};
@@ -83,7 +92,7 @@ namespace hops {
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    std::pair<double, VectorType>
+    VectorType &
     DikinProposal<InternalMatrixType, InternalVectorType>::propose(RandomNumberGenerator &randomNumberGenerator) {
         for (long i = 0; i < proposal.rows(); ++i) {
             proposal(i) = normalDistribution(randomNumberGenerator);
@@ -92,11 +101,11 @@ namespace hops {
                            stateCholeskyOfDikinEllipsoid.template triangularView<Eigen::Lower>().solve(proposal);
 
 
-        return {computeLogAcceptanceProbability(), proposal};
+        return proposal;
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    VectorType DikinProposal<InternalMatrixType, InternalVectorType>::acceptProposal() {
+    VectorType &DikinProposal<InternalMatrixType, InternalVectorType>::acceptProposal() {
         state.swap(proposal);
         stateCholeskyOfDikinEllipsoid = std::move(proposalCholeskyOfDikinEllipsoid);
         stateLogSqrtDeterminant = proposalLogSqrtDeterminant;
@@ -104,7 +113,7 @@ namespace hops {
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    void DikinProposal<InternalMatrixType, InternalVectorType>::setState(VectorType newState) {
+    void DikinProposal<InternalMatrixType, InternalVectorType>::setState(const VectorType &newState) {
         state.swap(newState);
         auto choleskyResult = dikinEllipsoidCalculator.computeCholeskyFactorOfDikinEllipsoid(state);
         if (!choleskyResult.first) {
@@ -175,17 +184,49 @@ namespace hops {
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    void DikinProposal<InternalMatrixType, InternalVectorType>::setParameter(ProposalParameterName parameterName,
+    std::vector<std::string> DikinProposal<InternalMatrixType, InternalVectorType>::getParameterNames() const {
+        return {"step_size"};
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    std::any
+    DikinProposal<InternalMatrixType, InternalVectorType>::getParameter(const std::string &parameterName) const {
+        std::string lowerCaseParameterName = toLowerCase(parameterName);
+        if (lowerCaseParameterName == "step_size") {
+            return std::any(stepSize);
+        }
+        throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    std::string DikinProposal<InternalMatrixType, InternalVectorType>::getParameterType(const std::string &name) const {
+        std::string lowerCaseParameterName = toLowerCase(name);
+        if (lowerCaseParameterName == "step_size") {
+            return "double";
+        } else {
+            throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
+        }
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    void DikinProposal<InternalMatrixType, InternalVectorType>::setParameter(const std::string &parameterName,
                                                                              const std::any &value) {
-        switch (parameterName) {
-            case ProposalParameterName::STEP_SIZE: {
-                setStepSize(std::any_cast<double>(value));
-                break;
-            }
-            default:
-                throw std::invalid_argument("Can't set parameter which doesn't exist in DikinProposal.");
+        std::string lowerCaseParameterName = toLowerCase(parameterName);
+        if (lowerCaseParameterName == "step_size") {
+            setStepSize(std::any_cast<double>(value));
+        } else {
+            throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
         }
 
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    std::vector<std::string> DikinProposal<InternalMatrixType, InternalVectorType>::getDimensionNames() const {
+        std::vector<std::string> names;
+        for (long i = 0; i < state.rows(); ++i) {
+            names.emplace_back("x_" + std::to_string(i));
+        }
+        return names;
     }
 
 }

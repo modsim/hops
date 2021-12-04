@@ -1,7 +1,6 @@
 add_subdirectory(ParallelTempering)
 add_subdirectory(Proposal)
 add_subdirectory(Recorder)
-add_subdirectory(ReversibleJump)
 add_subdirectory(Tuning)
 
 set(TEST_SOURCES
@@ -13,7 +12,8 @@ set(TEST_SOURCES
         IsSetExchangeAttemptProbabilityAvailableTestSuite.cpp
         IsSetFisherWeightAvailableTestSuite.cpp
         IsSetStepSizeAvailableTestSuite.cpp
-        MarkovChainFactoryTestSuite.cpp
+        # TODO reinclude factory
+#        MarkovChainFactoryTestSuite.cpp
         ModelMixinTestSuite.cpp
         ModelWrapperTestSuite.cpp
         )

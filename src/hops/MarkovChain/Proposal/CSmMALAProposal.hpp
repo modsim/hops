@@ -2,10 +2,12 @@
 #define HOPS_CSMMALA_HPP
 
 #include <Eigen/Eigenvalues>
-#include <hops/MarkovChain/Proposal/DikinProposal.hpp>
-#include <hops/MarkovChain/Recorder/IsAddMessageAvailabe.hpp>
 #include <random>
 #include <utility>
+
+#include <hops/MarkovChain/Proposal/DikinProposal.hpp>
+#include <hops/MarkovChain/Recorder/IsAddMessageAvailabe.hpp>
+#include <hops/Utility/StringUtility.hpp>
 
 namespace hops {
     namespace CSmMALAProposalDetails {
@@ -36,15 +38,17 @@ namespace hops {
                         const VectorType &currentState,
                         double newFisherWeight = 0.5);
 
-        std::pair<double, VectorType> propose(RandomNumberGenerator &rng) override;
+        VectorType &propose(RandomNumberGenerator &rng) override;
 
-        VectorType acceptProposal() override;
+        VectorType &acceptProposal() override;
 
-        void setState(VectorType state) override;
+        void setState(const VectorType &state) override;
 
         [[nodiscard]] VectorType getState() const override;
 
         [[nodiscard]] VectorType getProposal() const override;
+
+        std::vector<std::string> getDimensionNames() const override;
 
         void setParameter(ProposalParameterName parameterName, const std::any &value) override;
 
@@ -54,13 +58,21 @@ namespace hops {
 
         [[nodiscard]] bool hasStepSize() const override;
 
+        [[nodiscard]] std::vector<std::string> getParameterNames() const override;
+
+        [[nodiscard]] std::any getParameter(const std::string &parameterName) const override;
+
+        [[nodiscard]] std::string getParameterType(const std::string &name) const override;
+
+        void setParameter(const std::string &parameterName, const std::any &value) override;
+
         [[nodiscard]] std::string getProposalName() const override;
 
         [[nodiscard]] double getStateNegativeLogLikelihood() const override;
 
         [[nodiscard]] std::unique_ptr<Proposal> deepCopy() const override;
 
-        [[nodiscard]] double computeLogAcceptanceProbability();
+        [[nodiscard]] double computeLogAcceptanceProbability() override;
 
     private:
         VectorType computeTruncatedGradient(VectorType x);
@@ -88,7 +100,7 @@ namespace hops {
         MatrixType::Scalar covarianceFactor = 0;
 
         std::normal_distribution<MatrixType::Scalar> normalDistribution{0., 1.};
-        DikinEllipsoidCalculator <MatrixType, VectorType> dikinEllipsoidCalculator;
+        DikinEllipsoidCalculator<MatrixType, VectorType> dikinEllipsoidCalculator;
     };
 
     template<typename ModelType, typename InternalMatrixType>
@@ -116,17 +128,17 @@ namespace hops {
     }
 
     template<typename ModelType, typename InternalMatrixType>
-    std::pair<double, VectorType> CSmMALAProposal<ModelType, InternalMatrixType>::propose(RandomNumberGenerator &rng) {
+    VectorType& CSmMALAProposal<ModelType, InternalMatrixType>::propose(RandomNumberGenerator &rng) {
         for (long i = 0; i < proposal.rows(); ++i) {
             proposal(i) = normalDistribution(rng);
         }
         proposal = driftedState + covarianceFactor * (stateSqrtInvMetric * proposal);
 
-       return {computeLogAcceptanceProbability(), proposal};
+        return proposal;
     }
 
     template<typename ModelType, typename InternalMatrixType>
-    VectorType CSmMALAProposal<ModelType, InternalMatrixType>::acceptProposal() {
+    VectorType& CSmMALAProposal<ModelType, InternalMatrixType>::acceptProposal() {
         state.swap(proposal);
         driftedState.swap(driftedProposal);
         stateSqrtInvMetric.swap(proposalSqrtInvMetric);
@@ -137,8 +149,8 @@ namespace hops {
     }
 
     template<typename ModelType, typename InternalMatrixType>
-    void CSmMALAProposal<ModelType, InternalMatrixType>::setState(VectorType newState) {
-        state.swap(newState);
+    void CSmMALAProposal<ModelType, InternalMatrixType>::setState(const VectorType &newState) {
+        state = newState;
         // Important: compute gradient before fisher info or else 13CFLUX2 will throw, since it uses internal
         // gradient data to construct fisher information.
         VectorType gradient = computeTruncatedGradient(state);
@@ -198,8 +210,9 @@ namespace hops {
         VectorType gradient = computeTruncatedGradient(proposal);
         proposalMetric.setZero();
         if (fisherWeight != 0) {
-            std::optional<decltype(proposalMetric)> optionalFisherInformation = ModelType::computeExpectedFisherInformation(proposal);
-            if(optionalFisherInformation) {
+            std::optional<decltype(proposalMetric)> optionalFisherInformation = ModelType::computeExpectedFisherInformation(
+                    proposal);
+            if (optionalFisherInformation) {
                 decltype(proposalMetric) fisherInformation = optionalFisherInformation.value();
                 proposalMetric += (fisherWeight * fisherScale * fisherInformation);
             }
@@ -210,7 +223,7 @@ namespace hops {
 
         }
         CSmMALAProposalDetails::computeMetricInfoForCSmMALAWithSvd(proposalMetric, proposalSqrtInvMetric,
-                                                                     proposalLogSqrtDeterminant);
+                                                                   proposalLogSqrtDeterminant);
         driftedProposal = proposal +
                           0.5 * std::pow(covarianceFactor, 2) * proposalSqrtInvMetric * proposalSqrtInvMetric *
                           gradient;
@@ -221,15 +234,15 @@ namespace hops {
                 static_cast<double>((state - driftedProposal).transpose() * proposalMetric * (state - driftedProposal));
 
         return // TODO remove likelihoods here -proposalNegativeLogLikelihood + stateNegativeLogLikelihood
-               + proposalLogSqrtDeterminant
-               - stateLogSqrtDeterminant
-               + geometricFactor * normDifference;
+                +proposalLogSqrtDeterminant
+                - stateLogSqrtDeterminant
+                + geometricFactor * normDifference;
     }
 
     template<typename ModelType, typename InternalMatrixType>
     VectorType CSmMALAProposal<ModelType, InternalMatrixType>::computeTruncatedGradient(VectorType x) {
         auto gradient = ModelType::computeLogLikelihoodGradient(x);
-        if(gradient) {
+        if (gradient) {
             double norm = gradient.value().norm();
             if (norm != 0) {
                 gradient.value() /= norm;
@@ -272,6 +285,61 @@ namespace hops {
                 throw std::invalid_argument("Can't set parameter which doesn't exist in CSmMALAProposal.");
         }
 
+    }
+
+    template<typename ModelType, typename InternalMatrixType>
+    std::vector<std::string> CSmMALAProposal<ModelType, InternalMatrixType>::getParameterNames() const {
+        return {"step_size", "fisher_weight"};
+    }
+
+    template<typename ModelType, typename InternalMatrixType>
+    std::any CSmMALAProposal<ModelType, InternalMatrixType>::getParameter(const std::string &parameterName) const {
+        std::string lowerCaseParameterName = toLowerCase(parameterName);
+        if (lowerCaseParameterName == "step_size") {
+            return std::any(this->stepSize);
+        }
+        if (lowerCaseParameterName == "fisher_weight") {
+            return std::any(this->fisherWeight);
+        }
+        throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
+    }
+
+    template<typename ModelType, typename InternalMatrixType>
+    std::string CSmMALAProposal<ModelType, InternalMatrixType>::getParameterType(const std::string &name) const {
+        std::string lowerCaseParameterName = toLowerCase(name);
+        if (lowerCaseParameterName == "step_size") {
+            return "double";
+        }
+        if (lowerCaseParameterName == "fisher_weight") {
+            return "double";
+        } else {
+            throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
+        }
+    }
+
+    template<typename ModelType, typename InternalMatrixType>
+    void CSmMALAProposal<ModelType, InternalMatrixType>::setParameter(const std::string &parameterName,
+                                                                      const std::any &value) {
+        std::string lowerCaseParameterName = toLowerCase(parameterName);
+        if (lowerCaseParameterName == "step_size") {
+            setStepSize(std::any_cast<double>(value));
+        }
+        if (lowerCaseParameterName == "step_size") {
+            fisherWeight = std::any_cast<double>(value);
+            // internal changes of setStepSize are a function of the value of fisherWeight, therefore recalculate here.
+            setStepSize((this->stepSize));
+        } else {
+            throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
+        }
+    }
+
+    template<typename ModelType, typename InternalMatrixType>
+    std::vector<std::string> CSmMALAProposal<ModelType, InternalMatrixType>::getDimensionNames() const {
+        std::vector<std::string> names;
+        for (long i = 0; i < state.rows(); ++i) {
+            names.emplace_back("x_" + std::to_string(i));
+        }
+        return names;
     }
 }
 

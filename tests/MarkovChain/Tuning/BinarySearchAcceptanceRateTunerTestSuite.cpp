@@ -13,8 +13,8 @@ namespace {
 
         using StateType = Eigen::VectorXd;
 
-        std::pair<double, StateType> propose(hops::RandomNumberGenerator) { numberOfStepsTaken++;
-        return {computeLogAcceptanceProbability(), getState()};
+        StateType propose(hops::RandomNumberGenerator) { numberOfStepsTaken++;
+        return getState();
         }
 
         StateType acceptProposal() {

@@ -116,7 +116,8 @@ namespace hops {
     }
 
     void DNest4Adapter::from_prior(DNest4::RNG &) {
-        auto[logAcceptanceProbability, proposal] = priorProposer->propose(internal_rng);
+        priorProposer->propose(internal_rng);
+        double logAcceptanceProbability = priorProposer->computeLogAcceptanceProbability();
         double logAcceptanceChance = std::log(uniformRealDistribution(internal_rng));
         if (logAcceptanceChance < logAcceptanceProbability && std::isfinite(logAcceptanceProbability)) {
             this->state = priorProposer->acceptProposal();
@@ -125,9 +126,8 @@ namespace hops {
 
     double DNest4Adapter::perturb(DNest4::RNG &) {
         posteriorProposer->setState(state);
-        auto posteriorProposal = posteriorProposer->propose(internal_rng);
-        proposalLogAcceptanceProbability = posteriorProposal.first;
-        proposal = posteriorProposal.second;
+        proposal = posteriorProposer->propose(internal_rng);
+        proposalLogAcceptanceProbability = posteriorProposer->computeLogAcceptanceProbability();
         return proposalLogAcceptanceProbability;
     }
 

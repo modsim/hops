@@ -7,6 +7,7 @@
 #include <hops/MarkovChain/Recorder/IsAddMessageAvailabe.hpp>
 #include <hops/MarkovChain/Recorder/IsClearRecordsAvailable.hpp>
 #include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
+#include <hops/Utility/VectorType.hpp>
 
 
 namespace hops {
@@ -36,7 +37,8 @@ namespace hops {
 
     template<typename MarkovChainProposer>
     void MetropolisHastingsFilter<MarkovChainProposer>::draw(hops::RandomNumberGenerator &randomNumberGenerator) {
-        auto [acceptanceProbability, proposal] = MarkovChainProposer::propose(randomNumberGenerator);
+        VectorType proposal = MarkovChainProposer::propose(randomNumberGenerator);
+        double acceptanceProbability = MarkovChainProposer::computeLogAcceptanceProbability();
         numberOfProposals++;
         double acceptanceChance = std::log(uniformRealDistribution(randomNumberGenerator));
         if constexpr(IsAddMessageAvailable<MarkovChainProposer>::value) {

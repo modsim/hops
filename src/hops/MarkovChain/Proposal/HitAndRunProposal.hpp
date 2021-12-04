@@ -4,6 +4,7 @@
 #include <random>
 
 #include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
+#include <hops/Utility/StringUtility.hpp>
 
 #include "ChordStepDistributions.hpp"
 #include "IsSetStepSizeAvailable.hpp"
@@ -15,19 +16,27 @@ namespace hops {
     public:
         HitAndRunProposal(InternalMatrixType A, InternalVectorType b, InternalVectorType currentState);
 
-        std::pair<double, VectorType> propose(RandomNumberGenerator &rng) override;
+        VectorType &propose(RandomNumberGenerator &rng) override;
 
-        std::pair<double, VectorType> propose(RandomNumberGenerator &rng, const std::vector<int> &activeSubspace);
+        VectorType &propose(RandomNumberGenerator &rng, const std::vector<int> &activeSubspace) override;
 
-        VectorType acceptProposal() override;
+        VectorType &acceptProposal() override;
 
-        void setState(VectorType state) override;
+        void setState(const VectorType &state) override;
 
         [[nodiscard]] VectorType getState() const override;
 
         [[nodiscard]] VectorType getProposal() const override;
 
-        void setParameter(ProposalParameterName parameterName, const std::any &value) override;
+        std::vector<std::string> getDimensionNames() const override;
+
+        [[nodiscard]] std::vector<std::string> getParameterNames() const override;
+
+        [[nodiscard]] std::any getParameter(const std::string &parameterName) const override;
+
+        [[nodiscard]] std::string getParameterType(const std::string &name) const override;
+
+        void setParameter(const std::string &parameterName, const std::any &value) override;
 
         [[nodiscard]] std::optional<double> getStepSize() const;
 
@@ -39,7 +48,7 @@ namespace hops {
 
         [[nodiscard]] std::unique_ptr<Proposal> deepCopy() const override;
 
-        [[nodiscard]] double computeLogAcceptanceProbability();
+        [[nodiscard]] double computeLogAcceptanceProbability() override;
 
     private:
         VectorType state;
@@ -81,7 +90,7 @@ namespace hops {
     }
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
-    std::pair<double, VectorType>
+    VectorType &
     HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::propose(
             RandomNumberGenerator &rng) {
         for (long i = 0; i < updateDirection.rows(); ++i) {
@@ -98,11 +107,11 @@ namespace hops {
         step = chordStepDistribution.draw(rng, backwardDistance, forwardDistance);
         proposal = state + updateDirection * step;
 
-        return {computeLogAcceptanceProbability(), proposal};
+        return proposal;
     }
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
-    std::pair<double, VectorType>
+    VectorType &
     HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::propose(
             RandomNumberGenerator &rng, const std::vector<int> &activeSubspace) {
         for (long i = 0; i < updateDirection.rows(); ++i) {
@@ -131,11 +140,11 @@ namespace hops {
         proposal = state + updateDirection * step;
         assert(((b - A * proposal).array() >= 0).all());
 
-        return {computeLogAcceptanceProbability(), proposal};
+        return proposal;
     }
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
-    VectorType
+    VectorType &
     HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::acceptProposal() {
         state = proposal;
         if (Precise) {
@@ -151,10 +160,10 @@ namespace hops {
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
     void HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::setState(
-            VectorType newState) {
+            const VectorType &newState) {
         assert(((b - A * newState).array() >= 0).all());
-        HitAndRunProposal::state = std::move(newState);
-        HitAndRunProposal::proposal = state;
+        HitAndRunProposal::state = newState;
+        HitAndRunProposal::proposal = HitAndRunProposal::state;
         slacks = b - A * HitAndRunProposal::state;
     }
 
@@ -209,16 +218,57 @@ namespace hops {
     }
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
-    void HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::setParameter(
-            ProposalParameterName parameterName, const std::any &value) {
-        switch (parameterName) {
-            case ProposalParameterName::STEP_SIZE: {
-                setStepSize(std::any_cast<double>(value));
-                break;
-            }
-            default:
-                throw std::invalid_argument("Can't set parameter which doesn't exist in HitAndRunProposal.");
+    std::vector<std::string>
+    HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::getParameterNames() const {
+        if (this->getStepSize().has_value()) {
+            return {"step_size"};
         }
+        return {};
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
+    std::any HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::getParameter(
+            const std::string &parameterName) const {
+        std::string lowerCaseParameterName = toLowerCase(parameterName);
+        if (lowerCaseParameterName == "step_size") {
+            std::optional<double> s = this->getStepSize();
+            if (s) {
+                return std::any(s.value());
+            }
+        }
+        throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
+    std::string
+    HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::getParameterType(
+            const std::string &name) const {
+        std::string lowerCaseParameterName = toLowerCase(name);
+        if (lowerCaseParameterName == "step_size") {
+            return "double";
+        }
+        throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
+    void HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::setParameter(
+            const std::string &parameterName, const std::any &value) {
+        std::string lowerCaseParameterName = toLowerCase(parameterName);
+        if (lowerCaseParameterName == "step_size") {
+            setStepSize(std::any_cast<double>(value));
+        } else {
+            throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
+        }
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
+    std::vector<std::string>
+    HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::getDimensionNames() const {
+        std::vector<std::string> names;
+        for (long i = 0; i < state.rows(); ++i) {
+            names.emplace_back("x_" + std::to_string(i));
+        }
+        return names;
     }
 }
 

@@ -3,8 +3,9 @@
 
 #include <random>
 
-#include <hops/Utility/VectorType.hpp>
 #include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
+#include <hops/Utility/StringUtility.hpp>
+#include <hops/Utility/VectorType.hpp>
 
 #include "IsSetStepSizeAvailable.hpp"
 #include "Proposal.hpp"
@@ -14,7 +15,7 @@ namespace hops {
     class BallWalkProposal : public Proposal {
     public:
         /**
-         * @brief Constructs Ballwalk proposal mechanism on polytope defined as Ax<b.
+         * @brief Constructs BallWalk proposal mechanism on polytope defined as Ax<b.
          * @param A
          * @param b
          * @param currentState
@@ -22,17 +23,25 @@ namespace hops {
          */
         BallWalkProposal(InternalMatrixType A, InternalVectorType b, VectorType currentState, double stepSize = 1);
 
-        std::pair<double, VectorType> propose(RandomNumberGenerator &randomNumberGenerator) override;
+        VectorType &propose(RandomNumberGenerator &randomNumberGenerator) override;
 
-        VectorType acceptProposal() override;
+        VectorType &acceptProposal() override;
 
-        void setState(VectorType newState) override;
+        void setState(const VectorType &newState) override;
 
         [[nodiscard]] VectorType getState() const override;
 
         [[nodiscard]] VectorType getProposal() const override;
 
-        void setParameter(ProposalParameterName parameterName, const std::any &value) override;
+        std::vector<std::string> getDimensionNames() const override;
+
+        [[nodiscard]] std::vector<std::string> getParameterNames() const override;
+
+        [[nodiscard]] std::any getParameter(const std::string &parameterName) const override;
+
+        [[nodiscard]] std::string getParameterType(const std::string &name) const override;
+
+        void setParameter(const std::string &parameterName, const std::any &value) override;
 
         void setStepSize(double stepSize);
 
@@ -44,7 +53,7 @@ namespace hops {
 
         [[nodiscard]] std::unique_ptr<Proposal> deepCopy() const override;
 
-        [[nodiscard]] double computeLogAcceptanceProbability();
+        [[nodiscard]] double computeLogAcceptanceProbability() override;
 
     private:
         InternalMatrixType A;
@@ -70,7 +79,7 @@ namespace hops {
             stepSize(stepSize_) {}
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    std::pair<double, VectorType> BallWalkProposal<InternalMatrixType, InternalVectorType>::propose(
+    VectorType &BallWalkProposal<InternalMatrixType, InternalVectorType>::propose(
             RandomNumberGenerator &randomNumberGenerator) {
         // Creates proposal on Ballsurface
         for (long i = 0; i < proposal.rows(); ++i) {
@@ -83,23 +92,23 @@ namespace hops {
         proposal.noalias() = std::pow(uniform(randomNumberGenerator), 1. / proposal.rows()) * proposal;
         proposal.noalias() += state;
 
-        return {computeLogAcceptanceProbability(), proposal};
+        return proposal;
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    VectorType BallWalkProposal<InternalMatrixType, InternalVectorType>::acceptProposal() {
+    VectorType &BallWalkProposal<InternalMatrixType, InternalVectorType>::acceptProposal() {
         state.swap(proposal);
         return state;
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    void BallWalkProposal<InternalMatrixType, InternalVectorType>::setState(VectorType newState) {
-        BallWalkProposal::state = std::move(newState);
+    void BallWalkProposal<InternalMatrixType, InternalVectorType>::setState(const VectorType &newState) {
+        BallWalkProposal::state = newState;
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    void BallWalkProposal<InternalMatrixType, InternalVectorType>::setStepSize(double stepSize) {
-        BallWalkProposal::stepSize = stepSize;
+    void BallWalkProposal<InternalMatrixType, InternalVectorType>::setStepSize(double newStepSize) {
+        BallWalkProposal::stepSize = newStepSize;
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
@@ -142,16 +151,50 @@ namespace hops {
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    void BallWalkProposal<InternalMatrixType, InternalVectorType>::setParameter(ProposalParameterName parameterName,
+    void BallWalkProposal<InternalMatrixType, InternalVectorType>::setParameter(const std::string &parameterName,
                                                                                 const std::any &value) {
-        switch (parameterName) {
-            case ProposalParameterName::STEP_SIZE: {
-                setStepSize(std::any_cast<double>(value));
-                break;
-            }
-            default:
-                throw std::invalid_argument("Can't set parameter which doesn't exist in BallWalkProposal.");
+        std::string lowerCaseParameterName = toLowerCase(parameterName);
+        if (lowerCaseParameterName == "step_size") {
+            setStepSize(std::any_cast<double>(value));
+        } else {
+            throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
         }
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    std::vector<std::string> BallWalkProposal<InternalMatrixType, InternalVectorType>::getParameterNames() const {
+        return {"step_size"};
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    std::any
+    BallWalkProposal<InternalMatrixType, InternalVectorType>::getParameter(const std::string &parameterName) const {
+        std::string lowerCaseParameterName = toLowerCase(parameterName);
+        if (lowerCaseParameterName == "step_size") {
+            return std::any(stepSize);
+        } else {
+            throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
+        }
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    std::string
+    BallWalkProposal<InternalMatrixType, InternalVectorType>::getParameterType(const std::string &name) const {
+        std::string lowerCaseParameterName = toLowerCase(name);
+        if (lowerCaseParameterName == "step_size") {
+            return "double";
+        } else {
+            throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
+        }
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    std::vector<std::string> BallWalkProposal<InternalMatrixType, InternalVectorType>::getDimensionNames() const {
+        std::vector<std::string> names;
+        for (long i = 0; i < state.rows(); ++i) {
+            names.emplace_back("x_" + std::to_string(i));
+        }
+        return names;
     }
 }
 

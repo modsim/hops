@@ -1,6 +1,7 @@
 #ifndef HOPS_PROPOSAL_HPP
 #define HOPS_PROPOSAL_HPP
 
+#include <algorithm>
 #include <any>
 
 #include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
@@ -17,7 +18,7 @@ namespace hops {
          * a metropolis-hastings filter and other techniques
          * the new state.
          */
-        virtual VectorType propose(RandomNumberGenerator &rng) = 0;
+        virtual VectorType &propose(RandomNumberGenerator &rng) = 0;
 
         /**
          * @Brief Proposes new state on a subspace and returns it. The returned state can be stored, transformed or use in conjunction with
@@ -25,17 +26,16 @@ namespace hops {
          * the new state.
           * @param activeSubspace vector should contain 1 for active dimensions and 0 for inactive dimensions.
          */
-        virtual VectorType propose(RandomNumberGenerator &rng, const std::vector<int> &activeSubspace) {
+        virtual VectorType &propose(RandomNumberGenerator &rng, const std::vector<int> &activeSubspace) {
             throw std::runtime_error("Not implemented");
         };
 
         /**
-         * @Brief Proposes new state and returns it. The returned state can be stored, transformed or use in conjunction with
-         * a metropolis-hastings filter and other techniques
-         * the new state.
+         * @Brief Calculates detailed balance using internal proposal. Saves one copy operation compared to
+         computeLogAcceptanceProbability(const VectorType& proposal).
          * @detailed Potentially changes internal state, because quantities related to the proposal might have to be evaluated in order to calculate the correct probability.
          */
-        [[nodiscard]] virtual double computeLogAcceptanceProbability(const VectorType& proposal) = 0;
+        [[nodiscard]] virtual double computeLogAcceptanceProbability() = 0;
 
         /**
          * @Brief Accepts latest proposal as new state and then returns new state.
@@ -43,36 +43,40 @@ namespace hops {
          * it has no input data, because all data is moved internally. The internal data manipulations happen
          * inside of computeLogAcceptanceProbability
          */
-        virtual VectorType acceptProposal() = 0;
+        virtual VectorType &acceptProposal() = 0;
 
         /**
          * @Brief Sets new state to start from. Useful for resuming sampling. DO NOT use it to accept a proposal!
          * @Detailed setState can not do internal optimizations when using it to set the proposal. Therefore, never use
          * it to set an accepted proposal. Use acceptProposal() instead.
          */
-        virtual void setState(VectorType state) = 0;
+        virtual void setState(const VectorType &state) = 0;
 
         [[nodiscard]] virtual VectorType getState() const = 0;
 
         [[nodiscard]] virtual VectorType getProposal() const = 0;
 
+        /**
+         * @return names for each dimension of the state space
+         */
+        [[nodiscard]] virtual std::vector<std::string> getDimensionNames() const = 0;
+
         [[nodiscard]] virtual std::vector<std::string> getParameterNames() const = 0;
 
-        [[nodiscard]] virtual std::any getParameter(const std::string& parameterName) const = 0;
+        [[nodiscard]] virtual std::any getParameter(const std::string &parameterName) const = 0;
 
         /**
          * @brief returns string representation of parameter type, e.g. double, int, Eigen::MatrixXd.
          * @param name
          * @return
          */
-        [[nodiscard]] virtual std::string getParameterType(const std::string& name) const = 0;
+        [[nodiscard]] virtual std::string getParameterType(const std::string &name) const = 0;
 
         /**
          * @brief sets parameter with value. Throws exception if any contains incompatible type for parameter.
          * @details Implementations should list possible parameterNames in the exception message.
          */
-        virtual void setParameter(std::string parameterName, const std::any &value) = 0;
-
+        virtual void setParameter(const std::string &parameterName, const std::any &value) = 0;
 
         /**
          * @Brief Returns whether underlying implementation has step size. Useful because tuning should be skipped
