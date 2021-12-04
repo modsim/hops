@@ -4,6 +4,7 @@
 #include <random>
 
 #include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
+#include <hops/Utility/StringUtility.hpp>
 
 #include "ChordStepDistributions.hpp"
 #include "IsSetStepSizeAvailable.hpp"
@@ -21,19 +22,27 @@ namespace hops {
          */
         CoordinateHitAndRunProposal(InternalMatrixType A, InternalVectorType b, InternalVectorType currentState);
 
-        std::pair<double, InternalVectorType> propose(RandomNumberGenerator &rng) override;
+        VectorType &propose(RandomNumberGenerator &rng) override;
 
-        std::pair<double, VectorType> propose(RandomNumberGenerator &rng, const std::vector<int> &activeSubspace);
+        VectorType &propose(RandomNumberGenerator &rng, const std::vector<int> &activeSubspace) override;
 
-        VectorType acceptProposal() override;
+        VectorType &acceptProposal() override;
 
-        void setState(VectorType state) override;
+        void setState(const VectorType &state) override;
 
         [[nodiscard]] VectorType getState() const override;
 
         [[nodiscard]] VectorType getProposal() const override;
 
-        void setParameter(ProposalParameterName parameterName, const std::any &value) override;
+        [[nodiscard]] std::vector<std::string> getDimensionNames() const override;
+
+        [[nodiscard]] std::vector<std::string> getParameterNames() const override;
+
+        [[nodiscard]] std::any getParameter(const std::string &parameterName) const override;
+
+        [[nodiscard]] std::string getParameterType(const std::string &name) const override;
+
+        void setParameter(const std::string &parameterName, const std::any &value) override;
 
         [[nodiscard]] std::optional<double> getStepSize() const;
 
@@ -45,7 +54,7 @@ namespace hops {
 
         [[nodiscard]] std::unique_ptr<Proposal> deepCopy() const override;
 
-        [[nodiscard]] double computeLogAcceptanceProbability();
+        [[nodiscard]] double computeLogAcceptanceProbability() override;
 
     private:
         InternalMatrixType A;
@@ -75,8 +84,7 @@ namespace hops {
     }
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
-    std::pair<double, InternalVectorType>
-    CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::propose(
+    VectorType &CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::propose(
             RandomNumberGenerator &rng) {
         proposal(coordinateToUpdate) = state(coordinateToUpdate);
         ++coordinateToUpdate %= state.rows();
@@ -91,12 +99,11 @@ namespace hops {
 
         proposal(coordinateToUpdate) += step;
 
-        return {computeLogAcceptanceProbability(), proposal};
+        return proposal;
     }
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
-    std::pair<double, VectorType>
-    CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::propose(
+    VectorType &CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::propose(
             RandomNumberGenerator &rng, const std::vector<int> &activeSubspace) {
         proposal(coordinateToUpdate) = state(coordinateToUpdate);
         // Check that at least some spaces are active
@@ -121,11 +128,11 @@ namespace hops {
 
         proposal(coordinateToUpdate) += step;
 
-        return {computeLogAcceptanceProbability(), proposal};
+        return proposal;
     }
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
-    VectorType
+    VectorType&
     CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::acceptProposal() {
         state(coordinateToUpdate) += step;
         slacks.noalias() -= A.col(coordinateToUpdate) * step;
@@ -134,8 +141,8 @@ namespace hops {
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
     void CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::setState(
-            VectorType newState) {
-        CoordinateHitAndRunProposal::state = std::move(newState);
+            const VectorType &newState) {
+        CoordinateHitAndRunProposal::state = newState;
         CoordinateHitAndRunProposal::proposal = CoordinateHitAndRunProposal::state;
         slacks = b - A * CoordinateHitAndRunProposal::state;
     }
@@ -199,17 +206,60 @@ namespace hops {
     }
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
-    void CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::setParameter(
-            ProposalParameterName parameterName, const std::any &value) {
-        switch (parameterName) {
-            case ProposalParameterName::STEP_SIZE: {
-                setStepSize(std::any_cast<double>(value));
-                break;
-            }
-            default:
-                throw std::invalid_argument("Can't set parameter which doesn't exist in CoordinateHitAndRunProposal.");
+    std::vector<std::string>
+    CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::getParameterNames() const {
+        if(this->getStepSize().has_value()) {
+            return {"step_size"};
         }
+        else {
+            return {};
+        }
+    }
 
+    template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
+    std::any CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::getParameter(
+            const std::string &parameterName) const {
+        std::string lowerCaseParameterName = toLowerCase(parameterName);
+        if (lowerCaseParameterName == "step_size") {
+            std::optional<double> s = this->getStepSize();
+            if (s) {
+                return std::any(s.value());
+            }
+        }
+        throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
+    std::string
+    CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::getParameterType(
+            const std::string &name) const {
+        std::string lowerCaseParameterName = toLowerCase(name);
+        if (lowerCaseParameterName == "step_size") {
+            return "double";
+        } else {
+            throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
+        }
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
+    void CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::setParameter(
+            const std::string &parameterName, const std::any &value) {
+        std::string lowerCaseParameterName = toLowerCase(parameterName);
+        if (lowerCaseParameterName == "step_size") {
+            setStepSize(std::any_cast<double>(value));
+        } else {
+            throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
+        }
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
+    std::vector<std::string>
+    CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::getDimensionNames() const {
+        std::vector<std::string> names;
+        for (long i = 0; i < state.rows(); ++i) {
+            names.emplace_back("x_" + std::to_string(i));
+        }
+        return names;
     }
 }
 

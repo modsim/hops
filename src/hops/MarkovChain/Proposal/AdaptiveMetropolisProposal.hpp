@@ -7,6 +7,7 @@
 #include <hops/Polytope/MaximumVolumeEllipsoid.hpp>
 #include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
 #include <hops/Utility/MatrixType.hpp>
+#include <hops/Utility/StringUtility.hpp>
 #include <hops/Utility/VectorType.hpp>
 #include <random>
 
@@ -21,30 +22,38 @@ namespace hops {
          * @param A
          * @param b
          * @param currentState
-         * @param stepSize          The stepsize by which the trained Gaussian proposal distribution is scaled.
+         * @param stepSize          The step size by which the trained Gaussian proposal distribution is scaled.
          * @param eps               Scaling factor of the maximum volume ellipsoid, which is added to the covariance to preserve 
          *                          (numerical) irreducibility.
          * @param warmUp            Number of warm up samples during which the maximum volume ellipsoid is used as covariance of 
          *                          the proposal distribution. After the warm up, the adaptive covariance is used.
          */
-        AdaptiveMetropolisProposal(InternalMatrixType A, 
-                                   InternalVectorType b, 
-                                   StateType currentState, 
-                                   typename MatrixType::Scalar stepSize = 1, 
-                                   typename MatrixType::Scalar eps = 1.e-3, 
+        AdaptiveMetropolisProposal(InternalMatrixType A,
+                                   InternalVectorType b,
+                                   StateType currentState,
+                                   typename MatrixType::Scalar stepSize = 1,
+                                   typename MatrixType::Scalar eps = 1.e-3,
                                    unsigned long warmUp = 100);
 
-        std::pair<double, VectorType> propose(RandomNumberGenerator &randomNumberGenerator) override;
+        VectorType &propose(RandomNumberGenerator &randomNumberGenerator) override;
 
-        VectorType acceptProposal() override;
+        VectorType &acceptProposal() override;
 
-        void setState(StateType newState) override;
+        void setState(const StateType &newState) override;
 
         [[nodiscard]] VectorType getState() const override;
 
         [[nodiscard]] VectorType getProposal() const override;
 
-        void setParameter(ProposalParameterName parameterName, const std::any &value) override;
+        std::vector<std::string> getDimensionNames() const override;
+
+        [[nodiscard]] std::vector<std::string> getParameterNames() const override;
+
+        [[nodiscard]] std::any getParameter(const std::string &parameterName) const override;
+
+        [[nodiscard]] std::string getParameterType(const std::string &name) const override;
+
+        void setParameter(const std::string &parameterName, const std::any &value) override;
 
         void setStepSize(double stepSize);
 
@@ -56,7 +65,7 @@ namespace hops {
 
         [[nodiscard]] std::unique_ptr<Proposal> deepCopy() const override;
 
-        [[nodiscard]] double computeLogAcceptanceProbability();
+        [[nodiscard]] double computeLogAcceptanceProbability() override;
 
     private:
         MatrixType A;
@@ -80,18 +89,18 @@ namespace hops {
         unsigned long t;
         unsigned long warmUp;
 
-        typename MatrixType::Scalar eps;
-        typename MatrixType::Scalar stepSize;
-        constexpr static typename MatrixType::Scalar boundaryCushion = 1e-10;
+        double eps;
+        double stepSize;
+        double boundaryCushion = 1e-10;
 
         std::normal_distribution<typename MatrixType::Scalar> normal;
 
-        MatrixType updateCovariance(const MatrixType& covariance, const StateType& mean, const StateType& newState) {
+        MatrixType updateCovariance(const MatrixType &covariance, const StateType &mean, const StateType &newState) {
             assert(t > 0 && "cannot update covariance without samples having been drawn");
 
             // recursive mean
             StateType newMean = (t * mean + newState) / (t + 1);
-            MatrixType newCovariance = ((t - 1) * covariance 
+            MatrixType newCovariance = ((t - 1) * covariance
                                         + t * (mean * mean.transpose())
                                         - (t + 1) * (newMean * newMean.transpose())
                                         + newState * newState.transpose()
@@ -101,12 +110,13 @@ namespace hops {
     };
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::AdaptiveMetropolisProposal(InternalMatrixType A_,
-                                                                                                   InternalVectorType b_,
-                                                                                                   VectorType currentState_,
-                                                                                                   typename MatrixType::Scalar stepSize_,
-                                                                                                   typename MatrixType::Scalar eps_,
-                                                                                                   unsigned long warmUp_) :
+    AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::AdaptiveMetropolisProposal(
+            InternalMatrixType A_,
+            InternalVectorType b_,
+            VectorType currentState_,
+            typename MatrixType::Scalar stepSize_,
+            typename MatrixType::Scalar eps_,
+            unsigned long warmUp_) :
             A(std::move(A_)),
             b(std::move(b_)),
             state(std::move(currentState_)),
@@ -129,27 +139,28 @@ namespace hops {
         Eigen::LLT<MatrixType> solverStateCovariance(stateCovariance);
         stateCholeskyOfCovariance = solverStateCovariance.matrixL();
 
-        stateLogSqrtDeterminant = stateCholeskyOfCovariance.diagonal().array().log().sum(); 
+        stateLogSqrtDeterminant = stateCholeskyOfCovariance.diagonal().array().log().sum();
+        proposalLogSqrtDeterminant = stateLogSqrtDeterminant;
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    std::pair<double, VectorType> AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::propose(
+    VectorType &AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::propose(
             RandomNumberGenerator &randomNumberGenerator) {
         stateMean = (t * stateMean + state) / (t + 1);
 
         for (long i = 0; i < proposal.rows(); ++i) {
             proposal(i) = normal(randomNumberGenerator);
         }
-        
+
         if (t > warmUp) {
             proposal = state + stateCholeskyOfCovariance * proposal;
         } else {
-            proposal = state + eps * choleskyOfMaximumVolumeEllipsoid.template triangularView<Eigen::Lower>().solve(proposal);
-        }
-;
+            proposal = state +
+                       eps * choleskyOfMaximumVolumeEllipsoid.template triangularView<Eigen::Lower>().solve(proposal);
+        };
         ++t; // increment time
-        
-        return {computeLogAcceptanceProbability(), proposal};
+
+        return proposal;
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
@@ -160,32 +171,35 @@ namespace hops {
         }
 
         proposalCovariance = updateCovariance(stateCovariance, stateMean, proposal);
-        Eigen::LLT<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>> solver(proposalCovariance);
+        Eigen::LLT<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>> solver(
+                proposalCovariance);
         if (solver.info() != Eigen::Success) {
             return -std::numeric_limits<typename MatrixType::Scalar>::infinity();
         }
         proposalCholeskyOfCovariance = solver.matrixL();
 
-        proposalLogSqrtDeterminant = proposalCholeskyOfCovariance.diagonal().array().log().sum(); 
+        proposalLogSqrtDeterminant = proposalCholeskyOfCovariance.diagonal().array().log().sum();
         StateType stateDifference = proposal - state;
 
         double alpha = 0;
 
         // before warm up we have a symmetrical proposal distribution, so we do the next bit only after warm up
         if (t > warmUp) {
-            alpha =  stateLogSqrtDeterminant 
-                     - proposalLogSqrtDeterminant 
-                     - 0.5 * (
-                          proposalCholeskyOfCovariance.template triangularView<Eigen::Lower>().solve(stateDifference).squaredNorm() 
-                          - stateCholeskyOfCovariance.template triangularView<Eigen::Lower>().solve(stateDifference).squaredNorm()
-                     );
+            alpha = stateLogSqrtDeterminant
+                    - proposalLogSqrtDeterminant
+                    - 0.5 * (
+                    proposalCholeskyOfCovariance.template triangularView<Eigen::Lower>().solve(
+                            stateDifference).squaredNorm()
+                    - stateCholeskyOfCovariance.template triangularView<Eigen::Lower>().solve(
+                            stateDifference).squaredNorm()
+            );
         }
 
         return alpha;
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    VectorType AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::acceptProposal() {
+    VectorType &AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::acceptProposal() {
         state.swap(proposal);
         stateCovariance = proposalCovariance;
         stateCholeskyOfCovariance = proposalCholeskyOfCovariance;
@@ -194,8 +208,8 @@ namespace hops {
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    void AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::setState(VectorType newState) {
-        AdaptiveMetropolisProposal::state = std::move(newState);
+    void AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::setState(const VectorType &newState) {
+        AdaptiveMetropolisProposal::state = newState;
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
@@ -204,7 +218,7 @@ namespace hops {
         normal = std::normal_distribution<typename MatrixType::Scalar>(0, stepSize);
     }
 
-    
+
     template<typename InternalMatrixType, typename InternalVectorType>
     std::optional<double> AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::getStepSize() const {
         return stepSize;
@@ -237,15 +251,60 @@ namespace hops {
 
     template<typename InternalMatrixType, typename InternalVectorType>
     void AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::setParameter(
-            ProposalParameterName parameterName, const std::any &value) {
-        switch (parameterName) {
-            case ProposalParameterName::STEP_SIZE: {
-                setStepSize(std::any_cast<double>(value));
-                break;
-            }
-            default:
-                throw std::invalid_argument("Can't set parameter which doesn't exist in AdaptiveMetropolisProposal.");
+            const std::string &parameterName, const std::any &value) {
+        std::string lowerCaseParameterName = toLowerCase(parameterName);
+        if (lowerCaseParameterName == "step_size") {
+            setStepSize(std::any_cast<double>(value));
+        } else if (lowerCaseParameterName == "boundary_cushion") {
+            this->boundaryCushion = std::any_cast<double>(value);
+        } else {
+            throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
         }
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    std::vector<std::string>
+    AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::getParameterNames() const {
+        return {
+                "step_size",
+                "boundary_cushion",
+        };
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    std::any AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::getParameter(
+            const std::string &parameterName) const {
+        std::string lowerCaseParameterName = toLowerCase(parameterName);
+        if (lowerCaseParameterName == "step_size") {
+            return std::any(stepSize);
+        } else if (lowerCaseParameterName == "boundary_cushion") {
+            return std::any(boundaryCushion);
+        } else {
+            throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
+        }
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    std::string AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::getParameterType(
+            const std::string &name) const {
+        std::string lowerCaseParameterName = toLowerCase(name);
+        if (lowerCaseParameterName == "step_size") {
+            return "double";
+        } else if (lowerCaseParameterName == "boundary_cushion") {
+            return "double";
+        } else {
+            throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
+        }
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    std::vector<std::string>
+    AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::getDimensionNames() const {
+        std::vector<std::string> names;
+        for (long i = 0; i < state.rows(); ++i) {
+            names.emplace_back("x_" + std::to_string(i));
+        }
+        return names;
     }
 }
 

@@ -21,6 +21,5 @@ add_subdirectory(Draw)
 add_subdirectory(ParallelTempering)
 add_subdirectory(Proposal)
 add_subdirectory(Recorder)
-add_subdirectory(ReversibleJump)
 add_subdirectory(Tuning)
 
