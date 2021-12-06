@@ -37,11 +37,11 @@ namespace hops {
 
         [[nodiscard]] std::vector<std::string> getParameterNames() const override;
 
-        [[nodiscard]] std::any getParameter(const std::string &parameterName) const override;
+        [[nodiscard]] std::any getParameter(const ProposalParameter &parameter) const override;
 
-        [[nodiscard]] std::string getParameterType(const std::string &name) const override;
+        [[nodiscard]] std::string getParameterType(const ProposalParameter &parameter) const override;
 
-        void setParameter(const std::string &parameterName, const std::any &value) override;
+        void setParameter(const ProposalParameter &parameter, const std::any &value) override;
 
         void setStepSize(double stepSize);
 
@@ -151,10 +151,9 @@ namespace hops {
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    void BallWalkProposal<InternalMatrixType, InternalVectorType>::setParameter(const std::string &parameterName,
+    void BallWalkProposal<InternalMatrixType, InternalVectorType>::setParameter(const ProposalParameter &parameter,
                                                                                 const std::any &value) {
-        std::string lowerCaseParameterName = toLowerCase(parameterName);
-        if (lowerCaseParameterName == "step_size") {
+        if (parameter == ProposalParameter::STEP_SIZE) {
             setStepSize(std::any_cast<double>(value));
         } else {
             throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
@@ -163,14 +162,13 @@ namespace hops {
 
     template<typename InternalMatrixType, typename InternalVectorType>
     std::vector<std::string> BallWalkProposal<InternalMatrixType, InternalVectorType>::getParameterNames() const {
-        return {"step_size"};
+        return {ProposalParameterName[static_cast<int>(ProposalParameter::STEP_SIZE)]};
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
     std::any
-    BallWalkProposal<InternalMatrixType, InternalVectorType>::getParameter(const std::string &parameterName) const {
-        std::string lowerCaseParameterName = toLowerCase(parameterName);
-        if (lowerCaseParameterName == "step_size") {
+    BallWalkProposal<InternalMatrixType, InternalVectorType>::getParameter(const ProposalParameter &parameter) const {
+        if (parameter == ProposalParameter::STEP_SIZE) {
             return std::any(stepSize);
         } else {
             throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
@@ -179,9 +177,8 @@ namespace hops {
 
     template<typename InternalMatrixType, typename InternalVectorType>
     std::string
-    BallWalkProposal<InternalMatrixType, InternalVectorType>::getParameterType(const std::string &name) const {
-        std::string lowerCaseParameterName = toLowerCase(name);
-        if (lowerCaseParameterName == "step_size") {
+    BallWalkProposal<InternalMatrixType, InternalVectorType>::getParameterType(const ProposalParameter &parameter) const {
+        if (parameter == ProposalParameter::STEP_SIZE) {
             return "double";
         } else {
             throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());

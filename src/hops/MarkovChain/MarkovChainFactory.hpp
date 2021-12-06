@@ -30,6 +30,7 @@
 namespace hops {
     class MarkovChainFactory {
     public:
+
         /**
          * @brief Creates a Markov chain for uniform sampling of convex polytopes using an arbitrary proposal class.
          * @tparam MatrixType
@@ -41,9 +42,7 @@ namespace hops {
         template<typename MatrixType, typename VectorType, typename Proposal>
         static std::unique_ptr<MarkovChain> createMarkovChain(
                 Proposal proposal
-        ) {
-            return addRecordersAndAdapter(MetropolisHastingsFilter(proposal));
-        }
+        );
 
         /**
          * @brief Creates a Markov chain for uniform sampling of convex polytopes.
@@ -61,60 +60,7 @@ namespace hops {
                 MatrixType inequalityLhs,
                 VectorType inequalityRhs,
                 VectorType startingPoint
-        ) {
-            if (!isInteriorPoint(inequalityLhs, inequalityRhs, startingPoint)) {
-                throw std::runtime_error("Starting point outside polytope is always constant.");
-            }
-
-            switch (type) {
-                case MarkovChainType::BallWalk : {
-                    return addRecordersAndAdapter(
-                            NoOpDrawAdapter(
-                                    BallWalkProposal(
-                                            Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>(
-                                                    inequalityLhs), inequalityRhs, startingPoint)
-                            )
-                    );
-                }
-                case MarkovChainType::CoordinateHitAndRun : {
-                    return addRecordersAndAdapter(
-                            NoOpDrawAdapter(
-                                    CoordinateHitAndRunProposal(
-                                            Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>(
-                                                    inequalityLhs), inequalityRhs, startingPoint)
-                            )
-                    );
-                }
-                case MarkovChainType::DikinWalk : {
-                    return addRecordersAndAdapter(
-                            MetropolisHastingsFilter(
-                                    DikinProposal(inequalityLhs, inequalityRhs, startingPoint)
-                            )
-                    );
-                }
-                case MarkovChainType::Gaussian : {
-                    return addRecordersAndAdapter(
-                            MetropolisHastingsFilter(
-                                    GaussianProposal(
-                                            Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>(
-                                                    inequalityLhs), inequalityRhs, startingPoint)
-                            )
-                    );
-                }
-                case MarkovChainType::HitAndRun: {
-                    return addRecordersAndAdapter(
-                            NoOpDrawAdapter(
-                                    HitAndRunProposal(
-                                            Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>(
-                                                    inequalityLhs), inequalityRhs, startingPoint)
-                            )
-                    );
-                }
-                default: {
-                    throw std::runtime_error("MarkovChainType not supported for uniform sampling.");
-                }
-            }
-        }
+        );
 
         /**
          * @brief Creates a Markov chain for uniform sampling of rounded convex polytopes.
@@ -131,15 +77,7 @@ namespace hops {
                 Proposal proposal,
                 MatrixType unroundingTransformation,
                 VectorType unroundingShift
-        ) {
-            return addRecordersAndAdapter(
-                    MetropolisHastingsFilter(
-                            StateTransformation(
-                                    proposal, LinearTransformation(unroundingTransformation, unroundingShift)
-                            )
-                    )
-            );
-        }
+        );
 
         /**
          * @brief Creates a Markov chain for uniform sampling of rounded convex polytopes.
@@ -161,86 +99,7 @@ namespace hops {
                 VectorType startingPoint,
                 MatrixType unroundingTransformation,
                 VectorType unroundingShift
-        ) {
-            if (!isInteriorPoint(roundedInequalityLhs, roundedInequalityRhs, startingPoint)) {
-                throw std::runtime_error("Starting point outside polytope is always constant.");
-            }
-
-            switch (type) {
-                case MarkovChainType::BallWalk : {
-                    return addRecordersAndAdapter(
-                            NoOpDrawAdapter(
-                                    StateTransformation(
-                                            BallWalkProposal(
-                                                    Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>(
-                                                            roundedInequalityLhs),
-                                                    roundedInequalityRhs,
-                                                    startingPoint),
-                                            LinearTransformation(unroundingTransformation, unroundingShift)
-                                    )
-                            )
-                    );
-                }
-                case MarkovChainType::CoordinateHitAndRun : {
-                    return addRecordersAndAdapter(
-                            NoOpDrawAdapter(
-                                    StateTransformation(
-                                            CoordinateHitAndRunProposal(
-                                                    Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>(
-                                                            roundedInequalityLhs),
-                                                    roundedInequalityRhs,
-                                                    startingPoint),
-                                            LinearTransformation(unroundingTransformation, unroundingShift)
-                                    )
-                            )
-                    );
-                }
-                case MarkovChainType::DikinWalk : {
-                    return addRecordersAndAdapter(
-                            MetropolisHastingsFilter(
-                                    StateTransformation(
-                                            DikinProposal(
-                                                    roundedInequalityLhs,
-                                                    roundedInequalityRhs,
-                                                    startingPoint),
-                                            LinearTransformation(unroundingTransformation, unroundingShift)
-                                    )
-                            )
-                    );
-                }
-                case MarkovChainType::Gaussian : {
-                    return addRecordersAndAdapter(
-                            MetropolisHastingsFilter(
-                                    StateTransformation(
-                                            GaussianProposal(
-                                                    Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>(
-                                                            roundedInequalityLhs),
-                                                    roundedInequalityRhs,
-                                                    startingPoint),
-                                            LinearTransformation(unroundingTransformation, unroundingShift)
-                                    )
-                            )
-                    );
-                }
-                case MarkovChainType::HitAndRun: {
-                    return addRecordersAndAdapter(
-                            NoOpDrawAdapter(
-                                    StateTransformation(
-                                            HitAndRunProposal(
-                                                    Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>(
-                                                            roundedInequalityLhs),
-                                                    roundedInequalityRhs,
-                                                    startingPoint),
-                                            LinearTransformation(unroundingTransformation, unroundingShift)
-                                    )
-                            )
-                    );
-                }
-                default: {
-                    throw std::runtime_error("MarkovChainType not supported for uniform sampling.");
-                }
-            }
-        }
+        );
 
         /**
          * @brief Creates a Markov chain for sampling the likelihood of a with the domain of a convex polytope.
@@ -256,18 +115,7 @@ namespace hops {
         static std::unique_ptr<MarkovChain> createMarkovChain(
                 Proposal proposal,
                 Model model
-        ) {
-            return addRecordersAndAdapter(
-                    NegativeLogLikelihoodRecorder(
-                            MetropolisHastingsFilter(
-                                    ModelMixin(
-                                            proposal,
-                                            Coldness(model)
-                                    )
-                            )
-                    )
-            );
-        }
+        );
 
         /**
          * @brief Creates a Markov chain for sampling the likelihood of a model with the domain of a convex polytope.
@@ -288,112 +136,7 @@ namespace hops {
                 VectorType inequalityRhs,
                 VectorType startingPoint,
                 Model model
-        ) {
-            if (!isInteriorPoint(inequalityLhs, inequalityRhs, startingPoint)) {
-                throw std::runtime_error("Starting point outside polytope is always constant.");
-            }
-            switch (type) {
-                case MarkovChainType::AdaptiveMetropolis : {
-                    return addRecordersAndAdapter(
-                            MetropolisHastingsFilter(
-                                    ModelMixin(
-                                            AdaptiveMetropolisProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
-                                                    decltype(inequalityRhs)>(
-                                                    inequalityLhs, inequalityRhs, startingPoint),
-                                            Coldness(model)
-                                    )
-                            )
-                    );
-                }
-                case MarkovChainType::BallWalk : {
-                    return addRecordersAndAdapter(
-                            NegativeLogLikelihoodRecorder(
-                                    MetropolisHastingsFilter(
-                                            ModelMixin(
-                                                    BallWalkProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
-                                                            decltype(inequalityRhs)>(
-                                                            inequalityLhs, inequalityRhs, startingPoint),
-                                                    Coldness(model)
-                                            )
-                                    )
-                            )
-                    );
-                }
-                case MarkovChainType::CoordinateHitAndRun : {
-                    return addRecordersAndAdapter(
-                            NegativeLogLikelihoodRecorder(
-                                    MetropolisHastingsFilter(
-                                            ModelMixin(
-                                                    CoordinateHitAndRunProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
-                                                            decltype(inequalityRhs),
-                                                            GaussianStepDistribution<typename decltype(inequalityRhs)::Scalar>>(
-                                                            inequalityLhs, inequalityRhs, startingPoint),
-                                                    Coldness(model)
-                                            )
-                                    )
-                            )
-                    );
-                }
-                case MarkovChainType::CSmMALA: {
-                    return addRecordersAndAdapter(
-                            NegativeLogLikelihoodRecorder(
-                                    MetropolisHastingsFilter(
-                                            CSmMALAProposal(
-                                                    Coldness(model),
-                                                    inequalityLhs,
-                                                    inequalityRhs,
-                                                    startingPoint)
-                                    )
-                            )
-                    );
-                }
-                case MarkovChainType::DikinWalk : {
-                    return addRecordersAndAdapter(
-                            NegativeLogLikelihoodRecorder(
-                                    MetropolisHastingsFilter(
-                                            ModelMixin(
-                                                    DikinProposal(inequalityLhs, inequalityRhs, startingPoint),
-                                                    Coldness(model)
-                                            )
-                                    )
-                            )
-                    );
-                }
-                case MarkovChainType::Gaussian : {
-                    return addRecordersAndAdapter(
-                            NegativeLogLikelihoodRecorder(
-                                    MetropolisHastingsFilter(
-                                            ModelMixin(
-                                                    GaussianProposal<
-                                                            Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
-                                                            decltype(inequalityRhs)
-                                                    >(inequalityLhs, inequalityRhs, startingPoint),
-                                                    Coldness(model)
-                                            )
-                                    )
-                            )
-                    );
-                }
-                case MarkovChainType::HitAndRun: {
-                    return addRecordersAndAdapter(
-                            NegativeLogLikelihoodRecorder(
-                                    MetropolisHastingsFilter(
-                                            ModelMixin(
-                                                    HitAndRunProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
-                                                            decltype(inequalityRhs),
-                                                            GaussianStepDistribution<typename decltype(inequalityRhs)::Scalar>>(
-                                                            inequalityLhs, inequalityRhs, startingPoint),
-                                                    Coldness(model)
-                                            )
-                                    )
-                            )
-                    );
-                }
-                default: {
-                    throw std::runtime_error("Type not supported.");
-                }
-            }
-        }
+        );
 
         /**
          * @brief Creates a Markov chain for sampling the likelihood of a model with the domain of a convex polytope with parallel tempering.
@@ -416,119 +159,7 @@ namespace hops {
                 VectorType startingPoint,
                 Model model,
                 RandomNumberGenerator synchronizedRandomNumberGenerator
-        ) {
-            if (!isInteriorPoint(inequalityLhs, inequalityRhs, startingPoint)) {
-                throw std::runtime_error("Starting point outside polytope is always constant.");
-            }
-
-            switch (type) {
-                case MarkovChainType::AdaptiveMetropolis : {
-                    return addRecordersAndAdapter(
-                            MetropolisHastingsFilter(
-                                    ModelMixin(
-                                            AdaptiveMetropolisProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
-                                                    decltype(inequalityRhs)>(
-                                                    inequalityLhs, inequalityRhs, startingPoint),
-                                            Coldness(model)
-                                    )
-                            ),
-                            synchronizedRandomNumberGenerator
-                    );
-                }
-                case MarkovChainType::BallWalk : {
-                    return addRecordersAndAdapter(
-                            NegativeLogLikelihoodRecorder(
-                                    MetropolisHastingsFilter(
-                                            ModelMixin(
-                                                    BallWalkProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
-                                                            decltype(inequalityRhs)>(
-                                                            inequalityLhs, inequalityRhs, startingPoint),
-                                                    Coldness(model)
-                                            )
-                                    )
-                            ),
-                            synchronizedRandomNumberGenerator
-                    );
-                }
-                case MarkovChainType::CoordinateHitAndRun : {
-                    return addRecordersAndAdapter(
-                            NegativeLogLikelihoodRecorder(
-                                    MetropolisHastingsFilter(
-                                            ModelMixin(
-                                                    CoordinateHitAndRunProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
-                                                            decltype(inequalityRhs),
-                                                            GaussianStepDistribution<typename decltype(inequalityRhs)::Scalar>>(
-                                                            inequalityLhs, inequalityRhs, startingPoint),
-                                                    Coldness(model)
-                                            )
-                                    )
-                            ),
-                            synchronizedRandomNumberGenerator
-                    );
-                }
-                case MarkovChainType::CSmMALA: {
-                    return addRecordersAndAdapter(
-                            NegativeLogLikelihoodRecorder(
-                                    MetropolisHastingsFilter(
-                                            CSmMALAProposal(Coldness(model),
-                                                            inequalityLhs,
-                                                            inequalityRhs,
-                                                            startingPoint)
-                                    )
-                            ),
-                            synchronizedRandomNumberGenerator
-                    );
-                }
-                case MarkovChainType::DikinWalk : {
-                    return addRecordersAndAdapter(
-                            NegativeLogLikelihoodRecorder(
-                                    MetropolisHastingsFilter(
-                                            ModelMixin(
-                                                    DikinProposal(inequalityLhs, inequalityRhs, startingPoint),
-                                                    Coldness(model)
-                                            )
-                                    )
-                            ),
-                            synchronizedRandomNumberGenerator
-                    );
-                }
-                case MarkovChainType::Gaussian : {
-                    return addRecordersAndAdapter(
-                            NegativeLogLikelihoodRecorder(
-                                    MetropolisHastingsFilter(
-                                            ModelMixin(
-                                                    GaussianProposal<
-                                                            Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
-                                                            decltype(inequalityRhs)
-                                                    >(inequalityLhs, inequalityRhs, startingPoint),
-                                                    Coldness(model)
-                                            )
-                                    )
-                            ),
-                            synchronizedRandomNumberGenerator
-                    );
-                }
-                case MarkovChainType::HitAndRun: {
-                    return addRecordersAndAdapter(
-                            NegativeLogLikelihoodRecorder(
-                                    MetropolisHastingsFilter(
-                                            ModelMixin(
-                                                    HitAndRunProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
-                                                            decltype(inequalityRhs),
-                                                            GaussianStepDistribution<typename decltype(inequalityRhs)::Scalar>>(
-                                                            inequalityLhs, inequalityRhs, startingPoint),
-                                                    Coldness(model)
-                                            )
-                                    )
-                            ),
-                            synchronizedRandomNumberGenerator
-                    );
-                }
-                default: {
-                    throw std::runtime_error("Type not supported.");
-                }
-            }
-        }
+        );
 
         /**
          * @brief Creates a Markov chain for sampling the likelihood of a model with the domain of a rounded convex polytope.
@@ -548,21 +179,7 @@ namespace hops {
                 MatrixType unroundingTransformation,
                 VectorType unroundingShift,
                 Model model
-        ) {
-            return addRecordersAndAdapter(
-                    NegativeLogLikelihoodRecorder(
-                            MetropolisHastingsFilter(
-                                    ModelMixin(
-                                            StateTransformation(
-                                                    proposal,
-                                                    LinearTransformation(unroundingTransformation, unroundingShift)
-                                            ),
-                                            Coldness(model)
-                                    )
-                            )
-                    )
-            );
-        }
+        );
 
         /**
          * @brief Creates a Markov chain for sampling the likelihood of a model with the domain of a rounded convex polytope.
@@ -587,100 +204,7 @@ namespace hops {
                 MatrixType unroundingTransformation,
                 VectorType unroundingShift,
                 Model model
-        ) {
-            if (!isInteriorPoint(roundedInequalityLhs, roundedInequalityRhs, startingPoint)) {
-                throw std::runtime_error("Starting point outside polytope is always constant.");
-            }
-            switch (type) {
-                case MarkovChainType::BallWalk : {
-                    return addRecordersAndAdapter(
-                            NegativeLogLikelihoodRecorder(
-                                    MetropolisHastingsFilter(
-                                            ModelMixin(
-                                                    StateTransformation(
-                                                            BallWalkProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
-                                                                    decltype(roundedInequalityRhs)>(
-                                                                    roundedInequalityLhs,
-                                                                    roundedInequalityRhs,
-                                                                    startingPoint),
-                                                            LinearTransformation(unroundingTransformation,
-                                                                                 unroundingShift)
-                                                    ),
-                                                    Coldness(model)
-                                            )
-                                    )
-                            )
-                    );
-                }
-                case MarkovChainType::CoordinateHitAndRun : {
-                    return addRecordersAndAdapter(
-                            NegativeLogLikelihoodRecorder(
-                                    MetropolisHastingsFilter(
-                                            ModelMixin(
-                                                    StateTransformation(
-                                                            CoordinateHitAndRunProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
-                                                                    decltype(roundedInequalityRhs),
-                                                                    GaussianStepDistribution<typename decltype(roundedInequalityRhs)::Scalar>>(
-                                                                    roundedInequalityLhs,
-                                                                    roundedInequalityRhs,
-                                                                    startingPoint),
-                                                            LinearTransformation(unroundingTransformation,
-                                                                                 unroundingShift)
-                                                    ),
-                                                    Coldness(model)
-                                            )
-                                    )
-                            )
-                    );
-                }
-                case MarkovChainType::Gaussian : {
-                    return addRecordersAndAdapter(
-                            NegativeLogLikelihoodRecorder(
-                                    MetropolisHastingsFilter(
-                                            ModelMixin(
-                                                    StateTransformation(
-                                                            GaussianProposal<
-                                                                    Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
-                                                                    decltype(roundedInequalityRhs)>(
-                                                                    roundedInequalityLhs,
-                                                                    roundedInequalityRhs,
-                                                                    startingPoint
-                                                            ),
-                                                            LinearTransformation(unroundingTransformation,
-                                                                                 unroundingShift)
-                                                    ),
-                                                    Coldness(model)
-                                            )
-                                    )
-                            )
-                    );
-                }
-                case MarkovChainType::HitAndRun: {
-                    return addRecordersAndAdapter(
-                            NegativeLogLikelihoodRecorder(
-                                    MetropolisHastingsFilter(
-                                            ModelMixin(
-                                                    StateTransformation(
-                                                            HitAndRunProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
-                                                                    decltype(roundedInequalityRhs),
-                                                                    GaussianStepDistribution<typename decltype(roundedInequalityRhs)::Scalar>>(
-                                                                    roundedInequalityLhs,
-                                                                    roundedInequalityRhs,
-                                                                    startingPoint),
-                                                            LinearTransformation(unroundingTransformation,
-                                                                                 unroundingShift)
-                                                    ),
-                                                    Coldness(model)
-                                            )
-                                    )
-                            )
-                    );
-                }
-                default: {
-                    throw std::runtime_error("Type not supported.");
-                }
-            }
-        }
+        );
 
         /**
          * @brief Creates a Markov chain for sampling the likelihood of a model with the domain of a rounded convex polytope with parallel tempering.
@@ -707,160 +231,647 @@ namespace hops {
                 VectorType unroundingShift,
                 Model model,
                 RandomNumberGenerator synchronizedRandomNumberGenerator
-        ) {
-            if (!isInteriorPoint(roundedInequalityLhs, roundedInequalityRhs, startingPoint)) {
-                throw std::runtime_error("Starting point outside polytope is always constant.");
-            }
-            switch (type) {
-                case MarkovChainType::BallWalk : {
-                    return addRecordersAndAdapter(
-                            NegativeLogLikelihoodRecorder(
-                                    MetropolisHastingsFilter(
-                                            ModelMixin(
-                                                    StateTransformation(
-                                                            BallWalkProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
-                                                                    decltype(roundedInequalityRhs)>(
-                                                                    roundedInequalityLhs,
-                                                                    roundedInequalityRhs,
-                                                                    startingPoint),
-                                                            LinearTransformation(unroundingTransformation,
-                                                                                 unroundingShift)
-                                                    ),
-                                                    Coldness(model)
-                                            )
-                                    )
-                            ),
-                            synchronizedRandomNumberGenerator
-                    );
-                }
-                case MarkovChainType::CoordinateHitAndRun : {
-                    return addRecordersAndAdapter(
-                            NegativeLogLikelihoodRecorder(
-                                    MetropolisHastingsFilter(
-                                            ModelMixin(
-                                                    StateTransformation(
-                                                            CoordinateHitAndRunProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
-                                                                    decltype(roundedInequalityRhs),
-                                                                    GaussianStepDistribution<typename decltype(roundedInequalityRhs)::Scalar>>(
-                                                                    roundedInequalityLhs,
-                                                                    roundedInequalityRhs,
-                                                                    startingPoint),
-                                                            LinearTransformation(unroundingTransformation,
-                                                                                 unroundingShift)
-                                                    ),
-                                                    Coldness(model)
-                                            )
-                                    )
-                            ),
-                            synchronizedRandomNumberGenerator
-                    );
-                }
-                case MarkovChainType::Gaussian : {
-                    return addRecordersAndAdapter(
-                            NegativeLogLikelihoodRecorder(
-                                    MetropolisHastingsFilter(
-                                            ModelMixin(
-                                                    StateTransformation(
-                                                            GaussianProposal<
-                                                                    Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
-                                                                    decltype(roundedInequalityRhs)>(
-                                                                    roundedInequalityLhs,
-                                                                    roundedInequalityRhs,
-                                                                    startingPoint
-                                                            ),
-                                                            LinearTransformation(unroundingTransformation,
-                                                                                 unroundingShift)
-                                                    ),
-                                                    Coldness(model)
-                                            )
-                                    )
-                            ),
-                            synchronizedRandomNumberGenerator
-                    );
-                }
-                case MarkovChainType::HitAndRun: {
-                    return addRecordersAndAdapter(
-                            NegativeLogLikelihoodRecorder(
-                                    MetropolisHastingsFilter(
-                                            ModelMixin(
-                                                    StateTransformation(
-                                                            HitAndRunProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
-                                                                    decltype(roundedInequalityRhs),
-                                                                    GaussianStepDistribution<typename decltype(roundedInequalityRhs)::Scalar>>(
-                                                                    roundedInequalityLhs,
-                                                                    roundedInequalityRhs,
-                                                                    startingPoint),
-                                                            LinearTransformation(unroundingTransformation,
-                                                                                 unroundingShift)
-                                                    ),
-                                                    Coldness(model)
-                                            )
-                                    )
-                            ),
-                            synchronizedRandomNumberGenerator
-                    );
-                }
-                default: {
-                    throw std::runtime_error("Type not supported.");
-                }
-            }
-        }
-
+        );
 
     private:
         template<typename MatrixType, typename VectorType>
         static bool isInteriorPoint(const MatrixType &A, const VectorType &b, const VectorType &x) {
             return ((b - A * x).array() >= 0).all();
         }
+    };
 
-        /**
-         * @brief Adds standard mixins to MarkovChain and sets up parallel tempering.
-         * @tparam MarkovChain
-         * @return
-         */
-        template<typename MarkovChainImpl>
-        static std::unique_ptr<MarkovChain>
-        addRecordersAndAdapter(const MarkovChainImpl &markovChainImpl,
-                               RandomNumberGenerator synchronizedRandomNumberGenerator) {
-            if constexpr(IsSetColdnessAvailable<MarkovChainImpl>::value) {
-                auto mc = MarkovChainAdapter(
+
+    template<typename MatrixType, typename VectorType, typename Proposal>
+    std::unique_ptr<MarkovChain> MarkovChainFactory::createMarkovChain(
+            Proposal proposal
+    ) {
+        return MarkovChainAdapter(MetropolisHastingsFilter(proposal));
+    }
+
+
+    template<typename MatrixType, typename VectorType>
+    std::unique_ptr<MarkovChain> MarkovChainFactory::createMarkovChain(
+            MarkovChainType type,
+            MatrixType inequalityLhs,
+            VectorType inequalityRhs,
+            VectorType startingPoint
+    ) {
+        if (!isInteriorPoint(inequalityLhs, inequalityRhs, startingPoint)) {
+            throw std::runtime_error("Starting point outside polytope is always constant.");
+        }
+
+        switch (type) {
+            case MarkovChainType::BallWalk : {
+                return MarkovChainAdapter(
+                        NoOpDrawAdapter(
+                                BallWalkProposal(
+                                        Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>(
+                                                inequalityLhs), inequalityRhs, startingPoint)
+                        )
+                );
+            }
+            case MarkovChainType::CoordinateHitAndRun : {
+                return MarkovChainAdapter(
+                        NoOpDrawAdapter(
+                                CoordinateHitAndRunProposal(
+                                        Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>(
+                                                inequalityLhs), inequalityRhs, startingPoint)
+                        )
+                );
+            }
+            case MarkovChainType::DikinWalk : {
+                return MarkovChainAdapter(
+                        MetropolisHastingsFilter(
+                                DikinProposal(inequalityLhs, inequalityRhs, startingPoint)
+                        )
+                );
+            }
+            case MarkovChainType::Gaussian : {
+                return MarkovChainAdapter(
+                        MetropolisHastingsFilter(
+                                GaussianProposal(
+                                        Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>(
+                                                inequalityLhs), inequalityRhs, startingPoint)
+                        )
+                );
+            }
+            case MarkovChainType::HitAndRun: {
+                return MarkovChainAdapter(
+                        NoOpDrawAdapter(
+                                HitAndRunProposal(
+                                        Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>(
+                                                inequalityLhs), inequalityRhs, startingPoint)
+                        )
+                );
+            }
+            default: {
+                throw std::runtime_error("MarkovChainType not supported for uniform sampling.");
+            }
+        }
+    }
+
+
+    template<typename MatrixType, typename VectorType, typename Proposal>
+    std::unique_ptr<MarkovChain> MarkovChainFactory::createMarkovChain(
+            Proposal proposal,
+            MatrixType unroundingTransformation,
+            VectorType unroundingShift
+    ) {
+        return MarkovChainAdapter(
+                MetropolisHastingsFilter(
+                        StateTransformation(
+                                proposal, LinearTransformation(unroundingTransformation, unroundingShift)
+                        )
+                )
+        );
+    }
+
+    
+    template<typename MatrixType, typename VectorType>
+    std::unique_ptr<MarkovChain> MarkovChainFactory::createMarkovChain(
+            MarkovChainType type,
+            MatrixType roundedInequalityLhs,
+            VectorType roundedInequalityRhs,
+            VectorType startingPoint,
+            MatrixType unroundingTransformation,
+            VectorType unroundingShift
+    ) {
+        if (!isInteriorPoint(roundedInequalityLhs, roundedInequalityRhs, startingPoint)) {
+            throw std::runtime_error("Starting point outside polytope is always constant.");
+        }
+
+        switch (type) {
+            case MarkovChainType::BallWalk : {
+                return MarkovChainAdapter(
+                        NoOpDrawAdapter(
+                                StateTransformation(
+                                        BallWalkProposal(
+                                                Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>(
+                                                        roundedInequalityLhs),
+                                                roundedInequalityRhs,
+                                                startingPoint),
+                                        LinearTransformation(unroundingTransformation, unroundingShift)
+                                )
+                        )
+                );
+            }
+            case MarkovChainType::CoordinateHitAndRun : {
+                return MarkovChainAdapter(
+                        NoOpDrawAdapter(
+                                StateTransformation(
+                                        CoordinateHitAndRunProposal(
+                                                Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>(
+                                                        roundedInequalityLhs),
+                                                roundedInequalityRhs,
+                                                startingPoint),
+                                        LinearTransformation(unroundingTransformation, unroundingShift)
+                                )
+                        )
+                );
+            }
+            case MarkovChainType::DikinWalk : {
+                return MarkovChainAdapter(
+                        MetropolisHastingsFilter(
+                                StateTransformation(
+                                        DikinProposal(
+                                                roundedInequalityLhs,
+                                                roundedInequalityRhs,
+                                                startingPoint),
+                                        LinearTransformation(unroundingTransformation, unroundingShift)
+                                )
+                        )
+                );
+            }
+            case MarkovChainType::Gaussian : {
+                return MarkovChainAdapter(
+                        MetropolisHastingsFilter(
+                                StateTransformation(
+                                        GaussianProposal(
+                                                Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>(
+                                                        roundedInequalityLhs),
+                                                roundedInequalityRhs,
+                                                startingPoint),
+                                        LinearTransformation(unroundingTransformation, unroundingShift)
+                                )
+                        )
+                );
+            }
+            case MarkovChainType::HitAndRun: {
+                return MarkovChainAdapter(
+                        NoOpDrawAdapter(
+                                StateTransformation(
+                                        HitAndRunProposal(
+                                                Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>(
+                                                        roundedInequalityLhs),
+                                                roundedInequalityRhs,
+                                                startingPoint),
+                                        LinearTransformation(unroundingTransformation, unroundingShift)
+                                )
+                        )
+                );
+            }
+            default: {
+                throw std::runtime_error("MarkovChainType not supported for uniform sampling.");
+            }
+        }
+    }
+
+
+    template<typename MatrixType, typename VectorType, typename Model, typename Proposal>
+    std::unique_ptr<MarkovChain> MarkovChainFactory::createMarkovChain(
+            Proposal proposal,
+            Model model
+    ) {
+        return MarkovChainAdapter(
+                MetropolisHastingsFilter(
+                        ModelMixin(
+                                proposal,
+                                Coldness(model)
+                        )
+                )
+        );
+    }
+
+    template<typename MatrixType, typename VectorType, typename Model>
+    std::unique_ptr<MarkovChain> MarkovChainFactory::createMarkovChain(
+            MarkovChainType type,
+            MatrixType inequalityLhs,
+            VectorType inequalityRhs,
+            VectorType startingPoint,
+            Model model
+    ) {
+        if (!isInteriorPoint(inequalityLhs, inequalityRhs, startingPoint)) {
+            throw std::runtime_error("Starting point outside polytope is always constant.");
+        }
+        switch (type) {
+            case MarkovChainType::AdaptiveMetropolis : {
+                return MarkovChainAdapter(
+                        MetropolisHastingsFilter(
+                                ModelMixin(
+                                        AdaptiveMetropolisProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
+                                                decltype(inequalityRhs)>(
+                                                inequalityLhs, inequalityRhs, startingPoint),
+                                        Coldness(model)
+                                )
+                        )
+                );
+            }
+            case MarkovChainType::BallWalk : {
+                return MarkovChainAdapter(
+                        MetropolisHastingsFilter(
+                                ModelMixin(
+                                        BallWalkProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
+                                                decltype(inequalityRhs)>(
+                                                inequalityLhs, inequalityRhs, startingPoint),
+                                        Coldness(model)
+                                )
+                        )
+                );
+            }
+            case MarkovChainType::CoordinateHitAndRun : {
+                return MarkovChainAdapter(
+                        MetropolisHastingsFilter(
+                                ModelMixin(
+                                        CoordinateHitAndRunProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
+                                                decltype(inequalityRhs),
+                                                GaussianStepDistribution<typename decltype(inequalityRhs)::Scalar>>(
+                                                inequalityLhs, inequalityRhs, startingPoint),
+                                        Coldness(model)
+                                )
+                        )
+                );
+            }
+            case MarkovChainType::CSmMALA: {
+                return MarkovChainAdapter(
+                        MetropolisHastingsFilter(
+                                CSmMALAProposal(
+                                        Coldness(model),
+                                        inequalityLhs,
+                                        inequalityRhs,
+                                        startingPoint)
+                        )
+                );
+            }
+            case MarkovChainType::DikinWalk : {
+                return MarkovChainAdapter(
+                        MetropolisHastingsFilter(
+                                ModelMixin(
+                                        DikinProposal(inequalityLhs, inequalityRhs, startingPoint),
+                                        Coldness(model)
+                                )
+                        )
+                );
+            }
+            case MarkovChainType::Gaussian : {
+                return MarkovChainAdapter(
+                        MetropolisHastingsFilter(
+                                ModelMixin(
+                                        GaussianProposal<
+                                                Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
+                                                decltype(inequalityRhs)
+                                        >(inequalityLhs, inequalityRhs, startingPoint),
+                                        Coldness(model)
+                                )
+                        )
+                );
+            }
+            case MarkovChainType::HitAndRun: {
+                return MarkovChainAdapter(
+                        MetropolisHastingsFilter(
+                                ModelMixin(
+                                        HitAndRunProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
+                                                decltype(inequalityRhs),
+                                                GaussianStepDistribution<typename decltype(inequalityRhs)::Scalar>>(
+                                                inequalityLhs, inequalityRhs, startingPoint),
+                                        Coldness(model)
+                                )
+                        )
+                );
+            }
+            default: {
+                throw std::runtime_error("Type not supported.");
+            }
+        }
+    }
+
+    template<typename MatrixType, typename VectorType, typename Model>
+    std::unique_ptr<MarkovChain> MarkovChainFactory::createMarkovChainWithParallelTempering(
+            MarkovChainType type,
+            MatrixType inequalityLhs,
+            VectorType inequalityRhs,
+            VectorType startingPoint,
+            Model model,
+            RandomNumberGenerator synchronizedRandomNumberGenerator
+    ) {
+        if (!isInteriorPoint(inequalityLhs, inequalityRhs, startingPoint)) {
+            throw std::runtime_error("Starting point outside polytope is always constant.");
+        }
+
+        switch (type) {
+            case MarkovChainType::AdaptiveMetropolis : {
+                return MarkovChainAdapter(
+                        MetropolisHastingsFilter(
+                                ModelMixin(
+                                        AdaptiveMetropolisProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
+                                                decltype(inequalityRhs)>(
+                                                inequalityLhs, inequalityRhs, startingPoint),
+                                        Coldness(model)
+                                )
+                        ),
+                        synchronizedRandomNumberGenerator
+                );
+            }
+            case MarkovChainType::BallWalk : {
+                return MarkovChainAdapter(
+                        MetropolisHastingsFilter(
+                                ModelMixin(
+                                        BallWalkProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
+                                                decltype(inequalityRhs)>(
+                                                inequalityLhs, inequalityRhs, startingPoint),
+                                        Coldness(model)
+                                )
+                        ),
+                        synchronizedRandomNumberGenerator
+                );
+            }
+            case MarkovChainType::CoordinateHitAndRun : {
+                return MarkovChainAdapter(
+                        MetropolisHastingsFilter(
+                                ModelMixin(
+                                        CoordinateHitAndRunProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
+                                                decltype(inequalityRhs),
+                                                GaussianStepDistribution<typename decltype(inequalityRhs)::Scalar>>(
+                                                inequalityLhs, inequalityRhs, startingPoint),
+                                        Coldness(model)
+                                )
+                        ),
+                        synchronizedRandomNumberGenerator
+                );
+            }
+            case MarkovChainType::CSmMALA: {
+                return MarkovChainAdapter(
+                        MetropolisHastingsFilter(
+                                CSmMALAProposal(Coldness(model),
+                                                inequalityLhs,
+                                                inequalityRhs,
+                                                startingPoint)
+                        ),
+                        synchronizedRandomNumberGenerator
+                );
+            }
+            case MarkovChainType::DikinWalk : {
+                return MarkovChainAdapter(
+                        MetropolisHastingsFilter(
+                                ModelMixin(
+                                        DikinProposal(inequalityLhs, inequalityRhs, startingPoint),
+                                        Coldness(model)
+                                )
+                        ),
+                        synchronizedRandomNumberGenerator
+                );
+            }
+            case MarkovChainType::Gaussian : {
+                return MarkovChainAdapter(
+                        MetropolisHastingsFilter(
+                                ModelMixin(
+                                        GaussianProposal<
+                                                Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
+                                                decltype(inequalityRhs)
+                                        >(inequalityLhs, inequalityRhs, startingPoint),
+                                        Coldness(model)
+                                )
+                        ),
+                        synchronizedRandomNumberGenerator
+                );
+            }
+            case MarkovChainType::HitAndRun: {
+                return MarkovChainAdapter(
+                        MetropolisHastingsFilter(
+                                ModelMixin(
+                                        HitAndRunProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
+                                                decltype(inequalityRhs),
+                                                GaussianStepDistribution<typename decltype(inequalityRhs)::Scalar>>(
+                                                inequalityLhs, inequalityRhs, startingPoint),
+                                        Coldness(model)
+                                )
+                        ),
+                        synchronizedRandomNumberGenerator
+                );
+            }
+            default: {
+                throw std::runtime_error("Type not supported.");
+            }
+        }
+    }
+
+
+    template<typename MatrixType, typename VectorType, typename Model, typename Proposal>
+    std::unique_ptr<MarkovChain> MarkovChainFactory::createMarkovChain(
+            Proposal proposal,
+            MatrixType unroundingTransformation,
+            VectorType unroundingShift,
+            Model model
+    ) {
+        return MarkovChainAdapter(
+                MetropolisHastingsFilter(
+                        ModelMixin(
+                                StateTransformation(
+                                        proposal,
+                                        LinearTransformation(unroundingTransformation, unroundingShift)
+                                ),
+                                model
+                        )
+                )
+        );
+    }
+
+
+    template<typename MatrixType, typename VectorType, typename Model>
+    std::unique_ptr<MarkovChain> MarkovChainFactory::createMarkovChain(
+            MarkovChainType type,
+            MatrixType roundedInequalityLhs,
+            VectorType roundedInequalityRhs,
+            VectorType startingPoint,
+            MatrixType unroundingTransformation,
+            VectorType unroundingShift,
+            Model model
+    ) {
+        if (!isInteriorPoint(roundedInequalityLhs, roundedInequalityRhs, startingPoint)) {
+            throw std::runtime_error("Starting point outside polytope is always constant.");
+        }
+        switch (type) {
+            case MarkovChainType::BallWalk : {
+                return MarkovChainAdapter(
+                        MetropolisHastingsFilter(
+                                ModelMixin(
+                                        StateTransformation(
+                                                BallWalkProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
+                                                        decltype(roundedInequalityRhs)>(
+                                                        roundedInequalityLhs,
+                                                        roundedInequalityRhs,
+                                                        startingPoint),
+                                                LinearTransformation(unroundingTransformation,
+                                                                     unroundingShift)
+                                        ),
+                                        model
+                                )
+                        )
+                );
+            }
+            case MarkovChainType::CoordinateHitAndRun : {
+                return MarkovChainAdapter(
+                        MetropolisHastingsFilter(
+                                ModelMixin(
+                                        StateTransformation(
+                                                CoordinateHitAndRunProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
+                                                        decltype(roundedInequalityRhs),
+                                                        GaussianStepDistribution<typename decltype(roundedInequalityRhs)::Scalar>>(
+                                                        roundedInequalityLhs,
+                                                        roundedInequalityRhs,
+                                                        startingPoint),
+                                                LinearTransformation(unroundingTransformation,
+                                                                     unroundingShift)
+                                        ),
+                                        model
+                                )
+                        )
+                );
+            }
+            case MarkovChainType::Gaussian : {
+                return MarkovChainAdapter(
+                        MetropolisHastingsFilter(
+                                ModelMixin(
+                                        StateTransformation(
+                                                GaussianProposal<
+                                                        Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
+                                                        decltype(roundedInequalityRhs)>(
+                                                        roundedInequalityLhs,
+                                                        roundedInequalityRhs,
+                                                        startingPoint
+                                                ),
+                                                LinearTransformation(unroundingTransformation,
+                                                                     unroundingShift)
+                                        ),
+                                        model
+                                )
+                        )
+                );
+            }
+            case MarkovChainType::HitAndRun: {
+                return MarkovChainAdapter(
+                        MetropolisHastingsFilter(
+                                ModelMixin(
+                                        StateTransformation(
+                                                HitAndRunProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
+                                                        decltype(roundedInequalityRhs),
+                                                        GaussianStepDistribution<typename decltype(roundedInequalityRhs)::Scalar>>(
+                                                        roundedInequalityLhs,
+                                                        roundedInequalityRhs,
+                                                        startingPoint),
+                                                LinearTransformation(unroundingTransformation,
+                                                                     unroundingShift)
+                                        ),
+                                        model
+                                )
+                        )
+                );
+            }
+            default: {
+                throw std::runtime_error("Type not supported.");
+            }
+        }
+    }
+
+
+    template<typename MatrixType, typename VectorType, typename Model>
+    std::unique_ptr<MarkovChain> MarkovChainFactory::createMarkovChainWithParallelTempering(
+            MarkovChainType type,
+            MatrixType roundedInequalityLhs,
+            VectorType roundedInequalityRhs,
+            VectorType startingPoint,
+            MatrixType unroundingTransformation,
+            VectorType unroundingShift,
+            Model model,
+            RandomNumberGenerator synchronizedRandomNumberGenerator
+    ) {
+        if (!isInteriorPoint(roundedInequalityLhs, roundedInequalityRhs, startingPoint)) {
+            throw std::runtime_error("Starting point outside polytope is always constant.");
+        }
+        switch (type) {
+            case MarkovChainType::BallWalk : {
+                return MarkovChainAdapter(
                         ParallelTempering(
-                                AcceptanceRateRecorder(
-                                        TimestampRecorder(
-                                                StateRecorder(
-                                                        markovChainImpl
-                                                )
+                                MetropolisHastingsFilter(
+                                        ModelMixin(
+                                                StateTransformation(
+                                                        BallWalkProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
+                                                                decltype(roundedInequalityRhs)>(
+                                                                roundedInequalityLhs,
+                                                                roundedInequalityRhs,
+                                                                startingPoint),
+                                                        LinearTransformation(unroundingTransformation,
+                                                                             unroundingShift)
+                                                ),
+                                                Coldness(model)
                                         )
                                 ),
                                 synchronizedRandomNumberGenerator
                         )
                 );
-                return std::make_unique<decltype(mc)>(mc);
-            } else {
-                throw std::runtime_error("Can not use Parallel Tempering without model.");
             }
-        };
-
-        /**
-         * @brief Adds standard mixins to MarkovChain
-         * @tparam MarkovChain
-         * @return
-         */
-        template<typename MarkovChainImpl>
-        static std::unique_ptr<MarkovChain>
-        addRecordersAndAdapter(const MarkovChainImpl &markovChainImpl) {
-            auto mc = MarkovChainAdapter(
-                    AcceptanceRateRecorder(
-                            TimestampRecorder(
-                                    StateRecorder(
-                                            markovChainImpl
-                                    )
-                            )
-                    )
-            );
-            return std::make_unique<decltype(mc)>(mc);
+            case MarkovChainType::CoordinateHitAndRun : {
+                return MarkovChainAdapter(
+                        ParallelTempering(
+                                MetropolisHastingsFilter(
+                                        ModelMixin(
+                                                StateTransformation(
+                                                        CoordinateHitAndRunProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
+                                                                decltype(roundedInequalityRhs),
+                                                                GaussianStepDistribution<typename decltype(roundedInequalityRhs)::Scalar>>(
+                                                                roundedInequalityLhs,
+                                                                roundedInequalityRhs,
+                                                                startingPoint),
+                                                        LinearTransformation(unroundingTransformation,
+                                                                             unroundingShift)
+                                                ),
+                                                Coldness(model)
+                                        )
+                                ),
+                                synchronizedRandomNumberGenerator
+                        )
+                );
+            }
+            case MarkovChainType::Gaussian : {
+                return MarkovChainAdapter(
+                        ParallelTempering(
+                                MetropolisHastingsFilter(
+                                        ModelMixin(
+                                                StateTransformation(
+                                                        GaussianProposal<
+                                                                Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
+                                                                decltype(roundedInequalityRhs)>(
+                                                                roundedInequalityLhs,
+                                                                roundedInequalityRhs,
+                                                                startingPoint
+                                                        ),
+                                                        LinearTransformation(unroundingTransformation,
+                                                                             unroundingShift)
+                                                ),
+                                                Coldness(model)
+                                        )
+                                ),
+                                synchronizedRandomNumberGenerator
+                        )
+                );
+            }
+            case MarkovChainType::HitAndRun: {
+                return MarkovChainAdapter(
+                        ParallelTempering(
+                                MetropolisHastingsFilter(
+                                        ModelMixin(
+                                                StateTransformation(
+                                                        HitAndRunProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
+                                                                decltype(roundedInequalityRhs),
+                                                                GaussianStepDistribution<typename decltype(roundedInequalityRhs)::Scalar>>(
+                                                                roundedInequalityLhs,
+                                                                roundedInequalityRhs,
+                                                                startingPoint),
+                                                        LinearTransformation(unroundingTransformation,
+                                                                             unroundingShift)
+                                                ),
+                                                Coldness(model)
+                                        )
+                                ),
+                                synchronizedRandomNumberGenerator
+                        )
+                );
+            }
+            default: {
+                throw std::runtime_error("Type not supported.");
+            }
         }
-    };
+    }
+
 }
 
 #endif //HOPS_MARKOVCHAINFACTORY_HPP

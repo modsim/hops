@@ -24,11 +24,15 @@ namespace hops {
             stateNegativeLogLikelihood = ModelType::computeNegativeLogLikelihood(MarkovChainProposer::getState());
         }
 
-        VectorType acceptProposal();
+        VectorType& acceptProposal();
 
         double computeLogAcceptanceProbability();
 
-        double getNegativeLogLikelihoodOfCurrentState();
+        double getStateNegativeLogLikelihood();
+
+        double getProposalNegativeLogLikelihood();
+
+        void setState(const VectorType&);
 
     private:
         double stateNegativeLogLikelihood;
@@ -36,28 +40,38 @@ namespace hops {
     };
 
     template<typename MarkovChainProposer, typename ModelType>
-    VectorType ModelMixin<MarkovChainProposer, ModelType>::acceptProposal() {
+    VectorType& ModelMixin<MarkovChainProposer, ModelType>::acceptProposal() {
         stateNegativeLogLikelihood = proposalNegativeLogLikelihood;
         return MarkovChainProposer::acceptProposal();
     }
 
     template<typename MarkovChainProposer, typename ModelType>
     double ModelMixin<MarkovChainProposer, ModelType>::computeLogAcceptanceProbability() {
-        double acceptanceProbability = 0;
-        if constexpr(IsCalculateLogAcceptanceProbabilityAvailable<MarkovChainProposer>::value) {
-            acceptanceProbability += MarkovChainProposer::computeLogAcceptanceProbability();
-        }
+        double acceptanceProbability = MarkovChainProposer::computeLogAcceptanceProbability();
+
         if (std::isfinite(acceptanceProbability)) {
             proposalNegativeLogLikelihood = ModelType::computeNegativeLogLikelihood(
                     MarkovChainProposer::getProposal());
             acceptanceProbability += stateNegativeLogLikelihood - proposalNegativeLogLikelihood;
         }
+
         return acceptanceProbability;
     }
 
     template<typename MarkovChainProposer, typename ModelType>
-    double ModelMixin<MarkovChainProposer, ModelType>::getNegativeLogLikelihoodOfCurrentState() {
-        return stateNegativeLogLikelihood;
+    double ModelMixin<MarkovChainProposer, ModelType>::getStateNegativeLogLikelihood() {
+        return stateNegativeLogLikelihood + MarkovChainProposer::getStateNegativeLogLikelihood();
+    }
+
+    template<typename MarkovChainProposer, typename ModelType>
+    double ModelMixin<MarkovChainProposer, ModelType>::getProposalNegativeLogLikelihood() {
+        return proposalNegativeLogLikelihood + MarkovChainProposer::getProposalNegativeLogLikelihood();
+    }
+
+    template<typename MarkovChainProposer, typename ModelType>
+    void ModelMixin<MarkovChainProposer, ModelType>::setState(const VectorType& state) {
+        MarkovChainProposer::setState(state);
+        stateNegativeLogLikelihood = ModelType::computeNegativeLogLikelihood(state);
     }
 }
 

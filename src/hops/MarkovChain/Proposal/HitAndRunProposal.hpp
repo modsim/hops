@@ -11,7 +11,7 @@
 #include "Proposal.hpp"
 
 namespace hops {
-    template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution = UniformStepDistribution<typename InternalMatrixType::Scalar>, bool Precise = false>
+    template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution = UniformStepDistribution<double>, bool Precise = false>
     class HitAndRunProposal : public Proposal {
     public:
         HitAndRunProposal(InternalMatrixType A, InternalVectorType b, InternalVectorType currentState);
@@ -32,11 +32,11 @@ namespace hops {
 
         [[nodiscard]] std::vector<std::string> getParameterNames() const override;
 
-        [[nodiscard]] std::any getParameter(const std::string &parameterName) const override;
+        [[nodiscard]] std::any getParameter(const ProposalParameter &parameter) const override;
 
-        [[nodiscard]] std::string getParameterType(const std::string &name) const override;
+        [[nodiscard]] std::string getParameterType(const ProposalParameter &parameter) const override;
 
-        void setParameter(const std::string &parameterName, const std::any &value) override;
+        void setParameter(const ProposalParameter &parameter, const std::any &value) override;
 
         [[nodiscard]] std::optional<double> getStepSize() const;
 
@@ -60,11 +60,11 @@ namespace hops {
         InternalVectorType inverseDistances;
 
         InternalVectorType updateDirection;
-        typename InternalMatrixType::Scalar step = 0;
+        double step = 0;
         ChordStepDistribution chordStepDistribution;
-        std::normal_distribution<typename InternalMatrixType::Scalar> normalDistribution;
-        typename InternalMatrixType::Scalar forwardDistance;
-        typename InternalMatrixType::Scalar backwardDistance;
+        std::normal_distribution<double> normalDistribution;
+        double forwardDistance;
+        double backwardDistance;
     };
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
@@ -228,9 +228,8 @@ namespace hops {
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
     std::any HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::getParameter(
-            const std::string &parameterName) const {
-        std::string lowerCaseParameterName = toLowerCase(parameterName);
-        if (lowerCaseParameterName == "step_size") {
+            const ProposalParameter &parameter) const {
+        if (parameter == ProposalParameter::STEP_SIZE) {
             std::optional<double> s = this->getStepSize();
             if (s) {
                 return std::any(s.value());
@@ -242,9 +241,8 @@ namespace hops {
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
     std::string
     HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::getParameterType(
-            const std::string &name) const {
-        std::string lowerCaseParameterName = toLowerCase(name);
-        if (lowerCaseParameterName == "step_size") {
+            const ProposalParameter &parameter) const {
+        if (parameter == ProposalParameter::STEP_SIZE) {
             return "double";
         }
         throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
@@ -252,9 +250,8 @@ namespace hops {
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
     void HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::setParameter(
-            const std::string &parameterName, const std::any &value) {
-        std::string lowerCaseParameterName = toLowerCase(parameterName);
-        if (lowerCaseParameterName == "step_size") {
+            const ProposalParameter &parameter, const std::any &value) {
+        if (parameter == ProposalParameter::STEP_SIZE) {
             setStepSize(std::any_cast<double>(value));
         } else {
             throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());

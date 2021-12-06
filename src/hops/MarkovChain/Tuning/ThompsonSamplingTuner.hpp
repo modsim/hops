@@ -178,7 +178,7 @@ bool hops::ThompsonSamplingTuner::tune(
         std::vector<RandomNumberGenerator>& randomNumberGenerator,
         hops::ThompsonSamplingTuner::param_type& parameters,
         TuningTarget& target) {
-    StateType stepSize = markovChain[0]->getAttribute(hops::MarkovChainAttribute::STEP_SIZE) * StateType::Ones(1);
+    StateType stepSize = markovChain[0]->getParameter(ProposalParameter::STEP_SIZE) * StateType::Ones(1);
     double maximumTargetValue;
     return tune(stepSize, maximumTargetValue, markovChain, randomNumberGenerator, parameters, target);
 }

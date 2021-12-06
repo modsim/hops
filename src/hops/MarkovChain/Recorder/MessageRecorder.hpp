@@ -6,7 +6,6 @@
 #include "IsInstallDataObjectAvailable.hpp"
 #include "IsStoreRecordAvailable.hpp"
 #include "IsWriteRecordsToFileAvailable.hpp"
-#include "../../Utility/Data.hpp"
 
 #include <string>
 #include <vector>
@@ -16,12 +15,6 @@ namespace hops {
     class MessageRecorder : public MarkovChainImpl {
     public:
         explicit MessageRecorder(const MarkovChainImpl &markovChainImpl) : MarkovChainImpl(markovChainImpl) {}
-
-        void installDataObject(ChainData& chainData) {
-            if constexpr(IsInstallDataObjectAvailable<MarkovChainImpl>::value) {
-                MarkovChainImpl::installDataObject(chainData);
-            }
-        }
 
         void writeRecordsToFile(const FileWriter *const fileWriter) const {
             fileWriter->write("messages", records);
