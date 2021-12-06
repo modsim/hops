@@ -11,7 +11,7 @@ if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
             HitAndRunProposal.hpp
             Proposal.hpp
             ProposalFactory.hpp
-            ProposalParameterName.hpp
+            ProposalParameter.hpp
             # TODO
 #            ReversibleJumpProposal.hpp
             TruncatedNormalDistribution.hpp
