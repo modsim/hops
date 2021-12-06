@@ -9,7 +9,6 @@
 #include <hops/MarkovChain/Recorder/IsInstallDataObjectAvailable.hpp>
 #include <hops/MarkovChain/Recorder/IsStoreRecordAvailable.hpp>
 #include <hops/MarkovChain/Recorder/IsWriteRecordsToFileAvailable.hpp>
-#include <hops/Utility/ChainData.hpp>
 #include <hops/Utility/VectorType.hpp>
 
 namespace hops {
@@ -18,13 +17,6 @@ namespace hops {
     public:
         explicit StateRecorder(const MarkovChainImpl &markovChainImpl) : MarkovChainImpl(markovChainImpl) {
             records = std::make_shared<std::vector<VectorType>>();
-        }
-
-        void installDataObject(ChainData& chainData) {
-            chainData.setStates(records);
-            if constexpr(IsInstallDataObjectAvailable<MarkovChainImpl>::value) {
-                MarkovChainImpl::installDataObject(chainData);
-            }
         }
 
         void writeRecordsToFile(const FileWriter *const fileWriter) const {

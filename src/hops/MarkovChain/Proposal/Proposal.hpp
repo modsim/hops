@@ -7,7 +7,7 @@
 #include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
 #include <hops/Utility/VectorType.hpp>
 
-#include "ProposalParameterName.hpp"
+#include "ProposalParameter.hpp"
 
 
 namespace hops {
@@ -63,20 +63,20 @@ namespace hops {
 
         [[nodiscard]] virtual std::vector<std::string> getParameterNames() const = 0;
 
-        [[nodiscard]] virtual std::any getParameter(const std::string &parameterName) const = 0;
+        [[nodiscard]] virtual std::any getParameter(const ProposalParameter &parameter) const = 0;
 
         /**
          * @brief returns string representation of parameter type, e.g. double, int, Eigen::MatrixXd.
          * @param name
          * @return
          */
-        [[nodiscard]] virtual std::string getParameterType(const std::string &name) const = 0;
+        [[nodiscard]] virtual std::string getParameterType(const ProposalParameter &parameter) const = 0;
 
         /**
          * @brief sets parameter with value. Throws exception if any contains incompatible type for parameter.
          * @details Implementations should list possible parameterNames in the exception message.
          */
-        virtual void setParameter(const std::string &parameterName, const std::any &value) = 0;
+        virtual void setParameter(const ProposalParameter &parameter, const std::any &value) = 0;
 
         /**
          * @Brief Returns whether underlying implementation has step size. Useful because tuning should be skipped

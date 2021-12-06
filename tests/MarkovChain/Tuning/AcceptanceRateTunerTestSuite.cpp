@@ -1,3 +1,5 @@
+#include "hops/MarkovChain/Proposal/Proposal.hpp"
+#include "hops/MarkovChain/Proposal/ProposalParameter.hpp"
 #define BOOST_TEST_MODULE AcceptanceRateTunerTestSuite
 #define BOOST_TEST_DYN_LINK
 
@@ -16,32 +18,33 @@ namespace {
 
         using StateType = Eigen::VectorXd;
 
-        StateType propose(hops::RandomNumberGenerator) {
-            numberOfStepsTaken++;
-            return Eigen::VectorXd::Zero(1);
+        StateType propose(hops::RandomNumberGenerator) { numberOfStepsTaken++;
+            return getState();
         }
 
-        void acceptProposal() {};
+        StateType acceptProposal() {
+            return getState();
+        };
 
         [[nodiscard]] double computeLogAcceptanceProbability() const {
             return std::log(1 - stepSize);
         };
 
         const std::vector<Eigen::VectorXd> &getStateRecords() {
-            throw 0;
+            throw std::runtime_error("no records");
         }
 
         [[nodiscard]] StateType getState() const { return Eigen::VectorXd::Zero(1); };
 
         [[nodiscard]] std::string getProposalName() const { return "ProposerMock"; };
 
-        void setStepSize(double newStepSize) {
-            stepSize = newStepSize;
+        void setParameter(hops::ProposalParameter parameter, std::any value) {
+            stepSize = std::any_cast<double>(value);
         }
 
         void setState(Eigen::VectorXd) {};
 
-        [[nodiscard]] std::optional<double> getStepSize() const {
+        std::any getParameter(hops::ProposalParameter parameter) const {
             return stepSize;
         }
 
@@ -62,11 +65,11 @@ BOOST_AUTO_TEST_SUITE(AcceptanceRateTuner)
         auto markovChain
                 = std::make_shared<
                         decltype(hops::MarkovChainAdapter(
-                                hops::StateRecorder(hops::MetropolisHastingsFilter(ProposerMock(startingStepSize)))))>(
-                        hops::StateRecorder(hops::MetropolisHastingsFilter(ProposerMock(startingStepSize)))
+                                hops::MetropolisHastingsFilter(ProposerMock(startingStepSize))))>(
+                        hops::MetropolisHastingsFilter(ProposerMock(startingStepSize))
                 );
         hops::RandomNumberGenerator generator(42);
-        markovChain->setStepSize(startingStepSize);
+        markovChain->setParameter(hops::ProposalParameter::STEP_SIZE, startingStepSize);
 
         double targetAcceptanceRate = 0.825;
         double lowerLimitStepSize = 1e-2;
@@ -101,8 +104,7 @@ BOOST_AUTO_TEST_SUITE(AcceptanceRateTuner)
         );
 
 
-        markovChain->draw(generator, 5000);
-        double actualAcceptanceRate = markovChain->getAcceptanceRate();
+        double actualAcceptanceRate = std::get<0>(markovChain->draw(generator, 5000));
         std::cout << actualAcceptanceRate << std::endl;
         BOOST_CHECK(isTuned);
         BOOST_CHECK_LE(markovChain->getNumberOfStepsTaken(),

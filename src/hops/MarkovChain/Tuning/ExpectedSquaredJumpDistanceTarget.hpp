@@ -43,15 +43,18 @@ namespace hops {
         std::vector<double> expectedSquaredJumpDistances(markovChain.size());
         #pragma omp parallel for num_threads(numberOfThreads)
         for (size_t i = 0; i < markovChain.size(); ++i) {
-            markovChain[i]->clearHistory();
-            markovChain[i]->setAttribute(hops::MarkovChainAttribute::STEP_SIZE, stepSize);
+            markovChain[i]->setParameter(ProposalParameter::STEP_SIZE, stepSize);
            
             // record time taken to draw samples to scale esjd by time if specified
             unsigned long time = std::chrono::duration_cast<std::chrono::milliseconds>(
                     std::chrono::high_resolution_clock::now().time_since_epoch()
             ).count();
             
-            markovChain[i]->draw(randomNumberGenerator->at(i), numberOfTestSamples);
+            std::vector<VectorType> states(numberOfTestSamples);
+            for (size_t j = 0; j < numberOfTestSamples; ++j) {
+                states[j] = std::get<1>(markovChain[i]->draw(randomNumberGenerator->at(i)));
+            }
+        
             
             time = std::chrono::duration_cast<std::chrono::milliseconds>(
                     std::chrono::high_resolution_clock::now().time_since_epoch()
@@ -61,12 +64,12 @@ namespace hops {
             time = (time == 0 ? 1 : time);
 
             // compute covariance upfront to reuse it for higher lag esjds
-            MatrixType sqrtCovariance = computeCovariance<StateType, MatrixType>(markovChain[i]->getStateRecords()).llt().matrixL();
+            MatrixType sqrtCovariance = computeCovariance<StateType, MatrixType>(states).llt().matrixL();
 
             double expectedSquaredJumpDistance = 0;
 
             for (auto& k : lags) {
-                expectedSquaredJumpDistance += hops::computeExpectedSquaredJumpDistance<StateType, MatrixType>(markovChain[i]->getStateRecords(), sqrtCovariance, k);
+                expectedSquaredJumpDistance += hops::computeExpectedSquaredJumpDistance<StateType, MatrixType>(states, sqrtCovariance, k);
             }
 
             expectedSquaredJumpDistance = (considerTimeCost ? expectedSquaredJumpDistance / time : expectedSquaredJumpDistance);

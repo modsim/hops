@@ -9,6 +9,7 @@
 #include <chrono>
 #include <cmath>
 #include <memory>
+#include <numeric>
 #include <stdexcept>
 
 #ifdef _OPENMP
@@ -36,12 +37,10 @@ namespace hops {
         std::vector<double> acceptanceRateScores(markovChain.size());
         #pragma omp parallel for num_threads(numberOfThreads)
         for (size_t i = 0; i < markovChain.size(); ++i) {
-            markovChain[i]->clearHistory();
-            markovChain[i]->setAttribute(hops::MarkovChainAttribute::STEP_SIZE, stepSize);
+            markovChain[i]->setParameter(ProposalParameter::STEP_SIZE, stepSize);
 
-            markovChain[i]->draw(randomNumberGenerator->at(i), numberOfTestSamples);
+            double acceptanceRate = std::get<0>(markovChain[i]->draw(randomNumberGenerator->at(i), numberOfTestSamples));
 
-            double acceptanceRate = markovChain[i]->getAcceptanceRate();
             double deltaScale = (
                     acceptanceRate > acceptanceRateTargetValue ?
                     1 - acceptanceRateTargetValue :

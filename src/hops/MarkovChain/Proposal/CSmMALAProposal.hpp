@@ -50,8 +50,6 @@ namespace hops {
 
         std::vector<std::string> getDimensionNames() const override;
 
-        void setParameter(ProposalParameterName parameterName, const std::any &value) override;
-
         [[nodiscard]] std::optional<double> getStepSize() const;
 
         void setStepSize(double stepSize);
@@ -60,11 +58,11 @@ namespace hops {
 
         [[nodiscard]] std::vector<std::string> getParameterNames() const override;
 
-        [[nodiscard]] std::any getParameter(const std::string &parameterName) const override;
+        [[nodiscard]] std::any getParameter(const ProposalParameter &parameter) const override;
 
-        [[nodiscard]] std::string getParameterType(const std::string &name) const override;
+        [[nodiscard]] std::string getParameterType(const ProposalParameter &parameter) const override;
 
-        void setParameter(const std::string &parameterName, const std::any &value) override;
+        void setParameter(const ProposalParameter &parameter, const std::any &value) override;
 
         [[nodiscard]] std::string getProposalName() const override;
 
@@ -274,43 +272,27 @@ namespace hops {
     }
 
     template<typename ModelType, typename InternalMatrixType>
-    void CSmMALAProposal<ModelType, InternalMatrixType>::setParameter(ProposalParameterName parameterName,
-                                                                      const std::any &value) {
-        switch (parameterName) {
-            case ProposalParameterName::STEP_SIZE: {
-                setStepSize(std::any_cast<double>(value));
-                break;
-            }
-            default:
-                throw std::invalid_argument("Can't set parameter which doesn't exist in CSmMALAProposal.");
-        }
-
-    }
-
-    template<typename ModelType, typename InternalMatrixType>
     std::vector<std::string> CSmMALAProposal<ModelType, InternalMatrixType>::getParameterNames() const {
         return {"step_size", "fisher_weight"};
     }
 
     template<typename ModelType, typename InternalMatrixType>
-    std::any CSmMALAProposal<ModelType, InternalMatrixType>::getParameter(const std::string &parameterName) const {
-        std::string lowerCaseParameterName = toLowerCase(parameterName);
-        if (lowerCaseParameterName == "step_size") {
+    std::any CSmMALAProposal<ModelType, InternalMatrixType>::getParameter(const ProposalParameter &parameter) const {
+        if (parameter == ProposalParameter::STEP_SIZE) {
             return std::any(this->stepSize);
         }
-        if (lowerCaseParameterName == "fisher_weight") {
+        if (parameter == ProposalParameter::FISHER_WEIGHT) {
             return std::any(this->fisherWeight);
         }
         throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
     }
 
     template<typename ModelType, typename InternalMatrixType>
-    std::string CSmMALAProposal<ModelType, InternalMatrixType>::getParameterType(const std::string &name) const {
-        std::string lowerCaseParameterName = toLowerCase(name);
-        if (lowerCaseParameterName == "step_size") {
+    std::string CSmMALAProposal<ModelType, InternalMatrixType>::getParameterType(const ProposalParameter &parameter) const {
+        if (parameter == ProposalParameter::STEP_SIZE) {
             return "double";
         }
-        if (lowerCaseParameterName == "fisher_weight") {
+        if (parameter == ProposalParameter::FISHER_WEIGHT) {
             return "double";
         } else {
             throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
@@ -318,13 +300,12 @@ namespace hops {
     }
 
     template<typename ModelType, typename InternalMatrixType>
-    void CSmMALAProposal<ModelType, InternalMatrixType>::setParameter(const std::string &parameterName,
+    void CSmMALAProposal<ModelType, InternalMatrixType>::setParameter(const ProposalParameter &parameter,
                                                                       const std::any &value) {
-        std::string lowerCaseParameterName = toLowerCase(parameterName);
-        if (lowerCaseParameterName == "step_size") {
+        if (parameter == ProposalParameter::STEP_SIZE) {
             setStepSize(std::any_cast<double>(value));
         }
-        if (lowerCaseParameterName == "step_size") {
+        if (parameter == ProposalParameter::FISHER_WEIGHT) {
             fisherWeight = std::any_cast<double>(value);
             // internal changes of setStepSize are a function of the value of fisherWeight, therefore recalculate here.
             setStepSize((this->stepSize));

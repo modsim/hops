@@ -8,8 +8,8 @@ if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
             ExpectedSquaredJumpDistanceTarget.hpp
             ExpectedSquaredJumpDistanceTuner.hpp
             ExpectedSquaredJumpDistanceTuner.cpp
-            SimpleExpectedSquaredJumpDistanceTuner.hpp
-            SimpleExpectedSquaredJumpDistanceTuner.cpp
+            #SimpleExpectedSquaredJumpDistanceTuner.hpp
+            #SimpleExpectedSquaredJumpDistanceTuner.cpp
             ThompsonSamplingTuner.hpp
             )
 endif (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
