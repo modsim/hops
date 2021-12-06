@@ -35,6 +35,10 @@ namespace hops {
             MarkovChainImpl::setState(state);
         }
 
+        double getStateNegativeLogLikelihood() const override {
+            return MarkovChainImpl::getStateNegativeLogLikelihood();
+        }
+
         /**
          * @brief gets proposal parameter. Throws exception if proposal has no parameter parameterName.
          * @details Implementations should list possible parameterNames in the exception message.

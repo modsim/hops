@@ -36,6 +36,8 @@ namespace {
 
         [[nodiscard]] StateType getState() const { return Eigen::VectorXd::Zero(1); };
 
+        [[nodiscard]] double getStateNegativeLogLikelihood() const { return 0; };
+
         [[nodiscard]] std::string getProposalName() const { return "ProposerMock"; };
 
         void setParameter(hops::ProposalParameter parameter, std::any value) {
