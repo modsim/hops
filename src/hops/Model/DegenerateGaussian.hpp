@@ -34,7 +34,7 @@ namespace hops {
 
         const std::vector<long> &getInactive() const;
 
-        [[nodiscard]] std::unique_ptr<Model> deepCopy() const override;
+        [[nodiscard]] std::unique_ptr<Model> copyModel() const override;
 
     private:
         std::optional<Gaussian> gaussian;
@@ -115,7 +115,7 @@ namespace hops {
         return gaussian.value().computeLogLikelihoodGradient(_x);
     }
 
-    std::unique_ptr<Model> DegenerateGaussian::deepCopy() const {
+    std::unique_ptr<Model> DegenerateGaussian::copyModel() const {
         return std::make_unique<DegenerateGaussian>(gaussian.value().getMean(), gaussian.value().getCovariance(),
                                                     inactive);
     }

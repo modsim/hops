@@ -48,7 +48,7 @@ namespace hops {
 
         long getNumberOfDimensions() const;
 
-        [[nodiscard]] std::unique_ptr<Model> deepCopy() const override;
+        [[nodiscard]] std::unique_ptr<Model> copyModel() const override;
 
     private:
         typename MatrixType::Scalar scaleParameter;
@@ -116,7 +116,7 @@ namespace hops {
                 hessian;
     }
 
-    std::unique_ptr<Model> Rosenbrock::deepCopy() const {
+    std::unique_ptr<Model> Rosenbrock::copyModel() const {
         return std::make_unique<Rosenbrock>(scaleParameter, shiftParameter);
     }
 
