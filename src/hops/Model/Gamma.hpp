@@ -107,7 +107,7 @@ namespace hops {
             return l;
         }
 
-        [[nodiscard]] std::unique_ptr<Model> deepCopy() const override {
+        [[nodiscard]] std::unique_ptr<Model> copyModel() const override {
             return std::make_unique<Gamma>(*this);
         }
 
