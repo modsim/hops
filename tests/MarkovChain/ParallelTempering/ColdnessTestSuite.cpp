@@ -19,7 +19,7 @@ namespace {
             return negativeLogLikelihoodConstant;
         }
 
-        [[nodiscard]] std::unique_ptr<Model> deepCopy() const override {
+        [[nodiscard]] std::unique_ptr<Model> copyModel() const override {
             return std::make_unique<ModelMock>();
         }
 
@@ -48,7 +48,7 @@ namespace {
             return hops::MatrixType::Identity(1, 1);
         }
 
-        [[nodiscard]] std::unique_ptr<Model> deepCopy() const override {
+        [[nodiscard]] std::unique_ptr<Model> copyModel() const override {
             return std::make_unique<ModelMockWithGradient>();
         }
 
