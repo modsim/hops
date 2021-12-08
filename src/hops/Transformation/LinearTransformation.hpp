@@ -18,8 +18,6 @@ namespace hops {
     public:
         LinearTransformation() = default;
 
-        virtual ~LinearTransformation() = default;
-
         LinearTransformation(const MatrixType &matrix, const VectorType &shift) : matrix(matrix), shift(shift) {}
 
         /**
