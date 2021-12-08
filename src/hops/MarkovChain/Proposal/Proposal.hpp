@@ -59,7 +59,9 @@ namespace hops {
         /**
          * @return names for each dimension of the state space
          */
-        [[nodiscard]] virtual std::vector<std::string> getDimensionNames() const = 0;
+        [[nodiscard]] virtual std::optional<std::vector<std::string>> getDimensionNames() const {
+            return std::nullopt;
+        }
 
         [[nodiscard]] virtual std::vector<std::string> getParameterNames() const = 0;
 
@@ -111,7 +113,7 @@ namespace hops {
             return false;
         };
 
-        [[nodiscard]] virtual std::unique_ptr<Proposal> deepCopy() const = 0;
+        [[nodiscard]] virtual std::unique_ptr<Proposal> copyProposal() const = 0;
 
         virtual ~Proposal() = default;
     };

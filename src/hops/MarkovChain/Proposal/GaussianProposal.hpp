@@ -33,7 +33,7 @@ namespace hops {
 
         [[nodiscard]] VectorType getProposal() const override;
 
-        [[nodiscard]] std::vector<std::string> getDimensionNames() const override;
+        [[nodiscard]] std::optional<std::vector<std::string>> getDimensionNames() const override;
 
         [[nodiscard]] std::vector<std::string> getParameterNames() const override;
 
@@ -51,7 +51,7 @@ namespace hops {
 
         [[nodiscard]] bool hasStepSize() const override;
 
-        [[nodiscard]] std::unique_ptr<Proposal> deepCopy() const override;
+        [[nodiscard]] std::unique_ptr<Proposal> copyProposal() const override;
 
         [[nodiscard]] double computeLogAcceptanceProbability() override;
 
@@ -132,7 +132,7 @@ namespace hops {
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    std::unique_ptr<Proposal> GaussianProposal<InternalMatrixType, InternalVectorType>::deepCopy() const {
+    std::unique_ptr<Proposal> GaussianProposal<InternalMatrixType, InternalVectorType>::copyProposal() const {
         return std::make_unique<GaussianProposal>(*this);
     }
 
@@ -181,7 +181,7 @@ namespace hops {
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    std::vector<std::string> GaussianProposal<InternalMatrixType, InternalVectorType>::getDimensionNames() const {
+    std::optional<std::vector<std::string>> GaussianProposal<InternalMatrixType, InternalVectorType>::getDimensionNames() const {
         std::vector<std::string> names;
         for (long i = 0; i < state.rows(); ++i) {
             names.emplace_back("x_" + std::to_string(i));

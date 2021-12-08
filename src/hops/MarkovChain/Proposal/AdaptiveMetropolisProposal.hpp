@@ -45,7 +45,7 @@ namespace hops {
 
         [[nodiscard]] VectorType getProposal() const override;
 
-        std::vector<std::string> getDimensionNames() const override;
+        std::optional<std::vector<std::string>> getDimensionNames() const override;
 
         [[nodiscard]] std::vector<std::string> getParameterNames() const override;
 
@@ -63,7 +63,7 @@ namespace hops {
 
         [[nodiscard]] std::string getProposalName() const override;
 
-        [[nodiscard]] std::unique_ptr<Proposal> deepCopy() const override;
+        [[nodiscard]] std::unique_ptr<Proposal> copyProposal() const override;
 
         [[nodiscard]] double computeLogAcceptanceProbability() override;
 
@@ -235,7 +235,7 @@ namespace hops {
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    std::unique_ptr<Proposal> AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::deepCopy() const {
+    std::unique_ptr<Proposal> AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::copyProposal() const {
         return std::make_unique<AdaptiveMetropolisProposal>(*this);
     }
 
@@ -309,7 +309,7 @@ namespace hops {
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    std::vector<std::string>
+    std::optional<std::vector<std::string>>
     AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::getDimensionNames() const {
         std::vector<std::string> names;
         for (long i = 0; i < state.rows(); ++i) {

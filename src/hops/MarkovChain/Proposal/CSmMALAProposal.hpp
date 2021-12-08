@@ -36,7 +36,8 @@ namespace hops {
                         InternalMatrixType A,
                         VectorType b,
                         const VectorType &currentState,
-                        double newFisherWeight = 0.5);
+                        double newFisherWeight = 0.5,
+                        double newStepSize = 1);
 
         VectorType &propose(RandomNumberGenerator &rng) override;
 
@@ -48,7 +49,7 @@ namespace hops {
 
         [[nodiscard]] VectorType getProposal() const override;
 
-        std::vector<std::string> getDimensionNames() const override;
+        std::optional<std::vector<std::string>> getDimensionNames() const override;
 
         [[nodiscard]] std::optional<double> getStepSize() const;
 
@@ -68,7 +69,7 @@ namespace hops {
 
         [[nodiscard]] double getStateNegativeLogLikelihood() const override;
 
-        [[nodiscard]] std::unique_ptr<Proposal> deepCopy() const override;
+        [[nodiscard]] std::unique_ptr<Proposal> copyProposal() const override;
 
         [[nodiscard]] double computeLogAcceptanceProbability() override;
 
@@ -82,22 +83,22 @@ namespace hops {
         VectorType driftedState;
         VectorType proposal;
         VectorType driftedProposal;
-        MatrixType::Scalar stateLogSqrtDeterminant = 0;
-        MatrixType::Scalar proposalLogSqrtDeterminant = 0;
-        MatrixType::Scalar stateNegativeLogLikelihood = 0;
-        MatrixType::Scalar proposalNegativeLogLikelihood = 0;
+        double stateLogSqrtDeterminant = 0;
+        double proposalLogSqrtDeterminant = 0;
+        double stateNegativeLogLikelihood = 0;
+        double proposalNegativeLogLikelihood = 0;
         MatrixType stateSqrtInvMetric;
         MatrixType stateMetric;
         MatrixType proposalSqrtInvMetric;
         MatrixType proposalMetric;
 
-        MatrixType::Scalar stepSize = 1;
-        MatrixType::Scalar fisherWeight = .5;
-        MatrixType::Scalar fisherScale = 1.;
-        MatrixType::Scalar geometricFactor = 0;
-        MatrixType::Scalar covarianceFactor = 0;
+        double stepSize = 1;
+        double fisherWeight = .5;
+        double fisherScale = 1.;
+        double geometricFactor = 0;
+        double covarianceFactor = 0;
 
-        std::normal_distribution<MatrixType::Scalar> normalDistribution{0., 1.};
+        std::normal_distribution<double> normalDistribution{0., 1.};
         DikinEllipsoidCalculator<MatrixType, VectorType> dikinEllipsoidCalculator;
     };
 
@@ -106,7 +107,8 @@ namespace hops {
                                                                     InternalMatrixType A,
                                                                     hops::VectorType b,
                                                                     const VectorType &currentState,
-                                                                    double newFisherWeight) :
+                                                                    double newFisherWeight,
+                                                                    double newStepSize) :
             ModelType(std::move(model)),
             A(std::move(A)),
             b(std::move(b)),
@@ -116,12 +118,12 @@ namespace hops {
         }
         this->fisherWeight = newFisherWeight;
 
-        stateMetric = Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>::Zero(
+        stateMetric = MatrixType::Zero(
                 currentState.rows(), currentState.rows());
-        proposalMetric = Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>::Zero(
+        proposalMetric = MatrixType::Zero(
                 currentState.rows(), currentState.rows());
         CSmMALAProposal::setState(currentState);
-        CSmMALAProposal::setStepSize(1.);
+        CSmMALAProposal::setStepSize(newStepSize);
         proposal = state;
     }
 
@@ -197,11 +199,10 @@ namespace hops {
     }
 
     template<typename ModelType, typename InternalMatrixType>
-    typename MatrixType::Scalar
-    CSmMALAProposal<ModelType, InternalMatrixType>::computeLogAcceptanceProbability() {
+    double CSmMALAProposal<ModelType, InternalMatrixType>::computeLogAcceptanceProbability() {
         bool isProposalInteriorPoint = ((A * proposal - b).array() < 0).all();
         if (!isProposalInteriorPoint) {
-            return -std::numeric_limits<typename MatrixType::Scalar>::infinity();
+            return -std::numeric_limits<double>::infinity();
         }
 
         // Important: compute gradient before fisher info or else x3cflux2 will throw
@@ -256,7 +257,7 @@ namespace hops {
     }
 
     template<typename ModelType, typename InternalMatrixType>
-    std::unique_ptr<Proposal> CSmMALAProposal<ModelType, InternalMatrixType>::deepCopy() const {
+    std::unique_ptr<Proposal> CSmMALAProposal<ModelType, InternalMatrixType>::copyProposal() const {
         // TODO check if we need to clone model, probably we do!
         return std::make_unique<CSmMALAProposal>(*this);
     }
@@ -315,7 +316,7 @@ namespace hops {
     }
 
     template<typename ModelType, typename InternalMatrixType>
-    std::vector<std::string> CSmMALAProposal<ModelType, InternalMatrixType>::getDimensionNames() const {
+    std::optional<std::vector<std::string>> CSmMALAProposal<ModelType, InternalMatrixType>::getDimensionNames() const {
         std::vector<std::string> names;
         for (long i = 0; i < state.rows(); ++i) {
             names.emplace_back("x_" + std::to_string(i));
