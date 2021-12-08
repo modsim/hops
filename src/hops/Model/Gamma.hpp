@@ -82,7 +82,7 @@ namespace hops {
             return fisherInformation;
         }
 
-        [[nodiscard]] std::optional<std::vector<std::string>> getParameterNames() const override {
+        [[nodiscard]] std::optional<std::vector<std::string>> getDimensionNames() const override {
             std::vector<std::string> parameterNames;
             for (long i = 0; i < measurements[0].rows(); ++i) {
                 parameterNames.emplace_back("shape " + std::to_string(i));

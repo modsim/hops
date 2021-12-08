@@ -97,9 +97,9 @@ namespace hops {
         proposal = other.proposal;
         stateLogAcceptanceProbability = other.stateLogAcceptanceProbability;
         proposalLogAcceptanceProbability = other.proposalLogAcceptanceProbability;
-        priorProposer = other.priorProposer->deepCopy();
-        posteriorProposer = other.posteriorProposer->deepCopy();
-        model = other.model->deepCopy();
+        priorProposer = other.priorProposer->copyProposal();
+        posteriorProposer = other.posteriorProposer->copyProposal();
+        model = other.model->copyModel();
         internal_rng = other.internal_rng;
     }
 
@@ -153,7 +153,7 @@ namespace hops {
     }
 
     std::string DNest4Adapter::description() const {
-        auto parameterNames = model->getParameterNames();
+        auto parameterNames = model->getDimensionNames();
         std::string description;
         if (parameterNames) {
             for (const auto &p: parameterNames.value()) {
