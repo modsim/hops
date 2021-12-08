@@ -25,7 +25,7 @@ namespace hops {
 
         virtual void setState(const VectorType&) = 0;
 
-        virtual double getStateNegativeLogLikelihood() const = 0;
+        virtual double getStateNegativeLogLikelihood() = 0;
 
         /**
          * @brief gets proposal parameter. Throws exception if proposal has no parameter parameterName.
