@@ -28,7 +28,7 @@ namespace hops {
 
         [[nodiscard]] VectorType getProposal() const override;
 
-        std::vector<std::string> getDimensionNames() const override;
+        std::optional<std::vector<std::string>> getDimensionNames() const override;
 
         [[nodiscard]] std::vector<std::string> getParameterNames() const override;
 
@@ -46,7 +46,7 @@ namespace hops {
 
         [[nodiscard]] std::string getProposalName() const override;
 
-        [[nodiscard]] std::unique_ptr<Proposal> deepCopy() const override;
+        [[nodiscard]] std::unique_ptr<Proposal> copyProposal() const override;
 
         [[nodiscard]] double computeLogAcceptanceProbability() override;
 
@@ -201,7 +201,7 @@ namespace hops {
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
     std::unique_ptr<Proposal>
-    HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::deepCopy() const {
+    HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::copyProposal() const {
         return std::make_unique<HitAndRunProposal>(*this);
     }
 
@@ -259,7 +259,7 @@ namespace hops {
     }
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
-    std::vector<std::string>
+    std::optional<std::vector<std::string>>
     HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::getDimensionNames() const {
         std::vector<std::string> names;
         for (long i = 0; i < state.rows(); ++i) {
