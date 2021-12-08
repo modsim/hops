@@ -1,6 +1,7 @@
 #ifndef HOPS_TRANSFORMATION_HPP
 #define HOPS_TRANSFORMATION_HPP
 
+#include <memory>
 #include <utility>
 
 #include <hops/Utility/MatrixType.hpp>
@@ -14,8 +15,13 @@ namespace hops {
      */
     class Transformation {
     public:
+        virtual ~Transformation() = default;
+
         virtual VectorType apply(const VectorType& vector) const { return vector; }
+
         virtual VectorType revert(const VectorType& vector) const { return vector; }
+
+        virtual std::unique_ptr<Transformation> copyTransformation() const = 0;
     };
 }
 
