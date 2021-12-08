@@ -35,7 +35,7 @@ namespace hops {
             MarkovChainImpl::setState(state);
         }
 
-        double getStateNegativeLogLikelihood() const override {
+        double getStateNegativeLogLikelihood() override {
             return MarkovChainImpl::getStateNegativeLogLikelihood();
         }
 

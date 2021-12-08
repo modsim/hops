@@ -14,7 +14,7 @@ namespace hops {
         explicit ModelWrapper(std::shared_ptr<Model> model) : model(std::move(model)) {}
 
         ModelWrapper(const ModelWrapper &modelWrapper) {
-            this->model = std::move(modelWrapper.getModel()->deepCopy());
+            this->model = std::move(modelWrapper.getModel()->copyModel());
         }
 
         /**
