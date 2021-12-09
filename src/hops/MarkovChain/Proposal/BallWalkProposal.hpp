@@ -118,7 +118,7 @@ namespace hops {
 
     template<typename InternalMatrixType, typename InternalVectorType>
     std::string BallWalkProposal<InternalMatrixType, InternalVectorType>::getProposalName() const {
-        return "BallWalkProposal";
+        return "BallWalk";
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
