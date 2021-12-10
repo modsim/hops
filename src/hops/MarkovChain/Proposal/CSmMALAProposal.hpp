@@ -32,12 +32,11 @@ namespace hops {
          * @param currentState
          * @param fisherWeight parameterizes the mixing of Dikin metric and Fisher information.
          */
-        CSmMALAProposal(InternalMatrixType A,
+        CSmMALAProposal(ModelType model,
+                        InternalMatrixType A,
                         VectorType b,
                         const VectorType &currentState,
-                        ModelType model,
-                        double newFisherWeight = 0.5,
-                        double newStepSize = 1);
+                        double newFisherWeight = 0.5);
 
         VectorType &propose(RandomNumberGenerator &rng) override;
 
@@ -105,12 +104,11 @@ namespace hops {
     };
 
     template<typename ModelType, typename InternalMatrixType>
-    CSmMALAProposal<ModelType, InternalMatrixType>::CSmMALAProposal(InternalMatrixType A,
+    CSmMALAProposal<ModelType, InternalMatrixType>::CSmMALAProposal(ModelType model,
+                                                                    InternalMatrixType A,
                                                                     hops::VectorType b,
                                                                     const VectorType &currentState,
-                                                                    ModelType model,
-                                                                    double newFisherWeight,
-                                                                    double newStepSize) :
+                                                                    double newFisherWeight) :
             ModelType(std::move(model)),
             A(std::move(A)),
             b(std::move(b)),
@@ -120,9 +118,9 @@ namespace hops {
         }
         this->fisherWeight = newFisherWeight;
 
-        stateMetric = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>::Zero(
+        stateMetric = Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>::Zero(
                 currentState.rows(), currentState.rows());
-        proposalMetric = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>::Zero(
+        proposalMetric = Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>::Zero(
                 currentState.rows(), currentState.rows());
         CSmMALAProposal::setState(currentState);
         CSmMALAProposal::setStepSize(1.);
@@ -201,11 +199,11 @@ namespace hops {
     }
 
     template<typename ModelType, typename InternalMatrixType>
-    double
+    typename MatrixType::Scalar
     CSmMALAProposal<ModelType, InternalMatrixType>::computeLogAcceptanceProbability() {
         bool isProposalInteriorPoint = ((A * proposal - b).array() < 0).all();
         if (!isProposalInteriorPoint) {
-            return -std::numeric_limits<double>::infinity();
+            return -std::numeric_limits<typename MatrixType::Scalar>::infinity();
         }
 
         // Important: compute gradient before fisher info or else x3cflux2 will throw

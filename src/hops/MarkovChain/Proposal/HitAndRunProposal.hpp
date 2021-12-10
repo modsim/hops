@@ -14,7 +14,7 @@ namespace hops {
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution = UniformStepDistribution<typename InternalMatrixType::Scalar>, bool Precise = false>
     class HitAndRunProposal : public Proposal {
     public:
-        HitAndRunProposal(InternalMatrixType A, InternalVectorType b, InternalVectorType currentState, double stepSize = 1);
+        HitAndRunProposal(InternalMatrixType A, InternalVectorType b, InternalVectorType currentState);
 
         VectorType &propose(RandomNumberGenerator &rng) override;
 
@@ -77,16 +77,16 @@ namespace hops {
     }
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
-    HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::HitAndRunProposal(InternalMatrixType A_,
-                                                                                                                 InternalVectorType b_,
-                                                                                                                 InternalVectorType currentState_,
-                                                                                                                 double stepSize) :
+    HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::HitAndRunProposal(
+            InternalMatrixType A_,
+            InternalVectorType b_,
+            InternalVectorType currentState_)
+            :
             A(std::move(A_)),
             b(std::move(b_)),
             state(std::move(currentState_)) {
         slacks = this->b - this->A * this->state;
         updateDirection = state;
-        setStepSize(stepSize);
     }
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
