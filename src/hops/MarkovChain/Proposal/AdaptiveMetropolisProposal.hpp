@@ -35,6 +35,14 @@ namespace hops {
                                    double eps = 1.e-3,
                                    unsigned long warmUp = 100);
 
+        AdaptiveMetropolisProposal(InternalMatrixType A,
+                                   InternalVectorType b,
+                                   StateType currentState,
+                                   const MatrixType& sqrtMaximumVolumeEllipsoid,
+                                   double stepSize = 1,
+                                   double eps = 1.e-3,
+                                   unsigned long warmUp = 100);
+
         VectorType &propose(RandomNumberGenerator &randomNumberGenerator) override;
 
         VectorType &acceptProposal() override;
@@ -113,6 +121,36 @@ namespace hops {
     AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::AdaptiveMetropolisProposal(InternalMatrixType A_,
                                                                                                    InternalVectorType b_,
                                                                                                    VectorType currentState_,
+                                                                                                   const MatrixType& sqrtMaximumVolumeEllipsoid,
+                                                                                                   double stepSize_,
+                                                                                                   double eps_,
+                                                                                                   unsigned long warmUp_) :
+            A(std::move(A_)),
+            b(std::move(b_)),
+            state(std::move(currentState_)),
+            proposal(this->state),
+            t(0),
+            warmUp(warmUp_),
+            stepSize(stepSize_) {
+        normal = std::normal_distribution<double>(0, stepSize);
+
+        // scale down with larger dimensions according to Roberts & Rosenthal, 2001.
+        eps = eps_ / A.cols();
+
+        stateMean = state; // actual content is irrelevant as long as dimensions match
+
+        this->maximumVolumeEllipsoid = sqrtMaximumVolumeEllipsoid * sqrtMaximumVolumeEllipsoid.transpose();
+        choleskyOfMaximumVolumeEllipsoid = sqrtMaximumVolumeEllipsoid;
+        stateCholeskyOfCovariance = sqrtMaximumVolumeEllipsoid;
+
+        stateLogSqrtDeterminant = stateCholeskyOfCovariance.diagonal().array().log().sum();
+        proposalLogSqrtDeterminant = stateLogSqrtDeterminant;
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::AdaptiveMetropolisProposal(InternalMatrixType A_,
+                                                                                                   InternalVectorType b_,
+                                                                                                   VectorType currentState_,
                                                                                                    double stepSize_,
                                                                                                    double eps_,
                                                                                                    unsigned long warmUp_) :
@@ -133,10 +171,7 @@ namespace hops {
         maximumVolumeEllipsoid = MaximumVolumeEllipsoid<double>::construct(A, b, 10000).getEllipsoid();
         Eigen::LLT<MatrixType> solverMaximumVolumeEllipsoid(maximumVolumeEllipsoid);
         choleskyOfMaximumVolumeEllipsoid = solverMaximumVolumeEllipsoid.matrixL();
-
-        stateCovariance = maximumVolumeEllipsoid;
-        Eigen::LLT<MatrixType> solverStateCovariance(stateCovariance);
-        stateCholeskyOfCovariance = solverStateCovariance.matrixL();
+        stateCholeskyOfCovariance = solverMaximumVolumeEllipsoid.matrixL();
 
         stateLogSqrtDeterminant = stateCholeskyOfCovariance.diagonal().array().log().sum();
         proposalLogSqrtDeterminant = stateLogSqrtDeterminant;
