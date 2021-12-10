@@ -110,13 +110,12 @@ namespace hops {
     };
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::AdaptiveMetropolisProposal(
-            InternalMatrixType A_,
-            InternalVectorType b_,
-            VectorType currentState_,
-            double stepSize_,
-            double eps_,
-            unsigned long warmUp_) :
+    AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::AdaptiveMetropolisProposal(InternalMatrixType A_,
+                                                                                                   InternalVectorType b_,
+                                                                                                   VectorType currentState_,
+                                                                                                   double stepSize_,
+                                                                                                   double eps_,
+                                                                                                   unsigned long warmUp_) :
             A(std::move(A_)),
             b(std::move(b_)),
             state(std::move(currentState_)),
@@ -174,7 +173,7 @@ namespace hops {
         Eigen::LLT<MatrixType> solver(
                 proposalCovariance);
         if (solver.info() != Eigen::Success) {
-            return -std::numeric_limits<typename MatrixType::Scalar>::infinity();
+            return -std::numeric_limits<double>::infinity();
         }
         proposalCholeskyOfCovariance = solver.matrixL();
 
@@ -215,7 +214,7 @@ namespace hops {
     template<typename InternalMatrixType, typename InternalVectorType>
     void AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::setStepSize(double newStepSize) {
         stepSize = newStepSize;
-        normal = std::normal_distribution<typename MatrixType::Scalar>(0, stepSize);
+        normal = std::normal_distribution<double>(0, stepSize);
     }
 
 
