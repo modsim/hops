@@ -17,6 +17,8 @@ namespace hops {
     public:
         using StateType = VectorType;
 
+        AdaptiveMetropolisProposal() = default;
+
         /**
          * @brief Constructs the Adaptive Metropolis proposal mechanism (Haario et al. 2001) on polytope defined as Ax<b.
          * @param A
@@ -31,8 +33,8 @@ namespace hops {
         AdaptiveMetropolisProposal(InternalMatrixType A,
                                    InternalVectorType b,
                                    StateType currentState,
-                                   typename MatrixType::Scalar stepSize = 1,
-                                   typename MatrixType::Scalar eps = 1.e-3,
+                                   double stepSize = 1,
+                                   double eps = 1.e-3,
                                    unsigned long warmUp = 100);
 
         VectorType &propose(RandomNumberGenerator &randomNumberGenerator) override;
@@ -83,8 +85,8 @@ namespace hops {
         MatrixType proposalCholeskyOfCovariance;
         MatrixType choleskyOfMaximumVolumeEllipsoid;
 
-        typename MatrixType::Scalar stateLogSqrtDeterminant;
-        typename MatrixType::Scalar proposalLogSqrtDeterminant;
+        double stateLogSqrtDeterminant;
+        double proposalLogSqrtDeterminant;
 
         unsigned long t;
         unsigned long warmUp;
@@ -93,7 +95,7 @@ namespace hops {
         double stepSize;
         double boundaryCushion = 1e-10;
 
-        std::normal_distribution<typename MatrixType::Scalar> normal;
+        std::normal_distribution<double> normal;
 
         MatrixType updateCovariance(const MatrixType &covariance, const StateType &mean, const StateType &newState) {
             assert(t > 0 && "cannot update covariance without samples having been drawn");
@@ -110,13 +112,12 @@ namespace hops {
     };
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::AdaptiveMetropolisProposal(
-            InternalMatrixType A_,
-            InternalVectorType b_,
-            VectorType currentState_,
-            typename MatrixType::Scalar stepSize_,
-            typename MatrixType::Scalar eps_,
-            unsigned long warmUp_) :
+    AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::AdaptiveMetropolisProposal(InternalMatrixType A_,
+                                                                                                   InternalVectorType b_,
+                                                                                                   VectorType currentState_,
+                                                                                                   double stepSize_,
+                                                                                                   double eps_,
+                                                                                                   unsigned long warmUp_) :
             A(std::move(A_)),
             b(std::move(b_)),
             state(std::move(currentState_)),
@@ -124,7 +125,7 @@ namespace hops {
             t(0),
             warmUp(warmUp_),
             stepSize(stepSize_) {
-        normal = std::normal_distribution<typename MatrixType::Scalar>(0, stepSize);
+        normal = std::normal_distribution<double>(0, stepSize);
 
         // scale down with larger dimensions according to Roberts & Rosenthal, 2001.
         eps = eps_ / A.cols();
@@ -167,14 +168,14 @@ namespace hops {
     double AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::computeLogAcceptanceProbability() {
         bool isProposalInteriorPoint = ((A * proposal - b).array() < -boundaryCushion).all();
         if (!isProposalInteriorPoint) {
-            return -std::numeric_limits<typename MatrixType::Scalar>::infinity();
+            return -std::numeric_limits<double>::infinity();
         }
 
         proposalCovariance = updateCovariance(stateCovariance, stateMean, proposal);
-        Eigen::LLT<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>> solver(
+        Eigen::LLT<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>> solver(
                 proposalCovariance);
         if (solver.info() != Eigen::Success) {
-            return -std::numeric_limits<typename MatrixType::Scalar>::infinity();
+            return -std::numeric_limits<double>::infinity();
         }
         proposalCholeskyOfCovariance = solver.matrixL();
 
@@ -215,7 +216,7 @@ namespace hops {
     template<typename InternalMatrixType, typename InternalVectorType>
     void AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::setStepSize(double newStepSize) {
         stepSize = newStepSize;
-        normal = std::normal_distribution<typename MatrixType::Scalar>(0, stepSize);
+        normal = std::normal_distribution<double>(0, stepSize);
     }
 
 
