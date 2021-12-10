@@ -32,10 +32,10 @@ namespace hops {
          * @param currentState
          * @param fisherWeight parameterizes the mixing of Dikin metric and Fisher information.
          */
-        CSmMALAProposal(ModelType model,
-                        InternalMatrixType A,
+        CSmMALAProposal(InternalMatrixType A,
                         VectorType b,
                         const VectorType &currentState,
+                        ModelType model,
                         double newFisherWeight = 0.5,
                         double newStepSize = 1);
 
@@ -103,10 +103,10 @@ namespace hops {
     };
 
     template<typename ModelType, typename InternalMatrixType>
-    CSmMALAProposal<ModelType, InternalMatrixType>::CSmMALAProposal(ModelType model,
-                                                                    InternalMatrixType A,
+    CSmMALAProposal<ModelType, InternalMatrixType>::CSmMALAProposal(InternalMatrixType A,
                                                                     hops::VectorType b,
                                                                     const VectorType &currentState,
+                                                                    ModelType model,
                                                                     double newFisherWeight,
                                                                     double newStepSize) :
             ModelType(std::move(model)),

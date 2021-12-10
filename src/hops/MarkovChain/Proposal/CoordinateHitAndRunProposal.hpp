@@ -20,7 +20,7 @@ namespace hops {
          * @param b
          * @param currentState
          */
-        CoordinateHitAndRunProposal(InternalMatrixType A, InternalVectorType b, InternalVectorType currentState);
+        CoordinateHitAndRunProposal(InternalMatrixType A, InternalVectorType b, InternalVectorType currentState, double stepSize = 1);
 
         VectorType &propose(RandomNumberGenerator &rng) override;
 
@@ -72,15 +72,16 @@ namespace hops {
     };
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
-    CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::CoordinateHitAndRunProposal(
-            InternalMatrixType A_,
-            InternalVectorType b_,
-            InternalVectorType currentState_) :
+    CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::CoordinateHitAndRunProposal(InternalMatrixType A_,
+                                                                                                                            InternalVectorType b_,
+                                                                                                                            InternalVectorType currentState_,
+                                                                                                                            double stepSize) :
             A(std::move(A_)),
             b(std::move(b_)),
             state(std::move(currentState_)),
             proposal(this->state) {
         slacks = this->b - this->A * this->state;
+        setStepSize(stepSize);
     }
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
