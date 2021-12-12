@@ -1,7 +1,6 @@
 #ifndef HOPS_THOMPSONSAMPLINGTUNER_HPP
 #define HOPS_THOMPSONSAMPLINGTUNER_HPP
 
-#include <hops/Statistics/ExpectedSquaredJumpDistance.hpp>
 #include <hops/FileWriter/FileWriter.hpp>
 #include <hops/FileWriter/FileWriterFactory.hpp>
 #include <hops/FileWriter/FileWriterType.hpp>
@@ -9,6 +8,9 @@
 #include <hops/MarkovChain/MarkovChainAttribute.hpp>
 #include <hops/Optimization/GaussianProcess.hpp>
 #include <hops/Optimization/ThompsonSampling.hpp>
+#include <hops/Statistics/ExpectedSquaredJumpDistance.hpp>
+#include <hops/Utility/MatrixType.hpp>
+#include <hops/Utility/VectorType.hpp>
 
 #include <Eigen/Core>
 
@@ -54,10 +56,10 @@ namespace hops {
          * @param parameters
          * @return true if markov chain is tuned
          */
-        template<typename StateType, typename MatrixType, typename TuningTarget>
+        template<typename TuningTarget>
         static bool
         tune(std::vector<std::shared_ptr<MarkovChain>>&, 
-             std::vector<RandomNumberGenerator>&, 
+             std::vector<RandomNumberGenerator*>&, 
              param_type&,
              TuningTarget&);
 
@@ -69,12 +71,12 @@ namespace hops {
          * @param parameters
          * @return true if markov chain is tuned
          */
-        template<typename StateType, typename MatrixType, typename TuningTarget>
+        template<typename TuningTarget>
         static bool
-        tune(StateType&, 
+        tune(VectorType&, 
              double&,
              std::vector<std::shared_ptr<MarkovChain>>&, 
-             std::vector<RandomNumberGenerator>&, 
+             std::vector<RandomNumberGenerator*>&, 
              param_type&,
              TuningTarget&);
         /**
@@ -85,12 +87,12 @@ namespace hops {
          * @param parameters
          * @return true if markov chain is tuned
          */
-        template<typename StateType, typename MatrixType, typename TuningTarget>
+        template<typename TuningTarget>
         static bool
-        tune(StateType&, 
+        tune(VectorType&, 
              double&,
              std::vector<std::shared_ptr<MarkovChain>>&, 
-             std::vector<RandomNumberGenerator>&, 
+             std::vector<RandomNumberGenerator*>&, 
              param_type&,
              TuningTarget&,
              MatrixType& data,
@@ -100,20 +102,20 @@ namespace hops {
     };
 }
 
-template<typename StateType, typename MatrixType, typename TuningTarget>
+template<typename TuningTarget>
 bool hops::ThompsonSamplingTuner::tune(
-        StateType& stepSize,
+        VectorType& stepSize,
         double& maximumTargetValue,
         std::vector<std::shared_ptr<hops::MarkovChain>>& markovChain,
-        std::vector<RandomNumberGenerator>& randomNumberGenerator,
+        std::vector<RandomNumberGenerator*>& randomNumberGenerator,
         hops::ThompsonSamplingTuner::param_type& parameters,
         TuningTarget& target,
         MatrixType& data,
         MatrixType& posterior) {
-    using Kernel = SquaredExponentialKernel<MatrixType, StateType>;
-    using GP = GaussianProcess<MatrixType, StateType, Kernel>;
+    using Kernel = SquaredExponentialKernel<MatrixType, VectorType>;
+    using GP = GaussianProcess<MatrixType, VectorType, Kernel>;
 
-    StateType logStepSizeGrid(parameters.stepSizeGridSize);
+    VectorType logStepSizeGrid(parameters.stepSizeGridSize);
     double a = std::log10(parameters.stepSizeLowerBound), b = std::log10(parameters.stepSizeUpperBound);
 
     for (size_t i = 0; i < parameters.stepSizeGridSize; ++i) {
@@ -125,11 +127,11 @@ bool hops::ThompsonSamplingTuner::tune(
     GP gp = GP(kernel);
 
     target.markovChain = markovChain;
-    target.randomNumberGenerator = &randomNumberGenerator;
+    target.randomNumberGenerator = randomNumberGenerator;
     target.numberOfTestSamples = parameters.iterationsToTestStepSize;
 
     RandomNumberGenerator thompsonSamplingRandomNumberGenerator(parameters.randomSeed, markovChain.size() + 1);
-    bool isThompsonSamplingConverged = ThompsonSampling<MatrixType, StateType, GP, TuningTarget>::optimize(
+    bool isThompsonSamplingConverged = ThompsonSampling<MatrixType, VectorType, GP, TuningTarget>::optimize(
             parameters.posteriorUpdateIterations,
             parameters.pureSamplingIterations,
             parameters.iterationsForConvergence,
@@ -167,28 +169,28 @@ bool hops::ThompsonSamplingTuner::tune(
     auto& posteriorMean = gp.getPosteriorMean();
     size_t maximumIndex;
     maximumTargetValue = posteriorMean.maxCoeff(&maximumIndex);
-    stepSize = StateType::Ones(1) * std::pow(10, logStepSizeGrid(maximumIndex, 0));
+    stepSize = VectorType::Ones(1) * std::pow(10, logStepSizeGrid(maximumIndex, 0));
 
     return isThompsonSamplingConverged;
 }
 
-template<typename StateType, typename MatrixType, typename TuningTarget>
+template<typename TuningTarget>
 bool hops::ThompsonSamplingTuner::tune(
         std::vector<std::shared_ptr<hops::MarkovChain>>& markovChain,
-        std::vector<RandomNumberGenerator>& randomNumberGenerator,
+        std::vector<RandomNumberGenerator*>& randomNumberGenerator,
         hops::ThompsonSamplingTuner::param_type& parameters,
         TuningTarget& target) {
-    StateType stepSize = markovChain[0]->getParameter(ProposalParameter::STEP_SIZE) * StateType::Ones(1);
+    VectorType stepSize = std::any_cast<double>(markovChain[0]->getParameter(ProposalParameter::STEP_SIZE)) * VectorType::Ones(1);
     double maximumTargetValue;
     return tune(stepSize, maximumTargetValue, markovChain, randomNumberGenerator, parameters, target);
 }
 
-template<typename StateType, typename MatrixType, typename TuningTarget>
+template<typename TuningTarget>
 bool hops::ThompsonSamplingTuner::tune(
-        StateType& stepSize,
+        VectorType& stepSize,
         double& maximumTargetValue,
         std::vector<std::shared_ptr<hops::MarkovChain>>& markovChain,
-        std::vector<RandomNumberGenerator>& randomNumberGenerator,
+        std::vector<RandomNumberGenerator*>& randomNumberGenerator,
         hops::ThompsonSamplingTuner::param_type& parameters,
         TuningTarget& target) {
     MatrixType data, posterior;
