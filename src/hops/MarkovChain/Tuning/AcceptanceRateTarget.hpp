@@ -2,9 +2,12 @@
 #define HOPS_ACCEPTANCERATETARGET_HPP
 
 #include <hops/MarkovChain/MarkovChain.hpp>
+#include <hops/MarkovChain/Tuning/TuningTarget.hpp>
 #include <hops/Parallel/OpenMPControls.hpp>
 #include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
 #include <hops/Statistics/ExpectedSquaredJumpDistance.hpp>
+#include <hops/Utility/MatrixType.hpp>
+#include <hops/Utility/VectorType.hpp>
 
 #include <chrono>
 #include <cmath>
@@ -17,22 +20,24 @@
 #endif 
 
 namespace hops {
-    template<typename StateType>
-    struct AcceptanceRateTarget {
+    struct AcceptanceRateTarget : public TuningTarget {
         std::vector<std::shared_ptr<MarkovChain>> markovChain;
         std::vector<RandomNumberGenerator>* randomNumberGenerator;
         unsigned long numberOfTestSamples;
         double acceptanceRateTargetValue;
 
-        std::tuple<double, double> operator()(const StateType& x);
+        std::tuple<double, double> operator()(const VectorType& x) override;
 
-        std::string getName() const {
+        std::string getName() const override {
             return "AcceptanceRate";
+        }
+
+        std::unique_ptr<TuningTarget> copyTuningTarget() const override {
+            return std::make_unique<AcceptanceRateTarget>(*this);
         }
     };
 
-    template<typename StateType>
-    std::tuple<double, double> hops::AcceptanceRateTarget<StateType>::operator()(const StateType& x) {
+    std::tuple<double, double> hops::AcceptanceRateTarget::operator()(const VectorType& x) {
         double stepSize = std::pow(10, x(0));
         std::vector<double> acceptanceRateScores(markovChain.size());
         #pragma omp parallel for num_threads(numberOfThreads)

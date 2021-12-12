@@ -58,8 +58,10 @@
 #include "MarkovChain/Tuning/BinarySearchAcceptanceRateTuner.hpp"
 #include "MarkovChain/Tuning/ExpectedSquaredJumpDistanceTarget.hpp"
 #include "MarkovChain/Tuning/ExpectedSquaredJumpDistanceTuner.hpp"
+#include "MarkovChain/Tuning/GridSearchTuner.hpp"
 #include "MarkovChain/Tuning/SimpleExpectedSquaredJumpDistanceTuner.hpp"
 #include "MarkovChain/Tuning/ThompsonSamplingTuner.hpp"
+#include "MarkovChain/Tuning/TuningTarget.hpp"
 
 #include "MarkovChain/IsGetColdnessAvailable.hpp"
 #include "MarkovChain/IsGetExchangeAttemptProbabilityAvailable.hpp"
