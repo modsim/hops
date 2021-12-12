@@ -6,7 +6,6 @@
 #include "IsInstallDataObjectAvailable.hpp"
 #include "IsStoreRecordAvailable.hpp"
 #include "IsWriteRecordsToFileAvailable.hpp"
-#include "../../Utility/ChainData.hpp"
 
 #include <memory>
 #include <vector>
@@ -17,13 +16,6 @@ namespace hops {
     public:
         explicit NegativeLogLikelihoodRecorder(const MarkovChainImpl &markovChainImpl) : MarkovChainImpl(markovChainImpl) {
             records = std::make_shared<std::vector<double>>();
-        }
-
-        void installDataObject(ChainData& chainData) {
-            chainData.setNegativeLogLikelihood(records);
-            if constexpr(IsInstallDataObjectAvailable<MarkovChainImpl>::value) {
-                MarkovChainImpl::installDataObject(chainData);
-            }
         }
 
         void writeRecordsToFile(const FileWriter *const fileWriter) const {

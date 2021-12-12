@@ -33,15 +33,15 @@ namespace hops {
 
         [[nodiscard]] VectorType getProposal() const override;
 
-        [[nodiscard]] std::vector<std::string> getDimensionNames() const override;
+        [[nodiscard]] std::optional<std::vector<std::string>> getDimensionNames() const override;
 
         [[nodiscard]] std::vector<std::string> getParameterNames() const override;
 
-        [[nodiscard]] std::any getParameter(const std::string &parameterName) const override;
+        [[nodiscard]] std::any getParameter(const ProposalParameter &parameter) const override;
 
-        [[nodiscard]] std::string getParameterType(const std::string &name) const override;
+        [[nodiscard]] std::string getParameterType(const ProposalParameter &parameter) const override;
 
-        void setParameter(const std::string &parameterName, const std::any &value) override;
+        void setParameter(const ProposalParameter &parameter, const std::any &value) override;
 
         [[nodiscard]] std::optional<double> getStepSize() const;
 
@@ -51,7 +51,7 @@ namespace hops {
 
         [[nodiscard]] bool hasStepSize() const override;
 
-        [[nodiscard]] std::unique_ptr<Proposal> deepCopy() const override;
+        [[nodiscard]] std::unique_ptr<Proposal> copyProposal() const override;
 
         [[nodiscard]] double computeLogAcceptanceProbability() override;
 
@@ -132,7 +132,7 @@ namespace hops {
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    std::unique_ptr<Proposal> GaussianProposal<InternalMatrixType, InternalVectorType>::deepCopy() const {
+    std::unique_ptr<Proposal> GaussianProposal<InternalMatrixType, InternalVectorType>::copyProposal() const {
         return std::make_unique<GaussianProposal>(*this);
     }
 
@@ -153,9 +153,8 @@ namespace hops {
 
     template<typename InternalMatrixType, typename InternalVectorType>
     std::any
-    GaussianProposal<InternalMatrixType, InternalVectorType>::getParameter(const std::string &parameterName) const {
-        std::string lowerCaseParameterName = toLowerCase(parameterName);
-        if (lowerCaseParameterName == "step_size") {
+    GaussianProposal<InternalMatrixType, InternalVectorType>::getParameter(const ProposalParameter &parameter) const {
+        if (parameter == ProposalParameter::STEP_SIZE) {
             return std::any(stepSize);
         }
         throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
@@ -163,9 +162,8 @@ namespace hops {
 
     template<typename InternalMatrixType, typename InternalVectorType>
     std::string
-    GaussianProposal<InternalMatrixType, InternalVectorType>::getParameterType(const std::string &name) const {
-        std::string lowerCaseParameterName = toLowerCase(name);
-        if (lowerCaseParameterName == "step_size") {
+    GaussianProposal<InternalMatrixType, InternalVectorType>::getParameterType(const ProposalParameter &parameter) const {
+        if (parameter == ProposalParameter::STEP_SIZE) {
             return "double";
         } else {
             throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
@@ -173,10 +171,9 @@ namespace hops {
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    void GaussianProposal<InternalMatrixType, InternalVectorType>::setParameter(const std::string &parameterName,
+    void GaussianProposal<InternalMatrixType, InternalVectorType>::setParameter(const ProposalParameter &parameter,
                                                                                 const std::any &value) {
-        std::string lowerCaseParameterName = toLowerCase(parameterName);
-        if (lowerCaseParameterName == "step_size") {
+        if (parameter == ProposalParameter::STEP_SIZE) {
             setStepSize(std::any_cast<double>(value));
         } else {
             throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
@@ -184,7 +181,7 @@ namespace hops {
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    std::vector<std::string> GaussianProposal<InternalMatrixType, InternalVectorType>::getDimensionNames() const {
+    std::optional<std::vector<std::string>> GaussianProposal<InternalMatrixType, InternalVectorType>::getDimensionNames() const {
         std::vector<std::string> names;
         for (long i = 0; i < state.rows(); ++i) {
             names.emplace_back("x_" + std::to_string(i));

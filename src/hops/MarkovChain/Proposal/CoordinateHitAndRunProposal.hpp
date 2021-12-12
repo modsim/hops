@@ -20,7 +20,7 @@ namespace hops {
          * @param b
          * @param currentState
          */
-        CoordinateHitAndRunProposal(InternalMatrixType A, InternalVectorType b, InternalVectorType currentState);
+        CoordinateHitAndRunProposal(InternalMatrixType A, InternalVectorType b, InternalVectorType currentState, double stepSize = 1);
 
         VectorType &propose(RandomNumberGenerator &rng) override;
 
@@ -34,15 +34,15 @@ namespace hops {
 
         [[nodiscard]] VectorType getProposal() const override;
 
-        [[nodiscard]] std::vector<std::string> getDimensionNames() const override;
+        [[nodiscard]] std::optional<std::vector<std::string>> getDimensionNames() const override;
 
         [[nodiscard]] std::vector<std::string> getParameterNames() const override;
 
-        [[nodiscard]] std::any getParameter(const std::string &parameterName) const override;
+        [[nodiscard]] std::any getParameter(const ProposalParameter &parameter) const override;
 
-        [[nodiscard]] std::string getParameterType(const std::string &name) const override;
+        [[nodiscard]] std::string getParameterType(const ProposalParameter &parameter) const override;
 
-        void setParameter(const std::string &parameterName, const std::any &value) override;
+        void setParameter(const ProposalParameter &parameter, const std::any &value) override;
 
         [[nodiscard]] std::optional<double> getStepSize() const;
 
@@ -52,7 +52,7 @@ namespace hops {
 
         [[nodiscard]] std::string getProposalName() const override;
 
-        [[nodiscard]] std::unique_ptr<Proposal> deepCopy() const override;
+        [[nodiscard]] std::unique_ptr<Proposal> copyProposal() const override;
 
         [[nodiscard]] double computeLogAcceptanceProbability() override;
 
@@ -72,15 +72,16 @@ namespace hops {
     };
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
-    CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::CoordinateHitAndRunProposal(
-            InternalMatrixType A_,
-            InternalVectorType b_,
-            InternalVectorType currentState_) :
+    CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::CoordinateHitAndRunProposal(InternalMatrixType A_,
+                                                                                                                            InternalVectorType b_,
+                                                                                                                            InternalVectorType currentState_,
+                                                                                                                            double stepSize) :
             A(std::move(A_)),
             b(std::move(b_)),
             state(std::move(currentState_)),
             proposal(this->state) {
         slacks = this->b - this->A * this->state;
+        setStepSize(stepSize);
     }
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
@@ -189,7 +190,7 @@ namespace hops {
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
     std::unique_ptr<Proposal>
-    CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::deepCopy() const {
+    CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::copyProposal() const {
         return std::make_unique<CoordinateHitAndRunProposal>(*this);
     }
 
@@ -218,9 +219,8 @@ namespace hops {
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
     std::any CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::getParameter(
-            const std::string &parameterName) const {
-        std::string lowerCaseParameterName = toLowerCase(parameterName);
-        if (lowerCaseParameterName == "step_size") {
+            const ProposalParameter &parameter) const {
+        if (parameter == ProposalParameter::STEP_SIZE) {
             std::optional<double> s = this->getStepSize();
             if (s) {
                 return std::any(s.value());
@@ -232,9 +232,8 @@ namespace hops {
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
     std::string
     CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::getParameterType(
-            const std::string &name) const {
-        std::string lowerCaseParameterName = toLowerCase(name);
-        if (lowerCaseParameterName == "step_size") {
+            const ProposalParameter &parameter) const {
+        if (parameter == ProposalParameter::STEP_SIZE) {
             return "double";
         } else {
             throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
@@ -243,9 +242,8 @@ namespace hops {
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
     void CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::setParameter(
-            const std::string &parameterName, const std::any &value) {
-        std::string lowerCaseParameterName = toLowerCase(parameterName);
-        if (lowerCaseParameterName == "step_size") {
+            const ProposalParameter &parameter, const std::any &value) {
+        if (parameter == ProposalParameter::STEP_SIZE) {
             setStepSize(std::any_cast<double>(value));
         } else {
             throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
@@ -253,7 +251,7 @@ namespace hops {
     }
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
-    std::vector<std::string>
+    std::optional<std::vector<std::string>>
     CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::getDimensionNames() const {
         std::vector<std::string> names;
         for (long i = 0; i < state.rows(); ++i) {

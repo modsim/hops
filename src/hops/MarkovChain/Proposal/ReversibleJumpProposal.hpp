@@ -77,7 +77,7 @@ namespace hops {
 
         [[nodiscard]] std::string getProposalName() const override;
 
-        [[nodiscard]] std::unique_ptr<Proposal> deepCopy() const override;
+        [[nodiscard]] std::unique_ptr<Proposal> copyProposal() const override;
 
 //        VectorType getState() {
 //            VectorType parameterState = MarkovChainImpl::getState();
@@ -201,7 +201,7 @@ namespace hops {
     }
 
     template<typename ProposalImpl>
-    std::unique_ptr<Proposal> ReversibleJumpProposal<ProposalImpl>::deepCopy() const {
+    std::unique_ptr<Proposal> ReversibleJumpProposal<ProposalImpl>::copyProposal() const {
         return std::unique_ptr<Proposal>();
     }
 }

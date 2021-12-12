@@ -41,6 +41,7 @@
 #include "MarkovChain/Proposal/GaussianProposal.hpp"
 #include "MarkovChain/Proposal/ProposalFactory.hpp"
 #include "MarkovChain/Proposal/Proposal.hpp"
+#include "MarkovChain/Proposal/ProposalParameter.hpp"
 #include "MarkovChain/Proposal/TruncatedNormalDistribution.hpp"
 
 #include "MarkovChain/Recorder/AcceptanceRateRecorder.hpp"
@@ -57,8 +58,10 @@
 #include "MarkovChain/Tuning/BinarySearchAcceptanceRateTuner.hpp"
 #include "MarkovChain/Tuning/ExpectedSquaredJumpDistanceTarget.hpp"
 #include "MarkovChain/Tuning/ExpectedSquaredJumpDistanceTuner.hpp"
+#include "MarkovChain/Tuning/GridSearchTuner.hpp"
 #include "MarkovChain/Tuning/SimpleExpectedSquaredJumpDistanceTuner.hpp"
 #include "MarkovChain/Tuning/ThompsonSamplingTuner.hpp"
+#include "MarkovChain/Tuning/TuningTarget.hpp"
 
 #include "MarkovChain/IsGetColdnessAvailable.hpp"
 #include "MarkovChain/IsGetExchangeAttemptProbabilityAvailable.hpp"
@@ -67,13 +70,13 @@
 #include "MarkovChain/IsSetColdnessAvailable.hpp"
 #include "MarkovChain/IsSetExchangeAttemptProbabilityAvailable.hpp"
 #include "MarkovChain/IsSetFisherWeightAvailable.hpp"
-#include "hops/MarkovChain/Proposal/IsSetStepSizeAvailable.hpp"
+#include "MarkovChain/Proposal/IsSetStepSizeAvailable.hpp"
 #include "MarkovChain/MarkovChain.hpp"
 #include "MarkovChain/MarkovChainAdapter.hpp"
 #include "MarkovChain/MarkovChainAttribute.hpp"
 #include "MarkovChain/MarkovChainFactory.hpp"
 #include "MarkovChain/MarkovChainType.hpp"
-#include "hops/MarkovChain/ModelMixin.hpp"
+#include "MarkovChain/ModelMixin.hpp"
 #include "MarkovChain/StateTransformation.hpp"
 
 #include "Model/DegenerateGaussian.hpp"
@@ -96,13 +99,7 @@
 
 #include "Transformation/Transformation.hpp"
 
-#include "Utility/ChainData.hpp"
-#include "Utility/Data.hpp"
-#include "Utility/Exceptions.hpp"
 #include "Utility/MatrixType.hpp"
-#include "Utility/Problem.hpp"
-#include "Utility/Run.hpp"
-#include "Utility/Tuning.hpp"
 #include "Utility/VectorType.hpp"
 
 #ifdef HOPS_HEADER_ONLY

@@ -14,12 +14,12 @@ namespace {
     public:
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "readability-convert-member-functions-to-static"
-    [[nodiscard]] hops::MatrixType::Scalar computeNegativeLogLikelihood(const Eigen::VectorXd &state) const override {
+    [[nodiscard]] double computeNegativeLogLikelihood(const Eigen::VectorXd &state) const override {
             return state(0);
         }
 #pragma clang diagnostic pop
 
-        [[nodiscard]] std::unique_ptr<Model> deepCopy() const override {
+        [[nodiscard]] std::unique_ptr<Model> copyModel() const override {
             return std::make_unique<ModelMock>();
         }
     };
@@ -42,9 +42,17 @@ namespace {
             MarkovChainMock::state = std::move(newState);
         }
 
-        hops::VectorType acceptProposal() {
+        hops::VectorType& acceptProposal() {
             state = proposal;
             return state;
+        }
+
+        double getStateNegativeLogLikelihood() {
+            return 0;
+        }
+
+        double getProposalNegativeLogLikelihood() {
+            return 0;
         }
 
         [[nodiscard]] double computeLogAcceptanceProbability() const {
@@ -62,11 +70,11 @@ BOOST_AUTO_TEST_SUITE(ModelMixin)
     BOOST_AUTO_TEST_CASE(testAcceptProposal) {
         auto model = ModelMock();
         hops::ModelMixin markovChainWithModelMixedIn((MarkovChainMock()), model);
-        BOOST_CHECK(markovChainWithModelMixedIn.getNegativeLogLikelihoodOfCurrentState() == 1);
+        BOOST_CHECK(markovChainWithModelMixedIn.getStateNegativeLogLikelihood() == 1);
 
         markovChainWithModelMixedIn.acceptProposal();
 
-        BOOST_CHECK(markovChainWithModelMixedIn.getNegativeLogLikelihoodOfCurrentState() == 0);
+        BOOST_CHECK(markovChainWithModelMixedIn.getStateNegativeLogLikelihood() == 0);
     }
 
     BOOST_AUTO_TEST_CASE(testCalculateLogAcceptanceProbabilityMultimodalModel) {
@@ -85,7 +93,7 @@ BOOST_AUTO_TEST_SUITE(ModelMixin)
         markovChainMock.setState(-5*Eigen::VectorXd::Ones(1));
         auto model = ModelMock();
         hops::ModelMixin markovChainWithModelMixedIn(markovChainMock, model);
-        BOOST_CHECK(markovChainWithModelMixedIn.getNegativeLogLikelihoodOfCurrentState() == -5);
+        BOOST_CHECK(markovChainWithModelMixedIn.getStateNegativeLogLikelihood() == -5);
     }
 
 BOOST_AUTO_TEST_SUITE_END()

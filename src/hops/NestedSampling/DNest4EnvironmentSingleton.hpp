@@ -13,15 +13,15 @@ namespace hops {
         }
 
         [[nodiscard]] std::unique_ptr<hops::Proposal> getPriorProposer() const {
-            return priorProposer->deepCopy();
+            return priorProposer->copyProposal();
         }
 
         [[nodiscard]] std::unique_ptr<Model> getModel() const {
-            return model->deepCopy();
+            return model->copyModel();
         }
 
         [[nodiscard]] std::unique_ptr<hops::Proposal> getPosteriorProposer() const {
-            return posteriorProposer->deepCopy();
+            return posteriorProposer->copyProposal();
         }
 
         [[nodiscard]] const VectorType &getStartingPoint() const {

@@ -9,18 +9,18 @@ namespace hops {
      * @details Prominent use-case is for dealing with rounding.
      * @tparam MarkovChainImpl
      */
-    template<typename MarkovChainImpl, typename Transformation>
+    template<typename MarkovChainImpl, typename TransformationImpl>
     class StateTransformation : public MarkovChainImpl {
     public:
-        explicit StateTransformation(const MarkovChainImpl &markovChainImpl, Transformation transformation) :
+        explicit StateTransformation(const MarkovChainImpl &markovChainImpl, TransformationImpl transformation) :
                 MarkovChainImpl(markovChainImpl),
                 transformation(transformation) {}
 
-        VectorType getState() {
+        VectorType getState() const {
             return transformation.apply(MarkovChainImpl::getState());
         }
 
-         VectorType getProposal() {
+         VectorType getProposal() const {
             return transformation.apply(MarkovChainImpl::getProposal());
         }
 
@@ -29,7 +29,7 @@ namespace hops {
         }
 
     private:
-        Transformation transformation;
+        TransformationImpl transformation;
     };
 }
 

@@ -34,15 +34,15 @@ namespace hops {
 
         [[nodiscard]] VectorType getProposal() const override;
 
-        std::vector<std::string> getDimensionNames() const override;
+        std::optional<std::vector<std::string>> getDimensionNames() const override;
 
         [[nodiscard]] std::vector<std::string> getParameterNames() const override;
 
-        [[nodiscard]] std::any getParameter(const std::string &parameterName) const override;
+        [[nodiscard]] std::any getParameter(const ProposalParameter &parameter) const override;
 
-        [[nodiscard]] std::string getParameterType(const std::string &name) const override;
+        [[nodiscard]] std::string getParameterType(const ProposalParameter &parameter) const override;
 
-        void setParameter(const std::string &parameterName, const std::any &value) override;
+        void setParameter(const ProposalParameter &parameter, const std::any &value) override;
 
         void setStepSize(double stepSize);
 
@@ -52,7 +52,7 @@ namespace hops {
 
         [[nodiscard]] bool hasStepSize() const override;
 
-        [[nodiscard]] std::unique_ptr<Proposal> deepCopy() const override;
+        [[nodiscard]] std::unique_ptr<Proposal> copyProposal() const override;
 
         double computeLogAcceptanceProbability() override;
 
@@ -63,17 +63,17 @@ namespace hops {
         VectorType state;
         VectorType proposal;
 
-        typename MatrixType::Scalar stateLogSqrtDeterminant = 0;
-        typename MatrixType::Scalar proposalLogSqrtDeterminant = 0;
-        Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic> stateCholeskyOfDikinEllipsoid;
-        Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic> proposalCholeskyOfDikinEllipsoid;
+        double stateLogSqrtDeterminant = 0;
+        double proposalLogSqrtDeterminant = 0;
+        MatrixType stateCholeskyOfDikinEllipsoid;
+        MatrixType proposalCholeskyOfDikinEllipsoid;
 
-        typename MatrixType::Scalar stepSize = 0.075; // value from dikin walk publication
-        typename MatrixType::Scalar geometricFactor = 0;
-        typename MatrixType::Scalar covarianceFactor = 0;
-        constexpr static typename MatrixType::Scalar boundaryCushion = 0;
+        double stepSize = 0.075; // value from dikin walk publication
+        double geometricFactor = 0;
+        double covarianceFactor = 0;
+        double boundaryCushion = 0;
 
-        std::normal_distribution<typename MatrixType::Scalar> normalDistribution{0., 1.};
+        std::normal_distribution<double> normalDistribution{0., 1.};
         DikinEllipsoidCalculator<MatrixType, VectorType> dikinEllipsoidCalculator;
 
     };
@@ -114,7 +114,8 @@ namespace hops {
 
     template<typename InternalMatrixType, typename InternalVectorType>
     void DikinProposal<InternalMatrixType, InternalVectorType>::setState(const VectorType &newState) {
-        state.swap(newState);
+        //state.swap(newState);
+        state = newState;
         auto choleskyResult = dikinEllipsoidCalculator.computeCholeskyFactorOfDikinEllipsoid(state);
         if (!choleskyResult.first) {
             throw std::runtime_error("Could not compute cholesky factorization for newState.");
@@ -127,12 +128,12 @@ namespace hops {
     double DikinProposal<InternalMatrixType, InternalVectorType>::computeLogAcceptanceProbability() {
         bool isProposalInteriorPoint = ((A * proposal - b).array() < -boundaryCushion).all();
         if (!isProposalInteriorPoint) {
-            return -std::numeric_limits<typename InternalMatrixType::Scalar>::infinity();
+            return -std::numeric_limits<double>::infinity();
         }
 
         auto choleskyResult = dikinEllipsoidCalculator.computeCholeskyFactorOfDikinEllipsoid(proposal);
         if (!choleskyResult.first) {
-            return -std::numeric_limits<typename InternalMatrixType::Scalar>::infinity();
+            return -std::numeric_limits<double>::infinity();
         }
         proposalCholeskyOfDikinEllipsoid = std::move(choleskyResult.second);
 
@@ -169,7 +170,7 @@ namespace hops {
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    std::unique_ptr<Proposal> DikinProposal<InternalMatrixType, InternalVectorType>::deepCopy() const {
+    std::unique_ptr<Proposal> DikinProposal<InternalMatrixType, InternalVectorType>::copyProposal() const {
         return std::make_unique<DikinProposal>(*this);
     }
 
@@ -185,23 +186,28 @@ namespace hops {
 
     template<typename InternalMatrixType, typename InternalVectorType>
     std::vector<std::string> DikinProposal<InternalMatrixType, InternalVectorType>::getParameterNames() const {
-        return {"step_size"};
+        return {
+            ProposalParameterName[static_cast<int>(ProposalParameter::BOUNDARY_CUSHION)],
+            ProposalParameterName[static_cast<int>(ProposalParameter::STEP_SIZE)],
+        };
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
     std::any
-    DikinProposal<InternalMatrixType, InternalVectorType>::getParameter(const std::string &parameterName) const {
-        std::string lowerCaseParameterName = toLowerCase(parameterName);
-        if (lowerCaseParameterName == "step_size") {
+    DikinProposal<InternalMatrixType, InternalVectorType>::getParameter(const ProposalParameter &parameter) const {
+        if (parameter == ProposalParameter::STEP_SIZE) {
             return std::any(stepSize);
+        } else if (parameter == ProposalParameter::BOUNDARY_CUSHION) {
+            return std::any(boundaryCushion);
         }
         throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    std::string DikinProposal<InternalMatrixType, InternalVectorType>::getParameterType(const std::string &name) const {
-        std::string lowerCaseParameterName = toLowerCase(name);
-        if (lowerCaseParameterName == "step_size") {
+    std::string DikinProposal<InternalMatrixType, InternalVectorType>::getParameterType(const ProposalParameter &parameter) const {
+        if (parameter == ProposalParameter::STEP_SIZE) {
+            return "double";
+        } else if (parameter == ProposalParameter::BOUNDARY_CUSHION) {
             return "double";
         } else {
             throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
@@ -209,11 +215,12 @@ namespace hops {
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    void DikinProposal<InternalMatrixType, InternalVectorType>::setParameter(const std::string &parameterName,
+    void DikinProposal<InternalMatrixType, InternalVectorType>::setParameter(const ProposalParameter &parameter,
                                                                              const std::any &value) {
-        std::string lowerCaseParameterName = toLowerCase(parameterName);
-        if (lowerCaseParameterName == "step_size") {
+        if (parameter == ProposalParameter::STEP_SIZE) {
             setStepSize(std::any_cast<double>(value));
+        } else if (parameter == ProposalParameter::BOUNDARY_CUSHION) {
+            boundaryCushion = std::any_cast<double>(value);
         } else {
             throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
         }
@@ -221,7 +228,7 @@ namespace hops {
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    std::vector<std::string> DikinProposal<InternalMatrixType, InternalVectorType>::getDimensionNames() const {
+    std::optional<std::vector<std::string>> DikinProposal<InternalMatrixType, InternalVectorType>::getDimensionNames() const {
         std::vector<std::string> names;
         for (long i = 0; i < state.rows(); ++i) {
             names.emplace_back("x_" + std::to_string(i));

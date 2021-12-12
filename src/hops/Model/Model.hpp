@@ -1,6 +1,7 @@
 #ifndef HOPS_MODEL_HPP
 #define HOPS_MODEL_HPP
 
+#include <memory>
 #include <optional>
 #include <string>
 #include <vector>
@@ -28,11 +29,11 @@ namespace hops {
             return std::nullopt;
         }
 
-        [[nodiscard]] virtual std::optional<std::vector<std::string>> getParameterNames() const {
+        [[nodiscard]] virtual std::optional<std::vector<std::string>> getDimensionNames() const {
             return std::nullopt;
         }
 
-        [[nodiscard]] virtual std::unique_ptr<Model> deepCopy() const = 0;
+        [[nodiscard]] virtual std::unique_ptr<Model> copyModel() const = 0;
     };
 }
 

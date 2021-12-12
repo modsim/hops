@@ -5,6 +5,7 @@
 #include <Eigen/Core>
 
 #include <hops/MarkovChain/ModelMixin.hpp>
+#include <hops/MarkovChain/Proposal/ProposalParameter.hpp>
 #include <hops/MarkovChain/Proposal/GaussianProposal.hpp>
 #include <hops/MarkovChain/Proposal/CoordinateHitAndRunProposal.hpp>
 #include <hops/Model/Gaussian.hpp>
@@ -31,7 +32,7 @@ BOOST_AUTO_TEST_SUITE(DNest4AdapterTestSuite)
             std::unique_ptr<hops::Proposal> posteriorProposer =
                     std::make_unique<hops::CoordinateHitAndRunProposal<decltype(A), decltype(b),
                             hops::GaussianStepDistribution<double>>>(A, b, mean);
-            posteriorProposer->setParameter("step_size", 0.5);
+            posteriorProposer->setParameter(hops::ProposalParameter::STEP_SIZE, 0.5);
 
             hops::DNest4EnvironmentSingleton::getInstance().setPriorProposer(std::move(priorProposer));
             hops::DNest4EnvironmentSingleton::getInstance().setPosteriorProposer(std::move(posteriorProposer));

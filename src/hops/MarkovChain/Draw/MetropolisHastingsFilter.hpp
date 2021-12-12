@@ -17,56 +17,26 @@ namespace hops {
         explicit MetropolisHastingsFilter(const MarkovChainProposer &markovChainImpl) : MarkovChainProposer(
                 markovChainImpl) {}
 
-        void draw(RandomNumberGenerator &randomNumberGenerator);
-
-        double getAcceptanceRate();
-
-        void clearRecords() {
-            numberOfProposals = 0;
-            numberOfAcceptedProposals = 0;
-            if constexpr(IsClearRecordsAvailable<MarkovChainProposer>::value) {
-                MarkovChainProposer::clearRecords();
-            }
-        }
+        double draw(RandomNumberGenerator &randomNumberGenerator);
 
     private:
-        long numberOfAcceptedProposals = 0;
-        long numberOfProposals = 0;
         std::uniform_real_distribution<double> uniformRealDistribution;
     };
 
     template<typename MarkovChainProposer>
-    void MetropolisHastingsFilter<MarkovChainProposer>::draw(hops::RandomNumberGenerator &randomNumberGenerator) {
-        VectorType proposal = MarkovChainProposer::propose(randomNumberGenerator);
+    double MetropolisHastingsFilter<MarkovChainProposer>::draw(hops::RandomNumberGenerator &randomNumberGenerator) {
+        MarkovChainProposer::propose(randomNumberGenerator);
         double acceptanceProbability = MarkovChainProposer::computeLogAcceptanceProbability();
-        numberOfProposals++;
         double acceptanceChance = std::log(uniformRealDistribution(randomNumberGenerator));
-        if constexpr(IsAddMessageAvailable<MarkovChainProposer>::value) {
-            MarkovChainProposer::addMessage("interior(");
-            MarkovChainProposer::addMessage(std::isfinite(acceptanceProbability) ? "true" : "false");
-            MarkovChainProposer::addMessage(")");
-            MarkovChainProposer::addMessage(" alpha(");
-            MarkovChainProposer::addMessage(std::to_string(std::exp(acceptanceProbability)));
-            MarkovChainProposer::addMessage(") action(");
-        }
+
+        double acceptance = 0;
+
         if (acceptanceChance < acceptanceProbability) {
             MarkovChainProposer::acceptProposal();
-            numberOfAcceptedProposals++;
-            if constexpr(IsAddMessageAvailable<MarkovChainProposer>::value) {
-                MarkovChainProposer::addMessage("accept) | ");
-            }
+            acceptance = 1;
         }
-        else {
-            if constexpr(IsAddMessageAvailable<MarkovChainProposer>::value) {
-                MarkovChainProposer::addMessage("reject) | ");
-            }
-        }
-    }
 
-    template<typename MarkovChainProposer>
-    double MetropolisHastingsFilter<MarkovChainProposer>::getAcceptanceRate() {
-        return numberOfProposals != 0 ? static_cast<double>(numberOfAcceptedProposals) / numberOfProposals :
-               0;
+        return acceptance;
     }
 }
 

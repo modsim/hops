@@ -1,6 +1,5 @@
 #include <cmath>
 
-#include <hops/MarkovChain/MarkovChainAttribute.hpp>
 #include "BinarySearchAcceptanceRateTuner.hpp"
 
 namespace {
@@ -31,9 +30,9 @@ double measureAcceptanceRate(double stepSize,
                              hops::MarkovChain *markovChain,
                              hops::RandomNumberGenerator randomNumberGenerator,
                              const hops::BinarySearchAcceptanceRateTuner::param_type &parameters) {
-    markovChain->setAttribute(hops::MarkovChainAttribute::STEP_SIZE, stepSize);
-    markovChain->draw(randomNumberGenerator, parameters.iterationsToTestStepSize);
-    return markovChain->getAcceptanceRate();
+    markovChain->setParameter(hops::ProposalParameter::STEP_SIZE, stepSize);
+    auto[acceptanceRate, _] = markovChain->draw(randomNumberGenerator, parameters.iterationsToTestStepSize);
+    return acceptanceRate;
 }
 
 /**
@@ -66,7 +65,7 @@ double nextStepSizeToTry(double currentStepSize,
 bool hops::BinarySearchAcceptanceRateTuner::tune(MarkovChain *markovChain,
                                                  RandomNumberGenerator &randomNumberGenerator,
                                                  const hops::BinarySearchAcceptanceRateTuner::param_type &parameters) {
-    double stepSize = markovChain->getAttribute(MarkovChainAttribute::STEP_SIZE);
+    double stepSize = std::any_cast<double>(markovChain->getParameter(ProposalParameter::STEP_SIZE));
     double acceptanceRate;
     return tune(stepSize, acceptanceRate, markovChain, randomNumberGenerator, parameters);
 }
@@ -80,16 +79,15 @@ bool hops::BinarySearchAcceptanceRateTuner::tune(double &stepSize,
     double currentAcceptanceRate = 0;
     size_t iterationsCount = 0;
     while (currentCase(currentAcceptanceRate, parameters) != Case::ACCEPTANCE_RATE_GOOD) {
-        markovChain->clearHistory();
+        //markovChain->clearHistory();
         if (iterationsCount > parameters.maximumTotalIterations) {
             return false;
         }
         currentAcceptanceRate = measureAcceptanceRate(stepSize, markovChain, randomNumberGenerator, parameters);
         iterationsCount += parameters.iterationsToTestStepSize;
         stepSize = nextStepSizeToTry(stepSize, currentAcceptanceRate, parameters);
-        markovChain->setAttribute(MarkovChainAttribute::STEP_SIZE, stepSize);
+        markovChain->setParameter(ProposalParameter::STEP_SIZE, stepSize);
     }
-    markovChain->clearHistory();
     acceptanceRate = currentAcceptanceRate;
     return true;
 }
@@ -127,7 +125,7 @@ hops::BinarySearchAcceptanceRateTuner::tune(double &stepSize,
                                             const param_type &parameters) {
     bool tuned = tune(stepSize, acceptanceRate, markovChain[0].get(), randomNumberGenerator[0], parameters);
     for (auto &chain : markovChain) {
-        chain->setAttribute(hops::MarkovChainAttribute::STEP_SIZE, stepSize);
+        chain->setParameter(ProposalParameter::STEP_SIZE, stepSize);
     }
     return tuned;
 }

@@ -6,7 +6,6 @@
 #include "IsInstallDataObjectAvailable.hpp"
 #include "IsStoreRecordAvailable.hpp"
 #include "IsWriteRecordsToFileAvailable.hpp"
-#include "../../Utility/Data.hpp"
 
 #include <chrono>
 #include <memory>
@@ -19,13 +18,6 @@ namespace hops {
     public:
         explicit TimestampRecorder(const MarkovChainImpl &markovChainImpl) : MarkovChainImpl(markovChainImpl) {
             records = std::make_shared<std::vector<long>>();
-        }
-
-        void installDataObject(ChainData& chainData) {
-            chainData.setTimestamps(records);
-            if constexpr(IsInstallDataObjectAvailable<MarkovChainImpl>::value) {
-                MarkovChainImpl::installDataObject(chainData);
-            }
         }
 
         void writeRecordsToFile(const FileWriter *const fileWriter) const {

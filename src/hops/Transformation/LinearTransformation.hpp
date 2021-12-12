@@ -1,6 +1,7 @@
 #ifndef HOPS_LINEARTRANSFORMATION_HPP
 #define HOPS_LINEARTRANSFORMATION_HPP
 
+#include <memory>
 #include <utility>
 
 #include <hops/Transformation/Transformation.hpp>
@@ -17,6 +18,8 @@ namespace hops {
     public:
         LinearTransformation() = default;
 
+        LinearTransformation(const LinearTransformation& other) = default;
+
         LinearTransformation(const MatrixType &matrix, const VectorType &shift) : matrix(matrix), shift(shift) {}
 
         /**
@@ -31,6 +34,10 @@ namespace hops {
                 return matrix.inverse() * (vector - shift);
             }
             return matrix.template triangularView<Eigen::Lower>().solve(vector - shift);
+        }
+
+        std::unique_ptr<Transformation> copyTransformation() const override {
+            return std::make_unique<LinearTransformation>(*this);
         }
 
     private:
