@@ -6,13 +6,14 @@
 #include <string>
 #include <utility>
 
+#include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
 #include <hops/Utility/VectorType.hpp>
 
 namespace hops {
     struct TuningTarget {
         virtual ~TuningTarget() = default;
 
-        virtual std::tuple<double, double> operator()(const VectorType& x) = 0;
+        virtual std::pair<double, double> operator()(const VectorType& x, const std::vector<RandomNumberGenerator*>& randomNumberGenerators) = 0;
 
         virtual std::string getName() const = 0;
 
