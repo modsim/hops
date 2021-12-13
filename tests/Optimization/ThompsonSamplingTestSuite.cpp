@@ -36,7 +36,7 @@ struct TestTarget {
         count = std::vector<unsigned>(2, 0);
     };
 
-	std::tuple<double, double> operator()(const Eigen::VectorXd& x) {
+	std::tuple<double, double> operator()(const Eigen::VectorXd& x, const std::vector<hops::RandomNumberGenerator*>& rng) {
         auto value = values[x(0)][count[x(0)]];
         auto error = errors[x(0)][count[x(0)]];
 
@@ -69,10 +69,11 @@ BOOST_AUTO_TEST_SUITE(ThompsonSamplingTestSuite)
         auto target = TestTarget();
 
         hops::RandomNumberGenerator rng(1);
+        hops::RandomNumberGenerator rng2(1, 1);
         size_t foo;
 
-        hops::ThompsonSampling<Eigen::MatrixXd, Eigen::VectorXd, GP, TestTarget>::optimize(
-            3, 1, 3, gp, target, grid, rng, &foo, 0);
+        hops::ThompsonSampling<GP, TestTarget>::optimize(
+            3, 1, 3, gp, target, grid, {&rng2}, rng, &foo, 0);
 
         
         for (long i = 0; i < grid.size(); ++i) {

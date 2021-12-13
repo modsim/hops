@@ -35,6 +35,8 @@ namespace hops {
             size_t randomSeed;
             bool recordData;
 
+            param_type() = default;
+
             param_type(size_t iterationsToTestStepSize,
                        size_t posteriorUpdateIterations,
                        size_t pureSamplingIterations,
@@ -56,12 +58,12 @@ namespace hops {
          * @param parameters
          * @return true if markov chain is tuned
          */
-        template<typename TuningTarget>
+        template<typename TuningTargetType>
         static bool
-        tune(std::vector<std::shared_ptr<MarkovChain>>&, 
-             std::vector<RandomNumberGenerator*>&, 
+        tune(//std::vector<std::shared_ptr<MarkovChain>>&, 
+             const std::vector<RandomNumberGenerator*>&, 
              param_type&,
-             TuningTarget&);
+             TuningTargetType&);
 
         /**
          * @brief tunes markov chain acceptance rate by nested intervals. The chain is not guaranteed to have converged
@@ -71,14 +73,14 @@ namespace hops {
          * @param parameters
          * @return true if markov chain is tuned
          */
-        template<typename TuningTarget>
+        template<typename TuningTargetType>
         static bool
         tune(VectorType&, 
              double&,
-             std::vector<std::shared_ptr<MarkovChain>>&, 
-             std::vector<RandomNumberGenerator*>&, 
+             //std::vector<std::shared_ptr<MarkovChain>>&, 
+             const std::vector<RandomNumberGenerator*>&, 
              param_type&,
-             TuningTarget&);
+             TuningTargetType&);
         /**
          * @brief tunes markov chain acceptance rate by nested intervals. The chain is not guaranteed to have converged
          *        to the specified acceptance rate.
@@ -87,55 +89,59 @@ namespace hops {
          * @param parameters
          * @return true if markov chain is tuned
          */
-        template<typename TuningTarget>
+        template<typename TuningTargetType>
         static bool
         tune(VectorType&, 
              double&,
-             std::vector<std::shared_ptr<MarkovChain>>&, 
-             std::vector<RandomNumberGenerator*>&, 
+             //std::vector<std::shared_ptr<MarkovChain>>&, 
+             const std::vector<RandomNumberGenerator*>&, 
              param_type&,
-             TuningTarget&,
-             MatrixType& data,
-             MatrixType& posterior);
+             TuningTargetType&,
+             MatrixType& data);
 
         ThompsonSamplingTuner() = delete;
     };
 }
 
-template<typename TuningTarget>
+template<typename TuningTargetType>
 bool hops::ThompsonSamplingTuner::tune(
         VectorType& stepSize,
         double& maximumTargetValue,
-        std::vector<std::shared_ptr<hops::MarkovChain>>& markovChain,
-        std::vector<RandomNumberGenerator*>& randomNumberGenerator,
+        //std::vector<std::shared_ptr<hops::MarkovChain>>& markovChain,
+        const std::vector<RandomNumberGenerator*>& targetRandomNumberGenerators,
         hops::ThompsonSamplingTuner::param_type& parameters,
-        TuningTarget& target,
-        MatrixType& data,
-        MatrixType& posterior) {
+        TuningTargetType& target,
+        MatrixType& data) {
     using Kernel = SquaredExponentialKernel<MatrixType, VectorType>;
     using GP = GaussianProcess<MatrixType, VectorType, Kernel>;
 
     VectorType logStepSizeGrid(parameters.stepSizeGridSize);
     double a = std::log10(parameters.stepSizeLowerBound), b = std::log10(parameters.stepSizeUpperBound);
 
+    auto indexToValue = [=] (size_t i) -> double { return (b - a) * i / (parameters.stepSizeGridSize - 1) + a; };
+    auto valueToIndex = [=] (double v) -> size_t { return std::round((parameters.stepSizeGridSize - 1) * (v - a) / (b - a)); };
+
     for (size_t i = 0; i < parameters.stepSizeGridSize; ++i) {
-        logStepSizeGrid(i) = (b - a) * i / (parameters.stepSizeGridSize - 1) + a;
+        //logStepSizeGrid(i) = (b - a) * i / (parameters.stepSizeGridSize - 1) + a;
+        logStepSizeGrid(i) = indexToValue(i);
+        assert(i == valueToIndex(logStepSizeGrid(i)));
     }
 
     double sigma = 1, length = 1;
     Kernel kernel(sigma, length);
     GP gp = GP(kernel);
 
-    target.markovChain = markovChain;
-    target.randomNumberGenerator = randomNumberGenerator;
-    target.numberOfTestSamples = parameters.iterationsToTestStepSize;
+    //target.markovChain = markovChain;
+    //target.randomNumberGenerator = randomNumberGenerator;
+    //target.numberOfTestSamples = parameters.iterationsToTestStepSize;
 
-    RandomNumberGenerator thompsonSamplingRandomNumberGenerator(parameters.randomSeed, markovChain.size() + 1);
-    bool isThompsonSamplingConverged = ThompsonSampling<MatrixType, VectorType, GP, TuningTarget>::optimize(
+    RandomNumberGenerator thompsonSamplingRandomNumberGenerator(parameters.randomSeed, targetRandomNumberGenerators.size() + 1);
+    bool isThompsonSamplingConverged = ThompsonSampling<GP, TuningTargetType>::optimize(
             parameters.posteriorUpdateIterations,
             parameters.pureSamplingIterations,
             parameters.iterationsForConvergence,
             gp, target, logStepSizeGrid, 
+            targetRandomNumberGenerators,
             thompsonSamplingRandomNumberGenerator,
             &parameters.posteriorUpdateIterationsNeeded,
             parameters.smoothingLength);
@@ -148,20 +154,35 @@ bool hops::ThompsonSamplingTuner::tune(
         auto& observedValues = gp.getObservedValues();
         auto& observedValueErrors = gp.getObservedValueErrors();
 
-        // only for logging purposes
-        posterior = MatrixType(posteriorMean.size(), 3);
-        for (long i = 0; i < posteriorMean.size(); ++i) {
-            posterior(i, 0) = logStepSizeGrid(i, 0);
-            posterior(i, 1) = posteriorMean(i);
-            posterior(i, 2) = posteriorCovariance(i,i);
-        }
+        //// only for logging purposes
+        //posterior = MatrixType(posteriorMean.size(), 3);
+        //for (long i = 0; i < posteriorMean.size(); ++i) {
+        //    posterior(i, 0) = logStepSizeGrid(i, 0);
+        //    posterior(i, 1) = posteriorMean(i);
+        //    posterior(i, 2) = posteriorCovariance(i,i);
+        //}
+
+        //// only for logging purposes
+        //data = MatrixType(observedInputs.size(), 3);
+        //for (long i = 0; i < observedInputs.size(); ++i) {
+        //    data(i, 0) = observedInputs(i, 0);
+        //    data(i, 1) = observedValues(i);
+        //    data(i, 2) = observedValueErrors(i);
+        //}
 
         // only for logging purposes
-        data = MatrixType(observedInputs.size(), 3);
+        data = MatrixType::Zero(posteriorMean.size(), 6);
+        for (long i = 0; i < posteriorMean.size(); ++i) {
+            data(i, 0) = logStepSizeGrid(i, 0);
+            data(i, 1) = posteriorMean(i);
+            data(i, 2) = posteriorCovariance(i,i);
+        }
+
         for (long i = 0; i < observedInputs.size(); ++i) {
-            data(i, 0) = observedInputs(i, 0);
-            data(i, 1) = observedValues(i);
-            data(i, 2) = observedValueErrors(i);
+            long j = valueToIndex(observedInputs(i, 0)); // observed inputs can be a vector in general, it is a scalar for stepsize-only tuning
+            data(j, 3) = observedInputs(i, 0);
+            data(j, 4) = observedValues(i);
+            data(j, 5) = observedValueErrors(i);
         }
     }
 
@@ -174,50 +195,25 @@ bool hops::ThompsonSamplingTuner::tune(
     return isThompsonSamplingConverged;
 }
 
-template<typename TuningTarget>
-bool hops::ThompsonSamplingTuner::tune(
-        std::vector<std::shared_ptr<hops::MarkovChain>>& markovChain,
-        std::vector<RandomNumberGenerator*>& randomNumberGenerator,
-        hops::ThompsonSamplingTuner::param_type& parameters,
-        TuningTarget& target) {
-    VectorType stepSize = std::any_cast<double>(markovChain[0]->getParameter(ProposalParameter::STEP_SIZE)) * VectorType::Ones(1);
+template<typename TuningTargetType>
+bool hops::ThompsonSamplingTuner::tune(//std::vector<std::shared_ptr<hops::MarkovChain>>& markovChain,
+                                       const std::vector<RandomNumberGenerator*>& randomNumberGenerator,
+                                       hops::ThompsonSamplingTuner::param_type& parameters,
+        TuningTargetType& target) {
+    VectorType stepSize;// = std::any_cast<double>(markovChain[0]->getParameter(ProposalParameter::STEP_SIZE)) * VectorType::Ones(1);
     double maximumTargetValue;
-    return tune(stepSize, maximumTargetValue, markovChain, randomNumberGenerator, parameters, target);
+    return tune(stepSize, maximumTargetValue, /*markovChain,*/ randomNumberGenerator, parameters, target);
 }
 
-template<typename TuningTarget>
-bool hops::ThompsonSamplingTuner::tune(
-        VectorType& stepSize,
-        double& maximumTargetValue,
-        std::vector<std::shared_ptr<hops::MarkovChain>>& markovChain,
-        std::vector<RandomNumberGenerator*>& randomNumberGenerator,
-        hops::ThompsonSamplingTuner::param_type& parameters,
-        TuningTarget& target) {
-    MatrixType data, posterior;
-    return tune(stepSize, maximumTargetValue, markovChain, randomNumberGenerator, parameters, target, data, posterior);
-}
-
-hops::ThompsonSamplingTuner::param_type::param_type(size_t iterationsToTestStepSize,
-                                                               size_t posteriorUpdateIterations,
-                                                               size_t pureSamplingIterations,
-                                                               size_t iterationsForConvergence,
-                                                               size_t stepSizeGridSize,
-                                                               double stepSizeLowerBound,
-                                                               double stepSizeUpperBound,
-                                                               double smoothingLength,
-                                                               size_t randomSeed,
-                                                               bool recordData) {
-    this->iterationsToTestStepSize = iterationsToTestStepSize;
-    this->posteriorUpdateIterations = posteriorUpdateIterations;
-    this->pureSamplingIterations = pureSamplingIterations;
-    this->iterationsForConvergence = iterationsForConvergence;
-    this->posteriorUpdateIterationsNeeded = 0;
-    this->stepSizeGridSize = stepSizeGridSize;
-    this->stepSizeLowerBound = stepSizeLowerBound;
-    this->stepSizeUpperBound = stepSizeUpperBound;
-    this->smoothingLength = smoothingLength;
-    this->randomSeed = randomSeed;
-    this->recordData = recordData;
+template<typename TuningTargetType>
+bool hops::ThompsonSamplingTuner::tune(VectorType& stepSize,
+                                       double& maximumTargetValue,
+                                       //std::vector<std::shared_ptr<hops::MarkovChain>>& markovChain,
+                                       const std::vector<RandomNumberGenerator*>& randomNumberGenerator,
+                                       hops::ThompsonSamplingTuner::param_type& parameters,
+                                       TuningTargetType& target) {
+    MatrixType data;
+    return tune(stepSize, maximumTargetValue, /*markovChain,*/ randomNumberGenerator, parameters, target, data);
 }
 
 #endif // HOPS_THOMPSONSAMPLINGTUNER_HPP

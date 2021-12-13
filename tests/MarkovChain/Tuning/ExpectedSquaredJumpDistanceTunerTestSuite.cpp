@@ -11,6 +11,7 @@
 #include <Eigen/Core>
 #include <hops/hops.hpp>
 
+/*
 namespace {
     class ProposerMock {
     public:
@@ -130,3 +131,4 @@ BOOST_AUTO_TEST_SUITE(AcceptanceRateTuner)
     }
 
 BOOST_AUTO_TEST_SUITE_END()
+    */
