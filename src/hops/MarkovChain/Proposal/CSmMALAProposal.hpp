@@ -5,9 +5,13 @@
 #include <random>
 #include <utility>
 
-#include <hops/MarkovChain/Proposal/DikinProposal.hpp>
 #include <hops/MarkovChain/Recorder/IsAddMessageAvailabe.hpp>
+#include <hops/Utility/MatrixType.hpp>
 #include <hops/Utility/StringUtility.hpp>
+#include <hops/Utility/VectorType.hpp>
+
+#include "DikinEllipsoidCalculator.hpp"
+#include "Proposal.hpp"
 
 namespace hops {
     namespace CSmMALAProposalDetails {
@@ -22,6 +26,11 @@ namespace hops {
         }
     }
 
+    /**
+     * @Brief Does not work in with DNest4 sampler, because this Proposal already contains the model likelihood.
+     * @tparam ModelType
+     * @tparam InternalMatrixType
+     */
     template<typename ModelType, typename InternalMatrixType>
     class CSmMALAProposal : public Proposal, public ModelType {
     public:
@@ -49,7 +58,7 @@ namespace hops {
 
         [[nodiscard]] VectorType getProposal() const override;
 
-        std::optional<std::vector<std::string>> getDimensionNames() const override;
+        [[nodiscard]] std::optional<std::vector<std::string>> getDimensionNames() const override;
 
         [[nodiscard]] std::optional<double> getStepSize() const;
 
@@ -68,6 +77,10 @@ namespace hops {
         [[nodiscard]] std::string getProposalName() const override;
 
         [[nodiscard]] double getStateNegativeLogLikelihood() const override;
+
+        [[nodiscard]] double getProposalNegativeLogLikelihood() const override;
+
+        [[nodiscard]] bool hasNegativeLogLikelihood() const override;
 
         [[nodiscard]] std::unique_ptr<Proposal> copyProposal() const override;
 
@@ -128,7 +141,7 @@ namespace hops {
     }
 
     template<typename ModelType, typename InternalMatrixType>
-    VectorType& CSmMALAProposal<ModelType, InternalMatrixType>::propose(RandomNumberGenerator &rng) {
+    VectorType &CSmMALAProposal<ModelType, InternalMatrixType>::propose(RandomNumberGenerator &rng) {
         for (long i = 0; i < proposal.rows(); ++i) {
             proposal(i) = normalDistribution(rng);
         }
@@ -138,7 +151,7 @@ namespace hops {
     }
 
     template<typename ModelType, typename InternalMatrixType>
-    VectorType& CSmMALAProposal<ModelType, InternalMatrixType>::acceptProposal() {
+    VectorType &CSmMALAProposal<ModelType, InternalMatrixType>::acceptProposal() {
         state.swap(proposal);
         driftedState.swap(driftedProposal);
         stateSqrtInvMetric.swap(proposalSqrtInvMetric);
@@ -232,10 +245,11 @@ namespace hops {
                 static_cast<double>((driftedState - proposal).transpose() * stateMetric * (driftedState - proposal)) -
                 static_cast<double>((state - driftedProposal).transpose() * proposalMetric * (state - driftedProposal));
 
-        return // TODO remove likelihoods here -proposalNegativeLogLikelihood + stateNegativeLogLikelihood
-                +proposalLogSqrtDeterminant
-                - stateLogSqrtDeterminant
-                + geometricFactor * normDifference;
+        return -proposalNegativeLogLikelihood
+               + stateNegativeLogLikelihood
+               + proposalLogSqrtDeterminant
+               - stateLogSqrtDeterminant
+               + geometricFactor * normDifference;
     }
 
     template<typename ModelType, typename InternalMatrixType>
@@ -258,7 +272,6 @@ namespace hops {
 
     template<typename ModelType, typename InternalMatrixType>
     std::unique_ptr<Proposal> CSmMALAProposal<ModelType, InternalMatrixType>::copyProposal() const {
-        // TODO check if we need to clone model, probably we do!
         return std::make_unique<CSmMALAProposal>(*this);
     }
 
@@ -289,7 +302,8 @@ namespace hops {
     }
 
     template<typename ModelType, typename InternalMatrixType>
-    std::string CSmMALAProposal<ModelType, InternalMatrixType>::getParameterType(const ProposalParameter &parameter) const {
+    std::string
+    CSmMALAProposal<ModelType, InternalMatrixType>::getParameterType(const ProposalParameter &parameter) const {
         if (parameter == ProposalParameter::STEP_SIZE) {
             return "double";
         }
@@ -322,6 +336,16 @@ namespace hops {
             names.emplace_back("x_" + std::to_string(i));
         }
         return names;
+    }
+
+    template<typename ModelType, typename InternalMatrixType>
+    double CSmMALAProposal<ModelType, InternalMatrixType>::getProposalNegativeLogLikelihood() const {
+        return proposalNegativeLogLikelihood;
+    }
+
+    template<typename ModelType, typename InternalMatrixType>
+    bool CSmMALAProposal<ModelType, InternalMatrixType>::hasNegativeLogLikelihood() const {
+        return true;
     }
 }
 

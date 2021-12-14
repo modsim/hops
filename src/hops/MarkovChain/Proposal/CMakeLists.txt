@@ -14,6 +14,7 @@ if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
             ProposalParameter.hpp
             # TODO
 #            ReversibleJumpProposal.hpp
+            BillardMalaProposal.hpp
             TruncatedNormalDistribution.hpp
             )
 endif (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")

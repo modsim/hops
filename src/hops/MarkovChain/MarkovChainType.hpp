@@ -5,6 +5,7 @@ namespace hops {
     enum class MarkovChainType {
         AdaptiveMetropolis,
         BallWalk,
+        BillardMALA,
         CoordinateHitAndRun,
         CSmMALA,
         DikinWalk,
@@ -19,6 +20,8 @@ namespace hops {
                 return "Adaptive Metropolis";
             case MarkovChainType::BallWalk:
                 return "Ball Walk";
+            case MarkovChainType::BillardMALA:
+                return "Billard MALA";
             case MarkovChainType::CoordinateHitAndRun:
                 return "Coordinate Hit-and-Run";
             case MarkovChainType::CSmMALA:
@@ -40,6 +43,8 @@ namespace hops {
                 return "AM";
             case MarkovChainType::BallWalk:
                 return "BW";
+            case MarkovChainType::BillardMALA:
+                return "BMALA";
             case MarkovChainType::CoordinateHitAndRun:
                 return "CHR";
             case MarkovChainType::CSmMALA:
