@@ -10,7 +10,8 @@ bool hops::ExpectedSquaredJumpDistanceTuner::tune(
     auto target = ExpectedSquaredJumpDistanceTarget{markovChains, 
                                                     parameters.iterationsToTestStepSize, 
                                                     /*lags=*/{1},
-                                                    parameters.considerTimeCost};
+                                                    parameters.considerTimeCost,
+                                                    parameters.estimateCovariance};
 
     return ThompsonSamplingTuner::tune(stepSize, maximumExpectedSquaredJumpDistance, randomNumberGenerators, parameters.ts_params, target, data);
 }
@@ -43,8 +44,10 @@ hops::ExpectedSquaredJumpDistanceTuner::param_type::param_type(size_t iterations
                                                                double stepSizeUpperBound,
                                                                double smoothingLength,
                                                                size_t randomSeed,
+                                                               bool recordData,
+                                                               std::vector<unsigned long> lags,
                                                                bool considerTimeCost,
-                                                               bool recordData) {
+                                                               bool estimateCovariance) {
     this->iterationsToTestStepSize = iterationsToTestStepSize;
     this->ts_params.posteriorUpdateIterations = posteriorUpdateIterations;
     this->ts_params.pureSamplingIterations = pureSamplingIterations;
@@ -56,6 +59,8 @@ hops::ExpectedSquaredJumpDistanceTuner::param_type::param_type(size_t iterations
     this->ts_params.smoothingLength = smoothingLength;
     this->ts_params.randomSeed = randomSeed;
     this->ts_params.recordData = recordData;
+    this->lags = lags;
     this->considerTimeCost = considerTimeCost;
+    this->estimateCovariance = estimateCovariance;
 }
 

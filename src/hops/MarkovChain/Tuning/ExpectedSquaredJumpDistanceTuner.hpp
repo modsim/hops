@@ -22,6 +22,7 @@
 #include <cmath>
 #include <memory>
 #include <stdexcept>
+#include <vector>
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -33,7 +34,9 @@ namespace hops {
         struct param_type {
             ThompsonSamplingTuner::param_type ts_params;
             size_t iterationsToTestStepSize;
+            std::vector<unsigned long> lags;
             bool considerTimeCost;
+            bool estimateCovariance;
 
             param_type(size_t iterationsToTestStepSize,
                        size_t posteriorUpdateIterations,
@@ -44,8 +47,10 @@ namespace hops {
                        double stepSizeUpperBound,
                        double smoothingLength,
                        size_t randomSeed,
-                       bool considerTimeCost,
-                       bool recordData = false
+                       bool recordData = false,
+                       std::vector<unsigned long> lags = {1},
+                       bool considerTimeCost = false,
+                       bool estimateCovariance = true
             );
         };
 

@@ -25,15 +25,18 @@ namespace hops {
         unsigned long numberOfTestSamples;
         std::vector<unsigned long> lags;
         bool considerTimeCost;
+        bool estimateCovariance;
 
         ExpectedSquaredJumpDistanceTarget(std::vector<std::shared_ptr<MarkovChain>> markovChains,
                                           unsigned long numberOfTestSamples,
                                           std::vector<unsigned long> lags,
-                                          bool considerTimeCost) :
+                                          bool considerTimeCost,
+                                          bool estimateCovariance) :
             markovChains(markovChains),
             numberOfTestSamples(numberOfTestSamples),
             lags(lags),
-            considerTimeCost(considerTimeCost) { }
+            considerTimeCost(considerTimeCost),
+            estimateCovariance(estimateCovariance) { }
 
         std::pair<double, double> operator()(const VectorType& x, const std::vector<RandomNumberGenerator*>& randomNumberGenerators) override;
 
@@ -81,7 +84,12 @@ namespace hops {
             time = (time == 0 ? 1 : time);
 
             // compute covariance upfront to reuse it for higher lag esjds
-            MatrixType sqrtCovariance = computeCovariance<VectorType, MatrixType>(states).llt().matrixL();
+            MatrixType sqrtCovariance;
+            if (estimateCovariance) {
+                sqrtCovariance = computeCovariance<VectorType, MatrixType>(states).llt().matrixL();
+            } else {
+                sqrtCovariance = MatrixType::Identity(states[0].size(), states[0].size());
+            }
 
             double expectedSquaredJumpDistance = 0;
 
