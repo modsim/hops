@@ -151,7 +151,7 @@ hops::AcceptanceRateTuner::param_type::param_type(double acceptanceRateTargetVal
                                                   bool recordData) {
     this->acceptanceRateTargetValue = acceptanceRateTargetValue;
     this->iterationsToTestStepSize = iterationsToTestStepSize;
-    this->ts_params.iterationsToTestStepSize = iterationsToTestStepSize;
+    //this->ts_params.iterationsToTestStepSize = iterationsToTestStepSize;
     this->ts_params.posteriorUpdateIterations = posteriorUpdateIterations;
     this->ts_params.pureSamplingIterations = pureSamplingIterations;
     this->ts_params.iterationsForConvergence = iterationsForConvergence;
