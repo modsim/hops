@@ -5,6 +5,8 @@
 #include <hops/Optimization/Kernel/UniformBallKernel.hpp>
 #include <hops/Optimization/Kernel/SquaredExponentialKernel.hpp>
 #include <hops/Optimization/Kernel/ZeroKernel.hpp>
+#include <hops/Utility/MatrixType.hpp>
+#include <hops/Utility/VectorType.hpp>
 
 #include <cmath>
 #include <limits>
@@ -12,7 +14,7 @@
 #include <chrono>
 
 namespace hops {
-    template<typename MatrixType, typename VectorType, typename GaussianProcessType, typename ThompsonSamplgTargetType>
+    template<typename GaussianProcessType, typename ThompsonSamplgTargetType>
     class ThompsonSampling {
     public:
         //using ThompsonSamplgTargetType = internal::ThompsonSamplingTarget<typename MatrixType::Scalar, VectorType>;
@@ -23,7 +25,8 @@ namespace hops {
                               GaussianProcessType& initialGP,
                               ThompsonSamplgTargetType targetFunction,
                               const MatrixType& inputSpaceGrid,
-                              RandomNumberGenerator randomNumberGenerator,
+                              const std::vector<RandomNumberGenerator*>& targetRandomNumberGenerators,
+                              RandomNumberGenerator& randomNumberGenerator,
                               size_t* numberOfPosteriorUpdatesNeeded = nullptr,
                               double smoothingLength = 0) {
             size_t maxElementIndex;
@@ -56,7 +59,7 @@ namespace hops {
                     VectorType testInput = inputSpaceGrid.row(maxElementIndex);
 
                     // evaluate stepsize which maximized the sampled acquisition function
-                    auto[newObservedValue, newObservedValueError] = targetFunction(testInput);
+                    auto[newObservedValue, newObservedValueError] = targetFunction(testInput, targetRandomNumberGenerators);
 
                     // aggregate data if this stepsize has been tested before
                     if (observedInputIndex.count(maxElementIndex)) {

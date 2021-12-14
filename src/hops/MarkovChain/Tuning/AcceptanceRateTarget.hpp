@@ -21,12 +21,18 @@
 
 namespace hops {
     struct AcceptanceRateTarget : public TuningTarget {
-        std::vector<std::shared_ptr<MarkovChain>> markovChain;
-        std::vector<RandomNumberGenerator>* randomNumberGenerator;
+        std::vector<std::shared_ptr<MarkovChain>> markovChains;
         unsigned long numberOfTestSamples;
         double acceptanceRateTargetValue;
 
-        std::tuple<double, double> operator()(const VectorType& x) override;
+        AcceptanceRateTarget(std::vector<std::shared_ptr<MarkovChain>> markovChains,
+                                          unsigned long numberOfTestSamples,
+                                          double acceptanceRateTargetValue) :
+            markovChains(markovChains),
+            numberOfTestSamples(numberOfTestSamples),
+            acceptanceRateTargetValue(acceptanceRateTargetValue) { }
+
+        std::pair<double, double> operator()(const VectorType& x, const std::vector<RandomNumberGenerator*>& randomNumberGenerators) override;
 
         std::string getName() const override {
             return "AcceptanceRate";
@@ -37,14 +43,18 @@ namespace hops {
         }
     };
 
-    std::tuple<double, double> hops::AcceptanceRateTarget::operator()(const VectorType& x) {
-        double stepSize = std::pow(10, x(0));
-        std::vector<double> acceptanceRateScores(markovChain.size());
-        #pragma omp parallel for num_threads(numberOfThreads)
-        for (size_t i = 0; i < markovChain.size(); ++i) {
-            markovChain[i]->setParameter(ProposalParameter::STEP_SIZE, stepSize);
+    std::pair<double, double> hops::AcceptanceRateTarget::operator()(const VectorType& x, const std::vector<RandomNumberGenerator*>& randomNumberGenerators) {
+        if (markovChains.size() != randomNumberGenerators.size()) {
+            throw std::runtime_error("Number of random number generators must match number of markov chains.");
+        }
 
-            double acceptanceRate = std::get<0>(markovChain[i]->draw(randomNumberGenerator->at(i), numberOfTestSamples));
+        double stepSize = std::pow(10, x(0));
+        std::vector<double> acceptanceRateScores(markovChains.size());
+        #pragma omp parallel for num_threads(numberOfThreads)
+        for (size_t i = 0; i < markovChains.size(); ++i) {
+            markovChains[i]->setParameter(ProposalParameter::STEP_SIZE, stepSize);
+
+            double acceptanceRate = std::get<0>(markovChains[i]->draw(*randomNumberGenerators[i], numberOfTestSamples));
 
             double deltaScale = (
                     acceptanceRate > acceptanceRateTargetValue ?
@@ -57,7 +67,6 @@ namespace hops {
         double mean = std::accumulate(acceptanceRateScores.begin(), acceptanceRateScores.end(), 0.0) / acceptanceRateScores.size();
 
         double squaredSum = std::inner_product(acceptanceRateScores.begin(), acceptanceRateScores.end(), acceptanceRateScores.begin(), 0.0);
-        //double error = std::sqrt(squaredSum / acceptanceRateScores.size() - mean * mean); 
         double error = squaredSum / acceptanceRateScores.size() - mean * mean; 
 
         return {mean, error};

@@ -1,6 +1,7 @@
 set(TEST_SOURCES
         AcceptanceRateTunerTestSuite.cpp
         BinarySearchAcceptanceRateTunerTestSuite.cpp
+        ExpectedSquaredJumpDistanceTunerTestSuite.cpp
         )
 
 foreach (TEST_SOURCE ${TEST_SOURCES})

@@ -1,6 +1,4 @@
-#include "hops/MarkovChain/Proposal/Proposal.hpp"
-#include "hops/MarkovChain/Proposal/ProposalParameter.hpp"
-#define BOOST_TEST_MODULE AcceptanceRateTunerTestSuite
+#define BOOST_TEST_MODULE ExpectedSquaredJumpDistanceTunerTestSuite
 #define BOOST_TEST_DYN_LINK
 
 #include <memory>
@@ -14,27 +12,33 @@
 namespace {
     class ProposerMock {
     public:
-        explicit ProposerMock(double stepSize) : stepSize(stepSize) {}
-
         using StateType = Eigen::VectorXd;
 
+        explicit ProposerMock(double stepSize, double targetStepSize) : 
+                stepSize(stepSize), 
+                targetStepSize(targetStepSize), 
+                x(StateType::Zero(1)),
+                y(StateType::Zero(1)) {}
+
         StateType propose(hops::RandomNumberGenerator) { numberOfStepsTaken++;
-            return getState();
+            y = x + std::exp(-std::pow(std::log10(targetStepSize) - std::log10(stepSize), 2)) * StateType::Ones(1);
+            return y;
         }
 
         StateType acceptProposal() {
-            return getState();
+            x = y;
+            return x;
         };
 
         [[nodiscard]] double computeLogAcceptanceProbability() const {
-            return std::log(1 - stepSize);
+            return 0;
         };
 
         const std::vector<Eigen::VectorXd> &getStateRecords() {
             throw std::runtime_error("no records");
         }
 
-        [[nodiscard]] StateType getState() const { return Eigen::VectorXd::Zero(1); };
+        [[nodiscard]] StateType getState() const { return x; };
 
         [[nodiscard]] double getStateNegativeLogLikelihood() const { return 0; };
 
@@ -56,35 +60,37 @@ namespace {
 
     private:
         double stepSize;
+        double targetStepSize;
         long numberOfStepsTaken = 0;
+        StateType x;
+        StateType y;
     };
 }
 
-BOOST_AUTO_TEST_SUITE(AcceptanceRateTuner)
+BOOST_AUTO_TEST_SUITE(ExpectedSquaredJumpDistanceTuner)
 
     BOOST_AUTO_TEST_CASE(nothingToTune) {
         double startingStepSize = 0.5;
+        double targetStepSize = 1;
         auto markovChain
                 = std::make_shared<
                         decltype(hops::MarkovChainAdapter(
-                                hops::MetropolisHastingsFilter(ProposerMock(startingStepSize))))>(
-                        hops::MetropolisHastingsFilter(ProposerMock(startingStepSize))
+                                hops::MetropolisHastingsFilter(ProposerMock(startingStepSize, targetStepSize))))>(
+                        hops::MetropolisHastingsFilter(ProposerMock(startingStepSize, targetStepSize))
                 );
         hops::RandomNumberGenerator generator(42);
         markovChain->setParameter(hops::ProposalParameter::STEP_SIZE, startingStepSize);
 
-        double targetAcceptanceRate = 0.825;
-        double lowerLimitStepSize = 1e-1;
-        double upperLimitStepSize = 1;
+        double lowerLimitStepSize = 1e-2;
+        double upperLimitStepSize = 1e2;
         double smoothingLength = 1;
         size_t stepSizeGridSize = 21;
-        size_t iterationsToTestStepSize = 500;
+        size_t iterationsToTestStepSize = 300;
         size_t maxPosteriorUpdates = 20;
         size_t maxPureSamplingRounds = 1;
-        size_t iterationsForConvergence = 5;
+        size_t iterationsForConvergence = 20;
 
-        hops::AcceptanceRateTuner::param_type parameters{
-                targetAcceptanceRate,
+        hops::ExpectedSquaredJumpDistanceTuner::param_type parameters{
                 iterationsToTestStepSize,
                 maxPosteriorUpdates,
                 maxPureSamplingRounds,
@@ -93,8 +99,11 @@ BOOST_AUTO_TEST_SUITE(AcceptanceRateTuner)
                 lowerLimitStepSize,
                 upperLimitStepSize,
                 smoothingLength,
-                42,
-                true
+                123,
+                true,
+                {1},
+                false,
+                false
         };
 
         Eigen::MatrixXd data;
@@ -104,7 +113,7 @@ BOOST_AUTO_TEST_SUITE(AcceptanceRateTuner)
 
         std::vector<std::shared_ptr<hops::MarkovChain>> mcs{markovChain};
         std::vector<hops::RandomNumberGenerator*> generators{&generator};
-        bool isTuned = hops::AcceptanceRateTuner::tune(
+        bool isTuned = hops::ExpectedSquaredJumpDistanceTuner::tune(
                 optimalParameter,
                 optimalValue,
                 mcs,
@@ -115,18 +124,15 @@ BOOST_AUTO_TEST_SUITE(AcceptanceRateTuner)
 
         std::cout << data << std::endl;
 
-        double actualAcceptanceRate = std::get<0>(markovChain->draw(generator, 5000));
-        std::cout << optimalParameter << " " << actualAcceptanceRate << std::endl;
-        BOOST_CHECK(isTuned);
-        BOOST_CHECK_LE(markovChain->getNumberOfStepsTaken(),
-                       maxPosteriorUpdates *
-                               iterationsToTestStepSize + 5000);
-        double upperLimitAcceptanceRate = 0.85;
-        double lowerLimitAcceptanceRate = 0.75;
-        BOOST_CHECK_LE(actualAcceptanceRate,
-                       upperLimitAcceptanceRate);
-        BOOST_CHECK_GE(actualAcceptanceRate,
-                       lowerLimitAcceptanceRate);
+        std::vector<Eigen::VectorXd> states(5000);
+        for (size_t j = 0; j < 5000; ++j) {
+            states[j] = std::get<1>(markovChain->draw(generator));
+        }
+
+        Eigen::MatrixXd sqrtCovariance = Eigen::MatrixXd::Identity(1, 1);
+        double expectedSquaredJumpDistance = hops::computeExpectedSquaredJumpDistance<Eigen::VectorXd, Eigen::MatrixXd>(states, sqrtCovariance, 1);
+
+        BOOST_CHECK_EQUAL(optimalParameter(0), 1);
     }
 
 BOOST_AUTO_TEST_SUITE_END()

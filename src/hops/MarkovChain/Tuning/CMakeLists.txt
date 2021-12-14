@@ -11,5 +11,6 @@ if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
             #SimpleExpectedSquaredJumpDistanceTuner.hpp
             #SimpleExpectedSquaredJumpDistanceTuner.cpp
             ThompsonSamplingTuner.hpp
+            ThompsonSamplingTuner.cpp
             )
 endif (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")

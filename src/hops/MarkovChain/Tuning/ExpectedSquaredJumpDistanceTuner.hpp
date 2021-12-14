@@ -6,9 +6,12 @@
 #include <hops/FileWriter/FileWriterType.hpp>
 #include <hops/MarkovChain/MarkovChain.hpp>
 #include <hops/MarkovChain/MarkovChainAttribute.hpp>
+#include <hops/MarkovChain/Tuning/ExpectedSquaredJumpDistanceTarget.hpp>
+#include <hops/MarkovChain/Tuning/ThompsonSamplingTuner.hpp>
 #include <hops/Parallel/OpenMPControls.hpp>
 #include <hops/Optimization/GaussianProcess.hpp>
 #include <hops/Optimization/ThompsonSampling.hpp>
+#include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
 #include <hops/Statistics/ExpectedSquaredJumpDistance.hpp>
 #include <hops/Utility/MatrixType.hpp>
 #include <hops/Utility/VectorType.hpp>
@@ -19,6 +22,7 @@
 #include <cmath>
 #include <memory>
 #include <stdexcept>
+#include <vector>
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -28,18 +32,11 @@ namespace hops {
     class ExpectedSquaredJumpDistanceTuner {
     public:
         struct param_type {
+            ThompsonSamplingTuner::param_type ts_params;
             size_t iterationsToTestStepSize;
-            size_t posteriorUpdateIterations;
-            size_t pureSamplingIterations;
-            size_t iterationsForConvergence;
-            size_t posteriorUpdateIterationsNeeded;
-            size_t stepSizeGridSize;
-            double stepSizeLowerBound;
-            double stepSizeUpperBound;
-            double smoothingLength;
-            size_t randomSeed;
+            std::vector<unsigned long> lags;
             bool considerTimeCost;
-            bool recordData;
+            bool estimateCovariance;
 
             param_type(size_t iterationsToTestStepSize,
                        size_t posteriorUpdateIterations,
@@ -50,8 +47,10 @@ namespace hops {
                        double stepSizeUpperBound,
                        double smoothingLength,
                        size_t randomSeed,
-                       bool considerTimeCost,
-                       bool recordData = false
+                       bool recordData = false,
+                       std::vector<unsigned long> lags = {1},
+                       bool considerTimeCost = false,
+                       bool estimateCovariance = true
             );
         };
 
@@ -59,68 +58,48 @@ namespace hops {
          * @brief tunes markov chain acceptance rate by nested intervals. The chain is not guaranteed to have converged
          *        to the specified acceptance rate.
          * @details Clears Markov chain history.
-         * @param markovChain
+         * @param markovChains
          * @param parameters
          * @return true if markov chain is tuned
          */
         static bool
         tune(std::vector<std::shared_ptr<MarkovChain>>&, 
-             std::vector<RandomNumberGenerator>&, 
+             const std::vector<RandomNumberGenerator*>&, 
              param_type&);
 
         /**
          * @brief tunes markov chain acceptance rate by nested intervals. The chain is not guaranteed to have converged
          *        to the specified acceptance rate.
          * @details Clears Markov chain history.
-         * @param markovChain
+         * @param markovChains
          * @param parameters
          * @return true if markov chain is tuned
          */
         static bool
-        tune(double&, 
+        tune(VectorType&, 
              double&,
              std::vector<std::shared_ptr<MarkovChain>>&, 
-             std::vector<RandomNumberGenerator>&, 
+             const std::vector<RandomNumberGenerator*>&, 
              param_type&);
 
         /**
          * @brief tunes markov chain acceptance rate by nested intervals. The chain is not guaranteed to have converged
          *        to the specified acceptance rate.
          * @details Clears Markov chain history.
-         * @param markovChain
+         * @param markovChains
          * @param parameters
          * @return true if markov chain is tuned
          */
         static bool
-        tune(double&, 
+        tune(VectorType&, 
              double&,
              std::vector<std::shared_ptr<MarkovChain>>&, 
-             std::vector<RandomNumberGenerator>&, 
+             const std::vector<RandomNumberGenerator*>&, 
              param_type&,
-             Eigen::MatrixXd& data,
-             Eigen::MatrixXd& posterior);
+             Eigen::MatrixXd& data);
 
         ExpectedSquaredJumpDistanceTuner() = delete;
     };
-
-    namespace internal {
-        struct ExpectedSquaredJumpDistanceTarget {
-            std::vector<std::shared_ptr<hops::MarkovChain>> markovChain;
-            std::vector<RandomNumberGenerator>* randomNumberGenerator;
-            ExpectedSquaredJumpDistanceTuner::param_type parameters;
-
-            ExpectedSquaredJumpDistanceTarget(std::vector<std::shared_ptr<hops::MarkovChain>>& markovChain,
-                                              std::vector<hops::RandomNumberGenerator>& randomNumberGenerator,
-                                              const hops::ExpectedSquaredJumpDistanceTuner::param_type& parameters) :
-                    markovChain(markovChain),
-                    randomNumberGenerator(&randomNumberGenerator),
-                    parameters(parameters) {
-                //
-            }
-
-            std::tuple<double, double> operator()(const Eigen::VectorXd& x);
-        };
-    }
 }
 
 #endif //HOPS_EXPECTEDSQUAREDJUMPDISTANCETUNER_HPP

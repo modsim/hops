@@ -12,6 +12,7 @@
 #include <chrono>
 #include <cmath>
 #include <memory>
+#include <numeric>
 #include <stdexcept>
 
 #ifdef _OPENMP
@@ -20,26 +21,24 @@
 
 namespace hops {
     struct ExpectedSquaredJumpDistanceTarget : public TuningTarget {
-        std::vector<std::shared_ptr<MarkovChain>> markovChain;
-        std::vector<RandomNumberGenerator*> randomNumberGenerator;
+        std::vector<std::shared_ptr<MarkovChain>> markovChains;
         unsigned long numberOfTestSamples;
         std::vector<unsigned long> lags;
         bool considerTimeCost;
+        bool estimateCovariance;
 
-        ExpectedSquaredJumpDistanceTarget() = default;
-
-        ExpectedSquaredJumpDistanceTarget(std::vector<std::shared_ptr<MarkovChain>> markovChain,
-                                          std::vector<RandomNumberGenerator*> randomNumberGenerator,
+        ExpectedSquaredJumpDistanceTarget(std::vector<std::shared_ptr<MarkovChain>> markovChains,
                                           unsigned long numberOfTestSamples,
                                           std::vector<unsigned long> lags,
-                                          bool considerTimeCost) :
-            markovChain(markovChain),
-            randomNumberGenerator(randomNumberGenerator),
+                                          bool considerTimeCost,
+                                          bool estimateCovariance) :
+            markovChains(markovChains),
             numberOfTestSamples(numberOfTestSamples),
             lags(lags),
-            considerTimeCost(considerTimeCost) { }
+            considerTimeCost(considerTimeCost),
+            estimateCovariance(estimateCovariance) { }
 
-        std::tuple<double, double> operator()(const VectorType& x) override;
+        std::pair<double, double> operator()(const VectorType& x, const std::vector<RandomNumberGenerator*>& randomNumberGenerators) override;
 
         std::string getName() const override {
             return "ExpectedSquaredJumpDistance";
@@ -55,12 +54,16 @@ namespace hops {
      * @param x
      * @return
      */
-    std::tuple<double, double> hops::ExpectedSquaredJumpDistanceTarget::operator()(const VectorType& x) {
+    std::pair<double, double> hops::ExpectedSquaredJumpDistanceTarget::operator()(const VectorType& x, const std::vector<RandomNumberGenerator*>& randomNumberGenerators) {
+        if (markovChains.size() != randomNumberGenerators.size()) {
+            throw std::runtime_error("Number of random number generators must match number of markov chains.");
+        }
+
         double stepSize = std::pow(10, x(0));
-        std::vector<double> expectedSquaredJumpDistances(markovChain.size());
+        std::vector<double> expectedSquaredJumpDistances(markovChains.size());
         #pragma omp parallel for num_threads(numberOfThreads)
-        for (size_t i = 0; i < markovChain.size(); ++i) {
-            markovChain[i]->setParameter(ProposalParameter::STEP_SIZE, stepSize);
+        for (size_t i = 0; i < markovChains.size(); ++i) {
+            markovChains[i]->setParameter(ProposalParameter::STEP_SIZE, stepSize);
            
             // record time taken to draw samples to scale esjd by time if specified
             unsigned long time = std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -69,7 +72,7 @@ namespace hops {
             
             std::vector<VectorType> states(numberOfTestSamples);
             for (size_t j = 0; j < numberOfTestSamples; ++j) {
-                states[j] = std::get<1>(markovChain[i]->draw(*randomNumberGenerator[i]));
+                states[j] = std::get<1>(markovChains[i]->draw(*randomNumberGenerators[i]));
             }
         
             
@@ -81,7 +84,12 @@ namespace hops {
             time = (time == 0 ? 1 : time);
 
             // compute covariance upfront to reuse it for higher lag esjds
-            MatrixType sqrtCovariance = computeCovariance<VectorType, MatrixType>(states).llt().matrixL();
+            MatrixType sqrtCovariance;
+            if (estimateCovariance) {
+                sqrtCovariance = computeCovariance<VectorType, MatrixType>(states).llt().matrixL();
+            } else {
+                sqrtCovariance = MatrixType::Identity(states[0].size(), states[0].size());
+            }
 
             double expectedSquaredJumpDistance = 0;
 
@@ -96,7 +104,6 @@ namespace hops {
         double mean = std::accumulate(expectedSquaredJumpDistances.begin(), expectedSquaredJumpDistances.end(), 0.0) / expectedSquaredJumpDistances.size();
 
         double squaredSum = std::inner_product(expectedSquaredJumpDistances.begin(), expectedSquaredJumpDistances.end(), expectedSquaredJumpDistances.begin(), 0.0);
-        //double error = std::sqrt(squaredSum / expectedSquaredJumpDistances.size() - mean * mean); 
         double error = squaredSum / expectedSquaredJumpDistances.size() - mean * mean; 
 
         return {mean, error};
