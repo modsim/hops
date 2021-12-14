@@ -96,6 +96,7 @@
 #include "Polytope/SimplexFactory.hpp"
 
 #include "RandomNumberGenerator/RandomNumberGenerator.hpp"
+#include "Sampler/Sampler.hpp"
 
 #include "Transformation/Transformation.hpp"
 

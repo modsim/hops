@@ -28,7 +28,7 @@ namespace hops {
 
         [[nodiscard]] VectorType getProposal() const override;
 
-        std::optional<std::vector<std::string>> getDimensionNames() const override;
+        [[nodiscard]] std::optional<std::vector<std::string>> getDimensionNames() const override;
 
         [[nodiscard]] std::vector<std::string> getParameterNames() const override;
 

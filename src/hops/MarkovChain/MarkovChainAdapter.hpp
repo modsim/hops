@@ -15,9 +15,7 @@ namespace hops {
     template<typename MarkovChainImpl> 
     class MarkovChainAdapter : public MarkovChain, public MarkovChainImpl {
     public:
-        MarkovChainAdapter(MarkovChainImpl markovChainImpl) : MarkovChainImpl(markovChainImpl) {
-
-        }
+        explicit MarkovChainAdapter(MarkovChainImpl markovChainImpl) : MarkovChainImpl(markovChainImpl) {}
 
         std::pair<double, VectorType> draw(RandomNumberGenerator &randomNumberGenerator, long thinning = 1) override {
             double acceptanceRate = 0;
@@ -27,7 +25,7 @@ namespace hops {
             return {acceptanceRate/thinning, MarkovChainImpl::getState()};
         }
 
-        VectorType getState() const override {
+        [[nodiscard]] VectorType getState() const override {
             return MarkovChainImpl::getState();
         }
 
