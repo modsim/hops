@@ -108,7 +108,7 @@ hops::ExpectedSquaredJumpDistanceTuner::param_type::param_type(size_t iterations
                                                                bool considerTimeCost,
                                                                bool recordData) {
     this->iterationsToTestStepSize = iterationsToTestStepSize;
-    this->ts_params.iterationsToTestStepSize = iterationsToTestStepSize;
+    //this->ts_params.iterationsToTestStepSize = iterationsToTestStepSize;
     this->ts_params.posteriorUpdateIterations = posteriorUpdateIterations;
     this->ts_params.pureSamplingIterations = pureSamplingIterations;
     this->ts_params.iterationsForConvergence = iterationsForConvergence;

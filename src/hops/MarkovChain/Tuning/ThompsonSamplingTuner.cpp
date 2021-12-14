@@ -1,6 +1,6 @@
 #include "ThompsonSamplingTuner.hpp"
 
-hops::ThompsonSamplingTuner::param_type::param_type(size_t iterationsToTestStepSize,
+hops::ThompsonSamplingTuner::param_type::param_type(//size_t iterationsToTestStepSize,
                                                     size_t posteriorUpdateIterations,
                                                     size_t pureSamplingIterations,
                                                     size_t iterationsForConvergence,
@@ -10,7 +10,7 @@ hops::ThompsonSamplingTuner::param_type::param_type(size_t iterationsToTestStepS
                                                     double smoothingLength,
                                                     size_t randomSeed,
                                                     bool recordData) {
-    this->iterationsToTestStepSize = iterationsToTestStepSize;
+//    this->iterationsToTestStepSize = iterationsToTestStepSize;
     this->posteriorUpdateIterations = posteriorUpdateIterations;
     this->pureSamplingIterations = pureSamplingIterations;
     this->iterationsForConvergence = iterationsForConvergence;
