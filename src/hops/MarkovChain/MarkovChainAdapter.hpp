@@ -19,7 +19,7 @@ namespace hops {
 
         }
 
-        std::pair<double, VectorType> draw(RandomNumberGenerator &randomNumberGenerator, long thinning) override {
+        std::pair<double, VectorType> draw(RandomNumberGenerator &randomNumberGenerator, long thinning = 1) override {
             double acceptanceRate = 0;
             for (long i = 0; i < thinning; ++i) {
                 acceptanceRate += MarkovChainImpl::draw(randomNumberGenerator);
