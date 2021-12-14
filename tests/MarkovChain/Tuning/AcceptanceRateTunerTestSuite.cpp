@@ -74,11 +74,11 @@ BOOST_AUTO_TEST_SUITE(AcceptanceRateTuner)
         markovChain->setParameter(hops::ProposalParameter::STEP_SIZE, startingStepSize);
 
         double targetAcceptanceRate = 0.825;
-        double lowerLimitStepSize = 1e-2;
+        double lowerLimitStepSize = 1e-1;
         double upperLimitStepSize = 1;
         double smoothingLength = 1;
         size_t stepSizeGridSize = 21;
-        size_t iterationsToTestStepSize = 300;
+        size_t iterationsToTestStepSize = 500;
         size_t maxPosteriorUpdates = 20;
         size_t maxPureSamplingRounds = 1;
         size_t iterationsForConvergence = 5;
@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_SUITE(AcceptanceRateTuner)
                 lowerLimitStepSize,
                 upperLimitStepSize,
                 smoothingLength,
-                123,
+                42,
                 true
         };
 
