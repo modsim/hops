@@ -96,7 +96,6 @@ namespace hops {
         double mean = std::accumulate(expectedSquaredJumpDistances.begin(), expectedSquaredJumpDistances.end(), 0.0) / expectedSquaredJumpDistances.size();
 
         double squaredSum = std::inner_product(expectedSquaredJumpDistances.begin(), expectedSquaredJumpDistances.end(), expectedSquaredJumpDistances.begin(), 0.0);
-        //double error = std::sqrt(squaredSum / expectedSquaredJumpDistances.size() - mean * mean); 
         double error = squaredSum / expectedSquaredJumpDistances.size() - mean * mean; 
 
         return {mean, error};

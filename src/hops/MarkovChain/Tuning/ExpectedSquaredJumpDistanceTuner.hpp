@@ -33,17 +33,7 @@ namespace hops {
         struct param_type {
             ThompsonSamplingTuner::param_type ts_params;
             size_t iterationsToTestStepSize;
-            //size_t posteriorUpdateIterations;
-            //size_t pureSamplingIterations;
-            //size_t iterationsForConvergence;
-            //size_t posteriorUpdateIterationsNeeded;
-            //size_t stepSizeGridSize;
-            //double stepSizeLowerBound;
-            //double stepSizeUpperBound;
-            //double smoothingLength;
-            //size_t randomSeed;
             bool considerTimeCost;
-            //bool recordData;
 
             param_type(size_t iterationsToTestStepSize,
                        size_t posteriorUpdateIterations,
