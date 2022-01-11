@@ -24,13 +24,16 @@ namespace hops {
         std::vector<std::shared_ptr<MarkovChain>> markovChains;
         unsigned long numberOfTestSamples;
         double acceptanceRateTargetValue;
+        unsigned long order;
 
         AcceptanceRateTarget(std::vector<std::shared_ptr<MarkovChain>> markovChains,
                                           unsigned long numberOfTestSamples,
-                                          double acceptanceRateTargetValue) :
+                                          double acceptanceRateTargetValue,
+                                          unsigned long order = 1) :
             markovChains(markovChains),
             numberOfTestSamples(numberOfTestSamples),
-            acceptanceRateTargetValue(acceptanceRateTargetValue) { }
+            acceptanceRateTargetValue(acceptanceRateTargetValue),
+            order(order) { }
 
         std::pair<double, double> operator()(const VectorType& x, const std::vector<RandomNumberGenerator*>& randomNumberGenerators) override;
 
@@ -61,7 +64,7 @@ namespace hops {
                     1 - acceptanceRateTargetValue :
                     acceptanceRateTargetValue
             );
-            acceptanceRateScores[i] = 1 - std::abs(acceptanceRate - acceptanceRateTargetValue) / deltaScale;
+            acceptanceRateScores[i] = 1 - std::pow(std::abs(acceptanceRate - acceptanceRateTargetValue), order) / std::pow(deltaScale, order);
         }
 
         double mean = std::accumulate(acceptanceRateScores.begin(), acceptanceRateScores.end(), 0.0) / acceptanceRateScores.size();
