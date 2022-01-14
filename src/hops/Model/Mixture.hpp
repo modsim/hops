@@ -77,6 +77,14 @@ namespace hops {
             return std::nullopt;
         }
 
+        [[nodiscard]] const std::vector<std::shared_ptr<Model>>& getModels() const {
+            return models;
+        }
+
+        [[nodiscard]] const std::vector<double>& getWeights() const {
+            return weights;
+        }
+
         [[nodiscard]] std::unique_ptr<Model> copyModel() const override {
             return std::make_unique<Mixture>(models, weights);
         }
