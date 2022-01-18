@@ -181,7 +181,7 @@ namespace hops {
         proposalMetric = stateMetric;
         proposalSqrtInvMetric = stateSqrtInvMetric;
         proposalLogSqrtDeterminant = stateLogSqrtDeterminant;
-        max_num_reflections = 10*A.cols();
+        max_num_reflections = 10*A.cols(); // estimated from https://arxiv.org/pdf/2102.13068.pdf
     }
 
     template<typename ModelType, typename InternalMatrixType>
