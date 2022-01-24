@@ -8,7 +8,8 @@ namespace hops {
         EPSILON,
         FISHER_WEIGHT,
         STEP_SIZE,
-        WARM_UP
+        WARM_UP,
+        MAXIMUM_NUMBER_OF_REFLECTIONS
     };
 
     static char const* ProposalParameterName[] = {
@@ -17,12 +18,8 @@ namespace hops {
         "fisher_weight",
         "step_size",
         "warm_up",
+        "maximum_number_of_reflections"
     };
-    // TODO implement these functions if they are required
-//    ProposalParameterName convertString(const std::string& str);
-//
-//    std::string convertProposalParameterName(const ProposalParameterName& proposalParameterName);
-
 }
 
 #endif //HOPS_PROPOSALPARAMETER_HPP

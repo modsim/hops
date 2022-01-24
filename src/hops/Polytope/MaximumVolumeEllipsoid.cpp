@@ -33,7 +33,7 @@ void swap(hops::MaximumVolumeEllipsoid<Derived> &first, hops::MaximumVolumeEllip
 
 template<typename RealType>
 Eigen::Matrix<RealType, Eigen::Dynamic, 1>
-hops::MaximumVolumeEllipsoid<RealType>::applyRoundingTransformation(Eigen::Matrix<RealType, Eigen::Dynamic, 1> &x) {
+hops::MaximumVolumeEllipsoid<RealType>::applyRoundingTransformation(const Eigen::Matrix<RealType, Eigen::Dynamic, 1> &x) {
     return roundingTransformation.template triangularView<Eigen::Lower>() * x;
 }
 

@@ -1,5 +1,6 @@
 #include "hops/MarkovChain/Proposal/Proposal.hpp"
 #include "hops/MarkovChain/Proposal/ProposalParameter.hpp"
+
 #define BOOST_TEST_MODULE AcceptanceRateTunerTestSuite
 #define BOOST_TEST_DYN_LINK
 
@@ -9,54 +10,78 @@
 #include <memory>
 #include <vector>
 #include <Eigen/Core>
-#include <hops/hops.hpp>
+
+#include <hops/MarkovChain/Draw/MetropolisHastingsFilter.hpp>
+#include <hops/MarkovChain/MarkovChain.hpp>
+#include <hops/MarkovChain/MarkovChainAdapter.hpp>
+#include <hops/MarkovChain/Proposal/Proposal.hpp>
+#include <hops/MarkovChain/Tuning/AcceptanceRateTuner.hpp>
 
 namespace {
-    class ProposerMock {
+    class ProposerMock : public hops::Proposal {
     public:
         explicit ProposerMock(double stepSize) : stepSize(stepSize) {}
 
-        using StateType = Eigen::VectorXd;
-
-        StateType propose(hops::RandomNumberGenerator) { numberOfStepsTaken++;
-            return getState();
+        hops::VectorType &propose(hops::RandomNumberGenerator &) override {
+            numberOfStepsTaken++;
+            return state;
         }
 
-        StateType acceptProposal() {
-            return getState();
+        hops::VectorType &acceptProposal() override {
+            return state;
         };
 
-        [[nodiscard]] double computeLogAcceptanceProbability() const {
+        [[nodiscard]] double computeLogAcceptanceProbability() override {
             return std::log(1 - stepSize);
         };
 
-        const std::vector<Eigen::VectorXd> &getStateRecords() {
-            throw std::runtime_error("no records");
-        }
+        [[nodiscard]] hops::VectorType getState() const override { return state; };
 
-        [[nodiscard]] StateType getState() const { return Eigen::VectorXd::Zero(1); };
+        [[nodiscard]] std::string getProposalName() const override { return "ProposerMock"; };
 
-        [[nodiscard]] double getStateNegativeLogLikelihood() const { return 0; };
-
-        [[nodiscard]] std::string getProposalName() const { return "ProposerMock"; };
-
-        void setParameter(hops::ProposalParameter parameter, std::any value) {
+        void setParameter(const hops::ProposalParameter &parameter, const std::any &value) override {
             stepSize = std::any_cast<double>(value);
-        }
-
-        void setState(Eigen::VectorXd) {};
-
-        std::any getParameter(hops::ProposalParameter parameter) const {
-            return stepSize;
         }
 
         long getNumberOfStepsTaken() const {
             return numberOfStepsTaken;
         }
 
+        void setState(const hops::VectorType &) override {}
+
+        hops::VectorType getProposal() const override { return hops::VectorType(); }
+
+        std::vector<std::string> getParameterNames() const override { return std::vector<std::string>(); }
+
+        std::any getParameter(const hops::ProposalParameter &parameter) const override {
+            return std::any();
+        }
+
+        std::string getParameterType(const hops::ProposalParameter &parameter) const override {
+            return std::string();
+        }
+
+        bool hasStepSize() const override {
+            return true;
+        }
+
+        std::unique_ptr<Proposal> copyProposal() const override {
+            return std::make_unique<ProposerMock>(*this);
+        }
+
+        const hops::MatrixType &getA() const override {
+            throw std::runtime_error("Should not be called");
+        }
+
+        const hops::VectorType &getB() const override {
+            throw std::runtime_error("Should not be called");
+        }
+
     private:
         double stepSize;
         long numberOfStepsTaken = 0;
+
+        hops::VectorType state = Eigen::VectorXd::Zero(1);
     };
 }
 
@@ -103,7 +128,7 @@ BOOST_AUTO_TEST_SUITE(AcceptanceRateTuner)
         double optimalValue;
 
         std::vector<std::shared_ptr<hops::MarkovChain>> mcs{markovChain};
-        std::vector<hops::RandomNumberGenerator*> generators{&generator};
+        std::vector<hops::RandomNumberGenerator *> generators{&generator};
         bool isTuned = hops::AcceptanceRateTuner::tune(
                 optimalParameter,
                 optimalValue,

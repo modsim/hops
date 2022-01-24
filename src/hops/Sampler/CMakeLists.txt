@@ -1,1 +1,3 @@
-target_sources(hops PRIVATE Sampler.hpp)
+target_sources(hops PRIVATE
+        MCMCSampler.hpp
+        Sampler.hpp)

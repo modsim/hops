@@ -1,11 +1,14 @@
 #ifndef HOPS_MARKOVCHAINTYPE_HPP
 #define HOPS_MARKOVCHAINTYPE_HPP
 
+#include <vector>
+
 namespace hops {
     enum class MarkovChainType {
         AdaptiveMetropolis,
         BallWalk,
-        BillardMALA,
+        BilliardAdaptiveMetropolis,
+        BilliardMALA,
         CoordinateHitAndRun,
         CSmMALA,
         DikinWalk,
@@ -13,15 +16,16 @@ namespace hops {
         HitAndRun,
     };
 
-
-    std::string MarkovChainTypeToFullString(MarkovChainType markovChainType) {
-        switch(markovChainType) {
+    std::string markovChainTypeToFullString(MarkovChainType markovChainType) {
+        switch (markovChainType) {
             case MarkovChainType::AdaptiveMetropolis:
                 return "Adaptive Metropolis";
             case MarkovChainType::BallWalk:
                 return "Ball Walk";
-            case MarkovChainType::BillardMALA:
-                return "Billard MALA";
+            case MarkovChainType::BilliardAdaptiveMetropolis:
+                return "Billiard Adaptive Metropolis";
+            case MarkovChainType::BilliardMALA:
+                return "Billiard MALA";
             case MarkovChainType::CoordinateHitAndRun:
                 return "Coordinate Hit-and-Run";
             case MarkovChainType::CSmMALA:
@@ -33,17 +37,19 @@ namespace hops {
             case MarkovChainType::HitAndRun:
                 return "Hit-and-Run";
             default:
-                throw std::runtime_error("Bug in switch case.");
+                throw std::runtime_error("Bug in switch case for markovChainTypeToFullString.");
         }
     }
 
-    std::string MarkovChainTypeToShortcutString(MarkovChainType markovChainType) {
-        switch(markovChainType) {
+    std::string markovChainTypeToShortString(MarkovChainType markovChainType) {
+        switch (markovChainType) {
             case MarkovChainType::AdaptiveMetropolis:
                 return "AM";
             case MarkovChainType::BallWalk:
                 return "BW";
-            case MarkovChainType::BillardMALA:
+            case MarkovChainType::BilliardAdaptiveMetropolis:
+                return "BAM";
+            case MarkovChainType::BilliardMALA:
                 return "BMALA";
             case MarkovChainType::CoordinateHitAndRun:
                 return "CHR";
@@ -56,9 +62,35 @@ namespace hops {
             case MarkovChainType::HitAndRun:
                 return "HR";
             default:
-                throw std::runtime_error("Bug in switch case.");
+                throw std::runtime_error("Bug in switch case for markovChainTypeToShortString.");
         }
+    }
 
+    bool checkIfStringIsEqualToChainType(const std::string &chainTypeString, MarkovChainType markovChainType) {
+        std::string shortStringType = markovChainTypeToShortString(markovChainType);
+        std::string longStringType = markovChainTypeToFullString(markovChainType);
+        return chainTypeString == shortStringType || chainTypeString == longStringType;
+    }
+
+    MarkovChainType stringToMarkovChainType(const std::string &chainString) {
+        std::vector<MarkovChainType> chainTypes{
+                MarkovChainType::AdaptiveMetropolis,
+                MarkovChainType::BallWalk,
+                MarkovChainType::BilliardAdaptiveMetropolis,
+                MarkovChainType::BilliardMALA,
+                MarkovChainType::CoordinateHitAndRun,
+                MarkovChainType::CSmMALA,
+                MarkovChainType::DikinWalk,
+                MarkovChainType::Gaussian,
+                MarkovChainType::HitAndRun
+        };
+
+        for (const MarkovChainType &chainType: chainTypes) {
+            if (checkIfStringIsEqualToChainType(chainString, chainType)) {
+                return chainType;
+            }
+        }
+        throw std::invalid_argument(chainString + " can not be converted to valid MarkovChainType.");
     }
 }
 

@@ -1,7 +1,9 @@
 set(TEST_SOURCES
         ChordStepDistributionsTestSuite.cpp
         DikinEllipsoidCalculatorTestSuite.cpp
-#        ProposalFactoryTestSuite.cpp
+#        ProposalFactoryTestSuite.cpp TODO probably remove this factory, no one needs it
+        ProposalStatisticsTestSuite.cpp
+        ReflectorTestSuite.cpp
         )
 
 foreach (TEST_SOURCE ${TEST_SOURCES})

@@ -21,9 +21,18 @@ namespace hops {
          */
         virtual std::pair<double, VectorType> draw(RandomNumberGenerator &randomNumberGenerator, long thinning = 1) = 0;
 
-        virtual VectorType getState() const = 0;
+        /**
+         * @brief tracks proposalStatistics while drawing
+         * @param randomNumberGenerator
+         * @param thinning
+         * @return
+         */
+        virtual std::tuple<double, VectorType, ProposalStatistics> detailedDraw(
+                RandomNumberGenerator &randomNumberGenerator, long thinning = 1) = 0;
 
-        virtual void setState(const VectorType&) = 0;
+        [[nodiscard]] virtual VectorType getState() const = 0;
+
+        virtual void setState(const VectorType &) = 0;
 
         virtual double getStateNegativeLogLikelihood() = 0;
 
@@ -31,14 +40,13 @@ namespace hops {
          * @brief gets proposal parameter. Throws exception if proposal has no parameter parameterName.
          * @details Implementations should list possible parameterNames in the exception message.
          */
-        [[nodiscard]] virtual std::any getParameter(const ProposalParameter& parameter) const = 0;
+        [[nodiscard]] virtual std::any getParameter(const ProposalParameter &parameter) const = 0;
 
         /**
          * @brief sets parameter with value. Throws exception if any contains incompatible type for parameter.
          * @details Implementations should list possible parameterNames in the exception message.
          */
         virtual void setParameter(const ProposalParameter &parameter, const std::any &value) = 0;
-
     };
 }
 

@@ -7,50 +7,47 @@
 #include <memory>
 #include <vector>
 #include <Eigen/Core>
-#include <hops/hops.hpp>
+
+#include <hops/MarkovChain/MarkovChain.hpp>
+#include <hops/MarkovChain/MarkovChainAdapter.hpp>
+#include <hops/MarkovChain/Draw/MetropolisHastingsFilter.hpp>
+#include <hops/MarkovChain/Proposal/Proposal.hpp>
+#include <hops/MarkovChain/Tuning/ExpectedSquaredJumpDistanceTuner.hpp>
 
 namespace {
-    class ProposerMock {
+    class ProposerMock : public hops::Proposal {
     public:
-        using StateType = Eigen::VectorXd;
-
-        explicit ProposerMock(double stepSize, double targetStepSize) : 
+        explicit ProposerMock(double stepSize, double targetStepSize) :
                 stepSize(stepSize), 
                 targetStepSize(targetStepSize), 
-                x(StateType::Zero(1)),
-                y(StateType::Zero(1)) {}
+                x(hops::VectorType::Zero(1)),
+                y(hops::VectorType::Zero(1)) {}
 
-        StateType propose(hops::RandomNumberGenerator) { numberOfStepsTaken++;
-            y = x + std::exp(-std::pow(std::log10(targetStepSize) - std::log10(stepSize), 2)) * StateType::Ones(1);
+        hops::VectorType& propose(hops::RandomNumberGenerator&) override { numberOfStepsTaken++;
+            y = x + std::exp(-std::pow(std::log10(targetStepSize) - std::log10(stepSize), 2)) * hops::VectorType::Ones(1);
             return y;
         }
 
-        StateType acceptProposal() {
+        hops::VectorType& acceptProposal() override {
             x = y;
             return x;
         };
 
-        [[nodiscard]] double computeLogAcceptanceProbability() const {
+        [[nodiscard]] double computeLogAcceptanceProbability() override {
             return 0;
         };
 
-        const std::vector<Eigen::VectorXd> &getStateRecords() {
-            throw std::runtime_error("no records");
-        }
+        [[nodiscard]] hops::VectorType getState() const override { return x; };
 
-        [[nodiscard]] StateType getState() const { return x; };
+        [[nodiscard]] std::string getProposalName() const override { return "ProposerMock"; };
 
-        [[nodiscard]] double getStateNegativeLogLikelihood() const { return 0; };
-
-        [[nodiscard]] std::string getProposalName() const { return "ProposerMock"; };
-
-        void setParameter(hops::ProposalParameter parameter, std::any value) {
+        void setParameter(const hops::ProposalParameter &parameter, const std::any &value) override {
             stepSize = std::any_cast<double>(value);
         }
 
-        void setState(Eigen::VectorXd) {};
+        void setState(const Eigen::VectorXd&) override {};
 
-        std::any getParameter(hops::ProposalParameter parameter) const {
+        std::any getParameter(const hops::ProposalParameter &parameter) const override {
             return stepSize;
         }
 
@@ -58,12 +55,41 @@ namespace {
             return numberOfStepsTaken;
         }
 
+        hops::VectorType getProposal() const override {
+            return hops::VectorType();
+        }
+
+        [[nodiscard]] std::vector<std::string> getParameterNames() const override {
+            return std::vector<std::string>();
+        }
+
+        std::string getParameterType(const hops::ProposalParameter &parameter) const override {
+            return "double";
+        }
+
+
+        bool hasStepSize() const override {
+            return true;
+        }
+
+        [[nodiscard]] std::unique_ptr<Proposal> copyProposal() const override {
+            return std::make_unique<ProposerMock>(*this);
+        }
+
+        const hops::MatrixType &getA() const override {
+            throw std::runtime_error("Should not be called");
+        }
+
+        const hops::VectorType &getB() const override {
+            throw std::runtime_error("Should not be called");
+        }
+
     private:
         double stepSize;
         double targetStepSize;
         long numberOfStepsTaken = 0;
-        StateType x;
-        StateType y;
+        hops::VectorType x;
+        hops::VectorType y;
     };
 }
 

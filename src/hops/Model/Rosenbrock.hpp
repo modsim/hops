@@ -28,11 +28,11 @@ namespace hops {
          */
         Rosenbrock(double scaleParameter, VectorType shiftParameter);
 
-        [[nodiscard]] typename MatrixType::Scalar computeNegativeLogLikelihood(const VectorType &x) const override;
+        [[nodiscard]] typename MatrixType::Scalar computeNegativeLogLikelihood(const VectorType &x) override;
 
-        [[nodiscard]] MatrixType computeHessian(const VectorType &x) const;
+        [[nodiscard]] MatrixType computeHessian(const VectorType &x);
 
-        [[nodiscard]] std::optional<VectorType> computeLogLikelihoodGradient(const VectorType &x) const override;
+        [[nodiscard]] std::optional<VectorType> computeLogLikelihoodGradient(const VectorType &x) override;
 
         /**
          * @brief Actually this computes the softmax of the hessian instead of the
@@ -40,7 +40,7 @@ namespace hops {
          * @details See 10.1007/978-3-642-40020-9_35
          * @return
          */
-        [[nodiscard]] std::optional<MatrixType> computeExpectedFisherInformation(const VectorType &x) const override;
+        [[nodiscard]] std::optional<MatrixType> computeExpectedFisherInformation(const VectorType &x) override;
 
         double getScaleParameter() const;
 
@@ -49,6 +49,8 @@ namespace hops {
         long getNumberOfDimensions() const;
 
         [[nodiscard]] std::unique_ptr<Model> copyModel() const override;
+
+        std::vector<std::string> getDimensionNames() const override;
 
     private:
         typename MatrixType::Scalar scaleParameter;
@@ -64,7 +66,7 @@ namespace hops {
     }
 
     typename MatrixType::Scalar
-    Rosenbrock::computeNegativeLogLikelihood(const VectorType &x) const {
+    Rosenbrock::computeNegativeLogLikelihood(const VectorType &x) {
         if (x.rows() != numberOfDimensions) {
             throw std::runtime_error("Input x has wrong number of rows.");
         }
@@ -78,7 +80,7 @@ namespace hops {
     }
 
     MatrixType
-    Rosenbrock::computeHessian(const VectorType &x) const {
+    Rosenbrock::computeHessian(const VectorType &x) {
         MatrixType hessian = MatrixType::Zero(x.rows(), x.rows());
 
         for (long i = 0; i < shiftParameter.rows(); ++i) {
@@ -93,7 +95,7 @@ namespace hops {
     }
 
     std::optional<VectorType>
-    Rosenbrock::computeLogLikelihoodGradient(const VectorType &x) const {
+    Rosenbrock::computeLogLikelihoodGradient(const VectorType &x) {
         VectorType gradient = VectorType::Zero(x.rows());
         for (long i = 0; i < shiftParameter.rows(); ++i) {
             gradient(2 * i) = scaleParameter * (4 * 100 * (x(2 * i + 1) - std::pow(x(2 * i), 2)) * (-2 * x(2 * i)) +
@@ -105,7 +107,7 @@ namespace hops {
     }
 
     std::optional<MatrixType>
-    Rosenbrock::computeExpectedFisherInformation(const VectorType &x) const {
+    Rosenbrock::computeExpectedFisherInformation(const VectorType &x) {
         MatrixType hessian = computeHessian(x);
         // regularization should be between 0 and infinity. This value is guessed for now.
         double regularization = 1. / hessian.maxCoeff();
@@ -130,6 +132,14 @@ namespace hops {
 
     long Rosenbrock::getNumberOfDimensions() const {
         return numberOfDimensions;
+    }
+
+    std::vector<std::string> Rosenbrock::getDimensionNames() const {
+        std::vector<std::string> names;
+        for (long i = 0; i < numberOfDimensions; ++i) {
+            names.emplace_back("x_" + std::to_string(i));
+        }
+        return names;
     }
 }
 

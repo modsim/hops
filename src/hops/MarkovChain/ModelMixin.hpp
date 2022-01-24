@@ -10,18 +10,18 @@
 namespace hops {
     /**
      * @brief ModelMixin Mixin to add model likelihood to computeLogAcceptanceRate().
-     * @details Useful for MarkovChainProposer classes, that do not already contain the model.
-     * @tparam MarkovChainProposer
+     * @details Useful for ProposalType classes, that do not already contain the model.
+     * @tparam ProposalType
      * @tparam ModelImpl
      */
-    template<typename MarkovChainProposer, typename ModelType>
-    class ModelMixin : public MarkovChainProposer, public ModelType {
+    template<typename ProposalType, typename ModelType>
+    class ModelMixin : public ProposalType, public ModelType {
     public:
-        ModelMixin(const MarkovChainProposer &markovChainProposer, const ModelType &model) :
-                MarkovChainProposer(markovChainProposer),
+        ModelMixin(const ProposalType &markovChainProposer, const ModelType &model) :
+                ProposalType(markovChainProposer),
                 ModelType(model) {
             proposalNegativeLogLikelihood = 0;
-            stateNegativeLogLikelihood = ModelType::computeNegativeLogLikelihood(MarkovChainProposer::getState());
+            stateNegativeLogLikelihood = ModelType::computeNegativeLogLikelihood(ProposalType::getState());
         }
 
         VectorType& acceptProposal();
@@ -31,6 +31,12 @@ namespace hops {
         double getStateNegativeLogLikelihood();
 
         double getProposalNegativeLogLikelihood();
+
+        /**
+         * @details implementing it here is important to solve the ambivalence, since ModelType and ProposalType both have this function
+         * @return
+         */
+        [[nodiscard]] std::vector<std::string> getDimensionNames() const;
 
         void setState(const VectorType&);
 
@@ -60,18 +66,28 @@ namespace hops {
 
     template<typename MarkovChainProposer, typename ModelType>
     double ModelMixin<MarkovChainProposer, ModelType>::getStateNegativeLogLikelihood() {
-        return stateNegativeLogLikelihood + MarkovChainProposer::getStateNegativeLogLikelihood();
+        return stateNegativeLogLikelihood;
     }
 
     template<typename MarkovChainProposer, typename ModelType>
     double ModelMixin<MarkovChainProposer, ModelType>::getProposalNegativeLogLikelihood() {
-        return proposalNegativeLogLikelihood + MarkovChainProposer::getProposalNegativeLogLikelihood();
+        return proposalNegativeLogLikelihood;
     }
 
     template<typename MarkovChainProposer, typename ModelType>
     void ModelMixin<MarkovChainProposer, ModelType>::setState(const VectorType& state) {
         MarkovChainProposer::setState(state);
         stateNegativeLogLikelihood = ModelType::computeNegativeLogLikelihood(state);
+    }
+
+    template<typename ProposalType, typename ModelType>
+    std::vector<std::string> ModelMixin<ProposalType, ModelType>::getDimensionNames() const {
+        std::optional<std::vector<std::string>> modelDimensionNames = ModelType::getDimensionNames();
+        if(modelDimensionNames) {
+            return modelDimensionNames.value();
+        }
+        // If the model does not provide parameter names, return whatever default the proposal returns
+        return ProposalType::getDimensionNames();
     }
 }
 

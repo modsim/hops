@@ -19,19 +19,17 @@ namespace hops {
          * @param x
          * @return
          */
-        [[nodiscard]] virtual typename MatrixType::Scalar computeNegativeLogLikelihood(const VectorType &x) const = 0;
+        [[nodiscard]] virtual typename MatrixType::Scalar computeNegativeLogLikelihood(const VectorType &x) = 0;
 
-        [[nodiscard]] virtual std::optional<VectorType> computeLogLikelihoodGradient(const VectorType &x) const {
+        [[nodiscard]] virtual std::optional<VectorType> computeLogLikelihoodGradient(const VectorType &x) {
             return std::nullopt;
         };
 
-        [[nodiscard]] virtual std::optional<MatrixType> computeExpectedFisherInformation(const VectorType &) const {
+        [[nodiscard]] virtual std::optional<MatrixType> computeExpectedFisherInformation(const VectorType &) {
             return std::nullopt;
         }
 
-        [[nodiscard]] virtual std::optional<std::vector<std::string>> getDimensionNames() const {
-            return std::nullopt;
-        }
+        [[nodiscard]] virtual std::vector<std::string> getDimensionNames() const = 0;
 
         [[nodiscard]] virtual std::unique_ptr<Model> copyModel() const = 0;
     };

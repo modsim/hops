@@ -12,7 +12,8 @@
 #include <hops/MarkovChain/ParallelTempering/ParallelTempering.hpp>
 #include <hops/MarkovChain/Proposal/AdaptiveMetropolisProposal.hpp>
 #include <hops/MarkovChain/Proposal/BallWalkProposal.hpp>
-#include <hops/MarkovChain/Proposal/BillardMalaProposal.hpp>
+#include <hops/MarkovChain/Proposal/BilliardAdaptiveMetropolisProposal.hpp>
+#include <hops/MarkovChain/Proposal/BilliardMALAProposal.hpp>
 #include <hops/MarkovChain/Proposal/CoordinateHitAndRunProposal.hpp>
 #include <hops/MarkovChain/Proposal/CSmMALAProposal.hpp>
 #include <hops/MarkovChain/Proposal/DikinProposal.hpp>
@@ -497,15 +498,37 @@ namespace hops {
                         )
                 );
             }
-            case MarkovChainType::BillardMALA : {
+            case MarkovChainType::BilliardAdaptiveMetropolis : {
+                // estimated from https://arxiv.org/pdf/2102.13068.pdf
+                long maxNumberOfReflections = inequalityLhs.cols() * 100;
                 return wrapMarkovChainImpl(
                         MarkovChainAdapter(
                                 MetropolisHastingsFilter(
-                                        BillardMalaProposal(
+                                        ModelMixin(
+                                                BilliardAdaptiveMetropolisProposal(
+                                                        AdaptiveMetropolisProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
+                                                                decltype(inequalityRhs)>(
+                                                                inequalityLhs, inequalityRhs, startingPoint),
+                                                        maxNumberOfReflections
+                                                ),
+                                                Coldness(model)
+                                        )
+                                )
+                        )
+                );
+            }
+            case MarkovChainType::BilliardMALA : {
+                // estimated from https://arxiv.org/pdf/2102.13068.pdf
+                long maxNumberOfReflections = inequalityLhs.cols() * 100;
+                return wrapMarkovChainImpl(
+                        MarkovChainAdapter(
+                                MetropolisHastingsFilter(
+                                        BilliardMALAProposal(
                                                 inequalityLhs,
                                                 inequalityRhs,
                                                 startingPoint,
-                                                Coldness(model)
+                                                Coldness(model),
+                                                maxNumberOfReflections
                                         )
                                 )
                         )
@@ -751,6 +774,28 @@ namespace hops {
             throw std::runtime_error("Starting point outside polytope is always constant.");
         }
         switch (type) {
+            case MarkovChainType::AdaptiveMetropolis : {
+                return wrapMarkovChainImpl(
+                        MarkovChainAdapter(
+                                MetropolisHastingsFilter(
+                                        ModelMixin(
+                                                StateTransformation(
+                                                        AdaptiveMetropolisProposal(
+                                                                roundedInequalityLhs, roundedInequalityRhs,
+                                                                startingPoint,
+                                                                // MaxVolEllipsoid is identity because we are in rounded space
+                                                                decltype(roundedInequalityLhs)::Identity(
+                                                                        roundedInequalityLhs.cols(),
+                                                                        roundedInequalityLhs.cols())),
+                                                        LinearTransformation(unroundingTransformation,
+                                                                             unroundingShift)
+                                                ),
+                                                Coldness(model)
+                                        )
+                                )
+                        )
+                );
+            }
             case MarkovChainType::BallWalk : {
                 return wrapMarkovChainImpl(
                         MarkovChainAdapter(
@@ -766,6 +811,32 @@ namespace hops {
                                                                              unroundingShift)
                                                 ),
                                                 model
+                                        )
+                                )
+                        )
+                );
+            }
+            case MarkovChainType::BilliardAdaptiveMetropolis : {
+                long maximumNumberOfReflections =
+                        roundedInequalityLhs.cols() * 100; // estimated from https://arxiv.org/pdf/2102.13068.pdf
+                return wrapMarkovChainImpl(
+                        MarkovChainAdapter(
+                                MetropolisHastingsFilter(
+                                        ModelMixin(
+                                                StateTransformation(
+                                                        BilliardAdaptiveMetropolisProposal(
+                                                                AdaptiveMetropolisProposal(
+                                                                        roundedInequalityLhs, roundedInequalityRhs,
+                                                                        startingPoint,
+                                                                        // MaxVolEllipsoid is identity because we are in rounded space
+                                                                        decltype(roundedInequalityLhs)::Identity(
+                                                                                roundedInequalityLhs.cols(),
+                                                                                roundedInequalityLhs.cols())),
+                                                                maximumNumberOfReflections
+                                                        ), LinearTransformation(unroundingTransformation,
+                                                                                unroundingShift)
+                                                ),
+                                                Coldness(model)
                                         )
                                 )
                         )
@@ -856,6 +927,9 @@ namespace hops {
         if (!isInteriorPoint(roundedInequalityLhs, roundedInequalityRhs, startingPoint)) {
             throw std::runtime_error("Starting point outside polytope is always constant.");
         }
+        // TODO add AAM,
+        // TODO add BAM,
+        // TODO add BilliardWalk
         switch (type) {
             case MarkovChainType::BallWalk : {
                 return wrapMarkovChainImpl(
@@ -959,8 +1033,8 @@ namespace hops {
         }
     }
 
-    template <typename MarkovChainImpl>
-    std::unique_ptr<MarkovChain> wrapMarkovChainImpl(const MarkovChainImpl& markovChain) {
+    template<typename MarkovChainImpl>
+    std::unique_ptr<MarkovChain> wrapMarkovChainImpl(const MarkovChainImpl &markovChain) {
         return std::make_unique<MarkovChainImpl>(markovChain);
     }
 

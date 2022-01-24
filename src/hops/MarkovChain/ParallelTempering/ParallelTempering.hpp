@@ -10,7 +10,7 @@
 #include <hops/MarkovChain/Recorder/IsWriteRecordsToFileAvailable.hpp>
 #include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
 #include <hops/Utility/VectorType.hpp>
-#include "MpiInitializerFinalizer.hpp"
+#include "hops/Parallel/MpiInitializerFinalizer.hpp"
 
 namespace hops {
     /**

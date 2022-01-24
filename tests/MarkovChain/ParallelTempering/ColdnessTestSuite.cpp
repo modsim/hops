@@ -15,12 +15,16 @@ namespace {
         explicit ModelMock(double negativeLogLikelihoodConstant) :
                 negativeLogLikelihoodConstant(negativeLogLikelihoodConstant) {}
 
-        [[nodiscard]] double computeNegativeLogLikelihood(const hops::VectorType &) const override {
+        [[nodiscard]] double computeNegativeLogLikelihood(const hops::VectorType &) override {
             return negativeLogLikelihoodConstant;
         }
 
         [[nodiscard]] std::unique_ptr<Model> copyModel() const override {
             return std::make_unique<ModelMock>();
+        }
+
+        [[nodiscard]] std::vector<std::string> getDimensionNames() const override {
+            return {"dummy variable name"};
         }
 
     private:
@@ -34,22 +38,27 @@ namespace {
         explicit ModelMockWithGradient(double negativeLogLikelihoodConstant) :
                 negativeLogLikelihoodConstant(negativeLogLikelihoodConstant) {}
 
-        [[nodiscard]] double computeNegativeLogLikelihood(const hops::VectorType &) const override {
+        [[nodiscard]] double computeNegativeLogLikelihood(const hops::VectorType &) override {
             return negativeLogLikelihoodConstant;
         }
 
         [[nodiscard]] std::optional<hops::VectorType>
-        computeLogLikelihoodGradient(const hops::VectorType &x) const override {
+        computeLogLikelihoodGradient(const hops::VectorType &x) override {
             return hops::VectorType::Ones(1);
         }
 
         [[nodiscard]] std::optional<hops::MatrixType>
-        computeExpectedFisherInformation(const hops::VectorType &type) const override {
+        computeExpectedFisherInformation(const hops::VectorType &type) override {
             return hops::MatrixType::Identity(1, 1);
         }
 
         [[nodiscard]] std::unique_ptr<Model> copyModel() const override {
-            return std::make_unique<ModelMockWithGradient>();
+            return std::make_unique<ModelMockWithGradient>(*this);
+        }
+
+
+        [[nodiscard]] std::vector<std::string> getDimensionNames() const override {
+            return {"dummy variable name"};
         }
 
     private:
