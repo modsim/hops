@@ -14,13 +14,17 @@ namespace {
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "readability-convert-member-functions-to-static"
         [[nodiscard]] hops::MatrixType::Scalar
-        computeNegativeLogLikelihood(const Eigen::VectorXd &state) const override {
+        computeNegativeLogLikelihood(const Eigen::VectorXd &state) override {
             return state(0);
         }
 #pragma clang diagnostic pop
 
         [[nodiscard]] std::unique_ptr<Model> copyModel() const override {
-            return std::make_unique<ModelMock>();
+            return std::make_unique<ModelMock>(*this);
+        }
+
+        [[nodiscard]] std::vector<std::string> getDimensionNames() const override {
+            return {"dummy variable name"};
         }
     };
 }

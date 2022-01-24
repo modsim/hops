@@ -6,6 +6,7 @@
 #include <utility>
 
 #include <hops/MarkovChain/ModelMixin.hpp>
+#include <hops/MarkovChain/Proposal/Proposal.hpp>
 #include <hops/Model/Model.hpp>
 #include <hops/Utility/VectorType.hpp>
 
@@ -14,19 +15,27 @@ namespace {
     public:
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "readability-convert-member-functions-to-static"
-    [[nodiscard]] double computeNegativeLogLikelihood(const Eigen::VectorXd &state) const override {
+        [[nodiscard]] double computeNegativeLogLikelihood(const Eigen::VectorXd &state) override {
             return state(0);
         }
 #pragma clang diagnostic pop
 
+        [[nodiscard]] std::vector<std::string> getDimensionNames() const override {
+            return std::vector<std::string> {"correct name"};
+        }
+
         [[nodiscard]] std::unique_ptr<Model> copyModel() const override {
-            return std::make_unique<ModelMock>();
+            return std::make_unique<ModelMock>(*this);
         }
     };
 
-    class MarkovChainMock {
+    class MarkovChainMock : public hops::Proposal {
     public:
-        [[nodiscard]] hops::VectorType getProposal() const {
+        [[nodiscard]] hops::VectorType getState() const override {
+            return state;
+        }
+
+        [[nodiscard]] hops::VectorType getProposal() const override {
             return proposal;
         }
 
@@ -34,29 +43,60 @@ namespace {
             MarkovChainMock::proposal = std::move(newProposal);
         }
 
-        [[nodiscard]] hops::VectorType getState() const {
-            return state;
-        }
-
-        void setState(hops::VectorType newState) {
-            MarkovChainMock::state = std::move(newState);
-        }
-
-        hops::VectorType& acceptProposal() {
+        hops::VectorType &acceptProposal() override {
             state = proposal;
             return state;
         }
 
-        double getStateNegativeLogLikelihood() {
-            return 0;
+        [[nodiscard]] std::vector<std::string> getDimensionNames() const override {
+            return {"wrong name"};
         }
 
-        double getProposalNegativeLogLikelihood() {
-            return 0;
+        hops::VectorType &propose(hops::RandomNumberGenerator &rng) override {
+            return proposal;
         }
 
-        [[nodiscard]] double computeLogAcceptanceProbability() const {
+        double computeLogAcceptanceProbability() override {
             return state(0) - proposal(0);
+        }
+
+        void setState(const hops::VectorType &newState) override {
+            MarkovChainMock::state = std::move(newState);
+        }
+
+        [[nodiscard]] std::vector<std::string> getParameterNames() const override {
+            return std::vector<std::string>{};
+        }
+
+        std::any getParameter(const hops::ProposalParameter &parameter) const override {
+            return std::any(0);
+        }
+
+        std::string getParameterType(const hops::ProposalParameter &parameter) const override {
+            return std::string();
+        }
+
+        void setParameter(const hops::ProposalParameter &parameter, const std::any &value) override {
+        }
+
+        bool hasStepSize() const override {
+            return false;
+        }
+
+        std::string getProposalName() const override {
+            return "MockProposal";
+        }
+
+        std::unique_ptr<Proposal> copyProposal() const override {
+            return std::make_unique<MarkovChainMock>(*this);
+        }
+
+        const hops::MatrixType &getA() const override {
+            throw std::runtime_error("Should not be called");
+        }
+
+        const hops::VectorType &getB() const override {
+            throw std::runtime_error("Should not be called");
         }
 
     private:
@@ -79,8 +119,8 @@ BOOST_AUTO_TEST_SUITE(ModelMixin)
 
     BOOST_AUTO_TEST_CASE(testCalculateLogAcceptanceProbabilityMultimodalModel) {
         MarkovChainMock markovChainMock;
-        markovChainMock.setState(5*Eigen::VectorXd::Ones(1));
-        markovChainMock.setProposal(2*Eigen::VectorXd::Ones(1));
+        markovChainMock.setState(5 * Eigen::VectorXd::Ones(1));
+        markovChainMock.setProposal(2 * Eigen::VectorXd::Ones(1));
         auto model = ModelMock();
         hops::ModelMixin markovChainWithModelMixedIn(markovChainMock, model);
 
@@ -90,10 +130,17 @@ BOOST_AUTO_TEST_SUITE(ModelMixin)
 
     BOOST_AUTO_TEST_CASE(testGetNegativeLogLikelihoodOfCurrentStateMultimodalModel) {
         MarkovChainMock markovChainMock;
-        markovChainMock.setState(-5*Eigen::VectorXd::Ones(1));
+        markovChainMock.setState(-5 * Eigen::VectorXd::Ones(1));
         auto model = ModelMock();
         hops::ModelMixin markovChainWithModelMixedIn(markovChainMock, model);
         BOOST_CHECK(markovChainWithModelMixedIn.getStateNegativeLogLikelihood() == -5);
+    }
+
+    BOOST_AUTO_TEST_CASE(testGetDimensionNamesReturnsNamesFromMOdel) {
+        MarkovChainMock markovChainMock;
+        auto model = ModelMock();
+        hops::ModelMixin markovChainWithModelMixedIn(markovChainMock, model);
+        BOOST_CHECK(markovChainWithModelMixedIn.getDimensionNames() == model.getDimensionNames());
     }
 
 BOOST_AUTO_TEST_SUITE_END()

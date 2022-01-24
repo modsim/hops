@@ -22,11 +22,11 @@ namespace hops {
         DegenerateGaussian(VectorType mean, MatrixType covariance,
                            std::vector<long> inactive = std::vector<long>(0));
 
-        [[nodiscard]] MatrixType::Scalar computeNegativeLogLikelihood(const VectorType &x) const override;
+        [[nodiscard]] MatrixType::Scalar computeNegativeLogLikelihood(const VectorType &x) override;
 
-        [[nodiscard]] std::optional<VectorType> computeLogLikelihoodGradient(const VectorType &x) const override;
+        [[nodiscard]] std::optional<VectorType> computeLogLikelihoodGradient(const VectorType &x) override;
 
-        [[nodiscard]] std::optional<MatrixType> computeExpectedFisherInformation(const VectorType &) const override;
+        [[nodiscard]] std::optional<MatrixType> computeExpectedFisherInformation(const VectorType &) override;
 
         [[nodiscard]] const VectorType &getMean() const;
 
@@ -35,6 +35,8 @@ namespace hops {
         const std::vector<long> &getInactive() const;
 
         [[nodiscard]] std::unique_ptr<Model> copyModel() const override;
+
+        std::vector<std::string> getDimensionNames() const override;
 
     private:
         std::optional<Gaussian> gaussian;
@@ -96,20 +98,20 @@ namespace hops {
     }
 
     MatrixType::Scalar
-    DegenerateGaussian::computeNegativeLogLikelihood(const VectorType &x) const {
+    DegenerateGaussian::computeNegativeLogLikelihood(const VectorType &x) {
         VectorType _x = x;
         stripInactive(_x);
         return gaussian.value().computeNegativeLogLikelihood(_x);
     }
 
     std::optional<MatrixType>
-    DegenerateGaussian::computeExpectedFisherInformation(const VectorType &x) const {
+    DegenerateGaussian::computeExpectedFisherInformation(const VectorType &x) {
         // Saves performance and skips stripping x here, because the FIM is constant anyways.
         return gaussian.value().computeExpectedFisherInformation(x);
     }
 
     std::optional<VectorType>
-    DegenerateGaussian::computeLogLikelihoodGradient(const VectorType &x) const {
+    DegenerateGaussian::computeLogLikelihoodGradient(const VectorType &x) {
         VectorType _x = x;
         stripInactive(_x);
         return gaussian.value().computeLogLikelihoodGradient(_x);
@@ -130,6 +132,16 @@ namespace hops {
 
     const std::vector<long> &DegenerateGaussian::getInactive() const {
         return inactive;
+    }
+
+    std::vector<std::string> DegenerateGaussian::getDimensionNames() const {
+        std::vector<std::string> names;
+        if (gaussian) {
+            for (long i = 0; i < gaussian.value().getMean().rows(); ++i) {
+                names.emplace_back("x_" + std::to_string(i));
+            }
+        }
+        return names;
     }
 }
 

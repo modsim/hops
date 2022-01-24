@@ -35,8 +35,6 @@ namespace hops {
 
         [[nodiscard]] VectorType getProposal() const override;
 
-        [[nodiscard]] std::optional<std::vector<std::string>> getDimensionNames() const override;
-
         [[nodiscard]] std::vector<std::string> getParameterNames() const override;
 
         [[nodiscard]] std::any getParameter(const ProposalParameter &parameter) const override;
@@ -61,11 +59,21 @@ namespace hops {
 
         [[nodiscard]] const VectorType& getB() const override;
 
+        ProposalStatistics & getProposalStatistics() override;
+
+        void activateTrackingOfProposalStatistics() override;
+
+        void disableTrackingOfProposalStatistics() override;
+
+        bool isTrackingOfProposalStatisticsActivated() override;
+
     private:
         InternalMatrixType A;
         InternalVectorType b;
         VectorType state;
         VectorType proposal;
+
+        ProposalStatistics infos;
 
         double stepSize;
 
@@ -187,24 +195,32 @@ namespace hops {
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    std::optional<std::vector<std::string>> GaussianProposal<InternalMatrixType, InternalVectorType>::getDimensionNames() const {
-        std::vector<std::string> names;
-        for (long i = 0; i < state.rows(); ++i) {
-            names.emplace_back("x_" + std::to_string(i));
-        }
-        return names;
+    const MatrixType& GaussianProposal<InternalMatrixType, InternalVectorType>::getA() const {
+        return A;
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    const MatrixType& GaussianProposal<InternalMatrixType, InternalVectorType>::getA() const {
-		return A;
-	}
+    const VectorType& GaussianProposal<InternalMatrixType, InternalVectorType>::getB() const {
+        return b;
+    }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    const VectorType& GaussianProposal<InternalMatrixType, InternalVectorType>::getB() const {
-		return b;
-	}
+    ProposalStatistics & GaussianProposal<InternalMatrixType, InternalVectorType>::getProposalStatistics() {
+        return infos;
+    }
 
+    template<typename InternalMatrixType, typename InternalVectorType>
+    void GaussianProposal<InternalMatrixType, InternalVectorType>::activateTrackingOfProposalStatistics() {
+        // TODO
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    void GaussianProposal<InternalMatrixType, InternalVectorType>::disableTrackingOfProposalStatistics() {}
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    bool GaussianProposal<InternalMatrixType, InternalVectorType>::isTrackingOfProposalStatisticsActivated() {
+        return false;
+    }
 }
 
 #endif //HOPS_GAUSSIANPROPOSAL_HPP

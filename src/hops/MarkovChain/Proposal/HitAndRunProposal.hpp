@@ -16,7 +16,8 @@ namespace hops {
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution = UniformStepDistribution<double>, bool Precise = false>
     class HitAndRunProposal : public Proposal {
     public:
-        HitAndRunProposal(InternalMatrixType A, InternalVectorType b, InternalVectorType currentState, double stepSize = 1);
+        HitAndRunProposal(InternalMatrixType A, InternalVectorType b, InternalVectorType currentState,
+                          double stepSize = 1);
 
         VectorType &propose(RandomNumberGenerator &rng) override;
 
@@ -29,8 +30,6 @@ namespace hops {
         [[nodiscard]] VectorType getState() const override;
 
         [[nodiscard]] VectorType getProposal() const override;
-
-        [[nodiscard]] std::optional<std::vector<std::string>> getDimensionNames() const override;
 
         [[nodiscard]] std::vector<std::string> getParameterNames() const override;
 
@@ -56,9 +55,20 @@ namespace hops {
 
         [[nodiscard]] const VectorType& getB() const override;
 
+        ProposalStatistics & getProposalStatistics() override;
+
+        void activateTrackingOfProposalStatistics() override;
+
+        void disableTrackingOfProposalStatistics() override;
+
+        bool isTrackingOfProposalStatisticsActivated() override;
+
+        ProposalStatistics getAndResetProposalStatistics() override;
+
     private:
         VectorType state;
         VectorType proposal;
+        ProposalStatistics proposalStatistics;
 
         InternalMatrixType A;
         InternalVectorType b;
@@ -69,24 +79,30 @@ namespace hops {
         double step = 0;
         ChordStepDistribution chordStepDistribution;
         std::normal_distribution<double> normalDistribution;
-        double forwardDistance;
-        double backwardDistance;
+        double forwardDistance = 0;
+        double backwardDistance = 0;
+
+        bool isProposalInfosTrackingActive = false;
     };
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
     double
     HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::computeLogAcceptanceProbability() {
-        return chordStepDistribution.computeInverseNormalizationConstant(0, backwardDistance, forwardDistance)
-               - chordStepDistribution.computeInverseNormalizationConstant(0, backwardDistance - step,
-                                                                           forwardDistance - step);
-
+        double detailedBalanceState = chordStepDistribution.computeInverseNormalizationConstant(0, backwardDistance,
+                                                                                                forwardDistance);
+        double detailedBalanceProposal = chordStepDistribution.computeInverseNormalizationConstant(0, backwardDistance -
+                                                                                                      step,
+                                                                                                   forwardDistance -
+                                                                                                   step);
+        return detailedBalanceState - detailedBalanceProposal;
     }
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
-    HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::HitAndRunProposal(InternalMatrixType A_,
-                                                                                                                 InternalVectorType b_,
-                                                                                                                 InternalVectorType currentState_,
-                                                                                                                 double stepSize) :
+    HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::HitAndRunProposal(
+            InternalMatrixType A_,
+            InternalVectorType b_,
+            InternalVectorType currentState_,
+            double stepSize) :
             A(std::move(A_)),
             b(std::move(b_)),
             state(std::move(currentState_)) {
@@ -109,6 +125,11 @@ namespace hops {
         backwardDistance = 1. / inverseDistances.minCoeff();
         assert(backwardDistance <= 0 && forwardDistance >= 0);
         assert(((b - A * state).array() >= 0).all());
+
+        if (isProposalInfosTrackingActive) {
+            proposalStatistics.appendInfo("backwardDistance", forwardDistance);
+            proposalStatistics.appendInfo("forwardDistance", backwardDistance);
+        }
 
         step = chordStepDistribution.draw(rng, backwardDistance, forwardDistance);
         proposal = state + updateDirection * step;
@@ -161,6 +182,7 @@ namespace hops {
         } else {
             slacks.noalias() -= A * updateDirection * step;
         }
+        proposalStatistics = ProposalStatistics();
         return state;
     }
 
@@ -265,27 +287,48 @@ namespace hops {
     }
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
-    std::optional<std::vector<std::string>>
-    HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::getDimensionNames() const {
-        std::vector<std::string> names;
-        for (long i = 0; i < state.rows(); ++i) {
-            names.emplace_back("x_" + std::to_string(i));
-        }
-        return names;
+    const MatrixType& 
+    HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::getA() const {
+        return A;
     }
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
-    const MatrixType& 
-    HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::getA() const {
-		return A;
-	}
-
-        template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
     const VectorType& 
     HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::getB() const {
-		return b;
-	}
+        return b;
+    }
 
+    template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
+    ProposalStatistics &
+    HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::getProposalStatistics() {
+        return proposalStatistics;
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
+    void
+    HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::activateTrackingOfProposalStatistics() {
+        isProposalInfosTrackingActive = true;
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
+    void
+    HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::disableTrackingOfProposalStatistics() {
+        isProposalInfosTrackingActive = false;
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
+    bool
+    HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::isTrackingOfProposalStatisticsActivated() {
+        return isProposalInfosTrackingActive;
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
+    ProposalStatistics
+    HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::getAndResetProposalStatistics() {
+        ProposalStatistics newStatistic;
+        std::swap(newStatistic, proposalStatistics);
+        return newStatistic;
+    }
 }
 
 #endif //HOPS_HITANDRUNPROPOSAL_HPP

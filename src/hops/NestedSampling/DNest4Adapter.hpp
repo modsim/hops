@@ -131,8 +131,8 @@ namespace hops {
         // expects this  acceptance chance to not contain them already.
         // If the proposers doesn't know the loglikelihoods, they are 0 anways.
         proposalLogAcceptanceProbability = posteriorProposer->computeLogAcceptanceProbability()
-                + posteriorProposer->getProposalNegativeLogLikelihood()
-                - posteriorProposer->getStateNegativeLogLikelihood();
+                                           + posteriorProposer->getProposalNegativeLogLikelihood()
+                                           - posteriorProposer->getStateNegativeLogLikelihood();
         return proposalLogAcceptanceProbability;
     }
 
@@ -158,19 +158,12 @@ namespace hops {
     }
 
     std::string DNest4Adapter::description() const {
-        auto parameterNames = model->getDimensionNames();
         std::string description;
-        if (parameterNames) {
-            for (const auto &p: parameterNames.value()) {
-                description += p + " ,";
-            }
-            description.pop_back();
-        } else {
-            for (long i = 0; i < state.rows(); ++i) {
-                description += "dim " + std::to_string(i) + " ,";
-            }
-            description.pop_back();
+        auto parameterNames = model->getDimensionNames();
+        for (const auto &p: parameterNames) {
+            description += p + " ,";
         }
+        description.pop_back();
         return description;
     }
 

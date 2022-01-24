@@ -36,8 +36,6 @@ namespace hops {
 
         [[nodiscard]] VectorType getProposal() const override;
 
-        std::optional<std::vector<std::string>> getDimensionNames() const override;
-
         [[nodiscard]] std::vector<std::string> getParameterNames() const override;
 
         [[nodiscard]] std::any getParameter(const ProposalParameter &parameter) const override;
@@ -62,9 +60,20 @@ namespace hops {
 
         [[nodiscard]] const VectorType& getB() const override;
 
+        ProposalStatistics & getProposalStatistics() override;
+
+        void activateTrackingOfProposalStatistics() override;
+
+        void disableTrackingOfProposalStatistics() override;
+
+        bool isTrackingOfProposalStatisticsActivated() override;
+
+        ProposalStatistics getAndResetProposalStatistics() override;
+
     private:
         MatrixType A;
         VectorType b;
+        ProposalStatistics proposalStatistics;
 
         VectorType state;
         VectorType proposal;
@@ -80,8 +89,9 @@ namespace hops {
         double boundaryCushion = 0;
 
         std::normal_distribution<double> normalDistribution{0., 1.};
-        DikinEllipsoidCalculator<MatrixType, VectorType> dikinEllipsoidCalculator;
+        DikinEllipsoidCalculator <MatrixType, VectorType> dikinEllipsoidCalculator;
 
+        bool isProposalInfosTrackingActive = false;
     };
 
     template<typename InternalMatrixType, typename InternalVectorType>
@@ -120,7 +130,6 @@ namespace hops {
 
     template<typename InternalMatrixType, typename InternalVectorType>
     void DikinProposal<InternalMatrixType, InternalVectorType>::setState(const VectorType &newState) {
-        //state.swap(newState);
         state = newState;
         auto choleskyResult = dikinEllipsoidCalculator.computeCholeskyFactorOfDikinEllipsoid(state);
         if (!choleskyResult.first) {
@@ -133,7 +142,13 @@ namespace hops {
     template<typename InternalMatrixType, typename InternalVectorType>
     double DikinProposal<InternalMatrixType, InternalVectorType>::computeLogAcceptanceProbability() {
         bool isProposalInteriorPoint = ((A * proposal - b).array() < -boundaryCushion).all();
+        if(isProposalInfosTrackingActive) {
+            proposalStatistics.appendInfo("proposal_is_interior", isProposalInteriorPoint);
+        }
         if (!isProposalInteriorPoint) {
+            if(isProposalInfosTrackingActive) {
+                proposalStatistics.appendInfo("proposal_log_sqrt_det", -1);
+            }
             return -std::numeric_limits<double>::infinity();
         }
 
@@ -144,6 +159,7 @@ namespace hops {
         proposalCholeskyOfDikinEllipsoid = std::move(choleskyResult.second);
 
         proposalLogSqrtDeterminant = proposalCholeskyOfDikinEllipsoid.diagonal().array().log().sum();
+        proposalStatistics.appendInfo("proposal_log_sqrt_det", proposalLogSqrtDeterminant);
         InternalVectorType stateDifference = state - proposal;
 
         return proposalLogSqrtDeterminant
@@ -193,8 +209,8 @@ namespace hops {
     template<typename InternalMatrixType, typename InternalVectorType>
     std::vector<std::string> DikinProposal<InternalMatrixType, InternalVectorType>::getParameterNames() const {
         return {
-            ProposalParameterName[static_cast<int>(ProposalParameter::BOUNDARY_CUSHION)],
-            ProposalParameterName[static_cast<int>(ProposalParameter::STEP_SIZE)],
+                ProposalParameterName[static_cast<int>(ProposalParameter::BOUNDARY_CUSHION)],
+                ProposalParameterName[static_cast<int>(ProposalParameter::STEP_SIZE)],
         };
     }
 
@@ -210,7 +226,8 @@ namespace hops {
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    std::string DikinProposal<InternalMatrixType, InternalVectorType>::getParameterType(const ProposalParameter &parameter) const {
+    std::string
+    DikinProposal<InternalMatrixType, InternalVectorType>::getParameterType(const ProposalParameter &parameter) const {
         if (parameter == ProposalParameter::STEP_SIZE) {
             return "double";
         } else if (parameter == ProposalParameter::BOUNDARY_CUSHION) {
@@ -234,24 +251,41 @@ namespace hops {
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    std::optional<std::vector<std::string>> DikinProposal<InternalMatrixType, InternalVectorType>::getDimensionNames() const {
-        std::vector<std::string> names;
-        for (long i = 0; i < state.rows(); ++i) {
-            names.emplace_back("x_" + std::to_string(i));
-        }
-        return names;
+    const MatrixType& DikinProposal<InternalMatrixType, InternalVectorType>::getA() const {
+        return A;
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    const MatrixType& DikinProposal<InternalMatrixType, InternalVectorType>::getA() const {
-		return A;
-	}
+    const VectorType& DikinProposal<InternalMatrixType, InternalVectorType>::getB() const {
+        return b;
+    }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    const VectorType& DikinProposal<InternalMatrixType, InternalVectorType>::getB() const {
-		return b;
-	}
+    ProposalStatistics & DikinProposal<InternalMatrixType, InternalVectorType>::getProposalStatistics() {
+        return proposalStatistics;
+    }
 
+    template<typename InternalMatrixType, typename InternalVectorType>
+    void DikinProposal<InternalMatrixType, InternalVectorType>::activateTrackingOfProposalStatistics() {
+        isProposalInfosTrackingActive = true;
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    void DikinProposal<InternalMatrixType, InternalVectorType>::disableTrackingOfProposalStatistics() {
+        isProposalInfosTrackingActive = false;
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    bool DikinProposal<InternalMatrixType, InternalVectorType>::isTrackingOfProposalStatisticsActivated() {
+        return isProposalInfosTrackingActive;
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    ProposalStatistics DikinProposal<InternalMatrixType, InternalVectorType>::getAndResetProposalStatistics() {
+        ProposalStatistics newStatistic;
+        std::swap(newStatistic, proposalStatistics);
+        return newStatistic;
+    }
 }
 
 #endif //HOPS_DIKINPROPOSAL_HPP
