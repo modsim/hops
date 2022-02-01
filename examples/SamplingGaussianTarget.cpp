@@ -1,6 +1,8 @@
 #include <Eigen/SparseCore>
+#include <chrono>
 #include <iostream>
 #include <filesystem>
+
 #include <hops/hops.hpp>
 
 using RealType = double;
@@ -34,11 +36,13 @@ int main(int argc, char **argv) {
     long thinning = std::strtol(argv[6], NULL, 10);
     std::string chainName = argv[7];
 
-    hops::MultivariateGaussianModel model(mean, covariance);
+    hops::Gaussian model(mean, covariance);
 
     std::unique_ptr<hops::MarkovChain> markovChain;
-    if (chainName == "DikinWalk") {
-        hops::MarkovChainType chainType = hops::MarkovChainType::DikinWalk;
+    if (chainName == "DikinWalk" || chainName == "BillardMALA") {
+        hops::MarkovChainType chainType = chainName == "DikinWalk" ? hops::MarkovChainType::DikinWalk :
+                                          hops::MarkovChainType::BillardMALA;
+
         decltype(b) startingPoint;
         if (argc == 10) {
             startingPoint = hops::CsvReader::readVector<Eigen::Matrix<double, Eigen::Dynamic, 1>>(
@@ -88,36 +92,61 @@ int main(int argc, char **argv) {
 
     hops::RandomNumberGenerator randomNumberGenerator((std::random_device()()));
 
-    float upperLimitAcceptanceRate = 0.3;
-    float lowerLimitAcceptanceRate = 0.20;
-    double lowerLimitStepSize = 1e-15;
-    double upperLimitStepSize = 1;
-    size_t iterationsToTestStepSize = 100 * A.cols();
-    size_t maxIterations = 10000 * A.cols();
+    std::vector<double> acceptanceRates;
+    std::vector<Eigen::VectorXd> states;
+    std::vector<long> timestamps;
+    acceptanceRates.reserve(numberOfSamples);
+    states.reserve(numberOfSamples);
+    timestamps.reserve(numberOfSamples);
 
-    bool isTuned = false;
-    // Tuning loop
-    for (int i = 0; i < 10; ++i) {
-        markovChain->draw(randomNumberGenerator, 1, numberOfSamples);
-        markovChain->setAttribute(hops::MarkovChainAttribute::STEP_SIZE, 1);
-
-        isTuned = hops::BinarySearchAcceptanceRateTuner::tune(markovChain.get(),
-                                                  randomNumberGenerator,
-                                                  {lowerLimitAcceptanceRate,
-                                                   upperLimitAcceptanceRate,
-                                                   lowerLimitStepSize,
-                                                   upperLimitStepSize,
-                                                   iterationsToTestStepSize,
-                                                   maxIterations});
-        markovChain->clearHistory();
+    for (int i = 0; i < numberOfSamples; ++i) {
+        auto[acceptanceRate, state] = markovChain->draw(randomNumberGenerator, 1);
+        acceptanceRates.emplace_back(acceptanceRate);
+        states.emplace_back(state);
+        timestamps.emplace_back(std::chrono::duration_cast<std::chrono::milliseconds>(
+                std::chrono::high_resolution_clock::now().time_since_epoch()
+        ).count());
     }
-    std::cout << "Markov chain tuned successfully : " << std::boolalpha << isTuned
-              << " (false is not a problem for CHRR|HRR)" << std::endl;
-    std::cout << "Current step size: " << markovChain->getAttribute(hops::MarkovChainAttribute::STEP_SIZE) << std::endl;
-
-    auto fileWriter = hops::FileWriterFactory::createFileWriter(std::string(argv[8]) + "_" + markovChain->getName(),
+    auto fileWriter = hops::FileWriterFactory::createFileWriter(std::string(argv[8]) + "_" + chainName,
                                                                 hops::FileWriterType::CSV);
-    markovChain->draw(randomNumberGenerator, numberOfSamples, thinning);
-    markovChain->writeHistory(fileWriter.get());
-    markovChain->clearHistory();
+
+    fileWriter->write("states", states);
+    fileWriter->write("acceptance_rates", acceptanceRates);
+    fileWriter->write("timestamps", timestamps);
+
+
+
+// TODO update tuning to work again
+//    float upperLimitAcceptanceRate = 0.3;
+//    float lowerLimitAcceptanceRate = 0.20;
+//    double lowerLimitStepSize = 1e-15;
+//    double upperLimitStepSize = 1;
+//    size_t iterationsToTestStepSize = 100 * A.cols();
+//    size_t maxIterations = 10000 * A.cols();
+//
+//    bool isTuned = false;
+//    // Tuning loop
+//    for (int i = 0; i < 10; ++i) {
+//        markovChain->draw(randomNumberGenerator, 1, numberOfSamples);
+//        markovChain->setAttribute(hops::MarkovChainAttribute::STEP_SIZE, 1);
+//
+//        isTuned = hops::BinarySearchAcceptanceRateTuner::tune(markovChain.get(),
+//                                                  randomNumberGenerator,
+//                                                  {lowerLimitAcceptanceRate,
+//                                                   upperLimitAcceptanceRate,
+//                                                   lowerLimitStepSize,
+//                                                   upperLimitStepSize,
+//                                                   iterationsToTestStepSize,
+//                                                   maxIterations});
+//        markovChain->clearHistory();
+//    }
+//    std::cout << "Markov chain tuned successfully : " << std::boolalpha << isTuned
+//              << " (false is not a problem for CHRR|HRR)" << std::endl;
+//    std::cout << "Current step size: " << markovChain->getAttribute(hops::MarkovChainAttribute::STEP_SIZE) << std::endl;
+//
+//    auto fileWriter = hops::FileWriterFactory::createFileWriter(std::string(argv[8]) + "_" + markovChain->getName(),
+//                                                                hops::FileWriterType::CSV);
+//    markovChain->draw(randomNumberGenerator, numberOfSamples, thinning);
+//    markovChain->writeHistory(fileWriter.get());
+//    markovChain->clearHistory();
 }

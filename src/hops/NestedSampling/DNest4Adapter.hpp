@@ -127,7 +127,12 @@ namespace hops {
     double DNest4Adapter::perturb(DNest4::RNG &) {
         posteriorProposer->setState(state);
         proposal = posteriorProposer->propose(internal_rng);
-        proposalLogAcceptanceProbability = posteriorProposer->computeLogAcceptanceProbability();
+        // Incase the proposer uses the loglikelihoods directly, we substract them again, because DNEST4
+        // expects this  acceptance chance to not contain them already.
+        // If the proposers doesn't know the loglikelihoods, they are 0 anways.
+        proposalLogAcceptanceProbability = posteriorProposer->computeLogAcceptanceProbability()
+                + posteriorProposer->getProposalNegativeLogLikelihood()
+                - posteriorProposer->getStateNegativeLogLikelihood();
         return proposalLogAcceptanceProbability;
     }
 
