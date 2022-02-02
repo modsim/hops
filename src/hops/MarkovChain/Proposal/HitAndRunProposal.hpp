@@ -4,7 +4,9 @@
 #include <random>
 
 #include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
+#include <hops/Utility/MatrixType.hpp>
 #include <hops/Utility/StringUtility.hpp>
+#include <hops/Utility/VectorType.hpp>
 
 #include "ChordStepDistributions.hpp"
 #include "IsSetStepSizeAvailable.hpp"
@@ -49,6 +51,10 @@ namespace hops {
         [[nodiscard]] std::unique_ptr<Proposal> copyProposal() const override;
 
         [[nodiscard]] double computeLogAcceptanceProbability() override;
+
+        [[nodiscard]] const MatrixType& getA() const override;
+
+        [[nodiscard]] const VectorType& getB() const override;
 
     private:
         VectorType state;
@@ -267,6 +273,19 @@ namespace hops {
         }
         return names;
     }
+
+    template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
+    const MatrixType& 
+    HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::getA() const {
+		return A;
+	}
+
+        template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
+    const VectorType& 
+    HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::getB() const {
+		return b;
+	}
+
 }
 
 #endif //HOPS_HITANDRUNPROPOSAL_HPP

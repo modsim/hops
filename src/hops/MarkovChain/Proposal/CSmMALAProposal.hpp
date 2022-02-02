@@ -6,6 +6,7 @@
 #include <utility>
 
 #include <hops/MarkovChain/Recorder/IsAddMessageAvailabe.hpp>
+#include <hops/Model/Model.hpp>
 #include <hops/Utility/MatrixType.hpp>
 #include <hops/Utility/StringUtility.hpp>
 #include <hops/Utility/VectorType.hpp>
@@ -85,6 +86,12 @@ namespace hops {
         [[nodiscard]] std::unique_ptr<Proposal> copyProposal() const override;
 
         [[nodiscard]] double computeLogAcceptanceProbability() override;
+
+        [[nodiscard]] const MatrixType& getA() const override;
+
+        [[nodiscard]] const VectorType& getB() const override;
+
+        [[nodiscard]] std::unique_ptr<Model> getModel() const;
 
     private:
         VectorType computeTruncatedGradient(VectorType x);
@@ -347,6 +354,22 @@ namespace hops {
     bool CSmMALAProposal<ModelType, InternalMatrixType>::hasNegativeLogLikelihood() const {
         return true;
     }
+
+    template<typename ModelType, typename InternalMatrixType>
+    const MatrixType& CSmMALAProposal<ModelType, InternalMatrixType>::getA() const {
+        return A;
+    }
+
+    template<typename ModelType, typename InternalMatrixType>
+    const VectorType& CSmMALAProposal<ModelType, InternalMatrixType>::getB() const {
+        return b;
+    }
+
+    template<typename ModelType, typename InternalMatrixType>
+    std::unique_ptr<Model> CSmMALAProposal<ModelType, InternalMatrixType>::getModel() const {
+        return ModelType::copyModel();
+    }
+
 }
 
 #endif //HOPS_CSMMALA_HPP
