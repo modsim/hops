@@ -4,6 +4,7 @@
 #include <random>
 
 #include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
+#include <hops/Utility/MatrixType.hpp>
 #include <hops/Utility/StringUtility.hpp>
 #include <hops/Utility/VectorType.hpp>
 
@@ -54,6 +55,10 @@ namespace hops {
         [[nodiscard]] std::unique_ptr<Proposal> copyProposal() const override;
 
         [[nodiscard]] double computeLogAcceptanceProbability() override;
+
+        [[nodiscard]] const MatrixType& getA() const override;
+
+        [[nodiscard]] const VectorType& getB() const override;
 
     private:
         InternalMatrixType A;
@@ -193,6 +198,17 @@ namespace hops {
         }
         return names;
     }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    const MatrixType& BallWalkProposal<InternalMatrixType, InternalVectorType>::getA() const {
+		return A;
+	}
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    const VectorType& BallWalkProposal<InternalMatrixType, InternalVectorType>::getB() const {
+		return b;
+	}
+
 }
 
 

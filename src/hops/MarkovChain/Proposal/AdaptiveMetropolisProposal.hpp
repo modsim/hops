@@ -33,7 +33,8 @@ namespace hops {
                                    StateType currentState,
                                    double stepSize = 1,
                                    double eps = 1.e-3,
-                                   unsigned long warmUp = 100);
+                                   unsigned long warmUp = 100,
+                                   unsigned long t = 0);
 
         AdaptiveMetropolisProposal(InternalMatrixType A,
                                    InternalVectorType b,
@@ -41,7 +42,8 @@ namespace hops {
                                    const MatrixType& sqrtMaximumVolumeEllipsoid,
                                    double stepSize = 1,
                                    double eps = 1.e-3,
-                                   unsigned long warmUp = 100);
+                                   unsigned long warmUp = 100,
+                                   unsigned long t = 0);
 
         VectorType &propose(RandomNumberGenerator &randomNumberGenerator) override;
 
@@ -74,6 +76,14 @@ namespace hops {
         [[nodiscard]] std::unique_ptr<Proposal> copyProposal() const override;
 
         [[nodiscard]] double computeLogAcceptanceProbability() override;
+
+        [[nodiscard]] const MatrixType& getA() const override;
+
+        [[nodiscard]] const VectorType& getB() const override;
+
+        [[nodiscard]] const MatrixType& getCholeskyOfMaximumVolumeEllipsoid() const;
+
+        [[nodiscard]] unsigned long getT() const;
 
     private:
         MatrixType A;
@@ -124,12 +134,13 @@ namespace hops {
                                                                                                    const MatrixType& sqrtMaximumVolumeEllipsoid,
                                                                                                    double stepSize_,
                                                                                                    double eps_,
-                                                                                                   unsigned long warmUp_) :
+                                                                                                   unsigned long warmUp_,
+                                                                                                   unsigned long t_) :
             A(std::move(A_)),
             b(std::move(b_)),
             state(std::move(currentState_)),
             proposal(this->state),
-            t(0),
+            t(t_),
             warmUp(warmUp_),
             stepSize(stepSize_) {
         normal = std::normal_distribution<double>(0, stepSize);
@@ -153,12 +164,13 @@ namespace hops {
                                                                                                    VectorType currentState_,
                                                                                                    double stepSize_,
                                                                                                    double eps_,
-                                                                                                   unsigned long warmUp_) :
+                                                                                                   unsigned long warmUp_,
+                                                                                                   unsigned long t_) :
             A(std::move(A_)),
             b(std::move(b_)),
             state(std::move(currentState_)),
             proposal(this->state),
-            t(0),
+            t(t_),
             warmUp(warmUp_),
             stepSize(stepSize_) {
         normal = std::normal_distribution<double>(0, stepSize);
@@ -351,6 +363,27 @@ namespace hops {
         }
         return names;
     }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    const MatrixType& AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::getA() const {
+		return A;
+	}
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    const VectorType& AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::getB() const {
+		return b;
+	}
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    const MatrixType& AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::getCholeskyOfMaximumVolumeEllipsoid() const {
+		return choleskyOfMaximumVolumeEllipsoid;
+	}
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    unsigned long AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::getT() const {
+		return t;
+	}
+
 }
 
 #endif //HOPS_ADAPTIVEMETROPOLISPROPOSAL_HPP

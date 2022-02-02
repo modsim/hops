@@ -4,7 +4,9 @@
 #include <random>
 
 #include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
+#include <hops/Utility/MatrixType.hpp>
 #include <hops/Utility/StringUtility.hpp>
+#include <hops/Utility/VectorType.hpp>
 
 #include "IsSetStepSizeAvailable.hpp"
 #include "Proposal.hpp"
@@ -54,6 +56,10 @@ namespace hops {
         [[nodiscard]] std::unique_ptr<Proposal> copyProposal() const override;
 
         [[nodiscard]] double computeLogAcceptanceProbability() override;
+
+        [[nodiscard]] const MatrixType& getA() const override;
+
+        [[nodiscard]] const VectorType& getB() const override;
 
     private:
         InternalMatrixType A;
@@ -188,6 +194,17 @@ namespace hops {
         }
         return names;
     }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    const MatrixType& GaussianProposal<InternalMatrixType, InternalVectorType>::getA() const {
+		return A;
+	}
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    const VectorType& GaussianProposal<InternalMatrixType, InternalVectorType>::getB() const {
+		return b;
+	}
+
 }
 
 #endif //HOPS_GAUSSIANPROPOSAL_HPP

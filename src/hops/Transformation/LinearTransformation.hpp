@@ -40,6 +40,14 @@ namespace hops {
             return std::make_unique<LinearTransformation>(*this);
         }
 
+        const MatrixType& getMatrix() const {
+            return matrix;
+        }
+
+        const VectorType& getShift() const {
+            return shift;
+        }
+
     private:
         MatrixType matrix;
         VectorType shift;

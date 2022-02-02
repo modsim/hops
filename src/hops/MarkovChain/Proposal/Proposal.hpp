@@ -5,7 +5,9 @@
 #include <any>
 
 #include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
+#include <hops/Utility/MatrixType.hpp>
 #include <hops/Utility/VectorType.hpp>
+#include <stdexcept>
 
 #include "ProposalParameter.hpp"
 
@@ -112,6 +114,20 @@ namespace hops {
         [[nodiscard]] virtual bool hasNegativeLogLikelihood() const {
             return false;
         };
+
+        /**
+         * @brief Returns const reference to dense left-hand side operator A from the polytope defining inequality Ax <= b.
+         */
+        virtual const MatrixType& getA() const {
+            throw std::runtime_error("Not implemented!");
+        }
+
+        /**
+         * @brief Returns const reference to dense right-hand side vector b from the polytope defining inequality Ax <= b.
+         */
+        virtual const VectorType& getB() const {
+            throw std::runtime_error("Not implemented!");
+        }
 
         [[nodiscard]] virtual std::unique_ptr<Proposal> copyProposal() const = 0;
 
