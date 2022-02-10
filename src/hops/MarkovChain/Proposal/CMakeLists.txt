@@ -3,6 +3,7 @@ if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
             AdaptiveMetropolisProposal.hpp
             BallWalkProposal.hpp
             BilliardAdaptiveMetropolisProposal.hpp
+            BilliardMALAProposal.hpp
             ChordStepDistributions.hpp
             CoordinateHitAndRunProposal.hpp
             CSmMALAProposal.hpp

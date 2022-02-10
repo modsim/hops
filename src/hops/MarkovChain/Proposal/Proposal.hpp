@@ -158,12 +158,12 @@ namespace hops {
         /**
          * @brief Returns const reference to dense left-hand side operator A from the polytope defining inequality Ax <= b.
          */
-        virtual const MatrixType& getA() const = 0;
+        [[nodiscard]] virtual const MatrixType& getA() const = 0;
 
         /**
          * @brief Returns const reference to dense right-hand side vector b from the polytope defining inequality Ax <= b.
          */
-        virtual const VectorType& getB() const = 0;
+        [[nodiscard]] virtual const VectorType& getB() const = 0;
 
         [[nodiscard]] virtual std::unique_ptr<Proposal> copyProposal() const = 0;
 
