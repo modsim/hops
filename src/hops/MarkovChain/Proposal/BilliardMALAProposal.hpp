@@ -94,6 +94,10 @@ namespace hops {
 
         ProposalStatistics getAndResetProposalStatistics() override;
 
+        const MatrixType &getA() const override;
+
+        const VectorType &getB() const override;
+
     private:
         VectorType computeGradient(VectorType x);
 
@@ -196,6 +200,10 @@ namespace hops {
         bool isTrackingOfProposalStatisticsActivated() override;
 
         ProposalStatistics getAndResetProposalStatistics() override;
+
+        const MatrixType &getA() const override;
+
+        const VectorType &getB() const override;
 
     private:
         VectorType computeGradient(VectorType x);
@@ -1020,9 +1028,29 @@ namespace hops {
         return newStatistic;
     }
 
+    template<typename ModelType, typename InternalMatrixType>
+    const MatrixType &BilliardMALAProposal<ModelType, InternalMatrixType>::getA() const {
+        return Adense;
+    }
+
+    template<typename InternalMatrixType>
+    const MatrixType &BilliardMALAProposal<Gaussian, InternalMatrixType>::getA() const {
+        return Adense;
+    }
+
     template<typename InternalMatrixType>
     const MatrixType &BilliardMALAProposal<Coldness<Gaussian>, InternalMatrixType>::getA() const {
-        return A;
+        return Adense;
+    }
+
+    template<typename ModelType, typename InternalMatrixType>
+    const VectorType &BilliardMALAProposal<ModelType, InternalMatrixType>::getB() const {
+        return b;
+    }
+
+    template<typename InternalMatrixType>
+    const VectorType &BilliardMALAProposal<Gaussian, InternalMatrixType>::getB() const {
+        return b;
     }
 
     template<typename InternalMatrixType>
