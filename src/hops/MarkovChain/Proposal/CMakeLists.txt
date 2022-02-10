@@ -2,6 +2,7 @@ if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
     target_sources(hops PRIVATE
             AdaptiveMetropolisProposal.hpp
             BallWalkProposal.hpp
+            BilliardAdaptiveMetropolisProposal.hpp
             ChordStepDistributions.hpp
             CoordinateHitAndRunProposal.hpp
             CSmMALAProposal.hpp
@@ -12,9 +13,12 @@ if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
             Proposal.hpp
             ProposalFactory.hpp
             ProposalParameter.hpp
+            ProposalStatistics.hpp
+            ProposalStatistics.cpp
             # TODO
 #            ReversibleJumpProposal.hpp
-            BillardMalaProposal.hpp
+            Reflector.hpp
+            BilliardMALAProposal.hpp
             TruncatedNormalDistribution.hpp
             )
 endif (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")

@@ -1,6 +1,7 @@
 if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
     target_sources(hops PRIVATE
             AcceptanceRateTarget.hpp
+            AcceptanceRateTarget.cpp
             AcceptanceRateTuner.hpp
             AcceptanceRateTuner.cpp
             BinarySearchAcceptanceRateTuner.hpp

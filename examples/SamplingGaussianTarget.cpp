@@ -39,9 +39,9 @@ int main(int argc, char **argv) {
     hops::Gaussian model(mean, covariance);
 
     std::unique_ptr<hops::MarkovChain> markovChain;
-    if (chainName == "DikinWalk" || chainName == "BillardMALA") {
+    if (chainName == "DikinWalk" || chainName == "BilliardMALA") {
         hops::MarkovChainType chainType = chainName == "DikinWalk" ? hops::MarkovChainType::DikinWalk :
-                                          hops::MarkovChainType::BillardMALA;
+                                          hops::MarkovChainType::BilliardMALA;
 
         decltype(b) startingPoint;
         if (argc == 10) {

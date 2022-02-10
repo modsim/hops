@@ -25,6 +25,20 @@ namespace hops {
             return {acceptanceRate/thinning, MarkovChainImpl::getState()};
         }
 
+        std::tuple<double, VectorType, ProposalStatistics>
+        detailedDraw(RandomNumberGenerator &randomNumberGenerator, long thinning) override {
+            MarkovChainImpl::activateTrackingOfProposalStatistics();
+            double acceptanceRate = 0;
+            ProposalStatistics proposalStatistics;
+            for (long i = 0; i < thinning; ++i) {
+                acceptanceRate += MarkovChainImpl::draw(randomNumberGenerator);
+                proposalStatistics = MarkovChainImpl::getAndResetProposalStatistics();
+                proposalStatistics.appendInfo("accepted", acceptanceRate);
+            }
+            MarkovChainImpl::disableTrackingOfProposalStatistics();
+            return {acceptanceRate/thinning, MarkovChainImpl::getState(), proposalStatistics};
+        }
+
         [[nodiscard]] VectorType getState() const override {
             return MarkovChainImpl::getState();
         }
