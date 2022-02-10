@@ -107,6 +107,7 @@ namespace hops {
         VectorType computeTruncatedGradient(VectorType x);
 
         InternalMatrixType A;
+        MatrixType Adense;
         VectorType b;
         ProposalStatistics proposalStatistics;
 
@@ -144,6 +145,7 @@ namespace hops {
                                                                     double newStepSize) :
             ModelType(std::move(model)),
             A(std::move(A)),
+            Adense(this->A),
             b(std::move(b)),
             dikinEllipsoidCalculator(this->A, this->b) {
         if (newFisherWeight > 1 || newFisherWeight < 0) {
@@ -375,7 +377,7 @@ namespace hops {
 
     template<typename ModelType, typename InternalMatrixType>
     const MatrixType& CSmMALAProposal<ModelType, InternalMatrixType>::getA() const {
-        return A;
+        return Adense;
     }
 
     template<typename ModelType, typename InternalMatrixType>
