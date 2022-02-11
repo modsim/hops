@@ -7,7 +7,7 @@
 
 namespace hops {
 #ifdef _OPENMP
-    static int numberOfThreads = omp_get_max_threads();
+    static int numberOfThreads = 1; //omp_get_max_threads();
 #else
     static int numberOfThreads = 1;
 #endif 

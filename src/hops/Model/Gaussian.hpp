@@ -2,6 +2,7 @@
 #define HOPS_GAUSSIAN_HPP
 
 #define _USE_MATH_DEFINES
+
 #include <math.h> // Using deprecated math for windows
 #include <Eigen/Cholesky>
 #include <Eigen/Core>
@@ -19,17 +20,19 @@ namespace hops {
          * @param x
          * @return
          */
-        [[nodiscard]] MatrixType::Scalar computeNegativeLogLikelihood(const VectorType &x) const override;
+        [[nodiscard]] MatrixType::Scalar computeNegativeLogLikelihood(const VectorType &x) override;
 
-        [[nodiscard]] std::optional<VectorType> computeLogLikelihoodGradient(const VectorType &x) const override;
+        [[nodiscard]] std::optional<VectorType> computeLogLikelihoodGradient(const VectorType &x) override;
 
-        [[nodiscard]] std::optional<MatrixType> computeExpectedFisherInformation(const VectorType &) const override;
+        [[nodiscard]] std::optional<MatrixType> computeExpectedFisherInformation(const VectorType &) override;
 
         [[nodiscard]] const VectorType &getMean() const;
 
         [[nodiscard]] const MatrixType &getCovariance() const;
 
         [[nodiscard]] std::unique_ptr<Model> copyModel() const override;
+
+        std::vector<std::string> getDimensionNames() const override;
 
     private:
         VectorType mean;
@@ -56,16 +59,16 @@ namespace hops {
     }
 
     typename MatrixType::Scalar
-    Gaussian::computeNegativeLogLikelihood(const VectorType &x) const {
+    Gaussian::computeNegativeLogLikelihood(const VectorType &x) {
         return -logNormalizationConstant +
                0.5 * static_cast<typename MatrixType::Scalar>((x - mean).transpose() * inverseCovariance * (x - mean));
     }
 
-    std::optional<VectorType> Gaussian::computeLogLikelihoodGradient(const VectorType &x) const {
+    std::optional<VectorType> Gaussian::computeLogLikelihoodGradient(const VectorType &x) {
         return -inverseCovariance * (x - mean);
     }
 
-    std::optional<MatrixType> Gaussian::computeExpectedFisherInformation(const VectorType &) const {
+    std::optional<MatrixType> Gaussian::computeExpectedFisherInformation(const VectorType &) {
         return inverseCovariance;
     }
 
@@ -79,6 +82,14 @@ namespace hops {
 
     std::unique_ptr<Model> Gaussian::copyModel() const {
         return std::make_unique<Gaussian>(mean, covariance);
+    }
+
+    std::vector<std::string> Gaussian::getDimensionNames() const {
+        std::vector<std::string> names;
+        for (long i = 0; i < mean.rows(); ++i) {
+            names.emplace_back("x_" + std::to_string(i));
+        }
+        return names;
     }
 }
 

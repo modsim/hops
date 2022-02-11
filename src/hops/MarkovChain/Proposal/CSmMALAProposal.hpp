@@ -28,7 +28,6 @@ namespace hops {
     }
 
     /**
-     * @Brief Does not work in with DNest4 sampler, because this Proposal already contains the model likelihood.
      * @tparam ModelType
      * @tparam InternalMatrixType
      */
@@ -59,7 +58,7 @@ namespace hops {
 
         [[nodiscard]] VectorType getProposal() const override;
 
-        [[nodiscard]] std::optional<std::vector<std::string>> getDimensionNames() const override;
+        [[nodiscard]] std::vector<std::string> getDimensionNames() const override;
 
         [[nodiscard]] std::optional<double> getStepSize() const;
 
@@ -93,11 +92,24 @@ namespace hops {
 
         [[nodiscard]] std::unique_ptr<Model> getModel() const;
 
+        ProposalStatistics & getProposalStatistics() override;
+
+        void activateTrackingOfProposalStatistics() override;
+
+        void disableTrackingOfProposalStatistics() override;
+
+        bool isTrackingOfProposalStatisticsActivated() override;
+
+        ProposalStatistics getAndResetProposalStatistics() override;
+
+
     private:
         VectorType computeTruncatedGradient(VectorType x);
 
         InternalMatrixType A;
+        MatrixType Adense;
         VectorType b;
+        ProposalStatistics proposalStatistics;
 
         VectorType state;
         VectorType driftedState;
@@ -120,6 +132,8 @@ namespace hops {
 
         std::normal_distribution<double> normalDistribution{0., 1.};
         DikinEllipsoidCalculator<MatrixType, VectorType> dikinEllipsoidCalculator;
+
+        bool isProposalInfosTrackingActive = false;
     };
 
     template<typename ModelType, typename InternalMatrixType>
@@ -131,6 +145,7 @@ namespace hops {
                                                                     double newStepSize) :
             ModelType(std::move(model)),
             A(std::move(A)),
+            Adense(this->A),
             b(std::move(b)),
             dikinEllipsoidCalculator(this->A, this->b) {
         if (newFisherWeight > 1 || newFisherWeight < 0) {
@@ -222,6 +237,10 @@ namespace hops {
     double CSmMALAProposal<ModelType, InternalMatrixType>::computeLogAcceptanceProbability() {
         bool isProposalInteriorPoint = ((A * proposal - b).array() < 0).all();
         if (!isProposalInteriorPoint) {
+            if(isProposalInfosTrackingActive) {
+                proposalStatistics.appendInfo("proposal_is_interior", isProposalInteriorPoint);
+                proposalStatistics.appendInfo("proposal_neg_like", std::numeric_limits<double>::quiet_NaN());
+            }
             return -std::numeric_limits<double>::infinity();
         }
 
@@ -251,6 +270,11 @@ namespace hops {
         double normDifference =
                 static_cast<double>((driftedState - proposal).transpose() * stateMetric * (driftedState - proposal)) -
                 static_cast<double>((state - driftedProposal).transpose() * proposalMetric * (state - driftedProposal));
+
+        if(isProposalInfosTrackingActive) {
+            proposalStatistics.appendInfo("proposal_is_interior", isProposalInteriorPoint);
+            proposalStatistics.appendInfo("proposal_neg_like", proposalNegativeLogLikelihood);
+        }
 
         return -proposalNegativeLogLikelihood
                + stateNegativeLogLikelihood
@@ -314,7 +338,7 @@ namespace hops {
         if (parameter == ProposalParameter::STEP_SIZE) {
             return "double";
         }
-        if (parameter == ProposalParameter::FISHER_WEIGHT) {
+        else if (parameter == ProposalParameter::FISHER_WEIGHT) {
             return "double";
         } else {
             throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
@@ -327,7 +351,7 @@ namespace hops {
         if (parameter == ProposalParameter::STEP_SIZE) {
             setStepSize(std::any_cast<double>(value));
         }
-        if (parameter == ProposalParameter::FISHER_WEIGHT) {
+        else if (parameter == ProposalParameter::FISHER_WEIGHT) {
             fisherWeight = std::any_cast<double>(value);
             // internal changes of setStepSize are a function of the value of fisherWeight, therefore recalculate here.
             setStepSize((this->stepSize));
@@ -337,12 +361,8 @@ namespace hops {
     }
 
     template<typename ModelType, typename InternalMatrixType>
-    std::optional<std::vector<std::string>> CSmMALAProposal<ModelType, InternalMatrixType>::getDimensionNames() const {
-        std::vector<std::string> names;
-        for (long i = 0; i < state.rows(); ++i) {
-            names.emplace_back("x_" + std::to_string(i));
-        }
-        return names;
+    std::vector<std::string> CSmMALAProposal<ModelType, InternalMatrixType>::getDimensionNames() const {
+        return ModelType::getDimensionNames();
     }
 
     template<typename ModelType, typename InternalMatrixType>
@@ -357,7 +377,7 @@ namespace hops {
 
     template<typename ModelType, typename InternalMatrixType>
     const MatrixType& CSmMALAProposal<ModelType, InternalMatrixType>::getA() const {
-        return A;
+        return Adense;
     }
 
     template<typename ModelType, typename InternalMatrixType>
@@ -370,6 +390,32 @@ namespace hops {
         return ModelType::copyModel();
     }
 
+    template<typename ModelType, typename InternalMatrixType>
+    ProposalStatistics & CSmMALAProposal<ModelType, InternalMatrixType>::getProposalStatistics() {
+        return proposalStatistics;
+    }
+
+    template<typename ModelType, typename InternalMatrixType>
+    void CSmMALAProposal<ModelType, InternalMatrixType>::activateTrackingOfProposalStatistics() {
+        isProposalInfosTrackingActive = true;
+    }
+
+    template<typename ModelType, typename InternalMatrixType>
+    void CSmMALAProposal<ModelType, InternalMatrixType>::disableTrackingOfProposalStatistics() {
+        isProposalInfosTrackingActive = false;
+    }
+
+    template<typename ModelType, typename InternalMatrixType>
+    bool CSmMALAProposal<ModelType, InternalMatrixType>::isTrackingOfProposalStatisticsActivated() {
+        return isProposalInfosTrackingActive;
+    }
+
+    template<typename ModelType, typename InternalMatrixType>
+    ProposalStatistics CSmMALAProposal<ModelType, InternalMatrixType>::getAndResetProposalStatistics() {
+        ProposalStatistics newStatistic;
+        std::swap(newStatistic, proposalStatistics);
+        return newStatistic;
+    }
 }
 
 #endif //HOPS_CSMMALA_HPP

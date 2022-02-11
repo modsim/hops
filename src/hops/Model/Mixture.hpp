@@ -24,7 +24,7 @@ namespace hops {
             }
         }
 
-        [[nodiscard]] MatrixType::Scalar computeNegativeLogLikelihood(const VectorType &x) const override {
+        [[nodiscard]] MatrixType::Scalar computeNegativeLogLikelihood(const VectorType &x) override {
             double likelihood = std::transform_reduce(components.begin(),
                                                       components.end(),
                                                       weights.begin(),
@@ -43,7 +43,7 @@ namespace hops {
          * @return
          */
         [[nodiscard]] std::optional<VectorType>
-        computeLogLikelihoodGradient(const VectorType &x) const override {
+        computeLogLikelihoodGradient(const VectorType &x) override {
             std::vector<double> weightedLikelihoods;
 
             std::transform(components.begin(),
@@ -73,7 +73,7 @@ namespace hops {
         }
 
         [[nodiscard]] std::optional<MatrixType>
-        computeExpectedFisherInformation(const VectorType &x) const override {
+        computeExpectedFisherInformation(const VectorType &x) override {
             return std::nullopt;
         }
 
@@ -83,6 +83,10 @@ namespace hops {
 
         [[nodiscard]] const std::vector<double>& getWeights() const {
             return weights;
+        }
+
+        [[nodiscard]] std::vector<std::string> getDimensionNames() const override {
+            return components.front()->getDimensionNames();
         }
 
         [[nodiscard]] std::unique_ptr<Model> copyModel() const override {

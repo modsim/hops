@@ -14,21 +14,22 @@ std::vector<Eigen::VectorXd> sampleUniformly(const Eigen::MatrixXd &A,
 
     auto markovChain = hops::MarkovChainAdapter(
             hops::NoOpDrawAdapter(
-                    hops::StateRecorder(
-                            hops::StateTransformation(
-                                    hops::CoordinateHitAndRunProposal(
-                                            A,
-                                            b,
-                                            startingPoint),
-                                    hops::Transformation(transformation, shift))
-                    )
+                    hops::StateTransformation(
+                            hops::CoordinateHitAndRunProposal(
+                                    A,
+                                    b,
+                                    startingPoint),
+                            hops::LinearTransformation(transformation, shift))
             )
     );
 
     hops::RandomNumberGenerator randomNumberGenerator(randomSeed);
-    markovChain.draw(randomNumberGenerator, numberOfSamples, thinning);
 
-    return markovChain.getStateRecords();
+    std::vector<Eigen::VectorXd> samples;
+    for (long i = 0; i < numberOfSamples; ++i) {
+        samples.emplace_back(markovChain.draw(randomNumberGenerator, thinning).second);
+    }
+    return samples;
 }
 
 std::vector<Eigen::VectorXd> sampleUniformly(const Eigen::MatrixXd &A,
@@ -40,19 +41,20 @@ std::vector<Eigen::VectorXd> sampleUniformly(const Eigen::MatrixXd &A,
 
     auto markovChain = hops::MarkovChainAdapter(
             hops::NoOpDrawAdapter(
-                    hops::StateRecorder(
-                            hops::CoordinateHitAndRunProposal(
-                                    A,
-                                    b,
-                                    startingPoint)
-                    )
+                    hops::CoordinateHitAndRunProposal(
+                            A,
+                            b,
+                            startingPoint)
             )
     );
 
     hops::RandomNumberGenerator randomNumberGenerator(randomSeed);
-    markovChain.draw(randomNumberGenerator, numberOfSamples, thinning);
 
-    return markovChain.getStateRecords();
+    std::vector<Eigen::VectorXd> samples;
+    for (long i = 0; i < numberOfSamples; ++i) {
+        samples.emplace_back(markovChain.draw(randomNumberGenerator, thinning).second);
+    }
+    return samples;
 }
 
 #endif //HOPS_SAMPLERS_HPP

@@ -1,0 +1,154 @@
+#include <any>
+#include <iostream>
+#include <iomanip>
+
+#include <hops/hops.hpp>
+#include <hops/Parallel/MpiInitializerFinalizer.hpp>
+
+
+std::tuple<Eigen::MatrixXd, Eigen::VectorXd> createSimplex(size_t dims) {
+    Eigen::MatrixXd A(dims + 1, dims);
+    Eigen::VectorXd upperBounds(dims);
+    for (size_t i = 0; i < dims; ++i) {
+        upperBounds(i) = 1.;
+    }
+    A << upperBounds.transpose(), -Eigen::MatrixXd::Identity(dims, dims);
+
+    Eigen::VectorXd b(dims + 1);
+    b << 5, Eigen::VectorXd::Zero(dims);
+
+    return std::make_tuple(A, b);
+}
+
+int main() {
+    std::srand(42);
+    const int numberOfSamples = 100'000;
+
+    double covScale = 1e-1;
+    const size_t dimStep = 20;
+    Eigen::MatrixXd baseCov = covScale * Eigen::MatrixXd::Random(dimStep, dimStep);
+    const Eigen::MatrixXd baseCovariance = baseCov.transpose() * baseCov;
+
+    const size_t maxDims = 101;
+    std::vector<
+            std::tuple<
+                    Eigen::MatrixXd,
+                    Eigen::VectorXd,
+                    Eigen::VectorXd,
+                    hops::Gaussian,
+                    hops::MarkovChainType,
+                    long,
+                    double,
+                    double,
+                    bool,
+                    std::string>
+    > runConfigurations;
+
+    for (size_t dims = dimStep; dims < maxDims; dims += dimStep) {
+        Eigen::MatrixXd A(2 * dims, dims);
+        A << Eigen::MatrixXd::Identity(dims, dims), -Eigen::MatrixXd::Identity(dims, dims);
+
+        Eigen::VectorXd b(2 * dims);
+        b << 5 * Eigen::VectorXd::Ones(dims), Eigen::VectorXd::Zero(dims);
+
+
+        Eigen::VectorXd mean = Eigen::VectorXd::Zero(dims);
+        Eigen::MatrixXd covariance = Eigen::MatrixXd::Zero(dims, dims);
+        for (size_t i = 0; i < dims; i += dimStep) {
+            covariance.block(i, i, dimStep, dimStep) = baseCovariance;
+        }
+
+        hops::Gaussian model(mean, covariance);
+        mean = Eigen::VectorXd::Ones(dims);
+
+        runConfigurations.emplace_back(A, b, mean, model, hops::MarkovChainType::AdaptiveMetropolis,
+                                       numberOfSamples, 0, 0.23, true, "hypercube");
+
+        runConfigurations.emplace_back(A, b, mean, model, hops::MarkovChainType::BilliardAdaptiveMetropolis,
+                                       numberOfSamples, 0, 0.23, true, "hypercube");
+
+        runConfigurations.emplace_back(A, b, mean, model, hops::MarkovChainType::BilliardMALA,
+                                       numberOfSamples, 0, 0.5, false, "hypercube");
+
+        runConfigurations.emplace_back(A, b, mean, model, hops::MarkovChainType::CSmMALA,
+                                       numberOfSamples, 0, 0.5, false, "hypercube");
+
+        runConfigurations.emplace_back(A, b, mean, model, hops::MarkovChainType::CSmMALA,
+                                       numberOfSamples, 0.5, 0.5, false, "hypercube");
+
+        runConfigurations.emplace_back(A, b, mean, model, hops::MarkovChainType::CoordinateHitAndRun,
+                                       numberOfSamples, 0, 0.23, true, "hypercube");
+
+        runConfigurations.emplace_back(A, b, mean, model, hops::MarkovChainType::DikinWalk,
+                                       numberOfSamples, 0, 0.23, false, "hypercube");
+
+        runConfigurations.emplace_back(A, b, mean, model, hops::MarkovChainType::HitAndRun,
+                                       numberOfSamples, 0, 0.23, true, "hypercube");
+    }
+
+    for (size_t dims = dimStep; dims < maxDims; dims += dimStep) {
+        auto[A, b] = createSimplex(dims);
+        Eigen::VectorXd mean = Eigen::VectorXd::Zero(dims);
+        mean(0) = 5;
+        Eigen::MatrixXd covariance = Eigen::MatrixXd::Zero(dims, dims);
+        for (size_t i = 0; i < dims; i += dimStep) {
+            covariance.block(i, i, dimStep, dimStep) = baseCovariance;
+        }
+
+        hops::Gaussian model(mean, covariance);
+        mean = 1. / (dims + 10) * Eigen::VectorXd::Ones(dims);
+        runConfigurations.emplace_back(A, b, mean, model, hops::MarkovChainType::AdaptiveMetropolis,
+                                       numberOfSamples, 0, 0.23, true, "simplex");
+
+        runConfigurations.emplace_back(A, b, mean, model, hops::MarkovChainType::BilliardAdaptiveMetropolis,
+                                       numberOfSamples, 0, 0.23, true, "simplex");
+
+        runConfigurations.emplace_back(A, b, mean, model, hops::MarkovChainType::BilliardMALA,
+                                       numberOfSamples, 0, 0.5, false, "simplex");
+
+        runConfigurations.emplace_back(A, b, mean, model, hops::MarkovChainType::CSmMALA,
+                                       numberOfSamples, 0, 0.5, false, "simplex");
+
+        runConfigurations.emplace_back(A, b, mean, model, hops::MarkovChainType::CSmMALA,
+                                       numberOfSamples, 0.5, 0.5, false, "simplex");
+
+        runConfigurations.emplace_back(A, b, mean, model, hops::MarkovChainType::CoordinateHitAndRun,
+                                       numberOfSamples, 0, 0.23, true, "simplex");
+
+        runConfigurations.emplace_back(A, b, mean, model, hops::MarkovChainType::DikinWalk,
+                                       numberOfSamples, 0, 0.23, false, "simplex");
+
+        runConfigurations.emplace_back(A, b, mean, model, hops::MarkovChainType::HitAndRun,
+                                       numberOfSamples, 0, 0.23, true, "simplex");
+    }
+
+    hops::MpiInitializerFinalizer::initializeAndQueueFinalizeAtExit();
+    int numberOfChains;
+    MPI_Comm_size(MPI_COMM_WORLD, &numberOfChains);
+    int chainIndex;
+    MPI_Comm_rank(MPI_COMM_WORLD, &chainIndex);
+
+    for (size_t i = 0; i < runConfigurations.size(); i++) {
+        if (i % numberOfChains != chainIndex) {
+            continue;
+        }
+        const auto &run = runConfigurations[i];
+        std::cout << "process " << chainIndex << "/" << numberOfChains << " is running " << i << ": " <<
+                  hops::markovChainTypeToFullString(std::get<4>(run)) <<
+                  " for " << std::get<9>(run) << " in " << std::get<0>(run).cols() << " dimensions" << std::endl;
+
+        hops::Sampling::run(
+                std::get<0>(run),
+                std::get<1>(run),
+                std::get<2>(run),
+                std::get<3>(run),
+                std::get<4>(run),
+                std::get<5>(run),
+                std::get<6>(run),
+                std::get<7>(run),
+                std::get<8>(run),
+                std::get<9>(run));
+
+    }
+    std::cout << "finished: process " << chainIndex << "/" << numberOfChains << std::endl;
+}

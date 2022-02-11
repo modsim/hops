@@ -50,7 +50,7 @@ namespace hops {
             }
         }
 
-        [[nodiscard]] std::optional<VectorType> computeLogLikelihoodGradient(const VectorType &x) const override {
+        [[nodiscard]] std::optional<VectorType> computeLogLikelihoodGradient(const VectorType &x) override {
             VectorType gradient = Eigen::VectorXd::Zero(x.rows());
             for (long i = 0; i < measurements[0].rows(); ++ ++i) {
                 // reference https://en.wikipedia.org/wiki/Gamma_distribution
@@ -65,7 +65,7 @@ namespace hops {
             return gradient;
         }
 
-        [[nodiscard]] std::optional<MatrixType> computeExpectedFisherInformation(const VectorType &x) const override {
+        [[nodiscard]] std::optional<MatrixType> computeExpectedFisherInformation(const VectorType &x) override {
             MatrixType fisherInformation = Eigen::MatrixXd::Zero(x.rows(), x.rows());
             for (long i = 0; i < measurements[0].rows(); ++ ++i) {
                 // reference http://www.stats.org.uk/priors/noninformative/YangBerger1998.pdf
@@ -82,7 +82,7 @@ namespace hops {
             return fisherInformation;
         }
 
-        [[nodiscard]] std::optional<std::vector<std::string>> getDimensionNames() const override {
+        [[nodiscard]] std::vector<std::string> getDimensionNames() const override {
             std::vector<std::string> parameterNames;
             for (long i = 0; i < measurements[0].rows(); ++i) {
                 parameterNames.emplace_back("shape " + std::to_string(i));
@@ -91,7 +91,7 @@ namespace hops {
             return parameterNames;
         }
 
-        [[nodiscard]] double computeNegativeLogLikelihood(const VectorType &x) const override {
+        [[nodiscard]] double computeNegativeLogLikelihood(const VectorType &x) override {
             double l = 0;
             for (long i = 0; i < measurements[0].rows(); ++i) {
                 // reference https://en.wikipedia.org/wiki/Gamma_distribution

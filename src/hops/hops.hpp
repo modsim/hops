@@ -86,10 +86,6 @@
 #include "Model/Rosenbrock.hpp"
 
 #include "Parallel/OpenMPControls.hpp"
-#ifdef HOPS_DNEST4_SUPPORT
-#include "NestedSampling/DNest4EnvironmentSingleton.hpp"
-#include "NestedSampling/DNest4Adapter.hpp"
-#endif //HOPS_DNEST4_SUPPORT
 
 #include "Polytope/MaximumVolumeEllipsoid.hpp"
 #include "Polytope/NormalizePolytope.hpp"
@@ -100,8 +96,13 @@
 
 #include "Transformation/Transformation.hpp"
 
+#include "Utility/Sampling.hpp"
 #include "Utility/MatrixType.hpp"
 #include "Utility/VectorType.hpp"
+#ifdef HOPS_DNEST4_SUPPORT
+#include "NestedSampling/DNest4EnvironmentSingleton.hpp"
+#include "NestedSampling/DNest4Adapter.hpp"
+#endif //HOPS_DNEST4_SUPPORT
 
 #ifdef HOPS_HEADER_ONLY
 
@@ -125,6 +126,7 @@
 #include "Polytope/MaximumVolumeEllipsoid.cpp"
 
 #include "Utility/Data.cpp"
+#include "Utility/Sampling.cpp"
 
 #ifdef HOPS_HDF5_SUPPORT
 #include "FileReader/Hdf5Reader.cpp"

@@ -2,8 +2,8 @@
 
 #include <boost/test/included/unit_test.hpp>
 #include <Eigen/Core>
-#include <Eigen/Sparse>
-#include <hops/hops.hpp>
+
+#include <hops/Statistics/ExpectedSquaredJumpDistance.hpp>
 
 BOOST_AUTO_TEST_SUITE(ExpectedSquaredJumpDistanceTestSuite)
     BOOST_AUTO_TEST_CASE(ComputeAllDraws) {
@@ -154,4 +154,5 @@ BOOST_AUTO_TEST_SUITE(ExpectedSquaredJumpDistanceTestSuite)
             BOOST_CHECK_CLOSE(2./3., esjd[i], 0.01);
         }
     }
+
 BOOST_AUTO_TEST_SUITE_END()

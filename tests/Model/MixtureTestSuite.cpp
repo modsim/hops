@@ -11,18 +11,22 @@
 namespace {
     class ModelMock : public hops::Model {
     public:
-        [[nodiscard]] double computeNegativeLogLikelihood(const hops::VectorType &) const override {
+        [[nodiscard]] double computeNegativeLogLikelihood(const hops::VectorType &) override {
             return 3;
         }
 
         [[nodiscard]] std::optional<hops::VectorType>
-        computeLogLikelihoodGradient(const hops::VectorType &x) const override {
+        computeLogLikelihoodGradient(const hops::VectorType &x) override {
             return x;
         }
 
         [[nodiscard]] std::optional<hops::MatrixType>
-        computeExpectedFisherInformation(const hops::VectorType &x) const override {
+        computeExpectedFisherInformation(const hops::VectorType &x) override {
             return Eigen::MatrixXd::Ones(x.rows(), x.rows());
+        }
+
+        std::vector<std::string> getDimensionNames() const override {
+            return std::vector<std::string> {"dummy name"};
         }
 
         [[nodiscard]] std::unique_ptr<Model> copyModel() const override {

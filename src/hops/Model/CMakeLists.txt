@@ -5,5 +5,6 @@ if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
             Gaussian.hpp
             Model.hpp
             Mixture.hpp
+            Rosenbrock.hpp
             )
 endif (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
