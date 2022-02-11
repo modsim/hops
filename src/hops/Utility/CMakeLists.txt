@@ -4,6 +4,7 @@ if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
         #Data.hpp
         #Data.cpp
         #Exceptions.hpp
+        HopsWithinHopsy.hpp
         MatrixType.hpp
         #Problem.hpp
         #Run.hpp

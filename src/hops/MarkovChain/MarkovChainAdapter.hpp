@@ -11,6 +11,8 @@
 #include "IsSetFisherWeightAvailable.hpp"
 #include "hops/MarkovChain/Proposal/IsSetStepSizeAvailable.hpp"
 
+#include <hops/Utility/HopsWithinHopsy.hpp>
+
 namespace hops {
     template<typename MarkovChainImpl> 
     class MarkovChainAdapter : public MarkovChain, public MarkovChainImpl {
@@ -20,6 +22,7 @@ namespace hops {
         std::pair<double, VectorType> draw(RandomNumberGenerator &randomNumberGenerator, long thinning = 1) override {
             double acceptanceRate = 0;
             for (long i = 0; i < thinning; ++i) {
+                ABORTABLE;
                 acceptanceRate += MarkovChainImpl::draw(randomNumberGenerator);
             }
             return {acceptanceRate/thinning, MarkovChainImpl::getState()};
