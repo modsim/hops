@@ -22,7 +22,8 @@ std::tuple<Eigen::MatrixXd, Eigen::VectorXd> createSimplex(size_t dims) {
 
 int main() {
     std::srand(42);
-    const int numberOfSamples = 100'000;
+    const long numberOfSamples = 100'000;
+    const long thinning = 1;
 
     double covScale = 1e-1;
     const size_t dimStep = 20;
@@ -37,6 +38,7 @@ int main() {
                     Eigen::VectorXd,
                     hops::Gaussian,
                     hops::MarkovChainType,
+                    long,
                     long,
                     double,
                     double,
@@ -62,28 +64,28 @@ int main() {
         mean = Eigen::VectorXd::Ones(dims);
 
         runConfigurations.emplace_back(A, b, mean, model, hops::MarkovChainType::AdaptiveMetropolis,
-                                       numberOfSamples, 0, 0.23, true, "hypercube");
+                                       numberOfSamples, thinning, 0, 0.23, true, "hypercube");
 
         runConfigurations.emplace_back(A, b, mean, model, hops::MarkovChainType::BilliardAdaptiveMetropolis,
-                                       numberOfSamples, 0, 0.23, true, "hypercube");
+                                       numberOfSamples, thinning, 0, 0.23, true, "hypercube");
 
         runConfigurations.emplace_back(A, b, mean, model, hops::MarkovChainType::BilliardMALA,
-                                       numberOfSamples, 0, 0.5, false, "hypercube");
+                                       numberOfSamples, thinning, 0, 0.5, false, "hypercube");
 
         runConfigurations.emplace_back(A, b, mean, model, hops::MarkovChainType::CSmMALA,
-                                       numberOfSamples, 0, 0.5, false, "hypercube");
+                                       numberOfSamples, thinning, 0, 0.5, false, "hypercube");
 
         runConfigurations.emplace_back(A, b, mean, model, hops::MarkovChainType::CSmMALA,
-                                       numberOfSamples, 0.5, 0.5, false, "hypercube");
+                                       numberOfSamples, thinning, 0.5, 0.5, false, "hypercube");
 
         runConfigurations.emplace_back(A, b, mean, model, hops::MarkovChainType::CoordinateHitAndRun,
-                                       numberOfSamples, 0, 0.23, true, "hypercube");
+                                       numberOfSamples, thinning, 0, 0.23, true, "hypercube");
 
         runConfigurations.emplace_back(A, b, mean, model, hops::MarkovChainType::DikinWalk,
-                                       numberOfSamples, 0, 0.23, false, "hypercube");
+                                       numberOfSamples, thinning, 0, 0.23, false, "hypercube");
 
         runConfigurations.emplace_back(A, b, mean, model, hops::MarkovChainType::HitAndRun,
-                                       numberOfSamples, 0, 0.23, true, "hypercube");
+                                       numberOfSamples, thinning, 0, 0.23, true, "hypercube");
     }
 
     for (size_t dims = dimStep; dims < maxDims; dims += dimStep) {
@@ -98,28 +100,28 @@ int main() {
         hops::Gaussian model(mean, covariance);
         mean = 1. / (dims + 10) * Eigen::VectorXd::Ones(dims);
         runConfigurations.emplace_back(A, b, mean, model, hops::MarkovChainType::AdaptiveMetropolis,
-                                       numberOfSamples, 0, 0.23, true, "simplex");
+                                       numberOfSamples, thinning, 0, 0.23, true, "simplex");
 
         runConfigurations.emplace_back(A, b, mean, model, hops::MarkovChainType::BilliardAdaptiveMetropolis,
-                                       numberOfSamples, 0, 0.23, true, "simplex");
+                                       numberOfSamples, thinning, 0, 0.23, true, "simplex");
 
         runConfigurations.emplace_back(A, b, mean, model, hops::MarkovChainType::BilliardMALA,
-                                       numberOfSamples, 0, 0.5, false, "simplex");
+                                       numberOfSamples, thinning, 0, 0.5, false, "simplex");
 
         runConfigurations.emplace_back(A, b, mean, model, hops::MarkovChainType::CSmMALA,
-                                       numberOfSamples, 0, 0.5, false, "simplex");
+                                       numberOfSamples, thinning, 0, 0.5, false, "simplex");
 
         runConfigurations.emplace_back(A, b, mean, model, hops::MarkovChainType::CSmMALA,
-                                       numberOfSamples, 0.5, 0.5, false, "simplex");
+                                       numberOfSamples, thinning, 0.5, 0.5, false, "simplex");
 
         runConfigurations.emplace_back(A, b, mean, model, hops::MarkovChainType::CoordinateHitAndRun,
-                                       numberOfSamples, 0, 0.23, true, "simplex");
+                                       numberOfSamples, thinning, 0, 0.23, true, "simplex");
 
         runConfigurations.emplace_back(A, b, mean, model, hops::MarkovChainType::DikinWalk,
-                                       numberOfSamples, 0, 0.23, false, "simplex");
+                                       numberOfSamples, thinning, 0, 0.23, false, "simplex");
 
         runConfigurations.emplace_back(A, b, mean, model, hops::MarkovChainType::HitAndRun,
-                                       numberOfSamples, 0, 0.23, true, "simplex");
+                                       numberOfSamples, thinning, 0, 0.23, true, "simplex");
     }
 
     hops::MpiInitializerFinalizer::initializeAndQueueFinalizeAtExit();
@@ -147,7 +149,8 @@ int main() {
                 std::get<6>(run),
                 std::get<7>(run),
                 std::get<8>(run),
-                std::get<9>(run));
+                std::get<9>(run),
+                std::get<10>(run));
 
     }
     std::cout << "finished: process " << chainIndex << "/" << numberOfChains << std::endl;
