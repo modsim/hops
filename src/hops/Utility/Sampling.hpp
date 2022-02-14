@@ -36,7 +36,8 @@ namespace hops {
                         const VectorType &startPoint,
                         const ModelType &model,
                         hops::MarkovChainType chainType,
-                        int numberOfSamples,
+                        long numberOfSamples,
+                        long thinning,
                         double fisherWeight,
                         double targetAcceptanceRate,
                         bool rounding,
@@ -66,7 +67,8 @@ namespace hops {
                         const MatrixType &shift,
                         const ModelType &model,
                         hops::MarkovChainType chainType,
-                        int numberOfSamples,
+                        long numberOfSamples,
+                        long thinning,
                         double fisherWeight,
                         double targetAcceptanceRate,
                         bool rounding,
@@ -75,15 +77,16 @@ namespace hops {
 
     template<typename ModelType>
     void Sampling::run(const MatrixType &A,
-                             const VectorType &b,
-                             const VectorType &startPoint,
-                             const ModelType &model,
-                             MarkovChainType chainType,
-                             int numberOfSamples,
-                             double fisherWeight,
-                             double targetAcceptanceRate,
-                             bool rounding,
-                             const std::string &problemName) {
+                       const VectorType &b,
+                       const VectorType &startPoint,
+                       const ModelType &model,
+                       MarkovChainType chainType,
+                       long numberOfSamples,
+                       long thinning,
+                       double fisherWeight,
+                       double targetAcceptanceRate,
+                       bool rounding,
+                       const std::string &problemName) {
         std::shared_ptr<MarkovChain> markovChain;
 
         if (rounding) {
@@ -157,12 +160,12 @@ namespace hops {
             chainType != MarkovChainType::BilliardAdaptiveMetropolis &&
             chainType != MarkovChainType::AdaptiveMetropolis) {
             isTuned = Sampling::tuneChain(randomNumberGenerator, targetAcceptanceRate, markovChain, chainType,
-                                                writer.get());
+                                          writer.get());
         }
         writer->write("tuning_successful", std::vector<double>{static_cast<double>(isTuned)});
 
-        for (int i = 0; i < numberOfSamples; ++i) {
-            auto[acceptanceRate, state, proposalStatistic] = markovChain->detailedDraw(randomNumberGenerator, 1);
+        for (long i = 0; i < numberOfSamples; ++i) {
+            auto[acceptanceRate, state, proposalStatistic] = markovChain->detailedDraw(randomNumberGenerator, thinning);
             acceptanceRates.emplace_back(acceptanceRate);
             negLogLikelihoods.emplace_back(markovChain->getStateNegativeLogLikelihood());
             states.emplace_back(state);
@@ -195,11 +198,19 @@ namespace hops {
     }
 
     template<typename ModelType>
-    void Sampling::run(const MatrixType &A, const VectorType &b, const VectorType &startPoint,
-                             const MatrixType &roundingTransformation, const MatrixType &shift,
-                             const ModelType &model, MarkovChainType chainType, int numberOfSamples,
-                             double fisherWeight, double targetAcceptanceRate, bool rounding,
-                             const std::string &problemName) {
+    void Sampling::run(const MatrixType &A,
+                       const VectorType &b,
+                       const VectorType &startPoint,
+                       const MatrixType &roundingTransformation,
+                       const MatrixType &shift,
+                       const ModelType &model,
+                       MarkovChainType chainType,
+                       long numberOfSamples,
+                       long thinning,
+                       double fisherWeight,
+                       double targetAcceptanceRate,
+                       bool rounding,
+                       const std::string &problemName) {
         std::shared_ptr<MarkovChain> markovChain;
         if (rounding) {
             Eigen::VectorXd startPointRounded = roundingTransformation.template triangularView<Eigen::Lower>().
@@ -271,12 +282,12 @@ namespace hops {
             chainType != MarkovChainType::BilliardAdaptiveMetropolis &&
             chainType != MarkovChainType::AdaptiveMetropolis) {
             isTuned = Sampling::tuneChain(randomNumberGenerator, targetAcceptanceRate, markovChain, chainType,
-                                                writer.get());
+                                          writer.get());
         }
         writer->write("tuning_successful", std::vector<double>{static_cast<double>(isTuned)});
 
-        for (int i = 0; i < numberOfSamples; ++i) {
-            auto[acceptanceRate, state, proposalStatistic] = markovChain->detailedDraw(randomNumberGenerator, 1);
+        for (long i = 0; i < numberOfSamples; ++i) {
+            auto[acceptanceRate, state, proposalStatistic] = markovChain->detailedDraw(randomNumberGenerator, thinning);
             acceptanceRates.emplace_back(acceptanceRate);
             negLogLikelihoods.emplace_back(markovChain->getStateNegativeLogLikelihood());
             states.emplace_back(state);
