@@ -110,7 +110,15 @@ namespace hops {
         inverseDistances = A.col(coordinateToUpdate).cwiseQuotient(slacks);
         forwardDistance = 1. / inverseDistances.maxCoeff();
         backwardDistance = 1. / inverseDistances.minCoeff();
-        assert(backwardDistance < 0 && forwardDistance > 0);
+        if(forwardDistance<0) {
+            // forward direction is unconstrained
+            forwardDistance = std::numeric_limits<typename InternalMatrixType::Scalar>::infinity();
+        }
+        if(backwardDistance>0) {
+            // backward direction is unconstrained
+            backwardDistance = -std::numeric_limits<typename InternalMatrixType::Scalar>::infinity();
+        }
+
         assert(((b - A * state).array() > 0).all());
         if (isProposalInfosTrackingActive) {
             proposalStatistics.appendInfo("backwardDistance", forwardDistance);
