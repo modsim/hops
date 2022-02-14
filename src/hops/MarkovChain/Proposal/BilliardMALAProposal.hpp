@@ -852,6 +852,18 @@ namespace hops {
         throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
     }
 
+    template<typename ModelType, typename InternalMatrixType>
+    std::string
+    BilliardMALAProposal<ModelType, InternalMatrixType>::getParameterType(const ProposalParameter &parameter) const {
+        if (parameter == ProposalParameter::STEP_SIZE) {
+            return "double";
+        } else if (parameter == ProposalParameter::MAXIMUM_NUMBER_OF_REFLECTIONS) {
+            return "long";
+        } else {
+            throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
+        }
+    }
+
     template<typename InternalMatrixType>
     std::string
     BilliardMALAProposal<Gaussian, InternalMatrixType>::getParameterType(const ProposalParameter &parameter) const {
