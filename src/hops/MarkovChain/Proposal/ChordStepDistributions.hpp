@@ -11,6 +11,12 @@ namespace hops {
     class UniformStepDistribution {
     public:
         RealType draw(RandomNumberGenerator &randomNumberGenerator, RealType lowerLimit, RealType upperLimit) {
+            if(lowerLimit > upperLimit) {
+                throw std::invalid_argument("UniformStepDistribution: Lower limit is larger than upper limit. Check the polytope.");
+            }
+            if(lowerLimit <= std::numeric_limits<RealType>::lowest() || upperLimit >= std::numeric_limits<RealType>::max()) {
+                throw std::invalid_argument("UniformStepDistribution: Upper (" + std::to_string(upperLimit) + ") or lower limit (" + std::to_string(lowerLimit) + ") is unconstrained, therefore the draw is not well-defined. Try constraining the polytope with upper and lower bounds.");
+            }
             typename std::uniform_real_distribution<RealType>::param_type params(lowerLimit, upperLimit);
             auto val = uniformRealDistribution(randomNumberGenerator, params);
             return val;
@@ -29,6 +35,9 @@ namespace hops {
     public:
         RealType draw(RandomNumberGenerator &randomNumberGenerator, RealType lowerLimit,
                       RealType upperLimit) {
+            if(lowerLimit >= upperLimit) {
+                throw std::invalid_argument("GaussianStepDistribution: Lower limit is larger than upper limit. Check the polytope.");
+            }
             return truncatedNormalDistribution(randomNumberGenerator, {stepSize, lowerLimit, upperLimit});
         }
 
@@ -36,6 +45,9 @@ namespace hops {
                           double sigma,
                           RealType lowerLimit,
                           RealType upperLimit) {
+            if(lowerLimit >= upperLimit) {
+                throw std::invalid_argument("GaussianStepDistribution: Lower limit is larger than upper limit. Check the polytope.");
+            }
             return truncatedNormalDistribution(randomNumberGenerator, {sigma, lowerLimit, upperLimit});
         }
 
@@ -47,12 +59,18 @@ namespace hops {
             stepSize = newStepSize;
         }
 
-        RealType computeInverseNormalizationConstant(RealType sigma, RealType lowerBound, RealType upperBound) {
-            return truncatedNormalDistribution.inverseNormalization({sigma, lowerBound, upperBound});
+        RealType computeInverseNormalizationConstant(RealType sigma, RealType lowerLimit, RealType upperLimit) {
+            if(lowerLimit >= upperLimit) {
+                throw std::invalid_argument("GaussianStepDistribution: Lower limit is larger than upper limit. Check the polytope.");
+            }
+            return truncatedNormalDistribution.inverseNormalization({sigma, lowerLimit, upperLimit});
         }
 
-        RealType computeProbabilityDensity(RealType x, RealType sigma, RealType lowerBound, RealType upperBound){
-            return truncatedNormalDistribution.probabilityDensity(x, sigma, lowerBound, upperBound);
+        RealType computeProbabilityDensity(RealType x, RealType sigma, RealType lowerLimit, RealType upperLimit){
+            if(lowerLimit >= upperLimit) {
+                throw std::invalid_argument("GaussianStepDistribution: Lower limit is larger than upper limit. Check the polytope.");
+            }
+            return truncatedNormalDistribution.probabilityDensity(x, sigma, lowerLimit, upperLimit);
         }
 
     private:
