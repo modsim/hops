@@ -272,7 +272,7 @@ namespace hops {
         std::string fisherWeightString = stream.str();
 
         std::unique_ptr<FileWriter> writer = FileWriterFactory::createFileWriter(
-                problemName + std::to_string(A.cols()) + "_" +
+                        problemName + "_" +
                 markovChainTypeToShortString(chainType)
                 + (chainType == MarkovChainType::CSmMALA ? "_fw=" + fisherWeightString : "")
                 + (rounding ? "_rounded" : ""), FileWriterType::CSV);
@@ -287,6 +287,7 @@ namespace hops {
         writer->write("tuning_successful", std::vector<double>{static_cast<double>(isTuned)});
 
         for (long i = 0; i < numberOfSamples; ++i) {
+            ABORTABLE
             auto[acceptanceRate, state, proposalStatistic] = markovChain->detailedDraw(randomNumberGenerator, thinning);
             acceptanceRates.emplace_back(acceptanceRate);
             negLogLikelihoods.emplace_back(markovChain->getStateNegativeLogLikelihood());
