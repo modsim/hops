@@ -33,7 +33,8 @@ bool hops::Sampling::tuneChain(hops::RandomNumberGenerator &randomNumberGenerato
     double deltaAcceptanceRate = 1;
     hops::VectorType stepSize(1);
     double measuredAcceptanceRate = -1;
-    while (deltaAcceptanceRate > tuningTolerance) {
+    long tuningIteration = 0;
+    while (deltaAcceptanceRate > tuningTolerance && tuningIteration < 20) {
         stepSize(0) = std::any_cast<double>(tuningChains[0]->getParameter(hops::ProposalParameter::STEP_SIZE));
         hops::ThompsonSamplingTuner::param_type tuningParameters(
                 posteriorUpdateIterations,
@@ -59,7 +60,7 @@ bool hops::Sampling::tuneChain(hops::RandomNumberGenerator &randomNumberGenerato
         deltaAcceptanceRate = std::abs(targetAcceptanceRate - measuredAcceptanceRate);
 
         std::stringstream stream;
-        stream << hops::markovChainTypeToShortString(chainType) << " s: " << stepSize(0) << " alpha: "
+        stream << "tuning iter: " << tuningIteration << " " << hops::markovChainTypeToShortString(chainType) << " s: " << stepSize(0) << " alpha: "
                << measuredAcceptanceRate
                << " (delta: " << deltaAcceptanceRate << ")" << " u: " << upperLimitStepSize << " l: "
                << lowerLimitStepSize << std::endl;
@@ -75,15 +76,16 @@ bool hops::Sampling::tuneChain(hops::RandomNumberGenerator &randomNumberGenerato
         }
 
         if (deltaAcceptanceRate > tuningTolerance && measuredAcceptanceRate < targetAcceptanceRate) {
-            upperLimitStepSize /= 10;
-            lowerLimitStepSize /= 10;
+            upperLimitStepSize /= 2;
+            lowerLimitStepSize /= 2;
             stepSizeGridSize += 1;
         }
         if (deltaAcceptanceRate > tuningTolerance && measuredAcceptanceRate > targetAcceptanceRate) {
-            upperLimitStepSize *= 10;
-            lowerLimitStepSize *= 10;
+            upperLimitStepSize *= 2;
+            lowerLimitStepSize *= 2;
             stepSizeGridSize += 1;
         }
+        tuningIteration++;
     }
 
     return deltaAcceptanceRate <= tuningTolerance;
