@@ -22,13 +22,14 @@ std::tuple<Eigen::MatrixXd, Eigen::VectorXd> createSimplex(size_t dims) {
 
 int main() {
     std::srand(42);
-    const long numberOfSamples = 100'000;
+    const long numberOfSamples = 200'000;
     const long thinning = 1;
+    const long numberOfCheckPoints = 5;
 
-    double covScale = 1e-1;
+    double covScale = 1e-2;
     const size_t dimStep = 20;
     Eigen::MatrixXd baseCov = covScale * Eigen::MatrixXd::Random(dimStep, dimStep);
-    const Eigen::MatrixXd baseCovariance = baseCov.transpose() * baseCov;
+    const Eigen::MatrixXd baseCovariance = baseCov.transpose() * baseCov + covScale * Eigen::MatrixXd::Identity(dimStep, dimStep);;
 
     const size_t maxDims = 101;
     std::vector<
@@ -146,6 +147,7 @@ int main() {
                 std::get<3>(run),
                 std::get<4>(run),
                 std::get<5>(run),
+                numberOfCheckPoints,
                 std::get<6>(run),
                 std::get<7>(run),
                 std::get<8>(run),
