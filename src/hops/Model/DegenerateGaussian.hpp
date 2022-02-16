@@ -47,7 +47,8 @@ namespace hops {
             unsigned int numCols = matrix.cols();
 
             if (rowToRemove < numRows) {
-                matrix.block(rowToRemove, 0, numRows - rowToRemove, numCols) = matrix.bottomRows(numRows - rowToRemove);
+                matrix.block(rowToRemove, 0, numRows - rowToRemove, numCols) = 
+                    matrix.bottomRows(numRows - rowToRemove);
             }
 
             matrix.conservativeResize(numRows, numCols);
@@ -58,7 +59,8 @@ namespace hops {
             unsigned int numCols = matrix.cols() - 1;
 
             if (colToRemove < numCols) {
-                matrix.block(0, colToRemove, numRows, numCols - colToRemove) = matrix.rightCols(numCols - colToRemove);
+                matrix.block(0, colToRemove, numRows, numCols - colToRemove) = 
+                    matrix.rightCols(numCols - colToRemove);
             }
 
             matrix.conservativeResize(numRows, numCols);
@@ -92,6 +94,11 @@ namespace hops {
                                            MatrixType covariance,
                                            std::vector<long> inactive) :
             inactive(std::move(inactive)) {
+        if (mean.size() != covariance.rows()) 
+            throw std::runtime_error("Dimension mismatch between mean (dim=" + 
+                std::to_string(mean.size()) + ") and covariance (dim=" + 
+                std::to_string(covariance.size()) + ").");
+
         stripInactive(mean);
         stripInactive(covariance);
         gaussian = Gaussian(mean, covariance);
@@ -118,7 +125,8 @@ namespace hops {
     }
 
     std::unique_ptr<Model> DegenerateGaussian::copyModel() const {
-        return std::make_unique<DegenerateGaussian>(gaussian.value().getMean(), gaussian.value().getCovariance(),
+        return std::make_unique<DegenerateGaussian>(gaussian.value().getMean(), 
+                                                    gaussian.value().getCovariance(),
                                                     inactive);
     }
 

@@ -1,6 +1,7 @@
 #ifndef HOPS_GAUSSIAN_HPP
 #define HOPS_GAUSSIAN_HPP
 
+#include <stdexcept>
 #define _USE_MATH_DEFINES
 
 #include <math.h> // Using deprecated math for windows
@@ -44,6 +45,11 @@ namespace hops {
     Gaussian::Gaussian(VectorType mean, MatrixType covariance) :
             mean(std::move(mean)),
             covariance(std::move(covariance)) {
+        if (mean.size() != covariance.rows()) 
+            throw std::runtime_error("Dimension mismatch between mean (dim=" + 
+                std::to_string(mean.size()) + ") and covariance (dim=" + 
+                std::to_string(covariance.size()) + ").");
+
         Eigen::LLT<MatrixType> solver(this->covariance);
         if (!this->covariance.isApprox(this->covariance.transpose()) || solver.info() == Eigen::NumericalIssue) {
             throw std::domain_error(
@@ -60,11 +66,19 @@ namespace hops {
 
     typename MatrixType::Scalar
     Gaussian::computeNegativeLogLikelihood(const VectorType &x) {
+        if (x.size() != mean.size()) 
+            throw std::runtime_error("Dimension mismatch between input x (dim=" + 
+                std::to_string(x.size()) + ") and Gaussian (dim=" + 
+                std::to_string(mean.size()) + ").");
         return -logNormalizationConstant +
                0.5 * static_cast<typename MatrixType::Scalar>((x - mean).transpose() * inverseCovariance * (x - mean));
     }
 
     std::optional<VectorType> Gaussian::computeLogLikelihoodGradient(const VectorType &x) {
+        if (x.size() != mean.size()) 
+            throw std::runtime_error("Dimension mismatch between input x (dim=" + 
+                std::to_string(x.size()) + ") and Gaussian (dim=" + 
+                std::to_string(mean.size()) + ").");
         return -inverseCovariance * (x - mean);
     }
 

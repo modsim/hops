@@ -67,9 +67,11 @@ namespace hops {
 
     typename MatrixType::Scalar
     Rosenbrock::computeNegativeLogLikelihood(const VectorType &x) {
-        if (x.rows() != numberOfDimensions) {
-            throw std::runtime_error("Input x has wrong number of rows.");
-        }
+        if (x.size() != numberOfDimensions) 
+            throw std::runtime_error("Dimension mismatch between input x (dim=" + 
+                std::to_string(x.size()) + ") and Rosenbrock (dim=" + 
+                std::to_string(numberOfDimensions) + ").");
+
         typename MatrixType::Scalar result = 0;
         for (long i = 0; i < shiftParameter.rows(); ++i) {
             result += scaleParameter *
@@ -81,6 +83,10 @@ namespace hops {
 
     MatrixType
     Rosenbrock::computeHessian(const VectorType &x) {
+        if (x.size() != numberOfDimensions) 
+            throw std::runtime_error("Dimension mismatch between input x (dim=" + 
+                std::to_string(x.size()) + ") and Rosenbrock (dim=" + 
+                std::to_string(numberOfDimensions) + ").");
         MatrixType hessian = MatrixType::Zero(x.rows(), x.rows());
 
         for (long i = 0; i < shiftParameter.rows(); ++i) {
@@ -96,6 +102,9 @@ namespace hops {
 
     std::optional<VectorType>
     Rosenbrock::computeLogLikelihoodGradient(const VectorType &x) {
+        if (x.size() != numberOfDimensions) throw std::runtime_error("Dimension mismatch between input x (dim=" + 
+                std::to_string(x.size()) + ") and Rosenbrock (dim=" + std::to_string(numberOfDimensions) + ").");
+
         VectorType gradient = VectorType::Zero(x.rows());
         for (long i = 0; i < shiftParameter.rows(); ++i) {
             gradient(2 * i) = scaleParameter * (4 * 100 * (x(2 * i + 1) - std::pow(x(2 * i), 2)) * (-2 * x(2 * i)) +
@@ -108,6 +117,11 @@ namespace hops {
 
     std::optional<MatrixType>
     Rosenbrock::computeExpectedFisherInformation(const VectorType &x) {
+        if (x.size() != numberOfDimensions) 
+            throw std::runtime_error("Dimension mismatch between input x (dim=" + 
+                std::to_string(x.size()) + ") and Rosenbrock (dim=" + 
+                std::to_string(numberOfDimensions) + ").");
+
         MatrixType hessian = computeHessian(x);
         // regularization should be between 0 and infinity. This value is guessed for now.
         double regularization = 1. / hessian.maxCoeff();
