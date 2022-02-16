@@ -2,6 +2,7 @@
 #define HOPS_PROPOSALSTATISTICS_HPP
 
 #include <unordered_map>
+#include <string>
 #include <vector>
 
 namespace hops {
