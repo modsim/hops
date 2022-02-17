@@ -9,6 +9,7 @@
 #include <hops/Utility/MatrixType.hpp>
 #include <hops/Utility/StringUtility.hpp>
 #include <hops/Utility/VectorType.hpp>
+#include <stdexcept>
 
 namespace hops {
     template<typename InternalMatrixType = MatrixType, typename InternalVectorType = VectorType>
@@ -156,6 +157,10 @@ namespace hops {
             t(t_),
             warmUp(warmUp_),
             stepSize(stepSize_) {
+        if (((b - A * state).array() < boundaryCushion).any()) {
+            throw std::invalid_argument("Starting point outside polytope always gives constant Markov chain.");
+        }
+
         normal = std::normal_distribution<double>(0, stepSize);
 
         // scale down with larger dimensions according to Roberts & Rosenthal, 2001.
@@ -188,6 +193,10 @@ namespace hops {
             t(t_),
             warmUp(warmUp_),
             stepSize(stepSize_) {
+        if (((b - A * state).array() < boundaryCushion).any()) {
+            throw std::invalid_argument("Starting point outside polytope always gives constant Markov chain.");
+        }
+
         normal = std::normal_distribution<double>(0, stepSize);
 
         // scale down with larger dimensions according to Roberts & Rosenthal, 2001.
@@ -273,6 +282,9 @@ namespace hops {
 
     template<typename InternalMatrixType, typename InternalVectorType>
     void AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::setState(const VectorType &newState) {
+        if (((b - A * newState).array() < boundaryCushion).any()) {
+            throw std::invalid_argument("Starting point outside polytope always gives constant Markov chain.");
+        }
         AdaptiveMetropolisProposal::state = newState;
     }
 

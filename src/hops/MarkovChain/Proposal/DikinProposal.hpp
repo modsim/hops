@@ -130,6 +130,9 @@ namespace hops {
 
     template<typename InternalMatrixType, typename InternalVectorType>
     void DikinProposal<InternalMatrixType, InternalVectorType>::setState(const VectorType &newState) {
+        if (((b - A * newState).array() < 0).any()) {
+            throw std::invalid_argument("Starting point outside polytope always gives constant Markov chain.");
+        }
         state = newState;
         auto choleskyResult = dikinEllipsoidCalculator.computeCholeskyFactorOfDikinEllipsoid(state);
         if (!choleskyResult.first) {
