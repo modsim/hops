@@ -90,7 +90,12 @@ namespace hops {
             b(std::move(b_)),
             state(std::move(currentState_)),
             proposal(this->state),
-            stepSize(stepSize_) {}
+            stepSize(stepSize_) {
+        if (((b - A * state).array() < 0).any()) {
+            throw std::invalid_argument("Starting point outside polytope always gives constant Markov chain.");
+        }
+    }
+
 
     template<typename InternalMatrixType, typename InternalVectorType>
     VectorType &BallWalkProposal<InternalMatrixType, InternalVectorType>::propose(
@@ -118,6 +123,9 @@ namespace hops {
     template<typename InternalMatrixType, typename InternalVectorType>
     void BallWalkProposal<InternalMatrixType, InternalVectorType>::setState(const VectorType &newState) {
         BallWalkProposal::state = newState;
+        if (((b - A * state).array() < 0).any()) {
+            throw std::invalid_argument("Starting point outside polytope always gives constant Markov chain.");
+        }
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>

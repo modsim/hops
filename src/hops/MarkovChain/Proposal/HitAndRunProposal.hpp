@@ -106,6 +106,9 @@ namespace hops {
             A(std::move(A_)),
             b(std::move(b_)),
             state(std::move(currentState_)) {
+        if (((b - A * state).array() < 0).any()) {
+            throw std::invalid_argument("Starting point outside polytope always gives constant Markov chain.");
+        }
         slacks = this->b - this->A * this->state;
         updateDirection = state;
         setStepSize(stepSize);
@@ -190,6 +193,9 @@ namespace hops {
     void HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::setState(
             const VectorType &newState) {
         assert(((b - A * newState).array() >= 0).all());
+        if (((b - A * newState).array() < 0).any()) {
+            throw std::invalid_argument("Starting point outside polytope always gives constant Markov chain.");
+        }
         HitAndRunProposal::state = newState;
         HitAndRunProposal::proposal = HitAndRunProposal::state;
         slacks = b - A * HitAndRunProposal::state;

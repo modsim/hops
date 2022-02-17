@@ -90,6 +90,9 @@ namespace hops {
             state(std::move(currentState_)),
             proposal(this->state),
             stepSize(stepSize_) {
+        if (((b - A * state).array() < 0).any()) {
+            throw std::invalid_argument("Starting point outside polytope always gives constant Markov chain.");
+        }
         normal = std::normal_distribution<typename InternalMatrixType::Scalar>(0, stepSize);
     }
 
@@ -112,6 +115,9 @@ namespace hops {
 
     template<typename InternalMatrixType, typename InternalVectorType>
     void GaussianProposal<InternalMatrixType, InternalVectorType>::setState(const VectorType &newState) {
+        if (((b - A * newState).array() < 0).any()) {
+            throw std::invalid_argument("Starting point outside polytope always gives constant Markov chain.");
+        }
         GaussianProposal::state = newState;
     }
 

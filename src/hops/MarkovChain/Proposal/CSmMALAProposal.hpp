@@ -151,6 +151,7 @@ namespace hops {
         if (newFisherWeight > 1 || newFisherWeight < 0) {
             throw std::invalid_argument("fisherWeight should be in [0, 1].");
         }
+
         this->fisherWeight = newFisherWeight;
 
         stateMetric = MatrixType::Zero(
@@ -185,7 +186,12 @@ namespace hops {
 
     template<typename ModelType, typename InternalMatrixType>
     void CSmMALAProposal<ModelType, InternalMatrixType>::setState(const VectorType &newState) {
+        if (((b - A * newState).array() < 0).any()) {
+            throw std::invalid_argument("Starting point outside polytope always gives constant Markov chain.");
+        }
+
         state = newState;
+
         // Important: compute gradient before fisher info or else 13CFLUX2 will throw, since it uses internal
         // gradient data to construct fisher information.
         VectorType gradient = computeTruncatedGradient(state);
