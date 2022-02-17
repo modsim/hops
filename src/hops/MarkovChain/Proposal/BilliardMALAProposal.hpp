@@ -498,6 +498,10 @@ namespace hops {
 
     template<typename ModelType, typename InternalMatrixType>
     void BilliardMALAProposal<ModelType, InternalMatrixType>::setState(const VectorType &newState) {
+        if (((b - A * newState).array() < 0).any()) {
+            throw std::invalid_argument("Starting point outside polytope always gives constant Markov chain.");
+        }
+
         state = newState;
         // Important: compute gradient before fisher info or else 13CFLUX2 will throw, since it uses internal
         // gradient data to construct fisher information.
@@ -522,6 +526,10 @@ namespace hops {
 
     template<typename InternalMatrixType>
     void BilliardMALAProposal<Gaussian, InternalMatrixType>::setState(const VectorType &newState) {
+        if (((b - A * newState).array() < 0).any()) {
+            throw std::invalid_argument("Starting point outside polytope always gives constant Markov chain.");
+        }
+
         state = newState;
         VectorType gradient = computeGradient(state);
 
@@ -532,6 +540,10 @@ namespace hops {
 
     template<typename InternalMatrixType>
     void BilliardMALAProposal<Coldness<Gaussian>, InternalMatrixType>::setState(const VectorType &newState) {
+        if (((b - A * newState).array() < 0).any()) {
+            throw std::invalid_argument("Starting point outside polytope always gives constant Markov chain.");
+        }
+
         state = newState;
         VectorType gradient = computeGradient(state);
 
