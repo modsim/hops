@@ -1,7 +1,9 @@
 set(TEST_SOURCES
         ChordStepDistributionsTestSuite.cpp
+        CoordinateHitAndRunTestSuite.cpp
         DikinEllipsoidCalculatorTestSuite.cpp
 #        ProposalFactoryTestSuite.cpp TODO probably remove this factory, no one needs it
+        HitAndRunTestSuite.cpp
         ProposalStatisticsTestSuite.cpp
         ReflectorTestSuite.cpp
         )

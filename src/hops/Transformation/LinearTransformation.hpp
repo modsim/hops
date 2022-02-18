@@ -18,7 +18,7 @@ namespace hops {
     public:
         LinearTransformation() = default;
 
-        LinearTransformation(const LinearTransformation& other) = default;
+        LinearTransformation(const LinearTransformation &other) = default;
 
         LinearTransformation(const MatrixType &matrix, const VectorType &shift) : matrix(matrix), shift(shift) {}
 
@@ -30,21 +30,24 @@ namespace hops {
         }
 
         VectorType revert(const VectorType &vector) const override {
-            if (!matrix.isLowerTriangular()) {
+            if (matrix.isLowerTriangular()) {
+                return matrix.template triangularView<Eigen::Lower>().solve(vector - shift);
+            } else if (matrix.isUpperTriangular()) {
+                return matrix.template triangularView<Eigen::Upper>().solve(vector - shift);
+            } else {
                 return matrix.inverse() * (vector - shift);
             }
-            return matrix.template triangularView<Eigen::Lower>().solve(vector - shift);
         }
 
-        std::unique_ptr<Transformation> copyTransformation() const override {
+        [[nodiscard]] std::unique_ptr<Transformation> copyTransformation() const override {
             return std::make_unique<LinearTransformation>(*this);
         }
 
-        const MatrixType& getMatrix() const {
+        [[nodiscard]] const MatrixType &getMatrix() const {
             return matrix;
         }
 
-        const VectorType& getShift() const {
+        [[nodiscard]] const VectorType &getShift() const {
             return shift;
         }
 

@@ -14,7 +14,7 @@
 #include <hops/Utility/HopsWithinHopsy.hpp>
 
 namespace hops {
-    template<typename MarkovChainImpl> 
+    template<typename MarkovChainImpl>
     class MarkovChainAdapter : public MarkovChain, public MarkovChainImpl {
     public:
         explicit MarkovChainAdapter(MarkovChainImpl markovChainImpl) : MarkovChainImpl(markovChainImpl) {}
@@ -25,7 +25,7 @@ namespace hops {
                 ABORTABLE;
                 acceptanceRate += MarkovChainImpl::draw(randomNumberGenerator);
             }
-            return {acceptanceRate/thinning, MarkovChainImpl::getState()};
+            return {acceptanceRate / thinning, MarkovChainImpl::getState()};
         }
 
         std::tuple<double, VectorType, ProposalStatistics>
@@ -34,19 +34,20 @@ namespace hops {
             double acceptanceRate = 0;
             ProposalStatistics proposalStatistics;
             for (long i = 0; i < thinning; ++i) {
+                ABORTABLE;
                 acceptanceRate += MarkovChainImpl::draw(randomNumberGenerator);
                 proposalStatistics = MarkovChainImpl::getAndResetProposalStatistics();
                 proposalStatistics.appendInfo("accepted", acceptanceRate);
             }
             MarkovChainImpl::disableTrackingOfProposalStatistics();
-            return {acceptanceRate/thinning, MarkovChainImpl::getState(), proposalStatistics};
+            return {acceptanceRate / thinning, MarkovChainImpl::getState(), proposalStatistics};
         }
 
         [[nodiscard]] VectorType getState() const override {
             return MarkovChainImpl::getState();
         }
 
-        void setState(const VectorType& state) override {
+        void setState(const VectorType &state) override {
             MarkovChainImpl::setState(state);
         }
 
@@ -58,7 +59,7 @@ namespace hops {
          * @brief gets proposal parameter. Throws exception if proposal has no parameter parameterName.
          * @details Implementations should list possible parameterNames in the exception message.
          */
-        [[nodiscard]] std::any getParameter(const ProposalParameter& parameter) const override {
+        [[nodiscard]] std::any getParameter(const ProposalParameter &parameter) const override {
             return MarkovChainImpl::getParameter(parameter);
         }
 
