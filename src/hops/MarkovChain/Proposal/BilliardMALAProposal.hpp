@@ -5,11 +5,12 @@
 #include <random>
 #include <utility>
 
-#include <hops/Transformation/Transformation.hpp>
+#include <hops/Model/Gaussian.hpp>
+#include <hops/MarkovChain/ParallelTempering/Coldness.hpp>
 #include <hops/Utility/MatrixType.hpp>
 #include <hops/Utility/StringUtility.hpp>
 #include <hops/Utility/VectorType.hpp>
-#include <hops/Model/Gaussian.hpp>
+#include <hops/Transformation/Transformation.hpp>
 
 #include "Proposal.hpp"
 #include "Reflector.hpp"
@@ -97,6 +98,8 @@ namespace hops {
         const MatrixType &getA() const override;
 
         const VectorType &getB() const override;
+
+        [[nodiscard]] std::unique_ptr<Model> getModel() const;
 
     private:
         VectorType computeGradient(VectorType x);
@@ -205,6 +208,8 @@ namespace hops {
 
         const VectorType &getB() const override;
 
+        [[nodiscard]] std::unique_ptr<Model> getModel() const;
+
     private:
         VectorType computeGradient(VectorType x);
 
@@ -254,7 +259,7 @@ namespace hops {
         BilliardMALAProposal(InternalMatrixType A,
                              VectorType b,
                              const VectorType &currentState,
-                             Coldness<Gaussian> model,
+                             const Coldness<Gaussian>& model,
                              long maximumNumberOfReflections,
                              double newStepSize = 1);
 
@@ -309,6 +314,8 @@ namespace hops {
         const MatrixType &getA() const override;
 
         const VectorType &getB() const override;
+
+        [[nodiscard]] std::unique_ptr<Model> getModel() const;
 
         void setColdness(double newColdness);
 
@@ -382,8 +389,8 @@ namespace hops {
         metric = Gaussian::computeExpectedFisherInformation(currentState).value();
 
         BilliardMALAProposalDetails::computeMetricInfoForReflectiveMALAWithSvd(metric,
-                                                                              sqrtInvMetric,
-                                                                              logSqrtDeterminant);
+                                                                               sqrtInvMetric,
+                                                                               logSqrtDeterminant);
         invMetric = sqrtInvMetric * sqrtInvMetric;
         BilliardMALAProposal::setState(currentState);
         BilliardMALAProposal::setStepSize(newStepSize);
@@ -396,7 +403,7 @@ namespace hops {
     BilliardMALAProposal<Coldness<Gaussian>, InternalMatrixType>::BilliardMALAProposal(InternalMatrixType A,
                                                                                        VectorType b,
                                                                                        const VectorType &currentState,
-                                                                                       Coldness<Gaussian> model,
+                                                                                       const Coldness<Gaussian>& model,
                                                                                        long maximumNumberOfReflections,
                                                                                        double newStepSize) :
             Coldness<Gaussian>(std::move(model)),
@@ -408,8 +415,8 @@ namespace hops {
         metric = Coldness<Gaussian>::computeExpectedFisherInformation(currentState).value();
 
         BilliardMALAProposalDetails::computeMetricInfoForReflectiveMALAWithSvd(metric,
-                                                                              sqrtInvMetric,
-                                                                              logSqrtDeterminant);
+                                                                               sqrtInvMetric,
+                                                                               logSqrtDeterminant);
         invMetric = sqrtInvMetric * sqrtInvMetric;
         BilliardMALAProposal::setState(currentState);
         BilliardMALAProposal::setStepSize(newStepSize);
@@ -425,7 +432,8 @@ namespace hops {
         }
         proposal = driftedState + covarianceFactor * (stateSqrtInvMetric * proposal);
 
-        const auto &reflectionResult = Reflector::reflectIntoPolytope(Adense, b, state, proposal, maxNumberOfReflections);
+        const auto &reflectionResult = Reflector::reflectIntoPolytope(Adense, b, state, proposal,
+                                                                      maxNumberOfReflections);
         if (isProposalInfosTrackingActive) {
             proposalStatistics.appendInfo("reflection_successful", std::get<0>(reflectionResult));
             proposalStatistics.appendInfo("number_of_reflections", std::get<1>(reflectionResult));
@@ -442,7 +450,8 @@ namespace hops {
         }
         proposal = driftedState + covarianceFactor * (sqrtInvMetric * proposal);
 
-        const auto &reflectionResult = Reflector::reflectIntoPolytope(Adense, b, state, proposal, maxNumberOfReflections);
+        const auto &reflectionResult = Reflector::reflectIntoPolytope(Adense, b, state, proposal,
+                                                                      maxNumberOfReflections);
         if (isProposalInfosTrackingActive) {
             proposalStatistics.appendInfo("reflection_successful", std::get<0>(reflectionResult));
             proposalStatistics.appendInfo("number_of_reflections", std::get<1>(reflectionResult));
@@ -459,7 +468,8 @@ namespace hops {
         }
         proposal = driftedState + covarianceFactor * (sqrtInvMetric * proposal);
 
-        const auto &reflectionResult = Reflector::reflectIntoPolytope(Adense, b, state, proposal, maxNumberOfReflections);
+        const auto &reflectionResult = Reflector::reflectIntoPolytope(Adense, b, state, proposal,
+                                                                      maxNumberOfReflections);
         if (isProposalInfosTrackingActive) {
             proposalStatistics.appendInfo("reflection_successful", std::get<0>(reflectionResult));
             proposalStatistics.appendInfo("number_of_reflections", std::get<1>(reflectionResult));
@@ -1082,6 +1092,21 @@ namespace hops {
         return b;
     }
 
+    template<typename ModelType, typename InternalMatrixType>
+    std::unique_ptr<Model> BilliardMALAProposal<ModelType, InternalMatrixType>::getModel() const {
+        return ModelType::copyModel();
+    }
+
+    template<typename InternalMatrixType>
+    std::unique_ptr<Model> BilliardMALAProposal<Gaussian, InternalMatrixType>::getModel() const {
+        return Gaussian::copyModel();
+    }
+
+    template<typename InternalMatrixType>
+    std::unique_ptr<Model> BilliardMALAProposal<Coldness<Gaussian>, InternalMatrixType>::getModel() const {
+        return Coldness<Gaussian>::copyModel();
+    }
+
     template<typename InternalMatrixType>
     ProposalStatistics BilliardMALAProposal<Gaussian, InternalMatrixType>::getAndResetProposalStatistics() {
         ProposalStatistics newStatistic;
@@ -1103,8 +1128,8 @@ namespace hops {
         metric = Coldness<Gaussian>::computeExpectedFisherInformation(state).value();
 
         BilliardMALAProposalDetails::computeMetricInfoForReflectiveMALAWithSvd(metric,
-                                                                              sqrtInvMetric,
-                                                                              logSqrtDeterminant);
+                                                                               sqrtInvMetric,
+                                                                               logSqrtDeterminant);
         invMetric = sqrtInvMetric * sqrtInvMetric;
     }
 }
