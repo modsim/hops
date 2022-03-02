@@ -1,5 +1,7 @@
 set(TEST_SOURCES
+        BilliardMALATestSuite.cpp
         ChordStepDistributionsTestSuite.cpp
+        CSmMALATestSuite.cpp
         CoordinateHitAndRunTestSuite.cpp
         DikinEllipsoidCalculatorTestSuite.cpp
 #        ProposalFactoryTestSuite.cpp TODO probably remove this factory, no one needs it
