@@ -7,13 +7,12 @@ bool hops::Sampling::tuneChain(hops::RandomNumberGenerator &randomNumberGenerato
                                std::shared_ptr<hops::MarkovChain> markovChain, hops::MarkovChainType chainType,
                                hops::FileWriter *fileWriter,
                                const double tuningTolerance) {
-
     double lowerLimitStepSize = 1e-2;
-    double upperLimitStepSize = 1e2;
+    double upperLimitStepSize = 1e1;
 
-    size_t iterationsToTestStepSize = 100;
-    size_t posteriorUpdateIterations = 1000;
-    size_t pureSamplingIterations = 5;
+    size_t iterationsToTestStepSize = 200;
+    size_t posteriorUpdateIterations = 100;
+    size_t pureSamplingIterations = 10;
     size_t stepSizeGridSize = std::log10(upperLimitStepSize / lowerLimitStepSize) * 10;
     size_t iterationsForConvergence = 5;
     double smoothingLength = 1;
@@ -55,12 +54,12 @@ bool hops::Sampling::tuneChain(hops::RandomNumberGenerator &randomNumberGenerato
                 tuningTarget,
                 data);
 
-        // measure acceptance rate
-        measuredAcceptanceRate = tuningChains[0]->draw(randomNumberGenerator, 5000).first;
+        measuredAcceptanceRate = tuningChains[0]->draw(randomNumberGenerator, 2000).first;
         deltaAcceptanceRate = std::abs(targetAcceptanceRate - measuredAcceptanceRate);
 
         std::stringstream stream;
-        stream << "tuning iter: " << tuningIteration << " " << hops::markovChainTypeToShortString(chainType) << " s: " << stepSize(0) << " alpha: "
+        stream << "tuning iter: " << tuningIteration << " " << hops::markovChainTypeToShortString(chainType) << " s: "
+               << stepSize(0) << " alpha: "
                << measuredAcceptanceRate
                << " (delta: " << deltaAcceptanceRate << ")" << " u: " << upperLimitStepSize << " l: "
                << lowerLimitStepSize << std::endl;
@@ -78,13 +77,12 @@ bool hops::Sampling::tuneChain(hops::RandomNumberGenerator &randomNumberGenerato
         if (deltaAcceptanceRate > tuningTolerance && measuredAcceptanceRate < targetAcceptanceRate) {
             upperLimitStepSize /= 2;
             lowerLimitStepSize /= 2;
-            stepSizeGridSize += 1;
         }
         if (deltaAcceptanceRate > tuningTolerance && measuredAcceptanceRate > targetAcceptanceRate) {
             upperLimitStepSize *= 2;
             lowerLimitStepSize *= 2;
-            stepSizeGridSize += 1;
         }
+        stepSizeGridSize += std::log10(upperLimitStepSize / lowerLimitStepSize);
         tuningIteration++;
     }
 
