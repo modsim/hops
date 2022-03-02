@@ -28,7 +28,7 @@ namespace hops {
                               std::shared_ptr<hops::MarkovChain> markovChain,
                               hops::MarkovChainType chainType,
                               hops::FileWriter *fileWriter,
-                              double tuningTolerance = 0.03);
+                              double tuningTolerance = 0.05);
 
         template<typename ModelType>
         static void run(const MatrixType &A,
