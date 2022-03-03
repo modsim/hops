@@ -6,7 +6,9 @@
 #include <filesystem>
 namespace fs = std::filesystem;
 #else
+
 #include <experimental/filesystem>
+
 namespace fs = std::experimental::filesystem;
 #endif
 
@@ -178,7 +180,7 @@ void runUniformSampling(std::map<std::string, std::any> arguments, const hops::F
     }
         // Case: rounding trafo is included in input
     else if (arguments.find("transformation") != arguments.end()) {
-        auto states = sampleUniformly(
+        auto[states, sample_times, transform_times] = sampleUniformly(
                 std::any_cast<Eigen::MatrixXd>(arguments["A"]),
                 std::any_cast<Eigen::VectorXd>(arguments["b"]),
                 std::any_cast<Eigen::VectorXd>(arguments["start"]),
@@ -189,6 +191,8 @@ void runUniformSampling(std::map<std::string, std::any> arguments, const hops::F
                 std::any_cast<int>(arguments["randomSeed"])
         );
         fileWriter->write("states", states);
+        fileWriter->write("sample_times", sample_times);
+        fileWriter->write("transform_times", transform_times);
     }
         // Case: no rounding trafo is included in input, but hops should approximate rounding
     else if (arguments.find("transformation") == arguments.end()) {
@@ -200,7 +204,7 @@ void runUniformSampling(std::map<std::string, std::any> arguments, const hops::F
         auto start = transformation.template triangularView<Eigen::Lower>().solve(
                 std::any_cast<Eigen::VectorXd>(arguments["start"]));
 
-        auto states = sampleUniformly(
+        auto[states, sample_times, transform_times] = sampleUniformly(
                 decltype(A)(A * transformation),
                 b,
                 start,
@@ -211,5 +215,7 @@ void runUniformSampling(std::map<std::string, std::any> arguments, const hops::F
                 std::any_cast<int>(arguments["randomSeed"])
         );
         fileWriter->write("states", states);
+        fileWriter->write("sample_times", sample_times);
+        fileWriter->write("transform_times", transform_times);
     }
 }
