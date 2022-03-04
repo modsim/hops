@@ -817,7 +817,7 @@ namespace hops {
                 );
             }
             case MarkovChainType::BilliardAdaptiveMetropolis : {
-                long maximumNumberOfReflections =
+                long maxReflections =
                         roundedInequalityLhs.cols() * 100; // estimated from https://arxiv.org/pdf/2102.13068.pdf
                 return wrapMarkovChainImpl(
                         MarkovChainAdapter(
@@ -832,7 +832,7 @@ namespace hops {
                                                                         decltype(roundedInequalityLhs)::Identity(
                                                                                 roundedInequalityLhs.cols(),
                                                                                 roundedInequalityLhs.cols())),
-                                                                maximumNumberOfReflections
+                                                                maxReflections
                                                         ), LinearTransformation(unroundingTransformation,
                                                                                 unroundingShift)
                                                 ),

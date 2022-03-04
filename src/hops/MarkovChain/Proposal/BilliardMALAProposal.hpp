@@ -44,7 +44,7 @@ namespace hops {
                              VectorType b,
                              const VectorType &currentState,
                              ModelType model,
-                             long maximumNumberOfReflections,
+                             long maxReflections,
                              double newStepSize = 1);
 
         VectorType &propose(RandomNumberGenerator &rng) override;
@@ -153,7 +153,7 @@ namespace hops {
                              VectorType b,
                              const VectorType &currentState,
                              Gaussian model,
-                             long maximumNumberOfReflections,
+                             long maxReflections,
                              double newStepSize = 1);
 
         VectorType &propose(RandomNumberGenerator &rng) override;
@@ -260,7 +260,7 @@ namespace hops {
                              VectorType b,
                              const VectorType &currentState,
                              const Coldness<Gaussian>& model,
-                             long maximumNumberOfReflections,
+                             long maxReflections,
                              double newStepSize = 1);
 
         VectorType &propose(RandomNumberGenerator &rng) override;
@@ -356,13 +356,13 @@ namespace hops {
                                                                               VectorType b,
                                                                               const VectorType &currentState,
                                                                               ModelType model,
-                                                                              long maximumNumberOfReflections,
+                                                                              long maxReflections,
                                                                               double newStepSize) :
             ModelType(std::move(model)),
             A(std::move(A)),
             Adense(MatrixType(this->A)),
             b(std::move(b)),
-            maxNumberOfReflections(maximumNumberOfReflections) {
+            maxNumberOfReflections(maxReflections) {
         BilliardMALAProposal::setState(currentState);
         BilliardMALAProposal::setStepSize(newStepSize);
 
@@ -378,13 +378,13 @@ namespace hops {
                                                                              VectorType b,
                                                                              const VectorType &currentState,
                                                                              Gaussian model,
-                                                                             long maximumNumberOfReflections,
+                                                                             long maxReflections,
                                                                              double newStepSize) :
             Gaussian(std::move(model)),
             A(std::move(A)),
             Adense(MatrixType(this->A)),
             b(std::move(b)),
-            maxNumberOfReflections(maximumNumberOfReflections) {
+            maxNumberOfReflections(maxReflections) {
         // stateMetric is constant for Gaussian
         metric = Gaussian::computeExpectedFisherInformation(currentState).value();
 
@@ -404,13 +404,13 @@ namespace hops {
                                                                                        VectorType b,
                                                                                        const VectorType &currentState,
                                                                                        const Coldness<Gaussian>& model,
-                                                                                       long maximumNumberOfReflections,
+                                                                                       long maxReflections,
                                                                                        double newStepSize) :
             Coldness<Gaussian>(std::move(model)),
             A(std::move(A)),
             Adense(MatrixType(this->A)),
             b(std::move(b)),
-            maxNumberOfReflections(maximumNumberOfReflections) {
+            maxNumberOfReflections(maxReflections) {
         // stateMetric is constant for Gaussian
         metric = Coldness<Gaussian>::computeExpectedFisherInformation(currentState).value();
 
@@ -824,17 +824,17 @@ namespace hops {
 
     template<typename ModelType, typename InternalMatrixType>
     std::vector<std::string> BilliardMALAProposal<ModelType, InternalMatrixType>::getParameterNames() const {
-        return {"step_size", "maximum_number_of_reflections"};
+        return {"step_size", "max_reflections"};
     }
 
     template<typename InternalMatrixType>
     std::vector<std::string> BilliardMALAProposal<Gaussian, InternalMatrixType>::getParameterNames() const {
-        return {"step_size", "maximum_number_of_reflections"};
+        return {"step_size", "max_reflections"};
     }
 
     template<typename InternalMatrixType>
     std::vector<std::string> BilliardMALAProposal<Coldness<Gaussian>, InternalMatrixType>::getParameterNames() const {
-        return {"step_size", "maximum_number_of_reflections"};
+        return {"step_size", "max_reflections"};
     }
 
     template<typename ModelType, typename InternalMatrixType>
@@ -843,7 +843,7 @@ namespace hops {
         if (parameter == ProposalParameter::STEP_SIZE) {
             return std::any(this->stepSize);
         }
-        if (parameter == ProposalParameter::MAXIMUM_NUMBER_OF_REFLECTIONS) {
+        if (parameter == ProposalParameter::MAX_REFLECTIONS) {
             return std::any(this->maxNumberOfReflections);
         }
         throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
@@ -855,7 +855,7 @@ namespace hops {
         if (parameter == ProposalParameter::STEP_SIZE) {
             return std::any(this->stepSize);
         }
-        if (parameter == ProposalParameter::MAXIMUM_NUMBER_OF_REFLECTIONS) {
+        if (parameter == ProposalParameter::MAX_REFLECTIONS) {
             return std::any(this->maxNumberOfReflections);
         }
         throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
@@ -868,7 +868,7 @@ namespace hops {
         if (parameter == ProposalParameter::STEP_SIZE) {
             return std::any(this->stepSize);
         }
-        if (parameter == ProposalParameter::MAXIMUM_NUMBER_OF_REFLECTIONS) {
+        if (parameter == ProposalParameter::MAX_REFLECTIONS) {
             return std::any(this->maxNumberOfReflections);
         }
         throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
@@ -879,7 +879,7 @@ namespace hops {
     BilliardMALAProposal<ModelType, InternalMatrixType>::getParameterType(const ProposalParameter &parameter) const {
         if (parameter == ProposalParameter::STEP_SIZE) {
             return "double";
-        } else if (parameter == ProposalParameter::MAXIMUM_NUMBER_OF_REFLECTIONS) {
+        } else if (parameter == ProposalParameter::MAX_REFLECTIONS) {
             return "long";
         } else {
             throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
@@ -891,7 +891,7 @@ namespace hops {
     BilliardMALAProposal<Gaussian, InternalMatrixType>::getParameterType(const ProposalParameter &parameter) const {
         if (parameter == ProposalParameter::STEP_SIZE) {
             return "double";
-        } else if (parameter == ProposalParameter::MAXIMUM_NUMBER_OF_REFLECTIONS) {
+        } else if (parameter == ProposalParameter::MAX_REFLECTIONS) {
             return "long";
         } else {
             throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
@@ -904,7 +904,7 @@ namespace hops {
             const ProposalParameter &parameter) const {
         if (parameter == ProposalParameter::STEP_SIZE) {
             return "double";
-        } else if (parameter == ProposalParameter::MAXIMUM_NUMBER_OF_REFLECTIONS) {
+        } else if (parameter == ProposalParameter::MAX_REFLECTIONS) {
             return "long";
         } else {
             throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
@@ -916,7 +916,7 @@ namespace hops {
                                                                            const std::any &value) {
         if (parameter == ProposalParameter::STEP_SIZE) {
             setStepSize(std::any_cast<double>(value));
-        } else if (parameter == ProposalParameter::MAXIMUM_NUMBER_OF_REFLECTIONS) {
+        } else if (parameter == ProposalParameter::MAX_REFLECTIONS) {
             maxNumberOfReflections = std::any_cast<long>(value);
         } else {
             throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
@@ -928,7 +928,7 @@ namespace hops {
                                                                           const std::any &value) {
         if (parameter == ProposalParameter::STEP_SIZE) {
             setStepSize(std::any_cast<double>(value));
-        } else if (parameter == ProposalParameter::MAXIMUM_NUMBER_OF_REFLECTIONS) {
+        } else if (parameter == ProposalParameter::MAX_REFLECTIONS) {
             maxNumberOfReflections = std::any_cast<long>(value);
         } else {
             throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
@@ -940,7 +940,7 @@ namespace hops {
                                                                                     const std::any &value) {
         if (parameter == ProposalParameter::STEP_SIZE) {
             setStepSize(std::any_cast<double>(value));
-        } else if (parameter == ProposalParameter::MAXIMUM_NUMBER_OF_REFLECTIONS) {
+        } else if (parameter == ProposalParameter::MAX_REFLECTIONS) {
             maxNumberOfReflections = std::any_cast<long>(value);
         } else {
             throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
