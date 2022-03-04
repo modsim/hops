@@ -22,7 +22,7 @@ namespace hops {
          * @param startPoint
          * @param endPoint
          * @param epsilon numeric parameter. If a slack is smaller than epsilon, the trajectory is reflected at the relevant constraint
-         * @paramt maxNumberOfReflections maximum number of reflections to compute before giving up
+         * @paramt maxReflections maximum number of reflections to compute before giving up
          * @return tuple of 1) boolean whether reflection was successful 2) number of reflections 3) reflected point when successful, otherwise endPoint
          */
 
