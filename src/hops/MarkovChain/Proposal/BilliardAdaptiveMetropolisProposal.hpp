@@ -13,7 +13,7 @@ namespace hops {
 
         BilliardAdaptiveMetropolisProposal(
                 const AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType> &adaptiveMetropolisProposal,
-                long maximumNumberOfReflections);
+                long maxReflections);
 
         VectorType &propose(RandomNumberGenerator &randomNumberGenerator) override;
 
@@ -36,9 +36,9 @@ namespace hops {
     template<typename InternalMatrixType, typename InternalVectorType>
     BilliardAdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::BilliardAdaptiveMetropolisProposal(
             const AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType> &adaptiveMetropolisProposal,
-            long maximumNumberOfReflections) :
+            long maxReflections) :
             AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>(adaptiveMetropolisProposal),
-            maxNumberOfReflections(maximumNumberOfReflections) {}
+            maxNumberOfReflections(maxReflections) {}
 
     template<typename InternalMatrixType, typename InternalVectorType>
     VectorType &BilliardAdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::propose(
@@ -63,14 +63,14 @@ namespace hops {
     std::vector<std::string>
     BilliardAdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::getParameterNames() const {
         std::vector<std::string> parameterNames = AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::getParameterNames();
-        parameterNames.template emplace_back("maximum_number_of_reflections");
+        parameterNames.template emplace_back("max_reflections");
         return parameterNames;
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
     std::any BilliardAdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::getParameter(
             const ProposalParameter &parameter) const {
-        if (parameter == ProposalParameter::MAXIMUM_NUMBER_OF_REFLECTIONS) {
+        if (parameter == ProposalParameter::MAX_REFLECTIONS) {
             return std::any(this->maxNumberOfReflections);
         }
         return AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::getParameter(parameter);
@@ -79,7 +79,7 @@ namespace hops {
     template<typename InternalMatrixType, typename InternalVectorType>
     std::string BilliardAdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::getParameterType(
             const ProposalParameter &parameter) const {
-        if (parameter == ProposalParameter::MAXIMUM_NUMBER_OF_REFLECTIONS) {
+        if (parameter == ProposalParameter::MAX_REFLECTIONS) {
             return "long";
         }
         return AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::getParameterType(parameter);
@@ -90,7 +90,7 @@ namespace hops {
     BilliardAdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::setParameter(
             const ProposalParameter &parameter,
             const std::any &value) {
-        if (parameter == ProposalParameter::MAXIMUM_NUMBER_OF_REFLECTIONS) {
+        if (parameter == ProposalParameter::MAX_REFLECTIONS) {
             maxNumberOfReflections = std::any_cast<long>(value);
         } else {
             AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::setParameter(parameter, value);
