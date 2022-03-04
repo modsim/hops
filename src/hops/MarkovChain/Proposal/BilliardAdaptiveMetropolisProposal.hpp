@@ -15,7 +15,18 @@ namespace hops {
 
         BilliardAdaptiveMetropolisProposal(InternalMatrixType A,
                                            VectorType b,
-                                           const VectorType& currentState,
+                                           const VectorType &currentState,
+                                           double stepSize = 1,
+                                           double eps = 1.e-3,
+                                           unsigned long warmUp = 100,
+                                           unsigned long t = 0,
+                                           long maxReflections = 100);
+
+
+        BilliardAdaptiveMetropolisProposal(InternalMatrixType A,
+                                           VectorType b,
+                                           const VectorType &currentState,
+                                           const MatrixType &sqrtMaximumVolumeEllipsoid,
                                            double stepSize = 1,
                                            double eps = 1.e-3,
                                            unsigned long warmUp = 100,
@@ -52,18 +63,38 @@ namespace hops {
     BilliardAdaptiveMetropolisProposal<InternalMatrixType>::BilliardAdaptiveMetropolisProposal(
             InternalMatrixType A,
             VectorType b,
-            const VectorType& currentState,
+            const VectorType &currentState,
             double stepSize,
             double eps,
             unsigned long warmUp,
             unsigned long t,
-            long maxReflections): AdaptiveMetropolisProposal<InternalMatrixType> (A,
-                                                             b,
+            long maxReflections): AdaptiveMetropolisProposal<InternalMatrixType>(std::move(A),
+                                                                                 std::move(b),
+                                                                                 currentState,
+                                                                                 stepSize,
+                                                                                 eps, warmUp,
+                                                                                 t),
+                                  maxReflections(maxReflections) {}
+
+    template<typename InternalMatrixType>
+    BilliardAdaptiveMetropolisProposal<InternalMatrixType>::BilliardAdaptiveMetropolisProposal(InternalMatrixType A,
+                                                                                               VectorType b,
+                                                                                               const VectorType &currentState,
+                                                                                               const MatrixType &sqrtMaximumVolumeEllipsoid,
+                                                                                               double stepSize,
+                                                                                               double eps,
+                                                                                               unsigned long warmUp,
+                                                                                               unsigned long t,
+                                                                                               long maxReflections)
+            : AdaptiveMetropolisProposal<InternalMatrixType>(std::move(A),
+                                                             std::move(b),
                                                              currentState,
+                                                             sqrtMaximumVolumeEllipsoid,
                                                              stepSize,
-                                                             eps, warmUp,
+                                                             eps,
+                                                             warmUp,
                                                              t),
-                                                             maxReflections(maxReflections) {}
+              maxReflections(maxReflections) {}
 
     template<typename InternalMatrixType>
     VectorType &BilliardAdaptiveMetropolisProposal<InternalMatrixType>::propose(
