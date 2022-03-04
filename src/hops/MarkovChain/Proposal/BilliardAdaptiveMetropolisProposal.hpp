@@ -5,15 +5,23 @@
 #include "Reflector.hpp"
 
 namespace hops {
-    template<typename InternalMatrixType = MatrixType, typename InternalVectorType = VectorType>
+    template<typename InternalMatrixType = MatrixType>
     class BilliardAdaptiveMetropolisProposal
-            : public AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType> {
+            : public AdaptiveMetropolisProposal<InternalMatrixType> {
     public:
-        using StateType = VectorType;
-
         BilliardAdaptiveMetropolisProposal(
-                const AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType> &adaptiveMetropolisProposal,
+                const AdaptiveMetropolisProposal<InternalMatrixType> &adaptiveMetropolisProposal,
                 long maxReflections);
+
+        BilliardAdaptiveMetropolisProposal(InternalMatrixType A,
+                                           VectorType b,
+                                           const VectorType& currentState,
+                                           double stepSize = 1,
+                                           double eps = 1.e-3,
+                                           unsigned long warmUp = 100,
+                                           unsigned long t = 0,
+                                           long maxReflections = 100);
+
 
         VectorType &propose(RandomNumberGenerator &randomNumberGenerator) override;
 
@@ -30,25 +38,43 @@ namespace hops {
         [[nodiscard]] std::unique_ptr<Proposal> copyProposal() const override;
 
     private:
-        long maxNumberOfReflections;
+        long maxReflections;
     };
 
-    template<typename InternalMatrixType, typename InternalVectorType>
-    BilliardAdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::BilliardAdaptiveMetropolisProposal(
-            const AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType> &adaptiveMetropolisProposal,
+    template<typename InternalMatrixType>
+    BilliardAdaptiveMetropolisProposal<InternalMatrixType>::BilliardAdaptiveMetropolisProposal(
+            const AdaptiveMetropolisProposal<InternalMatrixType> &adaptiveMetropolisProposal,
             long maxReflections) :
-            AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>(adaptiveMetropolisProposal),
-            maxNumberOfReflections(maxReflections) {}
+            AdaptiveMetropolisProposal<InternalMatrixType>(adaptiveMetropolisProposal),
+            maxReflections(maxReflections) {}
 
-    template<typename InternalMatrixType, typename InternalVectorType>
-    VectorType &BilliardAdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::propose(
+    template<typename InternalMatrixType>
+    BilliardAdaptiveMetropolisProposal<InternalMatrixType>::BilliardAdaptiveMetropolisProposal(
+            InternalMatrixType A,
+            VectorType b,
+            const VectorType& currentState,
+            double stepSize,
+            double eps,
+            unsigned long warmUp,
+            unsigned long t,
+            long maxReflections): AdaptiveMetropolisProposal<InternalMatrixType> (A,
+                                                             b,
+                                                             currentState,
+                                                             stepSize,
+                                                             eps, warmUp,
+                                                             t),
+                                                             maxReflections(maxReflections) {}
+
+    template<typename InternalMatrixType>
+    VectorType &BilliardAdaptiveMetropolisProposal<InternalMatrixType>::propose(
             RandomNumberGenerator &randomNumberGenerator) {
-        VectorType &proposal = AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::propose(
+        VectorType &proposal = AdaptiveMetropolisProposal<InternalMatrixType>::propose(
                 randomNumberGenerator);
-        const VectorType &state = AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::getState();
+        const VectorType &state = AdaptiveMetropolisProposal<InternalMatrixType>::getState();
 
 
-        const auto &reflectionResult = Reflector::reflectIntoPolytope(this->A, this->b, state, proposal, maxNumberOfReflections);
+        const auto &reflectionResult = Reflector::reflectIntoPolytope(this->A, this->b, state, proposal,
+                                                                      maxReflections);
         if (this->isTrackingOfProposalStatisticsActivated()) {
             ProposalStatistics &infos = this->getProposalStatistics();
             infos.appendInfo("reflection_successful", std::get<0>(reflectionResult));
@@ -59,52 +85,52 @@ namespace hops {
         return proposal;
     }
 
-    template<typename InternalMatrixType, typename InternalVectorType>
+    template<typename InternalMatrixType>
     std::vector<std::string>
-    BilliardAdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::getParameterNames() const {
-        std::vector<std::string> parameterNames = AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::getParameterNames();
+    BilliardAdaptiveMetropolisProposal<InternalMatrixType>::getParameterNames() const {
+        std::vector<std::string> parameterNames = AdaptiveMetropolisProposal<InternalMatrixType>::getParameterNames();
         parameterNames.template emplace_back("max_reflections");
         return parameterNames;
     }
 
-    template<typename InternalMatrixType, typename InternalVectorType>
-    std::any BilliardAdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::getParameter(
+    template<typename InternalMatrixType>
+    std::any BilliardAdaptiveMetropolisProposal<InternalMatrixType>::getParameter(
             const ProposalParameter &parameter) const {
         if (parameter == ProposalParameter::MAX_REFLECTIONS) {
-            return std::any(this->maxNumberOfReflections);
+            return std::any(this->maxReflections);
         }
-        return AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::getParameter(parameter);
+        return AdaptiveMetropolisProposal<InternalMatrixType>::getParameter(parameter);
     }
 
-    template<typename InternalMatrixType, typename InternalVectorType>
-    std::string BilliardAdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::getParameterType(
+    template<typename InternalMatrixType>
+    std::string BilliardAdaptiveMetropolisProposal<InternalMatrixType>::getParameterType(
             const ProposalParameter &parameter) const {
         if (parameter == ProposalParameter::MAX_REFLECTIONS) {
             return "long";
         }
-        return AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::getParameterType(parameter);
+        return AdaptiveMetropolisProposal<InternalMatrixType>::getParameterType(parameter);
     }
 
-    template<typename InternalMatrixType, typename InternalVectorType>
+    template<typename InternalMatrixType>
     void
-    BilliardAdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::setParameter(
+    BilliardAdaptiveMetropolisProposal<InternalMatrixType>::setParameter(
             const ProposalParameter &parameter,
             const std::any &value) {
         if (parameter == ProposalParameter::MAX_REFLECTIONS) {
-            maxNumberOfReflections = std::any_cast<long>(value);
+            maxReflections = std::any_cast<long>(value);
         } else {
-            AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::setParameter(parameter, value);
+            AdaptiveMetropolisProposal<InternalMatrixType>::setParameter(parameter, value);
         }
     }
 
-    template<typename InternalMatrixType, typename InternalVectorType>
-    std::string BilliardAdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::getProposalName() const {
+    template<typename InternalMatrixType>
+    std::string BilliardAdaptiveMetropolisProposal<InternalMatrixType>::getProposalName() const {
         return "BilliardAdaptiveMetropolis";
     }
 
-    template<typename InternalMatrixType, typename InternalVectorType>
+    template<typename InternalMatrixType>
     std::unique_ptr<Proposal>
-    BilliardAdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::copyProposal() const {
+    BilliardAdaptiveMetropolisProposal<InternalMatrixType>::copyProposal() const {
         return std::make_unique<BilliardAdaptiveMetropolisProposal>(*this);
     }
 }

@@ -475,9 +475,13 @@ namespace hops {
                         MarkovChainAdapter(
                                 MetropolisHastingsFilter(
                                         ModelMixin(
-                                                AdaptiveMetropolisProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
-                                                        decltype(inequalityRhs)>(
-                                                        inequalityLhs, inequalityRhs, startingPoint),
+                                                AdaptiveMetropolisProposal<
+                                                        Eigen::Matrix<
+                                                                typename MatrixType::Scalar,
+                                                                Eigen::Dynamic,
+                                                                Eigen::Dynamic>>(inequalityLhs,
+                                                                                 inequalityRhs,
+                                                                                 startingPoint),
                                                 Coldness(model)
                                         )
                                 )
@@ -491,7 +495,9 @@ namespace hops {
                                         ModelMixin(
                                                 BallWalkProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
                                                         decltype(inequalityRhs)>(
-                                                        inequalityLhs, inequalityRhs, startingPoint),
+                                                        inequalityLhs,
+                                                        inequalityRhs,
+                                                        startingPoint),
                                                 Coldness(model)
                                         )
                                 )
@@ -506,9 +512,14 @@ namespace hops {
                                 MetropolisHastingsFilter(
                                         ModelMixin(
                                                 BilliardAdaptiveMetropolisProposal(
-                                                        AdaptiveMetropolisProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
-                                                                decltype(inequalityRhs)>(
-                                                                inequalityLhs, inequalityRhs, startingPoint),
+                                                        AdaptiveMetropolisProposal<
+                                                                Eigen::Matrix<
+                                                                        typename MatrixType::Scalar,
+                                                                        Eigen::Dynamic,
+                                                                        Eigen::Dynamic>>(
+                                                                inequalityLhs,
+                                                                inequalityRhs,
+                                                                startingPoint),
                                                         maxNumberOfReflections
                                                 ),
                                                 Coldness(model)
@@ -542,7 +553,9 @@ namespace hops {
                                                 CoordinateHitAndRunProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
                                                         decltype(inequalityRhs),
                                                         GaussianStepDistribution<typename decltype(inequalityRhs)::Scalar>>(
-                                                        inequalityLhs, inequalityRhs, startingPoint),
+                                                        inequalityLhs,
+                                                        inequalityRhs,
+                                                        startingPoint),
                                                 Coldness(model)
                                         )
                                 )
@@ -630,8 +643,7 @@ namespace hops {
                         MarkovChainAdapter(
                                 MetropolisHastingsFilter(
                                         ModelMixin(
-                                                AdaptiveMetropolisProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
-                                                        decltype(inequalityRhs)>(
+                                                AdaptiveMetropolisProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>>(
                                                         inequalityLhs, inequalityRhs, startingPoint),
                                                 Coldness(model)
                                         )

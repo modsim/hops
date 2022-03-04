@@ -12,11 +12,9 @@
 #include <stdexcept>
 
 namespace hops {
-    template<typename InternalMatrixType = MatrixType, typename InternalVectorType = VectorType>
+    template<typename InternalMatrixType = MatrixType>
     class AdaptiveMetropolisProposal : public Proposal {
     public:
-        using StateType = VectorType;
-
         /**
          * @brief Constructs the Adaptive Metropolis proposal mechanism (Haario et al. 2001) on polytope defined as Ax<b.
          * @param A
@@ -29,17 +27,17 @@ namespace hops {
          *                          the proposal distribution. After the warm up, the adaptive covariance is used.
          */
         AdaptiveMetropolisProposal(InternalMatrixType A,
-                                   InternalVectorType b,
-                                   StateType currentState,
+                                   VectorType b,
+                                   VectorType currentState,
                                    double stepSize = 1,
                                    double eps = 1.e-3,
                                    unsigned long warmUp = 100,
                                    unsigned long t = 0);
 
         AdaptiveMetropolisProposal(InternalMatrixType A,
-                                   InternalVectorType b,
-                                   StateType currentState,
-                                   const MatrixType& sqrtMaximumVolumeEllipsoid,
+                                   VectorType b,
+                                   VectorType currentState,
+                                   const MatrixType &sqrtMaximumVolumeEllipsoid,
                                    double stepSize = 1,
                                    double eps = 1.e-3,
                                    unsigned long warmUp = 100,
@@ -49,7 +47,7 @@ namespace hops {
 
         VectorType &acceptProposal() override;
 
-        void setState(const StateType &newState) override;
+        void setState(const VectorType &newState) override;
 
         [[nodiscard]] VectorType getState() const override;
 
@@ -75,15 +73,15 @@ namespace hops {
 
         [[nodiscard]] double computeLogAcceptanceProbability() override;
 
-        [[nodiscard]] const MatrixType& getA() const override;
+        [[nodiscard]] const MatrixType &getA() const override;
 
-        [[nodiscard]] const VectorType& getB() const override;
+        [[nodiscard]] const VectorType &getB() const override;
 
-        [[nodiscard]] const MatrixType& getCholeskyOfMaximumVolumeEllipsoid() const;
+        [[nodiscard]] const MatrixType &getCholeskyOfMaximumVolumeEllipsoid() const;
 
         [[nodiscard]] unsigned long getT() const;
 
-        ProposalStatistics & getProposalStatistics() override;
+        ProposalStatistics &getProposalStatistics() override;
 
         void activateTrackingOfProposalStatistics() override;
 
@@ -99,11 +97,11 @@ namespace hops {
         VectorType b;
 
     private:
-        StateType state;
-        StateType proposal;
+        VectorType state;
+        VectorType proposal;
         ProposalStatistics proposalStatistics;
 
-        StateType stateMean;
+        VectorType stateMean;
 
         MatrixType stateCovariance;
         MatrixType proposalCovariance;
@@ -121,17 +119,17 @@ namespace hops {
 
         double eps;
         double stepSize;
-        double boundaryCushion = 0; 
+        double boundaryCushion = 0;
 
         std::normal_distribution<double> normal;
 
         bool isProposalInfosTrackingActive = false;
 
-        MatrixType updateCovariance(const MatrixType &covariance, const StateType &mean, const StateType &newState) {
+        MatrixType updateCovariance(const MatrixType &covariance, const VectorType &mean, const VectorType &newState) {
             assert(t > 0 && "cannot update covariance without samples having been drawn");
 
             // recursive mean
-            StateType newMean = (t * mean + newState) / (t + 1);
+            VectorType newMean = (t * mean + newState) / (t + 1);
             MatrixType newCovariance = ((t - 1) * covariance
                                         + t * (mean * mean.transpose())
                                         - (t + 1) * (newMean * newMean.transpose())
@@ -141,15 +139,16 @@ namespace hops {
         }
     };
 
-    template<typename InternalMatrixType, typename InternalVectorType>
-    AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::AdaptiveMetropolisProposal(InternalMatrixType A_,
-                                                                                                   InternalVectorType b_,
-                                                                                                   VectorType currentState_,
-                                                                                                   const MatrixType& sqrtMaximumVolumeEllipsoid,
-                                                                                                   double stepSize_,
-                                                                                                   double eps_,
-                                                                                                   unsigned long warmUp_,
-                                                                                                   unsigned long t_) :
+    template<typename InternalMatrixType>
+    AdaptiveMetropolisProposal<InternalMatrixType>::AdaptiveMetropolisProposal(
+            InternalMatrixType A_,
+            VectorType b_,
+            VectorType currentState_,
+            const MatrixType &sqrtMaximumVolumeEllipsoid,
+            double stepSize_,
+            double eps_,
+            unsigned long warmUp_,
+            unsigned long t_) :
             A(std::move(A_)),
             b(std::move(b_)),
             state(std::move(currentState_)),
@@ -178,14 +177,15 @@ namespace hops {
         proposalCovariance = stateCovariance;
     }
 
-    template<typename InternalMatrixType, typename InternalVectorType>
-    AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::AdaptiveMetropolisProposal(InternalMatrixType A_,
-                                                                                                   InternalVectorType b_,
-                                                                                                   VectorType currentState_,
-                                                                                                   double stepSize_,
-                                                                                                   double eps_,
-                                                                                                   unsigned long warmUp_,
-                                                                                                   unsigned long t_) :
+    template<typename InternalMatrixType>
+    AdaptiveMetropolisProposal<InternalMatrixType>::AdaptiveMetropolisProposal(
+            InternalMatrixType A_,
+            VectorType b_,
+            VectorType currentState_,
+            double stepSize_,
+            double eps_,
+            unsigned long warmUp_,
+            unsigned long t_) :
             A(std::move(A_)),
             b(std::move(b_)),
             state(std::move(currentState_)),
@@ -216,8 +216,8 @@ namespace hops {
         proposalCovariance = stateCovariance;
     }
 
-    template<typename InternalMatrixType, typename InternalVectorType>
-    VectorType &AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::propose(
+    template<typename InternalMatrixType>
+    VectorType &AdaptiveMetropolisProposal<InternalMatrixType>::propose(
             RandomNumberGenerator &randomNumberGenerator) {
         stateMean = (t * stateMean + state) / (t + 1);
 
@@ -236,8 +236,8 @@ namespace hops {
         return proposal;
     }
 
-    template<typename InternalMatrixType, typename InternalVectorType>
-    double AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::computeLogAcceptanceProbability() {
+    template<typename InternalMatrixType>
+    double AdaptiveMetropolisProposal<InternalMatrixType>::computeLogAcceptanceProbability() {
         bool isProposalInteriorPoint = ((A * proposal - b).array() < -boundaryCushion).all();
         if (!isProposalInteriorPoint) {
             return -std::numeric_limits<double>::infinity();
@@ -252,7 +252,7 @@ namespace hops {
         proposalCholeskyOfCovariance = solver.matrixL();
 
         proposalLogSqrtDeterminant = proposalCholeskyOfCovariance.diagonal().array().log().sum();
-        StateType stateDifference = proposal - state;
+        VectorType stateDifference = proposal - state;
 
         double alpha = 0;
 
@@ -271,8 +271,8 @@ namespace hops {
         return alpha;
     }
 
-    template<typename InternalMatrixType, typename InternalVectorType>
-    VectorType &AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::acceptProposal() {
+    template<typename InternalMatrixType>
+    VectorType &AdaptiveMetropolisProposal<InternalMatrixType>::acceptProposal() {
         state.swap(proposal);
         stateCovariance = proposalCovariance;
         stateCholeskyOfCovariance = proposalCholeskyOfCovariance;
@@ -280,53 +280,53 @@ namespace hops {
         return state;
     }
 
-    template<typename InternalMatrixType, typename InternalVectorType>
-    void AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::setState(const VectorType &newState) {
+    template<typename InternalMatrixType>
+    void AdaptiveMetropolisProposal<InternalMatrixType>::setState(const VectorType &newState) {
         if (((b - A * newState).array() < boundaryCushion).any()) {
             throw std::invalid_argument("Starting point outside polytope always gives constant Markov chain.");
         }
         AdaptiveMetropolisProposal::state = newState;
     }
 
-    template<typename InternalMatrixType, typename InternalVectorType>
-    void AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::setStepSize(double newStepSize) {
+    template<typename InternalMatrixType>
+    void AdaptiveMetropolisProposal<InternalMatrixType>::setStepSize(double newStepSize) {
         stepSize = newStepSize;
         normal = std::normal_distribution<double>(0, stepSize);
     }
 
 
-    template<typename InternalMatrixType, typename InternalVectorType>
-    std::optional<double> AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::getStepSize() const {
+    template<typename InternalMatrixType>
+    std::optional<double> AdaptiveMetropolisProposal<InternalMatrixType>::getStepSize() const {
         return stepSize;
     }
 
-    template<typename InternalMatrixType, typename InternalVectorType>
-    bool AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::hasStepSize() const {
+    template<typename InternalMatrixType>
+    bool AdaptiveMetropolisProposal<InternalMatrixType>::hasStepSize() const {
         return true;
     }
 
-    template<typename InternalMatrixType, typename InternalVectorType>
-    std::string AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::getProposalName() const {
+    template<typename InternalMatrixType>
+    std::string AdaptiveMetropolisProposal<InternalMatrixType>::getProposalName() const {
         return "AdaptiveMetropolis";
     }
 
-    template<typename InternalMatrixType, typename InternalVectorType>
-    std::unique_ptr<Proposal> AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::copyProposal() const {
+    template<typename InternalMatrixType>
+    std::unique_ptr<Proposal> AdaptiveMetropolisProposal<InternalMatrixType>::copyProposal() const {
         return std::make_unique<AdaptiveMetropolisProposal>(*this);
     }
 
-    template<typename InternalMatrixType, typename InternalVectorType>
-    VectorType AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::getState() const {
+    template<typename InternalMatrixType>
+    VectorType AdaptiveMetropolisProposal<InternalMatrixType>::getState() const {
         return state;
     }
 
-    template<typename InternalMatrixType, typename InternalVectorType>
-    VectorType AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::getProposal() const {
+    template<typename InternalMatrixType>
+    VectorType AdaptiveMetropolisProposal<InternalMatrixType>::getProposal() const {
         return proposal;
     }
 
-    template<typename InternalMatrixType, typename InternalVectorType>
-    void AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::setParameter(
+    template<typename InternalMatrixType>
+    void AdaptiveMetropolisProposal<InternalMatrixType>::setParameter(
             const ProposalParameter &parameter, const std::any &value) {
         if (parameter == ProposalParameter::BOUNDARY_CUSHION) {
             this->boundaryCushion = std::any_cast<double>(value);
@@ -341,19 +341,19 @@ namespace hops {
         }
     }
 
-    template<typename InternalMatrixType, typename InternalVectorType>
+    template<typename InternalMatrixType>
     std::vector<std::string>
-    AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::getParameterNames() const {
+    AdaptiveMetropolisProposal<InternalMatrixType>::getParameterNames() const {
         return {
-            ProposalParameterName[static_cast<int>(ProposalParameter::BOUNDARY_CUSHION)],
-            ProposalParameterName[static_cast<int>(ProposalParameter::EPSILON)],
-            ProposalParameterName[static_cast<int>(ProposalParameter::STEP_SIZE)],
-            ProposalParameterName[static_cast<int>(ProposalParameter::WARM_UP)],
+                ProposalParameterName[static_cast<int>(ProposalParameter::BOUNDARY_CUSHION)],
+                ProposalParameterName[static_cast<int>(ProposalParameter::EPSILON)],
+                ProposalParameterName[static_cast<int>(ProposalParameter::STEP_SIZE)],
+                ProposalParameterName[static_cast<int>(ProposalParameter::WARM_UP)],
         };
     }
 
-    template<typename InternalMatrixType, typename InternalVectorType>
-    std::any AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::getParameter(
+    template<typename InternalMatrixType>
+    std::any AdaptiveMetropolisProposal<InternalMatrixType>::getParameter(
             const ProposalParameter &parameter) const {
         if (parameter == ProposalParameter::BOUNDARY_CUSHION) {
             return std::any(boundaryCushion);
@@ -368,8 +368,8 @@ namespace hops {
         }
     }
 
-    template<typename InternalMatrixType, typename InternalVectorType>
-    std::string AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::getParameterType(
+    template<typename InternalMatrixType>
+    std::string AdaptiveMetropolisProposal<InternalMatrixType>::getParameterType(
             const ProposalParameter &parameter) const {
         if (parameter == ProposalParameter::BOUNDARY_CUSHION) {
             return "double";
@@ -384,49 +384,50 @@ namespace hops {
         }
     }
 
-    template<typename InternalMatrixType, typename InternalVectorType>
-    const MatrixType& AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::getA() const {
+    template<typename InternalMatrixType>
+    const MatrixType &AdaptiveMetropolisProposal<InternalMatrixType>::getA() const {
         return A;
     }
 
-    template<typename InternalMatrixType, typename InternalVectorType>
-    const VectorType& AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::getB() const {
+    template<typename InternalMatrixType>
+    const VectorType &AdaptiveMetropolisProposal<InternalMatrixType>::getB() const {
         return b;
     }
 
-    template<typename InternalMatrixType, typename InternalVectorType>
-    const MatrixType& AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::getCholeskyOfMaximumVolumeEllipsoid() const {
+    template<typename InternalMatrixType>
+    const MatrixType &
+    AdaptiveMetropolisProposal<InternalMatrixType>::getCholeskyOfMaximumVolumeEllipsoid() const {
         return choleskyOfMaximumVolumeEllipsoid;
     }
 
-    template<typename InternalMatrixType, typename InternalVectorType>
-    unsigned long AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::getT() const {
+    template<typename InternalMatrixType>
+    unsigned long AdaptiveMetropolisProposal<InternalMatrixType>::getT() const {
         return t;
     }
 
-    template<typename InternalMatrixType, typename InternalVectorType>
-    ProposalStatistics & AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::getProposalStatistics() {
+    template<typename InternalMatrixType>
+    ProposalStatistics &AdaptiveMetropolisProposal<InternalMatrixType>::getProposalStatistics() {
         return proposalStatistics;
     }
 
-    template<typename InternalMatrixType, typename InternalVectorType>
-    void AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::activateTrackingOfProposalStatistics() {
+    template<typename InternalMatrixType>
+    void AdaptiveMetropolisProposal<InternalMatrixType>::activateTrackingOfProposalStatistics() {
         isProposalInfosTrackingActive = true;
     }
 
-    template<typename InternalMatrixType, typename InternalVectorType>
-    void AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::disableTrackingOfProposalStatistics() {
+    template<typename InternalMatrixType>
+    void AdaptiveMetropolisProposal<InternalMatrixType>::disableTrackingOfProposalStatistics() {
         isProposalInfosTrackingActive = false;
     }
 
-    template<typename InternalMatrixType, typename InternalVectorType>
-    bool AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::isTrackingOfProposalStatisticsActivated() {
+    template<typename InternalMatrixType>
+    bool AdaptiveMetropolisProposal<InternalMatrixType>::isTrackingOfProposalStatisticsActivated() {
         return isProposalInfosTrackingActive;
     }
 
-    template<typename InternalMatrixType, typename InternalVectorType>
+    template<typename InternalMatrixType>
     ProposalStatistics
-    AdaptiveMetropolisProposal<InternalMatrixType, InternalVectorType>::getAndResetProposalStatistics() {
+    AdaptiveMetropolisProposal<InternalMatrixType>::getAndResetProposalStatistics() {
         ProposalStatistics newStatistic;
         std::swap(newStatistic, proposalStatistics);
         return newStatistic;
