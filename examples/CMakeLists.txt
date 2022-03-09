@@ -2,7 +2,7 @@
 # Examples when hops is not in HEADER_ONLY mode.
 if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
     set(BIN_SOURCES
-#            SamplingGaussianTarget.cpp
+            SamplingGaussianTarget.cpp
 #            SimplexBenchmarks.cpp
             GaussianDemo.cpp
             )

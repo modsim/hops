@@ -6,6 +6,7 @@
 
 #include <hops/MarkovChain/Proposal/BilliardMALAProposal.hpp>
 #include <hops/Model/Rosenbrock.hpp>
+#include <hops/Model/Gaussian.hpp>
 #include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
 
 BOOST_AUTO_TEST_SUITE(BilliardMALAProposal)
@@ -130,4 +131,3 @@ BOOST_AUTO_TEST_SUITE(BilliardMALAProposal)
 
 
 BOOST_AUTO_TEST_SUITE_END()
-
