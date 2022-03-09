@@ -27,6 +27,8 @@ namespace hops {
 
         [[nodiscard]] std::optional<MatrixType> computeExpectedFisherInformation(const VectorType &) override;
 
+        bool hasConstantExpectedFisherInformation() override;
+
         [[nodiscard]] const VectorType &getMean() const;
 
         [[nodiscard]] const MatrixType &getCovariance() const;
@@ -104,6 +106,10 @@ namespace hops {
             names.emplace_back("x_" + std::to_string(i));
         }
         return names;
+    }
+
+    bool Gaussian::hasConstantExpectedFisherInformation() {
+        return true;
     }
 }
 

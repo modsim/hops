@@ -26,8 +26,6 @@ namespace hops {
 
         [[nodiscard]] std::optional<VectorType> computeLogLikelihoodGradient(const VectorType &x) override;
 
-        [[nodiscard]] std::optional<MatrixType> computeExpectedFisherInformation(const VectorType &) override;
-
         [[nodiscard]] const VectorType &getMean() const;
 
         [[nodiscard]] const MatrixType &getCovariance() const;
@@ -109,12 +107,6 @@ namespace hops {
         VectorType _x = x;
         stripInactive(_x);
         return gaussian.value().computeNegativeLogLikelihood(_x);
-    }
-
-    std::optional<MatrixType>
-    DegenerateGaussian::computeExpectedFisherInformation(const VectorType &x) {
-        // Saves performance and skips stripping x here, because the FIM is constant anyways.
-        return gaussian.value().computeExpectedFisherInformation(x);
     }
 
     std::optional<VectorType>
