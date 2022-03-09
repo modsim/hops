@@ -5,7 +5,7 @@
 #include <random>
 #include <utility>
 
-#include <hops/Model/Gaussian.hpp>
+#include <hops/Model/Model.hpp>
 #include <hops/MarkovChain/ParallelTempering/Coldness.hpp>
 #include <hops/Utility/MatrixType.hpp>
 #include <hops/Utility/StringUtility.hpp>
@@ -120,8 +120,10 @@ namespace hops {
         double proposalNegativeLogLikelihood = 0;
 
         MatrixType stateSqrtInvMetric;
+        MatrixType stateInvMetric;
         MatrixType stateMetric;
         MatrixType proposalSqrtInvMetric;
+        MatrixType proposalInvMetric;
         MatrixType proposalMetric;
 
         double stepSize = 1;
@@ -133,223 +135,6 @@ namespace hops {
         long maxNumberOfReflections;
         bool isProposalInfosTrackingActive = false;
     };
-
-    /**
-     * @Brief Partial Specialization for Gaussian Models, much more efficient because it can abuse the fact that Gaussians
-     * have constant fisher information matrices.
-     * @tparam ModelType
-     * @tparam InternalMatrixType
-     */
-    template<typename InternalMatrixType>
-    class BilliardMALAProposal<Gaussian, InternalMatrixType> : public Proposal, public Gaussian {
-    public:
-        /**
-         * @brief Constructs proposal mechanism on polytope defined as Ax<b.
-         * @param A
-         * @param b
-         * @param currentState
-         */
-        BilliardMALAProposal(InternalMatrixType A,
-                             VectorType b,
-                             const VectorType &currentState,
-                             Gaussian model,
-                             long maxReflections,
-                             double newStepSize = 1);
-
-        VectorType &propose(RandomNumberGenerator &rng) override;
-
-        VectorType &acceptProposal() override;
-
-        void setState(const VectorType &state) override;
-
-        [[nodiscard]] VectorType getState() const override;
-
-        [[nodiscard]] VectorType getProposal() const override;
-
-        [[nodiscard]] std::vector<std::string> getDimensionNames() const override;
-
-        [[nodiscard]] std::optional<double> getStepSize() const;
-
-        void setStepSize(double stepSize);
-
-        [[nodiscard]] bool hasStepSize() const override;
-
-        [[nodiscard]] std::vector<std::string> getParameterNames() const override;
-
-        [[nodiscard]] std::any getParameter(const ProposalParameter &parameter) const override;
-
-        [[nodiscard]] std::string getParameterType(const ProposalParameter &parameter) const override;
-
-        void setParameter(const ProposalParameter &parameter, const std::any &value) override;
-
-        [[nodiscard]] std::string getProposalName() const override;
-
-        [[nodiscard]] double getStateNegativeLogLikelihood() const override;
-
-        [[nodiscard]] double getProposalNegativeLogLikelihood() const override;
-
-        [[nodiscard]] bool hasNegativeLogLikelihood() const override;
-
-        [[nodiscard]] std::unique_ptr<Proposal> copyProposal() const override;
-
-        [[nodiscard]] double computeLogAcceptanceProbability() override;
-
-        ProposalStatistics &getProposalStatistics() override;
-
-        void activateTrackingOfProposalStatistics() override;
-
-        void disableTrackingOfProposalStatistics() override;
-
-        bool isTrackingOfProposalStatisticsActivated() override;
-
-        ProposalStatistics getAndResetProposalStatistics() override;
-
-        const MatrixType &getA() const override;
-
-        const VectorType &getB() const override;
-
-        [[nodiscard]] std::unique_ptr<Model> getModel() const;
-
-    private:
-        VectorType computeGradient(VectorType x);
-
-        InternalMatrixType A;
-        MatrixType Adense;
-        VectorType b;
-        ProposalStatistics proposalStatistics;
-
-        VectorType state;
-        VectorType driftedState;
-        VectorType proposal;
-        VectorType driftedProposal;
-
-        double logSqrtDeterminant = 0;
-        double stateNegativeLogLikelihood = 0;
-        double proposalNegativeLogLikelihood = 0;
-
-        MatrixType metric;
-        MatrixType sqrtInvMetric;
-        MatrixType invMetric;
-
-        double stepSize = 1;
-        double geometricFactor = 0;
-        double covarianceFactor = 0;
-
-        std::normal_distribution<double> normalDistribution{0., 1.};
-
-        long maxNumberOfReflections;
-        bool isProposalInfosTrackingActive = false;
-    };
-
-    /*
-     * @Brief Partial Specialization for Gaussian Models wrapped in Coldness, much more efficient because it can abuse the fact that Gaussians
-     * have constant fisher information matrices.
-     * @tparam ModelType
-     * @tparam InternalMatrixType
-     */
-    template<typename InternalMatrixType>
-    class BilliardMALAProposal<Coldness<Gaussian>, InternalMatrixType> : public Proposal, public Coldness<Gaussian> {
-    public:
-        /**
-         * @brief Constructs proposal mechanism on polytope defined as Ax<b.
-         * @param A
-         * @param b
-         * @param currentState
-         */
-        BilliardMALAProposal(InternalMatrixType A,
-                             VectorType b,
-                             const VectorType &currentState,
-                             const Coldness<Gaussian>& model,
-                             long maxReflections,
-                             double newStepSize = 1);
-
-        VectorType &propose(RandomNumberGenerator &rng) override;
-
-        VectorType &acceptProposal() override;
-
-        void setState(const VectorType &state) override;
-
-        [[nodiscard]] VectorType getState() const override;
-
-        [[nodiscard]] VectorType getProposal() const override;
-
-        [[nodiscard]] std::vector<std::string> getDimensionNames() const override;
-
-        [[nodiscard]] std::optional<double> getStepSize() const;
-
-        void setStepSize(double stepSize);
-
-        [[nodiscard]] bool hasStepSize() const override;
-
-        [[nodiscard]] std::vector<std::string> getParameterNames() const override;
-
-        [[nodiscard]] std::any getParameter(const ProposalParameter &parameter) const override;
-
-        [[nodiscard]] std::string getParameterType(const ProposalParameter &parameter) const override;
-
-        void setParameter(const ProposalParameter &parameter, const std::any &value) override;
-
-        [[nodiscard]] std::string getProposalName() const override;
-
-        [[nodiscard]] double getStateNegativeLogLikelihood() const override;
-
-        [[nodiscard]] double getProposalNegativeLogLikelihood() const override;
-
-        [[nodiscard]] bool hasNegativeLogLikelihood() const override;
-
-        [[nodiscard]] std::unique_ptr<Proposal> copyProposal() const override;
-
-        [[nodiscard]] double computeLogAcceptanceProbability() override;
-
-        ProposalStatistics &getProposalStatistics() override;
-
-        void activateTrackingOfProposalStatistics() override;
-
-        void disableTrackingOfProposalStatistics() override;
-
-        bool isTrackingOfProposalStatisticsActivated() override;
-
-        ProposalStatistics getAndResetProposalStatistics() override;
-
-        const MatrixType &getA() const override;
-
-        const VectorType &getB() const override;
-
-        [[nodiscard]] std::unique_ptr<Model> getModel() const;
-
-        void setColdness(double newColdness);
-
-    private:
-        VectorType computeGradient(VectorType x);
-
-        InternalMatrixType A;
-        MatrixType Adense;
-        VectorType b;
-        ProposalStatistics proposalStatistics;
-
-        VectorType state;
-        VectorType driftedState;
-        VectorType proposal;
-        VectorType driftedProposal;
-
-        double logSqrtDeterminant = 0;
-        double stateNegativeLogLikelihood = 0;
-        double proposalNegativeLogLikelihood = 0;
-
-        MatrixType metric;
-        MatrixType sqrtInvMetric;
-        MatrixType invMetric;
-
-        double stepSize = 1;
-        double geometricFactor = 0;
-        double covarianceFactor = 0;
-
-        std::normal_distribution<double> normalDistribution{0., 1.};
-
-        long maxNumberOfReflections;
-        bool isProposalInfosTrackingActive = false;
-    };
-
 
     template<typename ModelType, typename InternalMatrixType>
     BilliardMALAProposal<ModelType, InternalMatrixType>::BilliardMALAProposal(InternalMatrixType A,
@@ -363,6 +148,14 @@ namespace hops {
             Adense(MatrixType(this->A)),
             b(std::move(b)),
             maxNumberOfReflections(maxReflections) {
+        if(ModelType::hasConstantExpectedFisherInformation()) {
+            stateMetric = ModelType::computeExpectedFisherInformation(currentState).value();
+
+            BilliardMALAProposalDetails::computeMetricInfoForReflectiveMALAWithSvd(stateMetric,
+                                                                                   stateSqrtInvMetric,
+                                                                                   stateLogSqrtDeterminant);
+            stateInvMetric = stateSqrtInvMetric * stateSqrtInvMetric;
+        }
         BilliardMALAProposal::setState(currentState);
         BilliardMALAProposal::setStepSize(newStepSize);
 
@@ -370,59 +163,8 @@ namespace hops {
         proposalNegativeLogLikelihood = stateNegativeLogLikelihood;
         proposalMetric = stateMetric;
         proposalSqrtInvMetric = stateSqrtInvMetric;
+        proposalInvMetric = stateInvMetric;
         proposalLogSqrtDeterminant = stateLogSqrtDeterminant;
-    }
-
-    template<typename InternalMatrixType>
-    BilliardMALAProposal<Gaussian, InternalMatrixType>::BilliardMALAProposal(InternalMatrixType A,
-                                                                             VectorType b,
-                                                                             const VectorType &currentState,
-                                                                             Gaussian model,
-                                                                             long maxReflections,
-                                                                             double newStepSize) :
-            Gaussian(std::move(model)),
-            A(std::move(A)),
-            Adense(MatrixType(this->A)),
-            b(std::move(b)),
-            maxNumberOfReflections(maxReflections) {
-        // stateMetric is constant for Gaussian
-        metric = Gaussian::computeExpectedFisherInformation(currentState).value();
-
-        BilliardMALAProposalDetails::computeMetricInfoForReflectiveMALAWithSvd(metric,
-                                                                               sqrtInvMetric,
-                                                                               logSqrtDeterminant);
-        invMetric = sqrtInvMetric * sqrtInvMetric;
-        BilliardMALAProposal::setState(currentState);
-        BilliardMALAProposal::setStepSize(newStepSize);
-
-        proposal = state;
-        proposalNegativeLogLikelihood = stateNegativeLogLikelihood;
-    }
-
-    template<typename InternalMatrixType>
-    BilliardMALAProposal<Coldness<Gaussian>, InternalMatrixType>::BilliardMALAProposal(InternalMatrixType A,
-                                                                                       VectorType b,
-                                                                                       const VectorType &currentState,
-                                                                                       const Coldness<Gaussian>& model,
-                                                                                       long maxReflections,
-                                                                                       double newStepSize) :
-            Coldness<Gaussian>(std::move(model)),
-            A(std::move(A)),
-            Adense(MatrixType(this->A)),
-            b(std::move(b)),
-            maxNumberOfReflections(maxReflections) {
-        // stateMetric is constant for Gaussian
-        metric = Coldness<Gaussian>::computeExpectedFisherInformation(currentState).value();
-
-        BilliardMALAProposalDetails::computeMetricInfoForReflectiveMALAWithSvd(metric,
-                                                                               sqrtInvMetric,
-                                                                               logSqrtDeterminant);
-        invMetric = sqrtInvMetric * sqrtInvMetric;
-        BilliardMALAProposal::setState(currentState);
-        BilliardMALAProposal::setStepSize(newStepSize);
-
-        proposal = state;
-        proposalNegativeLogLikelihood = stateNegativeLogLikelihood;
     }
 
     template<typename ModelType, typename InternalMatrixType>
@@ -443,66 +185,16 @@ namespace hops {
         return proposal;
     }
 
-    template<typename InternalMatrixType>
-    VectorType &BilliardMALAProposal<Gaussian, InternalMatrixType>::propose(RandomNumberGenerator &rng) {
-        for (long i = 0; i < proposal.rows(); ++i) {
-            proposal(i) = normalDistribution(rng);
-        }
-        proposal = driftedState + covarianceFactor * (sqrtInvMetric * proposal);
-
-        const auto &reflectionResult = Reflector::reflectIntoPolytope(Adense, b, state, proposal,
-                                                                      maxNumberOfReflections);
-        if (isProposalInfosTrackingActive) {
-            proposalStatistics.appendInfo("reflection_successful", std::get<0>(reflectionResult));
-            proposalStatistics.appendInfo("number_of_reflections", std::get<1>(reflectionResult));
-        }
-
-        proposal = std::get<2>(reflectionResult);
-        return proposal;
-    }
-
-    template<typename InternalMatrixType>
-    VectorType &BilliardMALAProposal<Coldness<Gaussian>, InternalMatrixType>::propose(RandomNumberGenerator &rng) {
-        for (long i = 0; i < proposal.rows(); ++i) {
-            proposal(i) = normalDistribution(rng);
-        }
-        proposal = driftedState + covarianceFactor * (sqrtInvMetric * proposal);
-
-        const auto &reflectionResult = Reflector::reflectIntoPolytope(Adense, b, state, proposal,
-                                                                      maxNumberOfReflections);
-        if (isProposalInfosTrackingActive) {
-            proposalStatistics.appendInfo("reflection_successful", std::get<0>(reflectionResult));
-            proposalStatistics.appendInfo("number_of_reflections", std::get<1>(reflectionResult));
-        }
-
-        proposal = std::get<2>(reflectionResult);
-        return proposal;
-    }
-
     template<typename ModelType, typename InternalMatrixType>
     VectorType &BilliardMALAProposal<ModelType, InternalMatrixType>::acceptProposal() {
         state.swap(proposal);
         driftedState.swap(driftedProposal);
-        stateSqrtInvMetric.swap(proposalSqrtInvMetric);
-        stateMetric.swap(proposalMetric);
-        stateLogSqrtDeterminant = proposalLogSqrtDeterminant;
         stateNegativeLogLikelihood = proposalNegativeLogLikelihood;
-        return state;
-    }
-
-    template<typename InternalMatrixType>
-    VectorType &BilliardMALAProposal<Gaussian, InternalMatrixType>::acceptProposal() {
-        state.swap(proposal);
-        driftedState.swap(driftedProposal);
-        stateNegativeLogLikelihood = proposalNegativeLogLikelihood;
-        return state;
-    }
-
-    template<typename InternalMatrixType>
-    VectorType &BilliardMALAProposal<Coldness<Gaussian>, InternalMatrixType>::acceptProposal() {
-        state.swap(proposal);
-        driftedState.swap(driftedProposal);
-        stateNegativeLogLikelihood = proposalNegativeLogLikelihood;
+        if(!ModelType::hasConstantExpectedFisherInformation()) {
+            stateSqrtInvMetric.swap(proposalSqrtInvMetric);
+            stateMetric.swap(proposalMetric);
+            stateLogSqrtDeterminant = proposalLogSqrtDeterminant;
+        }
         return state;
     }
 
@@ -517,63 +209,28 @@ namespace hops {
         // gradient data to construct fisher information.
         VectorType gradient = computeGradient(state);
 
-        std::optional<decltype(stateMetric)> optionalFisherInformation = ModelType::computeExpectedFisherInformation(
-                state);
+        if(!ModelType::hasConstantExpectedFisherInformation()) {
+            std::optional<decltype(stateMetric)> optionalFisherInformation = ModelType::computeExpectedFisherInformation(
+                    state);
 
-        if (optionalFisherInformation) {
-            stateMetric = optionalFisherInformation.value();
-        } else {
-            stateMetric = MatrixType::Identity(state.rows(), state.rows());
+            if (optionalFisherInformation) {
+                stateMetric = optionalFisherInformation.value();
+            } else {
+                stateMetric = MatrixType::Identity(state.rows(), state.rows());
+            }
+
+            BilliardMALAProposalDetails::computeMetricInfoForReflectiveMALAWithSvd(stateMetric,
+                                                                                   stateSqrtInvMetric,
+                                                                                   stateLogSqrtDeterminant);
         }
 
-        BilliardMALAProposalDetails::computeMetricInfoForReflectiveMALAWithSvd(stateMetric,
-                                                                               stateSqrtInvMetric,
-                                                                               stateLogSqrtDeterminant);
-        driftedState = state + 0.5 * std::pow(covarianceFactor, 2) * stateSqrtInvMetric * stateSqrtInvMetric *
+        driftedState = state + 0.5 * std::pow(covarianceFactor, 2) * stateInvMetric *
                                gradient;
         stateNegativeLogLikelihood = ModelType::computeNegativeLogLikelihood(state);
     }
 
-    template<typename InternalMatrixType>
-    void BilliardMALAProposal<Gaussian, InternalMatrixType>::setState(const VectorType &newState) {
-        if (((b - A * newState).array() < 0).any()) {
-            throw std::invalid_argument("Starting point outside polytope always gives constant Markov chain.");
-        }
-
-        state = newState;
-        VectorType gradient = computeGradient(state);
-
-        driftedState = state + 0.5 * std::pow(covarianceFactor, 2) * invMetric *
-                               gradient;
-        stateNegativeLogLikelihood = Gaussian::computeNegativeLogLikelihood(state);
-    }
-
-    template<typename InternalMatrixType>
-    void BilliardMALAProposal<Coldness<Gaussian>, InternalMatrixType>::setState(const VectorType &newState) {
-        if (((b - A * newState).array() < 0).any()) {
-            throw std::invalid_argument("Starting point outside polytope always gives constant Markov chain.");
-        }
-
-        state = newState;
-        VectorType gradient = computeGradient(state);
-
-        driftedState = state + 0.5 * std::pow(covarianceFactor, 2) * invMetric *
-                               gradient;
-        stateNegativeLogLikelihood = Coldness<Gaussian>::computeNegativeLogLikelihood(state);
-    }
-
     template<typename ModelType, typename InternalMatrixType>
     std::optional<double> BilliardMALAProposal<ModelType, InternalMatrixType>::getStepSize() const {
-        return stepSize;
-    }
-
-    template<typename InternalMatrixType>
-    std::optional<double> BilliardMALAProposal<Gaussian, InternalMatrixType>::getStepSize() const {
-        return stepSize;
-    }
-
-    template<typename InternalMatrixType>
-    std::optional<double> BilliardMALAProposal<Coldness<Gaussian>, InternalMatrixType>::getStepSize() const {
         return stepSize;
     }
 
@@ -585,49 +242,13 @@ namespace hops {
         setState(state);
     }
 
-    template<typename InternalMatrixType>
-    void BilliardMALAProposal<Gaussian, InternalMatrixType>::setStepSize(double newStepSize) {
-        stepSize = newStepSize;
-        geometricFactor = A.cols() / (2 * stepSize * stepSize);
-        covarianceFactor = stepSize / std::sqrt(A.cols());
-        setState(state);
-    }
-
-    template<typename InternalMatrixType>
-    void BilliardMALAProposal<Coldness<Gaussian>, InternalMatrixType>::setStepSize(double newStepSize) {
-        stepSize = newStepSize;
-        geometricFactor = A.cols() / (2 * stepSize * stepSize);
-        covarianceFactor = stepSize / std::sqrt(A.cols());
-        setState(state);
-    }
-
     template<typename ModelType, typename InternalMatrixType>
     std::string BilliardMALAProposal<ModelType, InternalMatrixType>::getProposalName() const {
         return "BilliardMALA";
     }
 
-    template<typename InternalMatrixType>
-    std::string BilliardMALAProposal<Gaussian, InternalMatrixType>::getProposalName() const {
-        return "BilliardMALA (Specialized for Gaussians)";
-    }
-
-    template<typename InternalMatrixType>
-    std::string BilliardMALAProposal<Coldness<Gaussian>, InternalMatrixType>::getProposalName() const {
-        return "BilliardMALA (Specialized for Coldness<Gaussians>)";
-    }
-
     template<typename ModelType, typename InternalMatrixType>
     double BilliardMALAProposal<ModelType, InternalMatrixType>::getStateNegativeLogLikelihood() const {
-        return stateNegativeLogLikelihood;
-    }
-
-    template<typename InternalMatrixType>
-    double BilliardMALAProposal<Gaussian, InternalMatrixType>::getStateNegativeLogLikelihood() const {
-        return stateNegativeLogLikelihood;
-    }
-
-    template<typename InternalMatrixType>
-    double BilliardMALAProposal<Coldness<Gaussian>, InternalMatrixType>::getStateNegativeLogLikelihood() const {
         return stateNegativeLogLikelihood;
     }
 
@@ -643,18 +264,22 @@ namespace hops {
         }
         // Important: compute gradient before fisher info or else x3cflux2 will throw
         VectorType gradient = computeGradient(proposal);
-        std::optional<decltype(proposalMetric)> optionalFisherInformation = ModelType::computeExpectedFisherInformation(
-                proposal);
-        if (optionalFisherInformation) {
-            proposalMetric = optionalFisherInformation.value();
-        } else {
-            proposalMetric = MatrixType::Identity(state.rows(), state.rows());
-        }
+
+        if(!ModelType::hasConstantExpectedFisherInformation()) {
+            std::optional<decltype(proposalMetric)> optionalFisherInformation = ModelType::computeExpectedFisherInformation(
+                    proposal);
+            if (optionalFisherInformation) {
+                proposalMetric = optionalFisherInformation.value();
+            } else {
+                proposalMetric = MatrixType::Identity(state.rows(), state.rows());
+            }
 
         BilliardMALAProposalDetails::computeMetricInfoForReflectiveMALAWithSvd(proposalMetric, proposalSqrtInvMetric,
                                                                                proposalLogSqrtDeterminant);
+        }
+
         driftedProposal = proposal +
-                          0.5 * std::pow(covarianceFactor, 2) * proposalSqrtInvMetric * proposalSqrtInvMetric *
+                          0.5 * std::pow(covarianceFactor, 2) * proposalInvMetric *
                           gradient;
 
         proposalNegativeLogLikelihood = ModelType::computeNegativeLogLikelihood(proposal);
@@ -675,87 +300,9 @@ namespace hops {
                + geometricFactor * normDifference;
     }
 
-    template<typename InternalMatrixType>
-    double BilliardMALAProposal<Gaussian, InternalMatrixType>::computeLogAcceptanceProbability() {
-        bool isProposalInteriorPoint = ((A * proposal - b).array() < 0).all();
-        if (!isProposalInteriorPoint) {
-            if (isProposalInfosTrackingActive) {
-                proposalStatistics.appendInfo("proposal_is_interior", isProposalInteriorPoint);
-                proposalStatistics.appendInfo("proposal_neg_like", std::numeric_limits<double>::quiet_NaN());
-            }
-            return -std::numeric_limits<double>::infinity();
-        }
-        VectorType gradient = computeGradient(proposal);
-        driftedProposal = proposal +
-                          0.5 * std::pow(covarianceFactor, 2) * invMetric * gradient;
-
-        proposalNegativeLogLikelihood = Gaussian::computeNegativeLogLikelihood(proposal);
-
-        double normDifference = static_cast<double>(
-                (driftedState - proposal + state - driftedProposal).transpose() * metric *
-                (driftedState - proposal + state - driftedProposal));
-
-        if (isProposalInfosTrackingActive) {
-            proposalStatistics.appendInfo("proposal_is_interior", isProposalInteriorPoint);
-            proposalStatistics.appendInfo("proposal_neg_like", proposalNegativeLogLikelihood);
-        }
-
-        return -proposalNegativeLogLikelihood
-               + stateNegativeLogLikelihood
-               + geometricFactor * normDifference;
-    }
-
-    template<typename InternalMatrixType>
-    double BilliardMALAProposal<Coldness<Gaussian>, InternalMatrixType>::computeLogAcceptanceProbability() {
-        bool isProposalInteriorPoint = ((A * proposal - b).array() < 0).all();
-        if (!isProposalInteriorPoint) {
-            if (isProposalInfosTrackingActive) {
-                proposalStatistics.appendInfo("proposal_is_interior", isProposalInteriorPoint);
-                proposalStatistics.appendInfo("proposal_neg_like", std::numeric_limits<double>::quiet_NaN());
-            }
-            return -std::numeric_limits<double>::infinity();
-        }
-        VectorType gradient = computeGradient(proposal);
-        driftedProposal = proposal +
-                          0.5 * std::pow(covarianceFactor, 2) * invMetric * gradient;
-
-        proposalNegativeLogLikelihood = Coldness<Gaussian>::computeNegativeLogLikelihood(proposal);
-
-        double normDifference = static_cast<double>(
-                (driftedState - proposal + state - driftedProposal).transpose() * metric *
-                (driftedState - proposal + state - driftedProposal));
-
-        if (isProposalInfosTrackingActive) {
-            proposalStatistics.appendInfo("proposal_is_interior", isProposalInteriorPoint);
-            proposalStatistics.appendInfo("proposal_neg_like", proposalNegativeLogLikelihood);
-        }
-
-        return -proposalNegativeLogLikelihood
-               + stateNegativeLogLikelihood
-               + geometricFactor * normDifference;
-    }
-
     template<typename ModelType, typename InternalMatrixType>
     VectorType BilliardMALAProposal<ModelType, InternalMatrixType>::computeGradient(VectorType x) {
         auto gradient = ModelType::computeLogLikelihoodGradient(x);
-        if (gradient) {
-            return gradient.value();
-        }
-        return VectorType::Zero(x.rows());
-    }
-
-    template<typename InternalMatrixType>
-    VectorType BilliardMALAProposal<Gaussian, InternalMatrixType>::computeGradient(VectorType x) {
-        auto gradient = Gaussian::computeLogLikelihoodGradient(x);
-        if (gradient) {
-            return gradient.value();
-        }
-        return VectorType::Zero(x.rows());
-    }
-
-    template<typename InternalMatrixType>
-    VectorType BilliardMALAProposal<Coldness<Gaussian>, InternalMatrixType>::computeGradient(VectorType x) {
-        auto gradient = Coldness<Gaussian>::computeLogLikelihoodGradient(x);
         if (gradient) {
             return gradient.value();
         }
@@ -767,28 +314,8 @@ namespace hops {
         return true;
     }
 
-    template<typename InternalMatrixType>
-    bool BilliardMALAProposal<Gaussian, InternalMatrixType>::hasStepSize() const {
-        return true;
-    }
-
-    template<typename InternalMatrixType>
-    bool BilliardMALAProposal<Coldness<Gaussian>, InternalMatrixType>::hasStepSize() const {
-        return true;
-    }
-
     template<typename ModelType, typename InternalMatrixType>
     std::unique_ptr<Proposal> BilliardMALAProposal<ModelType, InternalMatrixType>::copyProposal() const {
-        return std::make_unique<BilliardMALAProposal>(*this);
-    }
-
-    template<typename InternalMatrixType>
-    std::unique_ptr<Proposal> BilliardMALAProposal<Gaussian, InternalMatrixType>::copyProposal() const {
-        return std::make_unique<BilliardMALAProposal>(*this);
-    }
-
-    template<typename InternalMatrixType>
-    std::unique_ptr<Proposal> BilliardMALAProposal<Coldness<Gaussian>, InternalMatrixType>::copyProposal() const {
         return std::make_unique<BilliardMALAProposal>(*this);
     }
 
@@ -797,28 +324,8 @@ namespace hops {
         return state;
     }
 
-    template<typename InternalMatrixType>
-    VectorType BilliardMALAProposal<Gaussian, InternalMatrixType>::getState() const {
-        return state;
-    }
-
-    template<typename InternalMatrixType>
-    VectorType BilliardMALAProposal<Coldness<Gaussian>, InternalMatrixType>::getState() const {
-        return state;
-    }
-
     template<typename ModelType, typename InternalMatrixType>
     VectorType BilliardMALAProposal<ModelType, InternalMatrixType>::getProposal() const {
-        return proposal;
-    }
-
-    template<typename InternalMatrixType>
-    VectorType BilliardMALAProposal<Gaussian, InternalMatrixType>::getProposal() const {
-        return proposal;
-    }
-
-    template<typename InternalMatrixType>
-    VectorType BilliardMALAProposal<Coldness<Gaussian>, InternalMatrixType>::getProposal() const {
         return proposal;
     }
 
@@ -827,44 +334,9 @@ namespace hops {
         return {"step_size", "max_reflections"};
     }
 
-    template<typename InternalMatrixType>
-    std::vector<std::string> BilliardMALAProposal<Gaussian, InternalMatrixType>::getParameterNames() const {
-        return {"step_size", "max_reflections"};
-    }
-
-    template<typename InternalMatrixType>
-    std::vector<std::string> BilliardMALAProposal<Coldness<Gaussian>, InternalMatrixType>::getParameterNames() const {
-        return {"step_size", "max_reflections"};
-    }
-
     template<typename ModelType, typename InternalMatrixType>
     std::any
     BilliardMALAProposal<ModelType, InternalMatrixType>::getParameter(const ProposalParameter &parameter) const {
-        if (parameter == ProposalParameter::STEP_SIZE) {
-            return std::any(this->stepSize);
-        }
-        if (parameter == ProposalParameter::MAX_REFLECTIONS) {
-            return std::any(this->maxNumberOfReflections);
-        }
-        throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
-    }
-
-    template<typename InternalMatrixType>
-    std::any
-    BilliardMALAProposal<Gaussian, InternalMatrixType>::getParameter(const ProposalParameter &parameter) const {
-        if (parameter == ProposalParameter::STEP_SIZE) {
-            return std::any(this->stepSize);
-        }
-        if (parameter == ProposalParameter::MAX_REFLECTIONS) {
-            return std::any(this->maxNumberOfReflections);
-        }
-        throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
-    }
-
-    template<typename InternalMatrixType>
-    std::any
-    BilliardMALAProposal<Coldness<Gaussian>, InternalMatrixType>::getParameter(
-            const ProposalParameter &parameter) const {
         if (parameter == ProposalParameter::STEP_SIZE) {
             return std::any(this->stepSize);
         }
@@ -886,58 +358,9 @@ namespace hops {
         }
     }
 
-    template<typename InternalMatrixType>
-    std::string
-    BilliardMALAProposal<Gaussian, InternalMatrixType>::getParameterType(const ProposalParameter &parameter) const {
-        if (parameter == ProposalParameter::STEP_SIZE) {
-            return "double";
-        } else if (parameter == ProposalParameter::MAX_REFLECTIONS) {
-            return "long";
-        } else {
-            throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
-        }
-    }
-
-    template<typename InternalMatrixType>
-    std::string
-    BilliardMALAProposal<Coldness<Gaussian>, InternalMatrixType>::getParameterType(
-            const ProposalParameter &parameter) const {
-        if (parameter == ProposalParameter::STEP_SIZE) {
-            return "double";
-        } else if (parameter == ProposalParameter::MAX_REFLECTIONS) {
-            return "long";
-        } else {
-            throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
-        }
-    }
-
     template<typename ModelType, typename InternalMatrixType>
     void BilliardMALAProposal<ModelType, InternalMatrixType>::setParameter(const ProposalParameter &parameter,
                                                                            const std::any &value) {
-        if (parameter == ProposalParameter::STEP_SIZE) {
-            setStepSize(std::any_cast<double>(value));
-        } else if (parameter == ProposalParameter::MAX_REFLECTIONS) {
-            maxNumberOfReflections = std::any_cast<long>(value);
-        } else {
-            throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
-        }
-    }
-
-    template<typename InternalMatrixType>
-    void BilliardMALAProposal<Gaussian, InternalMatrixType>::setParameter(const ProposalParameter &parameter,
-                                                                          const std::any &value) {
-        if (parameter == ProposalParameter::STEP_SIZE) {
-            setStepSize(std::any_cast<double>(value));
-        } else if (parameter == ProposalParameter::MAX_REFLECTIONS) {
-            maxNumberOfReflections = std::any_cast<long>(value);
-        } else {
-            throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
-        }
-    }
-
-    template<typename InternalMatrixType>
-    void BilliardMALAProposal<Coldness<Gaussian>, InternalMatrixType>::setParameter(const ProposalParameter &parameter,
-                                                                                    const std::any &value) {
         if (parameter == ProposalParameter::STEP_SIZE) {
             setStepSize(std::any_cast<double>(value));
         } else if (parameter == ProposalParameter::MAX_REFLECTIONS) {
@@ -953,30 +376,8 @@ namespace hops {
         return ModelType::getDimensionNames();
     }
 
-    template<typename InternalMatrixType>
-    std::vector<std::string>
-    BilliardMALAProposal<Gaussian, InternalMatrixType>::getDimensionNames() const {
-        return Gaussian::getDimensionNames();
-    }
-
-    template<typename InternalMatrixType>
-    std::vector<std::string>
-    BilliardMALAProposal<Coldness<Gaussian>, InternalMatrixType>::getDimensionNames() const {
-        return Coldness<Gaussian>::getDimensionNames();
-    }
-
     template<typename ModelType, typename InternalMatrixType>
     double BilliardMALAProposal<ModelType, InternalMatrixType>::getProposalNegativeLogLikelihood() const {
-        return proposalNegativeLogLikelihood;
-    }
-
-    template<typename InternalMatrixType>
-    double BilliardMALAProposal<Gaussian, InternalMatrixType>::getProposalNegativeLogLikelihood() const {
-        return proposalNegativeLogLikelihood;
-    }
-
-    template<typename InternalMatrixType>
-    double BilliardMALAProposal<Coldness<Gaussian>, InternalMatrixType>::getProposalNegativeLogLikelihood() const {
         return proposalNegativeLogLikelihood;
     }
 
@@ -985,28 +386,8 @@ namespace hops {
         return true;
     }
 
-    template<typename InternalMatrixType>
-    bool BilliardMALAProposal<Gaussian, InternalMatrixType>::hasNegativeLogLikelihood() const {
-        return true;
-    }
-
-    template<typename InternalMatrixType>
-    bool BilliardMALAProposal<Coldness<Gaussian>, InternalMatrixType>::hasNegativeLogLikelihood() const {
-        return true;
-    }
-
     template<typename ModelType, typename InternalMatrixType>
     ProposalStatistics &BilliardMALAProposal<ModelType, InternalMatrixType>::getProposalStatistics() {
-        return proposalStatistics;
-    }
-
-    template<typename InternalMatrixType>
-    ProposalStatistics &BilliardMALAProposal<Gaussian, InternalMatrixType>::getProposalStatistics() {
-        return proposalStatistics;
-    }
-
-    template<typename InternalMatrixType>
-    ProposalStatistics &BilliardMALAProposal<Coldness<Gaussian>, InternalMatrixType>::getProposalStatistics() {
         return proposalStatistics;
     }
 
@@ -1015,43 +396,13 @@ namespace hops {
         isProposalInfosTrackingActive = true;
     }
 
-    template<typename InternalMatrixType>
-    void BilliardMALAProposal<Gaussian, InternalMatrixType>::activateTrackingOfProposalStatistics() {
-        isProposalInfosTrackingActive = true;
-    }
-
-    template<typename InternalMatrixType>
-    void BilliardMALAProposal<Coldness<Gaussian>, InternalMatrixType>::activateTrackingOfProposalStatistics() {
-        isProposalInfosTrackingActive = true;
-    }
-
     template<typename ModelType, typename InternalMatrixType>
     void BilliardMALAProposal<ModelType, InternalMatrixType>::disableTrackingOfProposalStatistics() {
         isProposalInfosTrackingActive = false;
     }
 
-    template<typename InternalMatrixType>
-    void BilliardMALAProposal<Gaussian, InternalMatrixType>::disableTrackingOfProposalStatistics() {
-        isProposalInfosTrackingActive = false;
-    }
-
-    template<typename InternalMatrixType>
-    void BilliardMALAProposal<Coldness<Gaussian>, InternalMatrixType>::disableTrackingOfProposalStatistics() {
-        isProposalInfosTrackingActive = false;
-    }
-
     template<typename ModelType, typename InternalMatrixType>
     bool BilliardMALAProposal<ModelType, InternalMatrixType>::isTrackingOfProposalStatisticsActivated() {
-        return isProposalInfosTrackingActive;
-    }
-
-    template<typename InternalMatrixType>
-    bool BilliardMALAProposal<Gaussian, InternalMatrixType>::isTrackingOfProposalStatisticsActivated() {
-        return isProposalInfosTrackingActive;
-    }
-
-    template<typename InternalMatrixType>
-    bool BilliardMALAProposal<Coldness<Gaussian>, InternalMatrixType>::isTrackingOfProposalStatisticsActivated() {
         return isProposalInfosTrackingActive;
     }
 
@@ -1067,70 +418,14 @@ namespace hops {
         return Adense;
     }
 
-    template<typename InternalMatrixType>
-    const MatrixType &BilliardMALAProposal<Gaussian, InternalMatrixType>::getA() const {
-        return Adense;
-    }
-
-    template<typename InternalMatrixType>
-    const MatrixType &BilliardMALAProposal<Coldness<Gaussian>, InternalMatrixType>::getA() const {
-        return Adense;
-    }
-
     template<typename ModelType, typename InternalMatrixType>
     const VectorType &BilliardMALAProposal<ModelType, InternalMatrixType>::getB() const {
-        return b;
-    }
-
-    template<typename InternalMatrixType>
-    const VectorType &BilliardMALAProposal<Gaussian, InternalMatrixType>::getB() const {
-        return b;
-    }
-
-    template<typename InternalMatrixType>
-    const VectorType &BilliardMALAProposal<Coldness<Gaussian>, InternalMatrixType>::getB() const {
         return b;
     }
 
     template<typename ModelType, typename InternalMatrixType>
     std::unique_ptr<Model> BilliardMALAProposal<ModelType, InternalMatrixType>::getModel() const {
         return ModelType::copyModel();
-    }
-
-    template<typename InternalMatrixType>
-    std::unique_ptr<Model> BilliardMALAProposal<Gaussian, InternalMatrixType>::getModel() const {
-        return Gaussian::copyModel();
-    }
-
-    template<typename InternalMatrixType>
-    std::unique_ptr<Model> BilliardMALAProposal<Coldness<Gaussian>, InternalMatrixType>::getModel() const {
-        return Coldness<Gaussian>::copyModel();
-    }
-
-    template<typename InternalMatrixType>
-    ProposalStatistics BilliardMALAProposal<Gaussian, InternalMatrixType>::getAndResetProposalStatistics() {
-        ProposalStatistics newStatistic;
-        std::swap(newStatistic, proposalStatistics);
-        return newStatistic;
-    }
-
-    template<typename InternalMatrixType>
-    ProposalStatistics BilliardMALAProposal<Coldness<Gaussian>, InternalMatrixType>::getAndResetProposalStatistics() {
-        ProposalStatistics newStatistic;
-        std::swap(newStatistic, proposalStatistics);
-        return newStatistic;
-    }
-
-    template<typename InternalMatrixType>
-    void BilliardMALAProposal<Coldness<Gaussian>, InternalMatrixType>::setColdness(double newColdness) {
-        Coldness<Gaussian>::setColdness(newColdness);
-        // stateMetric is constant for Gaussian
-        metric = Coldness<Gaussian>::computeExpectedFisherInformation(state).value();
-
-        BilliardMALAProposalDetails::computeMetricInfoForReflectiveMALAWithSvd(metric,
-                                                                               sqrtInvMetric,
-                                                                               logSqrtDeterminant);
-        invMetric = sqrtInvMetric * sqrtInvMetric;
     }
 }
 

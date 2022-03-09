@@ -38,6 +38,10 @@ namespace hops {
                 return model->computeExpectedFisherInformation(state);
         }
 
+        [[nodiscard]] virtual bool hasConstantExpectedFisherInformation() {
+            return model->hasConstantExpectedFisherInformation();
+        }
+
         [[nodiscard]] const std::shared_ptr<Model> &getModel() const {
             return model;
         }

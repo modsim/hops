@@ -65,28 +65,10 @@ BOOST_AUTO_TEST_SUITE(DegenerateMultivariateGaussianModel)
 
         std::vector<long> inactive_indices = {2};
         hops::DegenerateGaussian model(mean, covariance, inactive_indices);
-        Eigen::MatrixXd expectedExpectedFisherInformation(2, 2);
-        expectedExpectedFisherInformation << 1. / 7, -1. / 14, -1. / 14, 2. / 7;
 
-        Eigen::VectorXd evaluationPoint1(3);
-        evaluationPoint1 << 0.8, 0.8, 1235;
-
-        auto actualExpectedFisherInformation1 = model.computeExpectedFisherInformation(
-                evaluationPoint1);
-        if (actualExpectedFisherInformation1) {
-            BOOST_CHECK(actualExpectedFisherInformation1.value().isApprox(expectedExpectedFisherInformation));
-        } else {
-            BOOST_FAIL("Fisher Info was not available.");
-        }
-
-        Eigen::VectorXd evaluationPoint2 = 5 * evaluationPoint1;
-        auto actualExpectedFisherInformation2 = model.computeExpectedFisherInformation(
-                evaluationPoint2);
-        if (actualExpectedFisherInformation2) {
-            BOOST_CHECK(actualExpectedFisherInformation2.value().isApprox(expectedExpectedFisherInformation));
-        } else {
-            BOOST_FAIL("Fisher Info was not available.");
-        }
+        Eigen::VectorXd evaluationPoint(3);
+        evaluationPoint << 0.8, 0.8, 123;
+        BOOST_CHECK(!model.computeExpectedFisherInformation(evaluationPoint));
     }
 
 BOOST_AUTO_TEST_SUITE_END()

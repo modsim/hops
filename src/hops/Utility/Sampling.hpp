@@ -42,7 +42,9 @@ namespace hops {
                         double fisherWeight,
                         double targetAcceptanceRate,
                         bool rounding,
-                        const std::string &problemName);
+                        const std::string &problemName,
+                        double startStepsize = 1,
+                        bool tune = true);
 
         /**
          *
@@ -74,7 +76,9 @@ namespace hops {
                         double fisherWeight,
                         double targetAcceptanceRate,
                         bool rounding,
-                        const std::string &problemName);
+                        const std::string &problemName,
+                        double startStepsize = 1,
+                        bool tune = true);
     };
 
     template<typename ModelType>
@@ -89,7 +93,9 @@ namespace hops {
                        double fisherWeight,
                        double targetAcceptanceRate,
                        bool rounding,
-                       const std::string &problemName) {
+                       const std::string &problemName,
+                       double startStepsize,
+                       bool tune) {
 
         Eigen::MatrixXd roundingTrafo = Eigen::MatrixXd::Identity(startPoint.rows(), startPoint.rows());
         Eigen::VectorXd shift = Eigen::VectorXd::Zero(startPoint.rows());
@@ -118,7 +124,9 @@ namespace hops {
             fisherWeight,
             targetAcceptanceRate,
             rounding,
-            problemName);
+            problemName,
+            startStepsize,
+            tune);
     }
 
     template<typename ModelType>
@@ -135,10 +143,13 @@ namespace hops {
                        double fisherWeight,
                        double targetAcceptanceRate,
                        bool rounding,
-                       const std::string &problemName) {
+                       const std::string &problemName,
+                       double startStepsize,
+                       bool tune) {
 
-        if(numberOfCheckPoints >= 10*numberOfSamples) {
-            throw std::invalid_argument("number of checkpoints is too high for number of samples selected. Aim for at least less than one checkpoint for every 10 samples!");
+        if (numberOfCheckPoints >= 10 * numberOfSamples) {
+            throw std::invalid_argument(
+                    "number of checkpoints is too high for number of samples selected. Aim for at least less than one checkpoint for every 10 samples!");
         }
 
         std::shared_ptr<MarkovChain> markovChain;
@@ -186,6 +197,7 @@ namespace hops {
         if (chainType == MarkovChainType::CSmMALA) {
             markovChain->setParameter(ProposalParameter::FISHER_WEIGHT, fisherWeight);
         }
+        markovChain->setParameter(ProposalParameter::STEP_SIZE, startStepsize);
 
 
         RandomNumberGenerator randomNumberGenerator((std::random_device()()));
@@ -208,18 +220,22 @@ namespace hops {
         std::string fisherWeightString = stream.str();
 
         std::unique_ptr<FileWriter> writer = FileWriterFactory::createFileWriter(
-                        problemName + "_" +
+                problemName + "_" +
                 markovChainTypeToShortString(chainType)
                 + (chainType == MarkovChainType::CSmMALA ? "_fw=" + fisherWeightString : "")
                 + (rounding ? "_rounded" : ""), FileWriterType::CSV);
 
-        bool isTuned = false;
-        isTuned = Sampling::tuneChain(randomNumberGenerator, targetAcceptanceRate, markovChain, chainType,
-                                      writer.get());
-        writer->write("tuning_successful", std::vector<double>{static_cast<double>(isTuned)});
+        if (tune) {
+            bool isTuned = false;
+            isTuned = Sampling::tuneChain(randomNumberGenerator, targetAcceptanceRate, markovChain, chainType,
+                                          writer.get());
+            writer->write("tuning_successful", std::vector<double>{static_cast<double>(isTuned)});
+        } else {
+            writer->write("tuning_successful", std::vector<std::string>{"skipped"});
+        }
 
-        for(long checkPoint=0; checkPoint<numberOfCheckPoints; ++checkPoint) {
-            for (long i = 0; i < numberOfSamples/numberOfCheckPoints; ++i) {
+        for (long checkPoint = 0; checkPoint < numberOfCheckPoints; ++checkPoint) {
+            for (long i = 0; i < numberOfSamples / numberOfCheckPoints; ++i) {
                 ABORTABLE
                 auto[acceptanceRate, state, proposalStatistic] = markovChain->detailedDraw(randomNumberGenerator,
                                                                                            thinning);
