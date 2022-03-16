@@ -3,12 +3,16 @@
 #include <hops/MarkovChain/Tuning/AcceptanceRateTarget.hpp>
 #include <hops/MarkovChain/Tuning/ThompsonSamplingTuner.hpp>
 
-bool hops::Sampling::tuneChain(hops::RandomNumberGenerator &randomNumberGenerator, const double targetAcceptanceRate,
-                               std::shared_ptr<hops::MarkovChain> markovChain, hops::MarkovChainType chainType,
+bool hops::Sampling::tuneChain(hops::RandomNumberGenerator &randomNumberGenerator,
+                               const double targetAcceptanceRate,
+                               std::shared_ptr<hops::MarkovChain> markovChain,
+                               hops::MarkovChainType chainType,
                                hops::FileWriter *fileWriter,
-                               const double tuningTolerance) {
-    double lowerLimitStepSize = 1e-2;
-    double upperLimitStepSize = 1e1;
+                               double tuningTolerance,
+                               long maxTuningIterations) {
+    double startStepSize = std::any_cast<double>(markovChain->getParameter(ProposalParameter::STEP_SIZE));
+    double lowerLimitStepSize = 1e-2 * startStepSize;
+    double upperLimitStepSize = 1e1 * startStepSize;
 
     size_t iterationsToTestStepSize = 200;
     size_t posteriorUpdateIterations = 100;
@@ -33,7 +37,7 @@ bool hops::Sampling::tuneChain(hops::RandomNumberGenerator &randomNumberGenerato
     hops::VectorType stepSize(1);
     double measuredAcceptanceRate = -1;
     long tuningIteration = 0;
-    while (deltaAcceptanceRate > tuningTolerance && tuningIteration < 20) {
+    while (deltaAcceptanceRate > tuningTolerance && tuningIteration < maxTuningIterations) {
         stepSize(0) = std::any_cast<double>(tuningChains[0]->getParameter(hops::ProposalParameter::STEP_SIZE));
         hops::ThompsonSamplingTuner::param_type tuningParameters(
                 posteriorUpdateIterations,

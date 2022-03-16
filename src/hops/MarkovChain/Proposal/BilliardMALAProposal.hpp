@@ -20,6 +20,7 @@ namespace hops {
         void computeMetricInfoForReflectiveMALAWithSvd(const MatrixType &metric,
                                                        MatrixType &sqrtInvMetric,
                                                        double &logSqrtDeterminant) {
+
             Eigen::BDCSVD<MatrixType> solver(metric, Eigen::ComputeFullU);
             sqrtInvMetric = solver.matrixU() * solver.singularValues().cwiseInverse().cwiseSqrt().asDiagonal() *
                             solver.matrixU().adjoint();
@@ -42,6 +43,23 @@ namespace hops {
          */
         BilliardMALAProposal(InternalMatrixType A,
                              VectorType b,
+                             const VectorType &currentState,
+                             ModelType model,
+                             long maxReflections,
+                             double newStepSize = 1);
+
+
+        /**
+         * @brief Constructs proposal mechanism on polytope defined as Ax<b.
+         * @param A
+         * @param b
+         * @param currentState
+         */
+        BilliardMALAProposal(const InternalMatrixType &A,
+                             const VectorType &b,
+                             const MatrixType &quadraticConstraintMatrix,
+                             const VectorType &quadraticConstraintOffset,
+                             double quadraticConstraintLhs,
                              const VectorType &currentState,
                              ModelType model,
                              long maxReflections,
@@ -107,6 +125,10 @@ namespace hops {
         InternalMatrixType A;
         MatrixType Adense;
         VectorType b;
+        std::optional<MatrixType> quadraticConstraintsMatrix;
+        std::optional<VectorType> quadraticConstraintsOffset;
+        std::optional<double> quadraticConstraintsLhs;
+
         ProposalStatistics proposalStatistics;
 
         VectorType state;
@@ -148,13 +170,13 @@ namespace hops {
             Adense(MatrixType(this->A)),
             b(std::move(b)),
             maxNumberOfReflections(maxReflections) {
-        if(ModelType::hasConstantExpectedFisherInformation()) {
+        if (ModelType::hasConstantExpectedFisherInformation()) {
             stateMetric = ModelType::computeExpectedFisherInformation(currentState).value();
 
             BilliardMALAProposalDetails::computeMetricInfoForReflectiveMALAWithSvd(stateMetric,
                                                                                    stateSqrtInvMetric,
                                                                                    stateLogSqrtDeterminant);
-            stateInvMetric = stateSqrtInvMetric * stateSqrtInvMetric;
+            stateInvMetric = stateSqrtInvMetric * stateSqrtInvMetric.transpose();
         }
         BilliardMALAProposal::setState(currentState);
         BilliardMALAProposal::setStepSize(newStepSize);
@@ -167,6 +189,29 @@ namespace hops {
         proposalLogSqrtDeterminant = stateLogSqrtDeterminant;
     }
 
+
+    template<typename ModelType, typename InternalMatrixType>
+    BilliardMALAProposal<ModelType, InternalMatrixType>::BilliardMALAProposal(const InternalMatrixType &A,
+                                                                              const VectorType &b,
+                                                                              const MatrixType &quadraticConstraintMatrix,
+                                                                              const VectorType &quadraticConstraintOffset,
+                                                                              double quadraticConstraintLhs,
+                                                                              const VectorType &currentState,
+                                                                              ModelType model,
+                                                                              long maxReflections,
+                                                                              double newStepSize) :
+            BilliardMALAProposal(
+                    A,
+                    b,
+                    currentState,
+                    std::move(model),
+                    maxReflections,
+                    newStepSize) {
+        this->quadraticConstraintsMatrix = quadraticConstraintMatrix;
+        this->quadraticConstraintsOffset = quadraticConstraintOffset;
+        this->quadraticConstraintsLhs = quadraticConstraintLhs;
+    }
+
     template<typename ModelType, typename InternalMatrixType>
     VectorType &BilliardMALAProposal<ModelType, InternalMatrixType>::propose(RandomNumberGenerator &rng) {
         for (long i = 0; i < proposal.rows(); ++i) {
@@ -174,8 +219,23 @@ namespace hops {
         }
         proposal = driftedState + covarianceFactor * (stateSqrtInvMetric * proposal);
 
-        const auto &reflectionResult = Reflector::reflectIntoPolytope(Adense, b, state, proposal,
-                                                                      maxNumberOfReflections);
+        std::tuple<bool, long, VectorType> reflectionResult;
+        if (quadraticConstraintsMatrix) {
+            reflectionResult = Reflector::reflectIntoPolytope(Adense,
+                                                              b,
+                                                              quadraticConstraintsMatrix.value(),
+                                                              quadraticConstraintsOffset.value(),
+                                                              quadraticConstraintsLhs.value(),
+                                                              state,
+                                                              proposal,
+                                                              maxNumberOfReflections);
+        } else {
+            reflectionResult = Reflector::reflectIntoPolytope(Adense,
+                                                              b,
+                                                              state,
+                                                              proposal,
+                                                              maxNumberOfReflections);
+        }
         if (isProposalInfosTrackingActive) {
             proposalStatistics.appendInfo("reflection_successful", std::get<0>(reflectionResult));
             proposalStatistics.appendInfo("number_of_reflections", std::get<1>(reflectionResult));
@@ -190,7 +250,7 @@ namespace hops {
         state.swap(proposal);
         driftedState.swap(driftedProposal);
         stateNegativeLogLikelihood = proposalNegativeLogLikelihood;
-        if(!ModelType::hasConstantExpectedFisherInformation()) {
+        if (!ModelType::hasConstantExpectedFisherInformation()) {
             stateSqrtInvMetric.swap(proposalSqrtInvMetric);
             stateMetric.swap(proposalMetric);
             stateLogSqrtDeterminant = proposalLogSqrtDeterminant;
@@ -209,10 +269,9 @@ namespace hops {
         // gradient data to construct fisher information.
         VectorType gradient = computeGradient(state);
 
-        if(!ModelType::hasConstantExpectedFisherInformation()) {
+        if (!ModelType::hasConstantExpectedFisherInformation()) {
             std::optional<decltype(stateMetric)> optionalFisherInformation = ModelType::computeExpectedFisherInformation(
                     state);
-
             if (optionalFisherInformation) {
                 stateMetric = optionalFisherInformation.value();
             } else {
@@ -222,6 +281,7 @@ namespace hops {
             BilliardMALAProposalDetails::computeMetricInfoForReflectiveMALAWithSvd(stateMetric,
                                                                                    stateSqrtInvMetric,
                                                                                    stateLogSqrtDeterminant);
+            stateInvMetric = stateSqrtInvMetric * stateSqrtInvMetric.transpose();
         }
 
         driftedState = state + 0.5 * std::pow(covarianceFactor, 2) * stateInvMetric *
@@ -265,7 +325,7 @@ namespace hops {
         // Important: compute gradient before fisher info or else x3cflux2 will throw
         VectorType gradient = computeGradient(proposal);
 
-        if(!ModelType::hasConstantExpectedFisherInformation()) {
+        if (!ModelType::hasConstantExpectedFisherInformation()) {
             std::optional<decltype(proposalMetric)> optionalFisherInformation = ModelType::computeExpectedFisherInformation(
                     proposal);
             if (optionalFisherInformation) {
@@ -274,8 +334,9 @@ namespace hops {
                 proposalMetric = MatrixType::Identity(state.rows(), state.rows());
             }
 
-        BilliardMALAProposalDetails::computeMetricInfoForReflectiveMALAWithSvd(proposalMetric, proposalSqrtInvMetric,
-                                                                               proposalLogSqrtDeterminant);
+            BilliardMALAProposalDetails::computeMetricInfoForReflectiveMALAWithSvd(proposalMetric,
+                                                                                   proposalSqrtInvMetric,
+                                                                                   proposalLogSqrtDeterminant);
         }
 
         driftedProposal = proposal +

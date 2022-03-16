@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_SUITE(BilliardMALAProposal)
         for (int i = 0; i < 100; ++i) {
             Eigen::VectorXd proposal = proposer.propose(randomNumberGenerator);
             double acceptanceChance = proposer.computeLogAcceptanceProbability();
-            BOOST_CHECK(((b - A * proposal).array() > 0).all());
+            BOOST_CHECK(((b - A * proposal).array() >= 0).all());
             BOOST_CHECK(std::exp(acceptanceChance) >= 0);
             proposer.acceptProposal();
         }

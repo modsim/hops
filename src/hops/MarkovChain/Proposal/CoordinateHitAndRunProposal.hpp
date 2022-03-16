@@ -122,7 +122,7 @@ namespace hops {
             backwardDistance = -std::numeric_limits<typename InternalMatrixType::Scalar>::infinity();
         }
 
-        assert(((b - A * state).array() > 0).all());
+        assert(((b - A * state).array() >= 0).all());
         if (isProposalInfosTrackingActive) {
             proposalStatistics.appendInfo("backwardDistance", forwardDistance);
             proposalStatistics.appendInfo("forwardDistance", backwardDistance);
