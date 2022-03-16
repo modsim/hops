@@ -211,7 +211,7 @@ namespace hops {
         CSmMALAProposalDetails::computeMetricInfoForCSmMALAWithSvd(stateMetric,
                                                                    stateSqrtInvMetric,
                                                                    stateLogSqrtDeterminant);
-        driftedState = state + 0.5 * std::pow(covarianceFactor, 2) * stateSqrtInvMetric * stateSqrtInvMetric *
+        driftedState = state + 0.5 * std::pow(covarianceFactor, 2) * stateSqrtInvMetric * stateSqrtInvMetric.transpose() *
                                gradient;
         stateNegativeLogLikelihood = ModelType::computeNegativeLogLikelihood(state);
     }

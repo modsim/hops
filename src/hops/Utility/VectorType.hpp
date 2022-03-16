@@ -4,7 +4,7 @@
 #include <Eigen/Core>
 
 namespace hops {
-    using VectorType=Eigen::VectorXd;
+    using VectorType = Eigen::VectorXd;
 }
 
 #endif //HOPS_VECTORTYPE_HPP
