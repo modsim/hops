@@ -28,7 +28,8 @@ namespace hops {
                               std::shared_ptr<hops::MarkovChain> markovChain,
                               hops::MarkovChainType chainType,
                               hops::FileWriter *fileWriter,
-                              double tuningTolerance = 0.05);
+                              double tuningTolerance,
+                              long maxTuningIterations);
 
         template<typename ModelType>
         static void run(const MatrixType &A,
@@ -44,7 +45,9 @@ namespace hops {
                         bool rounding,
                         const std::string &problemName,
                         double startStepsize = 1,
-                        bool tune = true);
+                        bool tune = true,
+                        double tuningTolerance = 0.05,
+                        long maxTuningIterations = 10);
 
         /**
          *
@@ -78,7 +81,9 @@ namespace hops {
                         bool rounding,
                         const std::string &problemName,
                         double startStepsize = 1,
-                        bool tune = true);
+                        bool tune = true,
+                        double tuningTolerance = 0.05,
+                        long maxTuningIterations = 10);
     };
 
     template<typename ModelType>
@@ -95,7 +100,9 @@ namespace hops {
                        bool rounding,
                        const std::string &problemName,
                        double startStepsize,
-                       bool tune) {
+                       bool tune,
+                       double tuningTolerance,
+                       long maxTuningIterations) {
 
         Eigen::MatrixXd roundingTrafo = Eigen::MatrixXd::Identity(startPoint.rows(), startPoint.rows());
         Eigen::VectorXd shift = Eigen::VectorXd::Zero(startPoint.rows());
@@ -126,7 +133,9 @@ namespace hops {
             rounding,
             problemName,
             startStepsize,
-            tune);
+            tune,
+            tuningTolerance,
+            maxTuningIterations);
     }
 
     template<typename ModelType>
@@ -145,7 +154,9 @@ namespace hops {
                        bool rounding,
                        const std::string &problemName,
                        double startStepsize,
-                       bool tune) {
+                       bool tune,
+                       double tuningTolerance,
+                       long maxTuningIterations) {
 
         if (numberOfCheckPoints >= 10 * numberOfSamples) {
             throw std::invalid_argument(
@@ -228,7 +239,7 @@ namespace hops {
         if (tune) {
             bool isTuned = false;
             isTuned = Sampling::tuneChain(randomNumberGenerator, targetAcceptanceRate, markovChain, chainType,
-                                          writer.get());
+                                          writer.get(), tuningTolerance, maxTuningIterations);
             writer->write("tuning_successful", std::vector<double>{static_cast<double>(isTuned)});
         } else {
             writer->write("tuning_successful", std::vector<std::string>{"skipped"});

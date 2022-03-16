@@ -3,6 +3,7 @@
 if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
     set(BIN_SOURCES
             SamplingGaussianTarget.cpp
+            SamplingGaussianSignificanceTarget.cpp
 #            SimplexBenchmarks.cpp
             GaussianDemo.cpp
             )
