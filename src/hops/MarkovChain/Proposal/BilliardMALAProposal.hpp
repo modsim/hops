@@ -162,6 +162,10 @@ namespace hops {
         if (ModelType::hasConstantExpectedFisherInformation()) {
             stateMetric = ModelType::computeExpectedFisherInformation(currentState).value();
             stateSolver = Eigen::LLT<MatrixType>(stateMetric);
+            if (stateSolver.info() != Eigen::Success) {
+                throw std::runtime_error("cholesky decomposition of fisher information failed,"
+                                         "because fisher information is not positive definite.");
+            };
             stateLogSqrtDeterminant = logSqrtDeterminant(stateSolver.matrixLLT());
         }
         BilliardMALAProposal::setState(currentState);
@@ -264,6 +268,10 @@ namespace hops {
             }
 
             stateSolver = Eigen::LLT<MatrixType>(stateMetric);
+            if (stateSolver.info() != Eigen::Success) {
+                throw std::runtime_error("cholesky decomposition of fisher information failed,"
+                                         "because fisher information is not positive definite.");
+            };
             stateLogSqrtDeterminant = logSqrtDeterminant(stateSolver.matrixLLT());
         }
 
@@ -319,6 +327,10 @@ namespace hops {
             }
 
             proposalSolver = Eigen::LLT<MatrixType>(proposalMetric);
+            if (proposalSolver.info() != Eigen::Success) {
+                // state is not valid, because metric is not positive definite.
+                return -std::numeric_limits<double>::infinity();
+            };
             proposalLogSqrtDeterminant = logSqrtDeterminant(proposalSolver.matrixLLT());
         }
 

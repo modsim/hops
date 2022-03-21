@@ -76,13 +76,13 @@ namespace hops {
 
         [[nodiscard]] double computeLogAcceptanceProbability() override;
 
-        [[nodiscard]] const MatrixType& getA() const override;
+        [[nodiscard]] const MatrixType &getA() const override;
 
-        [[nodiscard]] const VectorType& getB() const override;
+        [[nodiscard]] const VectorType &getB() const override;
 
         [[nodiscard]] std::unique_ptr<Model> getModel() const;
 
-        ProposalStatistics & getProposalStatistics() override;
+        ProposalStatistics &getProposalStatistics() override;
 
         void activateTrackingOfProposalStatistics() override;
 
@@ -200,6 +200,10 @@ namespace hops {
         }
 
         stateSolver = Eigen::LLT<MatrixType>(stateMetric);
+        if (stateSolver.info() != Eigen::Success) {
+            throw std::runtime_error("cholesky decomposition of fisher information failed,"
+                                     "because fisher information is not positive definite.");
+        };
         stateLogSqrtDeterminant = logSqrtDeterminant(stateSolver.matrixLLT());
         driftedState = state + 0.5 * std::pow(covarianceFactor, 2) *
                                stateSolver.matrixL().transpose().template solve(stateSolver.matrixL().solve(gradient));
@@ -233,7 +237,7 @@ namespace hops {
     double CSmMALAProposal<ModelType, InternalMatrixType>::computeLogAcceptanceProbability() {
         bool isProposalInteriorPoint = ((A * proposal - b).array() < 0).all();
         if (!isProposalInteriorPoint) {
-            if(isProposalInfosTrackingActive) {
+            if (isProposalInfosTrackingActive) {
                 proposalStatistics.appendInfo("proposal_is_interior", isProposalInteriorPoint);
                 proposalStatistics.appendInfo("proposal_neg_like", std::numeric_limits<double>::quiet_NaN());
             }
@@ -257,6 +261,11 @@ namespace hops {
 
         }
         proposalSolver = Eigen::LLT<MatrixType>(proposalMetric);
+        if (proposalSolver.info() != Eigen::Success) {
+            // state is not valid, because metric is not positive definite.
+            return -std::numeric_limits<double>::infinity();
+        };
+
         proposalLogSqrtDeterminant = logSqrtDeterminant(proposalSolver.matrixLLT());
         driftedProposal = proposal +
                           0.5 * std::pow(covarianceFactor, 2) *
@@ -268,7 +277,7 @@ namespace hops {
                 static_cast<double>((driftedState - proposal).transpose() * stateMetric * (driftedState - proposal)) -
                 static_cast<double>((state - driftedProposal).transpose() * proposalMetric * (state - driftedProposal));
 
-        if(isProposalInfosTrackingActive) {
+        if (isProposalInfosTrackingActive) {
             proposalStatistics.appendInfo("proposal_is_interior", isProposalInteriorPoint);
             proposalStatistics.appendInfo("proposal_neg_like", proposalNegativeLogLikelihood);
         }
@@ -334,8 +343,7 @@ namespace hops {
     CSmMALAProposal<ModelType, InternalMatrixType>::getParameterType(const ProposalParameter &parameter) const {
         if (parameter == ProposalParameter::STEP_SIZE) {
             return "double";
-        }
-        else if (parameter == ProposalParameter::FISHER_WEIGHT) {
+        } else if (parameter == ProposalParameter::FISHER_WEIGHT) {
             return "double";
         } else {
             throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
@@ -347,8 +355,7 @@ namespace hops {
                                                                       const std::any &value) {
         if (parameter == ProposalParameter::STEP_SIZE) {
             setStepSize(std::any_cast<double>(value));
-        }
-        else if (parameter == ProposalParameter::FISHER_WEIGHT) {
+        } else if (parameter == ProposalParameter::FISHER_WEIGHT) {
             fisherWeight = std::any_cast<double>(value);
             // internal changes of setStepSize are a function of the value of fisherWeight, therefore recalculate here.
             setStepSize((this->stepSize));
@@ -373,12 +380,12 @@ namespace hops {
     }
 
     template<typename ModelType, typename InternalMatrixType>
-    const MatrixType& CSmMALAProposal<ModelType, InternalMatrixType>::getA() const {
+    const MatrixType &CSmMALAProposal<ModelType, InternalMatrixType>::getA() const {
         return Adense;
     }
 
     template<typename ModelType, typename InternalMatrixType>
-    const VectorType& CSmMALAProposal<ModelType, InternalMatrixType>::getB() const {
+    const VectorType &CSmMALAProposal<ModelType, InternalMatrixType>::getB() const {
         return b;
     }
 
@@ -388,7 +395,7 @@ namespace hops {
     }
 
     template<typename ModelType, typename InternalMatrixType>
-    ProposalStatistics & CSmMALAProposal<ModelType, InternalMatrixType>::getProposalStatistics() {
+    ProposalStatistics &CSmMALAProposal<ModelType, InternalMatrixType>::getProposalStatistics() {
         return proposalStatistics;
     }
 
