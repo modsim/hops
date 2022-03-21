@@ -46,9 +46,7 @@ BOOST_AUTO_TEST_SUITE(CSmMALAProposal)
 
         Eigen::VectorXd proposal = proposer.propose(randomNumberGenerator);
         Eigen::VectorXd expectedProposal(3);
-        std::cout << std::setprecision(17) << proposal.transpose() << std::endl;
-        std::cout << std::setprecision(17) << expectedProposal.transpose() << std::endl;
-        std::cout << std::setprecision(17) << (proposal-expectedProposal).transpose() << std::endl;
+        expectedProposal << 0.9999741429740745, -0.98150954639435795, -0.99999996305021499;
         BOOST_CHECK(proposal.isApprox(expectedProposal));
 
         BOOST_CHECK(proposer.getModel() != nullptr);
