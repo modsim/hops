@@ -6,6 +6,7 @@ if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
             #Exceptions.hpp
             HopsWithinHopsy.hpp
             KahanSum.hpp
+            LogSqrtDeterminant.hpp
             KahanSum.cpp
             MatrixType.hpp
             #Problem.hpp
