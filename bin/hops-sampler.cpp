@@ -164,6 +164,12 @@ std::map<std::string, std::any> parseCommandLineOptions(int argc, char **argv) {
         arguments["rounding"] = commandLineOptions["rounding"].as<bool>();
     }
 
+    if (commandLineOptions.count("batch-size")) {
+        arguments["batch-size"] = commandLineOptions["batch-size"].as<long>();
+    } else {
+        arguments["batch-size"] = commandLineOptions["number-of-samples"].as<long>();
+    }
+
     return arguments;
 }
 
@@ -200,10 +206,7 @@ void runUniformSampling(std::map<std::string, std::any> arguments, const hops::F
         );
 
         long numberOfSamples = std::any_cast<long>(arguments["numberOfSamples"]);
-        long batchSize = numberOfSamples;
-        if (arguments.find("batch-size") != arguments.end()) {
-            batchSize = std::any_cast<long>(arguments["batch-size"]);
-        }
+        long batchSize = std::any_cast<long>(arguments["batch-size"]);
 
         while (numberOfSamples > 0) {
             auto[states, sample_times, transform_times] = sampleUniformBatch(
