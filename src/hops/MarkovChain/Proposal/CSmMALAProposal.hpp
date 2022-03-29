@@ -8,6 +8,7 @@
 #include <hops/MarkovChain/Recorder/IsAddMessageAvailabe.hpp>
 #include <hops/Model/Model.hpp>
 #include <hops/Utility/MatrixType.hpp>
+#include <hops/Utility/LogSqrtDeterminant.hpp>
 #include <hops/Utility/StringUtility.hpp>
 #include <hops/Utility/VectorType.hpp>
 
@@ -15,17 +16,6 @@
 #include "Proposal.hpp"
 
 namespace hops {
-    namespace CSmMALAProposalDetails {
-        template<typename MatrixType>
-        void computeMetricInfoForCSmMALAWithSvd(const MatrixType &metric,
-                                                MatrixType &sqrtInvMetric,
-                                                double &logSqrtDeterminant) {
-            Eigen::BDCSVD<MatrixType> solver(metric, Eigen::ComputeFullU);
-            sqrtInvMetric = solver.matrixU() * solver.singularValues().cwiseInverse().cwiseSqrt().asDiagonal() *
-                            solver.matrixU().adjoint();
-            logSqrtDeterminant = 0.5 * solver.singularValues().array().log().sum();
-        }
-    }
 
     /**
      * @tparam ModelType
@@ -86,13 +76,13 @@ namespace hops {
 
         [[nodiscard]] double computeLogAcceptanceProbability() override;
 
-        [[nodiscard]] const MatrixType& getA() const override;
+        [[nodiscard]] const MatrixType &getA() const override;
 
-        [[nodiscard]] const VectorType& getB() const override;
+        [[nodiscard]] const VectorType &getB() const override;
 
         [[nodiscard]] std::unique_ptr<Model> getModel() const;
 
-        ProposalStatistics & getProposalStatistics() override;
+        ProposalStatistics &getProposalStatistics() override;
 
         void activateTrackingOfProposalStatistics() override;
 
@@ -119,9 +109,9 @@ namespace hops {
         double proposalLogSqrtDeterminant = 0;
         double stateNegativeLogLikelihood = 0;
         double proposalNegativeLogLikelihood = 0;
-        MatrixType stateSqrtInvMetric;
+        Eigen::LLT<MatrixType> stateSolver;
         MatrixType stateMetric;
-        MatrixType proposalSqrtInvMetric;
+        Eigen::LLT<MatrixType> proposalSolver;
         MatrixType proposalMetric;
 
         double stepSize = 1;
@@ -168,7 +158,7 @@ namespace hops {
         for (long i = 0; i < proposal.rows(); ++i) {
             proposal(i) = normalDistribution(rng);
         }
-        proposal = driftedState + covarianceFactor * (stateSqrtInvMetric * proposal);
+        proposal = driftedState + covarianceFactor * (stateSolver.matrixL().transpose().solve(proposal));
 
         return proposal;
     }
@@ -177,7 +167,7 @@ namespace hops {
     VectorType &CSmMALAProposal<ModelType, InternalMatrixType>::acceptProposal() {
         state.swap(proposal);
         driftedState.swap(driftedProposal);
-        stateSqrtInvMetric.swap(proposalSqrtInvMetric);
+        stateSolver = proposalSolver;
         stateMetric.swap(proposalMetric);
         stateLogSqrtDeterminant = proposalLogSqrtDeterminant;
         stateNegativeLogLikelihood = proposalNegativeLogLikelihood;
@@ -204,15 +194,19 @@ namespace hops {
                 stateMetric += fisherWeight * fisherScale * fisherInformation;
             }
         }
-        if (fisherWeight != 1) {
+        if (fisherWeight != 1.) {
             decltype(stateMetric) dikinEllipsoid = dikinEllipsoidCalculator.computeDikinEllipsoid(state);
             stateMetric += (1 - fisherWeight) * dikinEllipsoid;
         }
-        CSmMALAProposalDetails::computeMetricInfoForCSmMALAWithSvd(stateMetric,
-                                                                   stateSqrtInvMetric,
-                                                                   stateLogSqrtDeterminant);
-        driftedState = state + 0.5 * std::pow(covarianceFactor, 2) * stateSqrtInvMetric * stateSqrtInvMetric.transpose() *
-                               gradient;
+
+        stateSolver = Eigen::LLT<MatrixType>(stateMetric);
+        if (stateSolver.info() != Eigen::Success) {
+            throw std::runtime_error("cholesky decomposition of fisher information failed,"
+                                     "because fisher information is not positive definite.");
+        };
+        stateLogSqrtDeterminant = logSqrtDeterminant(stateSolver.matrixLLT());
+        driftedState = state + 0.5 * std::pow(covarianceFactor, 2) *
+                               stateSolver.matrixL().transpose().template solve(stateSolver.matrixL().solve(gradient));
         stateNegativeLogLikelihood = ModelType::computeNegativeLogLikelihood(state);
     }
 
@@ -243,7 +237,7 @@ namespace hops {
     double CSmMALAProposal<ModelType, InternalMatrixType>::computeLogAcceptanceProbability() {
         bool isProposalInteriorPoint = ((A * proposal - b).array() < 0).all();
         if (!isProposalInteriorPoint) {
-            if(isProposalInfosTrackingActive) {
+            if (isProposalInfosTrackingActive) {
                 proposalStatistics.appendInfo("proposal_is_interior", isProposalInteriorPoint);
                 proposalStatistics.appendInfo("proposal_neg_like", std::numeric_limits<double>::quiet_NaN());
             }
@@ -266,18 +260,24 @@ namespace hops {
             proposalMetric += (1 - fisherWeight) * dikinEllipsoid;
 
         }
-        CSmMALAProposalDetails::computeMetricInfoForCSmMALAWithSvd(proposalMetric, proposalSqrtInvMetric,
-                                                                   proposalLogSqrtDeterminant);
+        proposalSolver = Eigen::LLT<MatrixType>(proposalMetric);
+        if (proposalSolver.info() != Eigen::Success) {
+            // state is not valid, because metric is not positive definite.
+            return -std::numeric_limits<double>::infinity();
+        };
+
+        proposalLogSqrtDeterminant = logSqrtDeterminant(proposalSolver.matrixLLT());
         driftedProposal = proposal +
-                          0.5 * std::pow(covarianceFactor, 2) * proposalSqrtInvMetric * proposalSqrtInvMetric *
-                          gradient;
+                          0.5 * std::pow(covarianceFactor, 2) *
+                          proposalSolver.matrixL().transpose().template solve(
+                                  proposalSolver.matrixL().solve(gradient));
         proposalNegativeLogLikelihood = ModelType::computeNegativeLogLikelihood(proposal);
 
         double normDifference =
                 static_cast<double>((driftedState - proposal).transpose() * stateMetric * (driftedState - proposal)) -
                 static_cast<double>((state - driftedProposal).transpose() * proposalMetric * (state - driftedProposal));
 
-        if(isProposalInfosTrackingActive) {
+        if (isProposalInfosTrackingActive) {
             proposalStatistics.appendInfo("proposal_is_interior", isProposalInteriorPoint);
             proposalStatistics.appendInfo("proposal_neg_like", proposalNegativeLogLikelihood);
         }
@@ -343,8 +343,7 @@ namespace hops {
     CSmMALAProposal<ModelType, InternalMatrixType>::getParameterType(const ProposalParameter &parameter) const {
         if (parameter == ProposalParameter::STEP_SIZE) {
             return "double";
-        }
-        else if (parameter == ProposalParameter::FISHER_WEIGHT) {
+        } else if (parameter == ProposalParameter::FISHER_WEIGHT) {
             return "double";
         } else {
             throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
@@ -356,8 +355,7 @@ namespace hops {
                                                                       const std::any &value) {
         if (parameter == ProposalParameter::STEP_SIZE) {
             setStepSize(std::any_cast<double>(value));
-        }
-        else if (parameter == ProposalParameter::FISHER_WEIGHT) {
+        } else if (parameter == ProposalParameter::FISHER_WEIGHT) {
             fisherWeight = std::any_cast<double>(value);
             // internal changes of setStepSize are a function of the value of fisherWeight, therefore recalculate here.
             setStepSize((this->stepSize));
@@ -382,12 +380,12 @@ namespace hops {
     }
 
     template<typename ModelType, typename InternalMatrixType>
-    const MatrixType& CSmMALAProposal<ModelType, InternalMatrixType>::getA() const {
+    const MatrixType &CSmMALAProposal<ModelType, InternalMatrixType>::getA() const {
         return Adense;
     }
 
     template<typename ModelType, typename InternalMatrixType>
-    const VectorType& CSmMALAProposal<ModelType, InternalMatrixType>::getB() const {
+    const VectorType &CSmMALAProposal<ModelType, InternalMatrixType>::getB() const {
         return b;
     }
 
@@ -397,7 +395,7 @@ namespace hops {
     }
 
     template<typename ModelType, typename InternalMatrixType>
-    ProposalStatistics & CSmMALAProposal<ModelType, InternalMatrixType>::getProposalStatistics() {
+    ProposalStatistics &CSmMALAProposal<ModelType, InternalMatrixType>::getProposalStatistics() {
         return proposalStatistics;
     }
 

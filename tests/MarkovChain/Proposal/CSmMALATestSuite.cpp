@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_SUITE(CSmMALAProposal)
                                        interiorPoint,
                                        model);
 
-        hops::RandomNumberGenerator randomNumberGenerator((std::random_device()()));
+        hops::RandomNumberGenerator randomNumberGenerator(42);
         for (int i = 0; i < 100; ++i) {
             Eigen::VectorXd proposal = proposer.propose(randomNumberGenerator);
             double acceptanceChance = proposer.computeLogAcceptanceProbability();
@@ -43,6 +43,11 @@ BOOST_AUTO_TEST_SUITE(CSmMALAProposal)
                 proposer.acceptProposal();
             }
         }
+
+        Eigen::VectorXd proposal = proposer.propose(randomNumberGenerator);
+        Eigen::VectorXd expectedProposal(3);
+        expectedProposal << 0.9999741429740745, -0.98150954639435795, -0.99999996305021499;
+        BOOST_CHECK(proposal.isApprox(expectedProposal));
 
         BOOST_CHECK(proposer.getModel() != nullptr);
     }

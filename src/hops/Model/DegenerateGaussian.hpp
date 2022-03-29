@@ -28,6 +28,7 @@ namespace hops {
 
         std::optional<MatrixType> computeExpectedFisherInformation(const VectorType &x) override;
 
+        bool hasConstantExpectedFisherInformation() override;
 
         [[nodiscard]] const VectorType &getMean() const;
 
@@ -152,6 +153,10 @@ namespace hops {
             return gaussian.value().computeExpectedFisherInformation(x);
         }
         return std::nullopt;
+    }
+
+    bool DegenerateGaussian::hasConstantExpectedFisherInformation() {
+        return true;
     }
 }
 
