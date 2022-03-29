@@ -2,6 +2,7 @@
 #define BOOST_TEST_DYN_LINK
 
 #include <boost/test/included/unit_test.hpp>
+#include <chrono>
 #include <Eigen/Core>
 
 #include <hops/MarkovChain/Proposal/BilliardMALAProposal.hpp>
@@ -39,7 +40,9 @@ BOOST_AUTO_TEST_SUITE(BilliardMALAProposal)
                                             model,
                                             max_reflections);
 
-        hops::RandomNumberGenerator randomNumberGenerator((std::random_device()()));
+
+        hops::RandomNumberGenerator randomNumberGenerator(42);
+        auto t1 = std::chrono::high_resolution_clock::now();
         for (int i = 0; i < 100; ++i) {
             Eigen::VectorXd proposal = proposer.propose(randomNumberGenerator);
             double acceptanceChance = proposer.computeLogAcceptanceProbability();
@@ -47,6 +50,8 @@ BOOST_AUTO_TEST_SUITE(BilliardMALAProposal)
             BOOST_CHECK(std::exp(acceptanceChance) >= 0);
             proposer.acceptProposal();
         }
+        auto t2 = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double, std::milli> ms_double = t2 - t1;
 
         BOOST_CHECK(proposer.getModel() != nullptr);
     }
@@ -78,7 +83,8 @@ BOOST_AUTO_TEST_SUITE(BilliardMALAProposal)
                                             model,
                                             max_reflections);
 
-        hops::RandomNumberGenerator randomNumberGenerator((std::random_device()()));
+        hops::RandomNumberGenerator randomNumberGenerator(42);
+        auto t1 = std::chrono::high_resolution_clock::now();
         for (int i = 0; i < 100; ++i) {
             Eigen::VectorXd proposal = proposer.propose(randomNumberGenerator);
             double acceptanceChance = proposer.computeLogAcceptanceProbability();
@@ -86,6 +92,8 @@ BOOST_AUTO_TEST_SUITE(BilliardMALAProposal)
             BOOST_CHECK(std::exp(acceptanceChance) >= 0);
             proposer.acceptProposal();
         }
+        auto t2 = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double, std::milli> ms_double = t2 - t1;
 
         BOOST_CHECK(proposer.getModel() != nullptr);
     }
@@ -117,7 +125,8 @@ BOOST_AUTO_TEST_SUITE(BilliardMALAProposal)
                                             model,
                                             max_reflections);
 
-        hops::RandomNumberGenerator randomNumberGenerator((std::random_device()()));
+        hops::RandomNumberGenerator randomNumberGenerator(42);
+        auto t1 = std::chrono::high_resolution_clock::now();
         for (int i = 0; i < 100; ++i) {
             Eigen::VectorXd proposal = proposer.propose(randomNumberGenerator);
             double acceptanceChance = proposer.computeLogAcceptanceProbability();
@@ -125,6 +134,13 @@ BOOST_AUTO_TEST_SUITE(BilliardMALAProposal)
             BOOST_CHECK(std::exp(acceptanceChance) >= 0);
             proposer.acceptProposal();
         }
+        auto t2 = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double, std::milli> ms_double = t2 - t1;
+
+        Eigen::VectorXd proposal = proposer.propose(randomNumberGenerator);
+        Eigen::VectorXd expectedProposal(3);
+        expectedProposal << -0.381175410126282255, 0.99015677158076798, -0.200087788734234273;
+        BOOST_CHECK(proposal.isApprox(expectedProposal));
 
         BOOST_CHECK(proposer.getModel() != nullptr);
     }

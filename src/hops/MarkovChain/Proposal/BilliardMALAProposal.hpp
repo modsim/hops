@@ -8,6 +8,7 @@
 #include <hops/Model/Model.hpp>
 #include <hops/MarkovChain/ParallelTempering/Coldness.hpp>
 #include <hops/Utility/MatrixType.hpp>
+#include <hops/Utility/LogSqrtDeterminant.hpp>
 #include <hops/Utility/StringUtility.hpp>
 #include <hops/Utility/VectorType.hpp>
 #include <hops/Transformation/Transformation.hpp>
@@ -16,17 +17,6 @@
 #include "Reflector.hpp"
 
 namespace hops {
-    namespace BilliardMALAProposalDetails {
-        void computeMetricInfoForReflectiveMALAWithSvd(const MatrixType &metric,
-                                                       MatrixType &sqrtInvMetric,
-                                                       double &logSqrtDeterminant) {
-
-            Eigen::BDCSVD<MatrixType> solver(metric, Eigen::ComputeFullU);
-            sqrtInvMetric = solver.matrixU() * solver.singularValues().cwiseInverse().cwiseSqrt().asDiagonal() *
-                            solver.matrixU().adjoint();
-            logSqrtDeterminant = 0.5 * solver.singularValues().array().log().sum();
-        }
-    }
 
     /**
      * @tparam ModelType
@@ -141,12 +131,11 @@ namespace hops {
         double stateNegativeLogLikelihood = 0;
         double proposalNegativeLogLikelihood = 0;
 
-        MatrixType stateSqrtInvMetric;
-        MatrixType stateInvMetric;
+
         MatrixType stateMetric;
-        MatrixType proposalSqrtInvMetric;
-        MatrixType proposalInvMetric;
         MatrixType proposalMetric;
+        Eigen::LLT<MatrixType> stateSolver;
+        Eigen::LLT<MatrixType> proposalSolver;
 
         double stepSize = 1;
         double geometricFactor = 0;
@@ -172,11 +161,12 @@ namespace hops {
             maxNumberOfReflections(maxReflections) {
         if (ModelType::hasConstantExpectedFisherInformation()) {
             stateMetric = ModelType::computeExpectedFisherInformation(currentState).value();
-
-            BilliardMALAProposalDetails::computeMetricInfoForReflectiveMALAWithSvd(stateMetric,
-                                                                                   stateSqrtInvMetric,
-                                                                                   stateLogSqrtDeterminant);
-            stateInvMetric = stateSqrtInvMetric * stateSqrtInvMetric.transpose();
+            stateSolver = Eigen::LLT<MatrixType>(stateMetric);
+            if (stateSolver.info() != Eigen::Success) {
+                throw std::runtime_error("cholesky decomposition of fisher information failed,"
+                                         "because fisher information is not positive definite.");
+            };
+            stateLogSqrtDeterminant = logSqrtDeterminant(stateSolver.matrixLLT());
         }
         BilliardMALAProposal::setState(currentState);
         BilliardMALAProposal::setStepSize(newStepSize);
@@ -184,8 +174,7 @@ namespace hops {
         proposal = state;
         proposalNegativeLogLikelihood = stateNegativeLogLikelihood;
         proposalMetric = stateMetric;
-        proposalSqrtInvMetric = stateSqrtInvMetric;
-        proposalInvMetric = stateInvMetric;
+        proposalSolver = stateSolver;
         proposalLogSqrtDeterminant = stateLogSqrtDeterminant;
     }
 
@@ -217,7 +206,7 @@ namespace hops {
         for (long i = 0; i < proposal.rows(); ++i) {
             proposal(i) = normalDistribution(rng);
         }
-        proposal = driftedState + covarianceFactor * (stateSqrtInvMetric * proposal);
+        proposal = driftedState + covarianceFactor * stateSolver.matrixL().transpose().solve(proposal);
 
         std::tuple<bool, long, VectorType> reflectionResult;
         if (quadraticConstraintsMatrix) {
@@ -251,7 +240,7 @@ namespace hops {
         driftedState.swap(driftedProposal);
         stateNegativeLogLikelihood = proposalNegativeLogLikelihood;
         if (!ModelType::hasConstantExpectedFisherInformation()) {
-            stateSqrtInvMetric.swap(proposalSqrtInvMetric);
+            stateSolver = proposalSolver;
             stateMetric.swap(proposalMetric);
             stateLogSqrtDeterminant = proposalLogSqrtDeterminant;
         }
@@ -278,14 +267,17 @@ namespace hops {
                 stateMetric = MatrixType::Identity(state.rows(), state.rows());
             }
 
-            BilliardMALAProposalDetails::computeMetricInfoForReflectiveMALAWithSvd(stateMetric,
-                                                                                   stateSqrtInvMetric,
-                                                                                   stateLogSqrtDeterminant);
-            stateInvMetric = stateSqrtInvMetric * stateSqrtInvMetric.transpose();
+            stateSolver = Eigen::LLT<MatrixType>(stateMetric);
+            if (stateSolver.info() != Eigen::Success) {
+                throw std::runtime_error("cholesky decomposition of fisher information failed,"
+                                         "because fisher information is not positive definite.");
+            };
+            stateLogSqrtDeterminant = logSqrtDeterminant(stateSolver.matrixLLT());
         }
 
-        driftedState = state + 0.5 * std::pow(covarianceFactor, 2) * stateInvMetric *
-                               gradient;
+        driftedState = state + 0.5 * std::pow(covarianceFactor, 2) *
+                               stateSolver.matrixL().transpose().template solve(stateSolver.matrixL().solve(gradient));
+
         stateNegativeLogLikelihood = ModelType::computeNegativeLogLikelihood(state);
     }
 
@@ -334,14 +326,18 @@ namespace hops {
                 proposalMetric = MatrixType::Identity(state.rows(), state.rows());
             }
 
-            BilliardMALAProposalDetails::computeMetricInfoForReflectiveMALAWithSvd(proposalMetric,
-                                                                                   proposalSqrtInvMetric,
-                                                                                   proposalLogSqrtDeterminant);
+            proposalSolver = Eigen::LLT<MatrixType>(proposalMetric);
+            if (proposalSolver.info() != Eigen::Success) {
+                // state is not valid, because metric is not positive definite.
+                return -std::numeric_limits<double>::infinity();
+            };
+            proposalLogSqrtDeterminant = logSqrtDeterminant(proposalSolver.matrixLLT());
         }
 
         driftedProposal = proposal +
-                          0.5 * std::pow(covarianceFactor, 2) * proposalInvMetric *
-                          gradient;
+                          0.5 * std::pow(covarianceFactor, 2) *
+                          proposalSolver.matrixL().transpose().template solve(
+                                  proposalSolver.matrixL().solve(gradient));
 
         proposalNegativeLogLikelihood = ModelType::computeNegativeLogLikelihood(proposal);
 
