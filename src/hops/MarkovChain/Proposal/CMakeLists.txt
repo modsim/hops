@@ -11,6 +11,7 @@ if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
             DikinProposal.hpp
             GaussianProposal.hpp
             HitAndRunProposal.hpp
+            TruncatedGaussianProposal.hpp
             Proposal.hpp
             ProposalFactory.hpp
             ProposalParameter.hpp
