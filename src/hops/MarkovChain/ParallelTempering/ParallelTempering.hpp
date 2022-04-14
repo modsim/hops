@@ -42,9 +42,11 @@ namespace hops {
             MarkovChainImpl::setColdness(1. - static_cast<double>(chainIndex) / largestChainIndex);
         }
 
-        void draw(RandomNumberGenerator &randomNumberGenerator) {
-            MarkovChainImpl::draw(randomNumberGenerator);
-            executeParallelTemperingStep();
+        double draw(RandomNumberGenerator &randomNumberGenerator) {
+            double acceptance = MarkovChainImpl::draw(randomNumberGenerator);
+            // TODO how to log PT exchanges well
+            double PTacceptance = executeParallelTemperingStep();
+            return (acceptance + PTacceptance) / 2;
         }
 
         void writeRecordsToFile(const FileWriter *const fileWriter) const {
@@ -106,8 +108,10 @@ namespace hops {
             double otherChainProperties[2];
             std::memcpy(otherChainProperties, thisChainProperties, sizeof(double) * 2);
 
-            MPI_Sendrecv_replace(otherChainProperties, 2, MPI_DOUBLE, otherChainRank, MpiInitializerFinalizer::getInternalMpiTag(),
-                                 otherChainRank, MpiInitializerFinalizer::getInternalMpiTag(), communicator, MPI_STATUS_IGNORE);
+            MPI_Sendrecv_replace(otherChainProperties, 2, MPI_DOUBLE, otherChainRank,
+                                 MpiInitializerFinalizer::getInternalMpiTag(),
+                                 otherChainRank, MpiInitializerFinalizer::getInternalMpiTag(), communicator,
+                                 MPI_STATUS_IGNORE);
 
             // 1*1=(-1)*(-1) => the signs come out consistently for both chains for the acceptance probability
             double diffColdness = thisChainProperties[0] - otherChainProperties[0];
@@ -120,8 +124,10 @@ namespace hops {
         void exchangeStates(int otherChainRank) {
             VectorType thisState = MarkovChainImpl::getState();
 
-            MPI_Sendrecv_replace(thisState.data(), thisState.size(), MPI_DOUBLE, otherChainRank, MpiInitializerFinalizer::getInternalMpiTag(),
-                                 otherChainRank, MpiInitializerFinalizer::getInternalMpiTag(), communicator, MPI_STATUS_IGNORE);
+            MPI_Sendrecv_replace(thisState.data(), thisState.size(), MPI_DOUBLE, otherChainRank,
+                                 MpiInitializerFinalizer::getInternalMpiTag(),
+                                 otherChainRank, MpiInitializerFinalizer::getInternalMpiTag(), communicator,
+                                 MPI_STATUS_IGNORE);
 
             MarkovChainImpl::setState(thisState);
         }

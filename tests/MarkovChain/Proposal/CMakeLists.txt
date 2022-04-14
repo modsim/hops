@@ -4,10 +4,10 @@ set(TEST_SOURCES
         CSmMALATestSuite.cpp
         CoordinateHitAndRunTestSuite.cpp
         DikinEllipsoidCalculatorTestSuite.cpp
-#        ProposalFactoryTestSuite.cpp TODO probably remove this factory, no one needs it
         HitAndRunTestSuite.cpp
         ProposalStatisticsTestSuite.cpp
         ReflectorTestSuite.cpp
+#        ReversibleJumpProposalTestSuite.cpp
         )
 
 foreach (TEST_SOURCE ${TEST_SOURCES})
