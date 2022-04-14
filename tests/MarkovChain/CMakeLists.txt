@@ -13,7 +13,7 @@ set(TEST_SOURCES
         IsSetFisherWeightAvailableTestSuite.cpp
         IsSetStepSizeAvailableTestSuite.cpp
         # TODO reinclude factory
-#        MarkovChainFactoryTestSuite.cpp
+        MarkovChainFactoryTestSuite.cpp
         ModelMixinTestSuite.cpp
         ModelWrapperTestSuite.cpp
         )

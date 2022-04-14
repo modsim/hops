@@ -29,7 +29,7 @@ namespace hops {
          * the new state.
           * @param activeSubspace vector should contain 1 for active dimensions and 0 for inactive dimensions.
          */
-        virtual VectorType &propose(RandomNumberGenerator &rng, const std::vector<int> &activeSubspace) {
+        virtual VectorType &propose(RandomNumberGenerator &rng, const Eigen::VectorXd &activeSubspace) {
             throw std::runtime_error("Not implemented");
         };
 
@@ -39,7 +39,7 @@ namespace hops {
          * because the infos are reset, when a proposal is accepted.
          * @return
          */
-        [[nodiscard]] virtual ProposalStatistics & getProposalStatistics() {
+        [[nodiscard]] virtual ProposalStatistics &getProposalStatistics() {
             throw std::runtime_error("getProposalStatistics is not implemented for this Proposal");
         };
 
@@ -64,7 +64,7 @@ namespace hops {
          */
         virtual void disableTrackingOfProposalStatistics() {};
 
-        virtual bool isTrackingOfProposalStatisticsActivated() { return false;}
+        virtual bool isTrackingOfProposalStatisticsActivated() { return false; }
 
         /**
          * @Brief Calculates detailed balance using internal proposal. Saves one copy operation compared to
@@ -158,12 +158,12 @@ namespace hops {
         /**
          * @brief Returns const reference to dense left-hand side operator A from the polytope defining inequality Ax <= b.
          */
-        [[nodiscard]] virtual const MatrixType& getA() const = 0;
+        [[nodiscard]] virtual const MatrixType &getA() const = 0;
 
         /**
          * @brief Returns const reference to dense right-hand side vector b from the polytope defining inequality Ax <= b.
          */
-        [[nodiscard]] virtual const VectorType& getB() const = 0;
+        [[nodiscard]] virtual const VectorType &getB() const = 0;
 
         [[nodiscard]] virtual std::unique_ptr<Proposal> copyProposal() const = 0;
 

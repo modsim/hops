@@ -1,4 +1,4 @@
-#define BOOST_TEST_MODULE HitAndRunProposalTestSuite
+#define BOOST_TEST_MODULE hitAndRunProposalTestSuite
 #define BOOST_TEST_DYN_LINK
 
 #include <boost/test/included/unit_test.hpp>
@@ -25,12 +25,12 @@ BOOST_AUTO_TEST_SUITE(HitAndRunProposal)
             interiorPoint(i) = 0;
         }
 
-        hops::HitAndRunProposal HitAndRunProposal(A, b, interiorPoint);
+        hops::HitAndRunProposal hitAndRunProposal(A, b, interiorPoint);
         hops::RandomNumberGenerator randomNumberGenerator((std::random_device()()));
         for (int i = 0; i < 100; ++i) {
-            Eigen::VectorXd proposal = HitAndRunProposal.propose(randomNumberGenerator);
+            Eigen::VectorXd proposal = hitAndRunProposal.propose(randomNumberGenerator);
             BOOST_CHECK(((b - A * proposal).array() > 0).all());
-            HitAndRunProposal.acceptProposal();
+            hitAndRunProposal.acceptProposal();
         }
     }
 
@@ -51,12 +51,12 @@ BOOST_AUTO_TEST_SUITE(HitAndRunProposal)
             interiorPoint(i) = 1;
         }
 
-        hops::HitAndRunProposal HitAndRunProposal(A, b, interiorPoint);
+        hops::HitAndRunProposal hitAndRunProposal(A, b, interiorPoint);
         hops::RandomNumberGenerator randomNumberGenerator((std::random_device()()));
         for (int i = 0; i < 100; ++i) {
-            Eigen::VectorXd proposal = HitAndRunProposal.propose(randomNumberGenerator);
+            Eigen::VectorXd proposal = hitAndRunProposal.propose(randomNumberGenerator);
             BOOST_CHECK(((b - A * proposal).array() >= 0).all());
-            HitAndRunProposal.acceptProposal();
+            hitAndRunProposal.acceptProposal();
         }
     }
 
@@ -77,11 +77,11 @@ BOOST_AUTO_TEST_SUITE(HitAndRunProposal)
         }
 
         hops::HitAndRunProposal<decltype(A), decltype(b), hops::UniformStepDistribution<double>>
-                HitAndRunProposal(A, b, interiorPoint);
+                hitAndRunProposal(A, b, interiorPoint);
 
         hops::RandomNumberGenerator randomNumberGenerator((std::random_device()()));
         for (int i = 0; i < 100; ++i) {
-            BOOST_CHECK_THROW(HitAndRunProposal.propose(randomNumberGenerator),
+            BOOST_CHECK_THROW(hitAndRunProposal.propose(randomNumberGenerator),
                               std::invalid_argument
             );
         }
@@ -103,13 +103,41 @@ BOOST_AUTO_TEST_SUITE(HitAndRunProposal)
         }
 
         hops::HitAndRunProposal<decltype(A), decltype(b), hops::GaussianStepDistribution<double>>
-                HitAndRunProposal(A, b, interiorPoint);
+                hitAndRunProposal(A, b, interiorPoint);
 
         hops::RandomNumberGenerator randomNumberGenerator((std::random_device()()));
         for (int i = 0; i < 100; ++i) {
-            Eigen::VectorXd proposal = HitAndRunProposal.propose(randomNumberGenerator);
+            Eigen::VectorXd proposal = hitAndRunProposal.propose(randomNumberGenerator);
             BOOST_CHECK(((b - A * proposal).array() > 0).all());
-            HitAndRunProposal.acceptProposal();
+            hitAndRunProposal.acceptProposal();
+        }
+    }
+
+    BOOST_AUTO_TEST_CASE(CubeAndGaussianChord) {
+        const long rows = 6;
+        const long cols = 3;
+        Eigen::MatrixXd A(rows, cols);
+        A << 1, 0, 0,
+                0, 1, 0,
+                0, 0, 1,
+                -1, 0, 0,
+                0, -1, 0,
+                0, 0, -1;
+        Eigen::VectorXd b(rows);
+        b << 1, 1, 1, 1, 1, 1;
+        Eigen::VectorXd interiorPoint(cols);
+        for (size_t i = 0; i < cols; ++i) {
+            interiorPoint(i) = 0;
+        }
+
+        hops::HitAndRunProposal<decltype(A), decltype(b), hops::GaussianStepDistribution<double>>
+                hitAndRunProposal(A, b, interiorPoint);
+        hops::RandomNumberGenerator randomNumberGenerator((std::random_device()()));
+        for (int i = 0; i < 100; ++i) {
+            Eigen::VectorXd proposal = hitAndRunProposal.propose(randomNumberGenerator);
+            BOOST_CHECK(((b - A * proposal).array() > 0).all());
+            hitAndRunProposal.computeLogAcceptanceProbability();
+            hitAndRunProposal.acceptProposal();
         }
     }
 

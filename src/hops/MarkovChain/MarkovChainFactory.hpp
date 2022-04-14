@@ -641,104 +641,118 @@ namespace hops {
             case MarkovChainType::AdaptiveMetropolis : {
                 return wrapMarkovChainImpl(
                         MarkovChainAdapter(
-                                MetropolisHastingsFilter(
-                                        ModelMixin(
-                                                AdaptiveMetropolisProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>>(
-                                                        inequalityLhs, inequalityRhs, startingPoint),
-                                                Coldness(model)
-                                        )
-                                ),
-                                synchronizedRandomNumberGenerator
+                                ParallelTempering(
+                                        MetropolisHastingsFilter(
+                                                ModelMixin(
+                                                        AdaptiveMetropolisProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>>(
+                                                                inequalityLhs, inequalityRhs, startingPoint),
+                                                        Coldness(model)
+                                                )
+                                        ),
+                                        synchronizedRandomNumberGenerator
+                                )
                         )
                 );
             }
             case MarkovChainType::BallWalk : {
                 return wrapMarkovChainImpl(
                         MarkovChainAdapter(
-                                MetropolisHastingsFilter(
-                                        ModelMixin(
-                                                BallWalkProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
-                                                        decltype(inequalityRhs)>(
-                                                        inequalityLhs, inequalityRhs, startingPoint),
-                                                Coldness(model)
-                                        )
-                                ),
-                                synchronizedRandomNumberGenerator
+                                ParallelTempering(
+                                        MetropolisHastingsFilter(
+                                                ModelMixin(
+                                                        BallWalkProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
+                                                                decltype(inequalityRhs)>(
+                                                                inequalityLhs, inequalityRhs, startingPoint),
+                                                        Coldness(model)
+                                                )
+                                        ),
+                                        synchronizedRandomNumberGenerator
+                                )
                         )
                 );
             }
             case MarkovChainType::CoordinateHitAndRun : {
                 return wrapMarkovChainImpl(
                         MarkovChainAdapter(
-                                MetropolisHastingsFilter(
-                                        ModelMixin(
-                                                CoordinateHitAndRunProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
-                                                        decltype(inequalityRhs),
-                                                        GaussianStepDistribution<typename decltype(inequalityRhs)::Scalar>>(
-                                                        inequalityLhs, inequalityRhs, startingPoint),
-                                                Coldness(model)
-                                        )
-                                ),
-                                synchronizedRandomNumberGenerator
+                                ParallelTempering(
+                                        MetropolisHastingsFilter(
+                                                ModelMixin(
+                                                        CoordinateHitAndRunProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
+                                                                decltype(inequalityRhs),
+                                                                GaussianStepDistribution<typename decltype(inequalityRhs)::Scalar>>(
+                                                                inequalityLhs, inequalityRhs, startingPoint),
+                                                        Coldness(model)
+                                                )
+                                        ),
+                                        synchronizedRandomNumberGenerator
+                                )
                         )
                 );
             }
             case MarkovChainType::CSmMALA: {
                 return wrapMarkovChainImpl(
                         MarkovChainAdapter(
-                                MetropolisHastingsFilter(
-                                        CSmMALAProposal(inequalityLhs,
-                                                        inequalityRhs,
-                                                        startingPoint,
-                                                        Coldness(model)
-                                        )
-                                ),
-                                synchronizedRandomNumberGenerator
+                                ParallelTempering(
+                                        MetropolisHastingsFilter(
+                                                CSmMALAProposal(inequalityLhs,
+                                                                inequalityRhs,
+                                                                startingPoint,
+                                                                Coldness(model)
+                                                )
+                                        ),
+                                        synchronizedRandomNumberGenerator
+                                )
                         )
                 );
             }
             case MarkovChainType::DikinWalk : {
                 return wrapMarkovChainImpl(
                         MarkovChainAdapter(
-                                MetropolisHastingsFilter(
-                                        ModelMixin(
-                                                DikinProposal(inequalityLhs, inequalityRhs, startingPoint),
-                                                Coldness(model)
-                                        )
-                                ),
-                                synchronizedRandomNumberGenerator
+                                ParallelTempering(
+                                        MetropolisHastingsFilter(
+                                                ModelMixin(
+                                                        DikinProposal(inequalityLhs, inequalityRhs, startingPoint),
+                                                        Coldness(model)
+                                                )
+                                        ),
+                                        synchronizedRandomNumberGenerator
+                                )
                         )
                 );
             }
             case MarkovChainType::Gaussian : {
                 return wrapMarkovChainImpl(
                         MarkovChainAdapter(
-                                MetropolisHastingsFilter(
-                                        ModelMixin(
-                                                GaussianProposal<
-                                                        Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
-                                                        decltype(inequalityRhs)
-                                                >(inequalityLhs, inequalityRhs, startingPoint),
-                                                Coldness(model)
-                                        )
-                                ),
-                                synchronizedRandomNumberGenerator
+                                ParallelTempering(
+                                        MetropolisHastingsFilter(
+                                                ModelMixin(
+                                                        GaussianProposal<
+                                                                Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
+                                                                decltype(inequalityRhs)
+                                                        >(inequalityLhs, inequalityRhs, startingPoint),
+                                                        Coldness(model)
+                                                )
+                                        ),
+                                        synchronizedRandomNumberGenerator
+                                )
                         )
                 );
             }
             case MarkovChainType::HitAndRun: {
                 return wrapMarkovChainImpl(
                         MarkovChainAdapter(
-                                MetropolisHastingsFilter(
-                                        ModelMixin(
-                                                HitAndRunProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
-                                                        decltype(inequalityRhs),
-                                                        GaussianStepDistribution<typename decltype(inequalityRhs)::Scalar>>(
-                                                        inequalityLhs, inequalityRhs, startingPoint),
-                                                Coldness(model)
-                                        )
-                                ),
-                                synchronizedRandomNumberGenerator
+                                ParallelTempering(
+                                        MetropolisHastingsFilter(
+                                                ModelMixin(
+                                                        HitAndRunProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
+                                                                decltype(inequalityRhs),
+                                                                GaussianStepDistribution<typename decltype(inequalityRhs)::Scalar>>(
+                                                                inequalityLhs, inequalityRhs, startingPoint),
+                                                        Coldness(model)
+                                                )
+                                        ),
+                                        synchronizedRandomNumberGenerator
+                                )
                         )
                 );
             }

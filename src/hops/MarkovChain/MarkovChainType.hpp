@@ -14,6 +14,7 @@ namespace hops {
         DikinWalk,
         Gaussian,
         HitAndRun,
+        TruncatedGaussian,
     };
 
     std::string markovChainTypeToFullString(MarkovChainType markovChainType) {
@@ -36,6 +37,8 @@ namespace hops {
                 return "Gaussian Random Walk";
             case MarkovChainType::HitAndRun:
                 return "Hit-and-Run";
+            case MarkovChainType::TruncatedGaussian:
+                return "Truncated Gaussian";
             default:
                 throw std::runtime_error("Bug in switch case for markovChainTypeToFullString.");
         }
@@ -61,6 +64,8 @@ namespace hops {
                 return "G";
             case MarkovChainType::HitAndRun:
                 return "HR";
+            case MarkovChainType::TruncatedGaussian:
+                return "TMVN";
             default:
                 throw std::runtime_error("Bug in switch case for markovChainTypeToShortString.");
         }
@@ -82,7 +87,8 @@ namespace hops {
                 MarkovChainType::CSmMALA,
                 MarkovChainType::DikinWalk,
                 MarkovChainType::Gaussian,
-                MarkovChainType::HitAndRun
+                MarkovChainType::HitAndRun,
+                MarkovChainType::TruncatedGaussian
         };
 
         for (const MarkovChainType &chainType: chainTypes) {

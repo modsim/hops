@@ -22,11 +22,14 @@ namespace hops {
          * @param b
          * @param currentState
          */
-        CoordinateHitAndRunProposal(InternalMatrixType A, InternalVectorType b, InternalVectorType currentState, double stepSize = 1);
+        CoordinateHitAndRunProposal(InternalMatrixType A,
+                                    InternalVectorType b,
+                                    InternalVectorType currentState,
+                                    double stepSize = 1);
 
         VectorType &propose(RandomNumberGenerator &rng) override;
 
-        VectorType &propose(RandomNumberGenerator &rng, const std::vector<int> &activeSubspace) override;
+        VectorType &propose(RandomNumberGenerator &rng, const Eigen::VectorXd &activeSubspace) override;
 
         VectorType &acceptProposal() override;
 
@@ -56,11 +59,11 @@ namespace hops {
 
         [[nodiscard]] double computeLogAcceptanceProbability() override;
 
-        [[nodiscard]] const MatrixType& getA() const override;
+        [[nodiscard]] const MatrixType &getA() const override;
 
-        [[nodiscard]] const VectorType& getB() const override;
+        [[nodiscard]] const VectorType &getB() const override;
 
-        ProposalStatistics & getProposalStatistics() override;
+        ProposalStatistics &getProposalStatistics() override;
 
         void activateTrackingOfProposalStatistics() override;
 
@@ -89,10 +92,11 @@ namespace hops {
     };
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
-    CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::CoordinateHitAndRunProposal(InternalMatrixType A_,
-                                                                                                                            InternalVectorType b_,
-                                                                                                                            InternalVectorType currentState_,
-                                                                                                                            double stepSize) :
+    CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::CoordinateHitAndRunProposal(
+            InternalMatrixType A_,
+            InternalVectorType b_,
+            InternalVectorType currentState_,
+            double stepSize) :
             A(std::move(A_)),
             b(std::move(b_)),
             state(std::move(currentState_)),
@@ -113,11 +117,11 @@ namespace hops {
         inverseDistances = A.col(coordinateToUpdate).cwiseQuotient(slacks);
         forwardDistance = 1. / inverseDistances.maxCoeff();
         backwardDistance = 1. / inverseDistances.minCoeff();
-        if(forwardDistance<0) {
+        if (forwardDistance < 0) {
             // forward direction is unconstrained
             forwardDistance = std::numeric_limits<typename InternalMatrixType::Scalar>::infinity();
         }
-        if(backwardDistance>0) {
+        if (backwardDistance > 0) {
             // backward direction is unconstrained
             backwardDistance = -std::numeric_limits<typename InternalMatrixType::Scalar>::infinity();
         }
@@ -137,13 +141,13 @@ namespace hops {
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
     VectorType &CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::propose(
-            RandomNumberGenerator &rng, const std::vector<int> &activeSubspace) {
+            RandomNumberGenerator &rng, const Eigen::VectorXd &activeSubspace) {
         proposal(coordinateToUpdate) = state(coordinateToUpdate);
-        // Check that at least some spaces are active
-        assert(std::accumulate(activeSubspace.begin(), activeSubspace.end(), 0) > 0);
-        do {
+        // Checks that at least some spaces are active
+        assert(activeSubspace.sum() > 0);
+        for (long i; activeSubspace(coordinateToUpdate) == 0 && i < activeSubspace.rows(); ++i) {
             ++coordinateToUpdate %= state.rows();
-        } while (activeSubspace[coordinateToUpdate] == 0);
+        }
 
         inverseDistances = A.col(coordinateToUpdate).cwiseQuotient(slacks);
         // Inverse distance are potentially nan due to default values on the boundary of the polytope.
@@ -165,7 +169,7 @@ namespace hops {
     }
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
-    VectorType&
+    VectorType &
     CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::acceptProposal() {
         state(coordinateToUpdate) += step;
         slacks.noalias() -= A.col(coordinateToUpdate) * step;
@@ -209,13 +213,20 @@ namespace hops {
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
     double
     CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::computeLogAcceptanceProbability() {
-        double detailedBalanceState = chordStepDistribution.computeInverseNormalizationConstant(0, backwardDistance,
-                                                                                                forwardDistance);
-        double detailedBalanceProposal = chordStepDistribution.computeInverseNormalizationConstant(0, backwardDistance -
-                                                                                                      step,
-                                                                                                   forwardDistance -
-                                                                                                   step);
-        return detailedBalanceState - detailedBalanceProposal;
+        if constexpr (IsSetStepSizeAvailable<ChordStepDistribution>::value) {
+            double stepSize = chordStepDistribution.getStepSize();
+            double detailedBalanceState = chordStepDistribution.computeInverseNormalizationConstant(stepSize,
+                                                                                                    backwardDistance,
+                                                                                                    forwardDistance);
+            double detailedBalanceProposal = chordStepDistribution.computeInverseNormalizationConstant(stepSize,
+                                                                                                       backwardDistance -
+                                                                                                       step,
+                                                                                                       forwardDistance -
+                                                                                                       step);
+            return detailedBalanceState - detailedBalanceProposal;
+        } else {
+            return 0;
+        }
     }
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
@@ -248,10 +259,9 @@ namespace hops {
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
     std::vector<std::string>
     CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::getParameterNames() const {
-        if(this->getStepSize().has_value()) {
+        if (this->getStepSize().has_value()) {
             return {"step_size"};
-        }
-        else {
+        } else {
             return {};
         }
     }
@@ -290,13 +300,13 @@ namespace hops {
     }
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
-    const MatrixType& 
+    const MatrixType &
     CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::getA() const {
         return A;
-      }
+    }
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
-    const VectorType& 
+    const VectorType &
     CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::getB() const {
         return b;
     }
