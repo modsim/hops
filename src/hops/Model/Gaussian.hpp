@@ -38,7 +38,7 @@ namespace hops {
 
         [[nodiscard]] std::unique_ptr<Model> copyModel() const override;
 
-        std::vector<std::string> getDimensionNames() const override;
+        [[nodiscard]] std::vector<std::string> getDimensionNames() const override;
 
     private:
         VectorType mean;

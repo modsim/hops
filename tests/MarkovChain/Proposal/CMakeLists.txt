@@ -8,6 +8,7 @@ set(TEST_SOURCES
         ProposalStatisticsTestSuite.cpp
         ReflectorTestSuite.cpp
 #        ReversibleJumpProposalTestSuite.cpp
+        TrunatedGaussianProposalTestSuite.cpp
         )
 
 foreach (TEST_SOURCE ${TEST_SOURCES})

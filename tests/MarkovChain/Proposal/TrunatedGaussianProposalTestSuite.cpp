@@ -1,18 +1,21 @@
-#define BOOST_TEST_MODULE CSmMALAProposalTestSuite
+#define BOOST_TEST_MODULE TruncatedGaussianProposalTestSuite
 #define BOOST_TEST_DYN_LINK
 
 #include <boost/test/included/unit_test.hpp>
-#include <numeric>
+#include <chrono>
 #include <Eigen/Core>
 
-#include <hops/MarkovChain/Proposal/CSmMALAProposal.hpp>
-#include <hops/MarkovChain/MarkovChainAdapter.hpp>
 #include <hops/MarkovChain/Draw/MetropolisHastingsFilter.hpp>
+#include <hops/MarkovChain/MarkovChainAdapter.hpp>
+#include <hops/MarkovChain/ModelMixin.hpp>
+#include <hops/MarkovChain/ModelWrapper.hpp>
+#include <hops/MarkovChain/Proposal/TruncatedGaussianProposal.hpp>
+#include <hops/Model/Rosenbrock.hpp>
 #include <hops/Model/Gaussian.hpp>
 #include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
 #include <hops/Statistics/EffectiveSampleSize.hpp>
 
-BOOST_AUTO_TEST_SUITE(CSmMALAProposal)
+BOOST_AUTO_TEST_SUITE(TruncatedGaussianProposal)
 
     BOOST_AUTO_TEST_CASE(GaussianInCube) {
         const long rows = 6;
@@ -33,25 +36,24 @@ BOOST_AUTO_TEST_SUITE(CSmMALAProposal)
 
         auto model = hops::Gaussian(interiorPoint, Eigen::MatrixXd::Identity(cols, cols));
 
-        hops::CSmMALAProposal proposer(A,
-                                       b,
-                                       interiorPoint,
-                                       model);
+
+        long max_reflections = 10;
+        hops::TruncatedGaussianProposal proposer(A,
+                                                 b,
+                                                 interiorPoint,
+                                                 model);
 
         hops::RandomNumberGenerator randomNumberGenerator(42);
+        auto t1 = std::chrono::high_resolution_clock::now();
         for (int i = 0; i < 100; ++i) {
             Eigen::VectorXd proposal = proposer.propose(randomNumberGenerator);
             double acceptanceChance = proposer.computeLogAcceptanceProbability();
+            BOOST_CHECK(((b - A * proposal).array() >= 0).all());
             BOOST_CHECK(std::exp(acceptanceChance) >= 0);
-            if (((b - A * proposal).array() > 0).all()) {
-                proposer.acceptProposal();
-            }
+            proposer.acceptProposal();
         }
-
-        Eigen::VectorXd proposal = proposer.propose(randomNumberGenerator);
-        Eigen::VectorXd expectedProposal(3);
-        expectedProposal << 0.9999741429740745, -0.98150954639435795, -0.99999996305021499;
-        BOOST_CHECK(proposal.isApprox(expectedProposal));
+        auto t2 = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double, std::milli> ms_double = t2 - t1;
 
         BOOST_CHECK(proposer.getModel() != nullptr);
     }
@@ -68,20 +70,21 @@ BOOST_AUTO_TEST_SUITE(CSmMALAProposal)
             interiorPoint(i) = 0;
         }
 
-        auto model = hops::Gaussian(interiorPoint, Eigen::MatrixXd::Identity(cols, cols));
+        auto model = std::make_shared<hops::Gaussian>(interiorPoint, Eigen::MatrixXd::Identity(cols, cols));
+        auto gaussian = hops::Gaussian(interiorPoint, Eigen::MatrixXd::Identity(cols, cols));
 
         auto mc = hops::MarkovChainAdapter(
                 hops::MetropolisHastingsFilter(
-                        hops::CSmMALAProposal(A,
-                                              b,
-                                              interiorPoint,
-                                              model)
+                        hops::TruncatedGaussianProposal(A,
+                                                        b,
+                                                        interiorPoint,
+                                                        gaussian)
                 )
         );
 
         hops::RandomNumberGenerator randomNumberGenerator(42);
         std::vector<Eigen::VectorXd> samples;
-        double num_samples = 25'000;
+        double num_samples = 50'000;
         Eigen::VectorXd sample_sum = Eigen::VectorXd::Zero(1);
         for (int i = 0; i < num_samples; ++i) {
             auto[alpha, state] = mc.draw(randomNumberGenerator);
@@ -100,7 +103,7 @@ BOOST_AUTO_TEST_SUITE(CSmMALAProposal)
         }
         double stdev = std::sqrt(sq_sum / (samples.size() - 1));
 
-        BOOST_CHECK(std::abs(mean - model.getMean()(0)) < 2 * standardErrorOfMean);
+        BOOST_CHECK(std::abs(mean - model->getMean()(0)) < 2 * standardErrorOfMean);
         BOOST_CHECK_CLOSE(stdev, 1., 1);
     }
 
@@ -116,14 +119,14 @@ BOOST_AUTO_TEST_SUITE(CSmMALAProposal)
         }
 
         auto model = std::make_shared<hops::Gaussian>(interiorPoint, Eigen::MatrixXd::Identity(cols, cols));
-        auto gaussian = hops::Gaussian(interiorPoint, 0.3 * Eigen::MatrixXd::Identity(cols, cols));
+        auto gaussian = hops::Gaussian(interiorPoint, 0.3*Eigen::MatrixXd::Identity(cols, cols));
 
         auto mc = hops::MarkovChainAdapter(
                 hops::MetropolisHastingsFilter(
-                        hops::CSmMALAProposal(A,
-                                              b,
-                                              interiorPoint,
-                                              gaussian)
+                        hops::TruncatedGaussianProposal(A,
+                                                        b,
+                                                        interiorPoint,
+                                                        gaussian)
                 )
         );
 
@@ -152,5 +155,5 @@ BOOST_AUTO_TEST_SUITE(CSmMALAProposal)
         BOOST_CHECK_CLOSE(stdev, std::sqrt(0.3), 1);
     }
 
-BOOST_AUTO_TEST_SUITE_END()
 
+BOOST_AUTO_TEST_SUITE_END()
