@@ -75,6 +75,8 @@ namespace hops {
 
         std::vector<std::string> getDimensionNames() const override;
 
+        bool hasNegativeLogLikelihood() const override;
+
     private:
         InternalMatrixType A;
         InternalVectorType b;
@@ -85,6 +87,7 @@ namespace hops {
         InternalVectorType inverseDistances;
         ProposalStatistics proposalStatistics;
 
+        long coordinateToUpdate = 0;
         typename InternalMatrixType::Scalar step = 0;
         GaussianStepDistribution<VectorType::Scalar> chordStepDistribution;
         typename InternalMatrixType::Scalar forwardDistance = 0;
@@ -107,49 +110,42 @@ namespace hops {
         if (((b - A * state).array() < 0).any()) {
             throw std::invalid_argument("Starting point outside polytope always gives constant Markov chain.");
         }
-
         slacks = this->b - this->A * this->state;
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    VectorType &TruncatedGaussianProposal<InternalMatrixType, InternalVectorType>::propose(
-            RandomNumberGenerator &rng) {
-        MatrixType cholesky = Gaussian::getCovarianceLowerCholesky();
-        const VectorType &mean = Gaussian::getMean();
-        VectorType shiftedState = state - mean;
-        VectorType whiteState = cholesky.template triangularView<Eigen::Lower>().
-                template solve(shiftedState);
-        proposal = whiteState;
-        MatrixType whitenedA = A * cholesky.template triangularView<Eigen::Lower>();
-        VectorType whitenedB = b - A * mean;
+    VectorType &TruncatedGaussianProposal<InternalMatrixType, InternalVectorType>::propose(RandomNumberGenerator &rng) {
+        proposal(coordinateToUpdate) = state(coordinateToUpdate);
+        ++coordinateToUpdate %= state.rows();
 
-        for (long i = 0; i < state.rows(); ++i) {
-            slacks = whitenedB - whitenedA * proposal;
-            inverseDistances = whitenedA.col(i).cwiseQuotient(slacks);
-            forwardDistance = 1. / inverseDistances.maxCoeff();
-            backwardDistance = 1. / inverseDistances.minCoeff();
-            if (forwardDistance < 0) {
-                forwardDistance = std::numeric_limits<typename InternalMatrixType::Scalar>::infinity();
-            }
-            if (backwardDistance > 0) {
-                backwardDistance = -std::numeric_limits<typename InternalMatrixType::Scalar>::infinity();
-            }
-
-            step = chordStepDistribution.draw(rng, 1., backwardDistance, forwardDistance);
-
-            proposal(i) += step;
+        inverseDistances = A.col(coordinateToUpdate).cwiseQuotient(slacks);
+        forwardDistance = 1. / inverseDistances.maxCoeff();
+        backwardDistance = 1. / inverseDistances.minCoeff();
+        if (forwardDistance < 0.) {
+            forwardDistance = std::numeric_limits<typename InternalMatrixType::Scalar>::infinity();
+        }
+        if (backwardDistance > 0.) {
+            backwardDistance = -std::numeric_limits<typename InternalMatrixType::Scalar>::infinity();
         }
 
-        proposal = cholesky * (proposal) + mean;
-        // A * (L * (wS) + mu) < b
-        // A * L * ws < b - A * mu
+        const MatrixType &cholesky = Gaussian::getCovarianceLowerCholesky();
+        const VectorType &mean = Gaussian::getMean();
+
+        double lower_bound = state(coordinateToUpdate) + backwardDistance;
+        double upper_bound = state(coordinateToUpdate) + forwardDistance;
+
+        step = mean(coordinateToUpdate) + chordStepDistribution.draw(rng, cholesky(coordinateToUpdate), lower_bound, upper_bound);
+
+        proposal(coordinateToUpdate) = step;
+
         return proposal;
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
     VectorType &
     TruncatedGaussianProposal<InternalMatrixType, InternalVectorType>::acceptProposal() {
-        state.swap(proposal);
+        slacks.noalias() -= A.col(coordinateToUpdate) * (proposal(coordinateToUpdate) - state(coordinateToUpdate));
+        state(coordinateToUpdate) = step;
         return state;
     }
 
@@ -179,8 +175,7 @@ namespace hops {
     template<typename InternalMatrixType, typename InternalVectorType>
     double
     TruncatedGaussianProposal<InternalMatrixType, InternalVectorType>::computeLogAcceptanceProbability() {
-        return Gaussian::computeNegativeLogLikelihood(proposal)
-               - Gaussian::computeNegativeLogLikelihood(state);
+        return 0;
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
@@ -210,11 +205,7 @@ namespace hops {
     template<typename InternalMatrixType, typename InternalVectorType>
     std::vector<std::string>
     TruncatedGaussianProposal<InternalMatrixType, InternalVectorType>::getParameterNames() const {
-        if (this->getStepSize().has_value()) {
-            return {"step_size"};
-        } else {
-            return {};
-        }
+        return {};
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
@@ -294,6 +285,11 @@ namespace hops {
     std::vector<std::string>
     TruncatedGaussianProposal<InternalMatrixType, InternalVectorType>::getDimensionNames() const {
         return Gaussian::getDimensionNames();
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    bool TruncatedGaussianProposal<InternalMatrixType, InternalVectorType>::hasNegativeLogLikelihood() const {
+        return true;
     }
 }
 
