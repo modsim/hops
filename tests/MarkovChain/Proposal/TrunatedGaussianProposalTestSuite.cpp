@@ -202,5 +202,38 @@ BOOST_AUTO_TEST_SUITE(TruncatedGaussianProposal)
         BOOST_CHECK_CLOSE(stdev, expected_std, 1);
     }
 
+    BOOST_AUTO_TEST_CASE(AntonsProblemDoesNotProduceNaNs) {
+        const long rows = 8;
+        const long cols = 2;
+        Eigen::MatrixXd A(rows, cols);
+        A << -1.,  0., 0.,-1., 1. , 0., 0. , 1., 1., -1., 1., -1., 1., -1., 1., -1.;
+
+        Eigen::VectorXd b(rows);
+        b << 0.,  0.,  5.,  5.,  0.,  0.,  0., -0.;
+
+        Eigen::VectorXd interiorPoint(cols);
+        interiorPoint << 0.6, 1.0;
+        Eigen::MatrixXd cov(cols, cols);
+        cov <<0.0001, 0., 0., 0.0001;
+
+        hops::Gaussian model(interiorPoint, cov);
+
+        auto mc = hops::MarkovChainAdapter(
+                hops::MetropolisHastingsFilter(
+                        hops::TruncatedGaussianProposal(A,
+                                                        b,
+                                                        interiorPoint,
+                                                        model)
+                )
+        );
+
+        hops::RandomNumberGenerator randomNumberGenerator(42);
+        double num_samples = 10'000;
+        for (int i = 0; i < num_samples; ++i) {
+            auto[alpha, state] = mc.draw(randomNumberGenerator);
+            BOOST_CHECK(std::isfinite(state(0)));
+            BOOST_CHECK(std::isfinite(state(1)));
+        }
+    }
 
 BOOST_AUTO_TEST_SUITE_END()
