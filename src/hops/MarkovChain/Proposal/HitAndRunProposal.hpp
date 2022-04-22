@@ -100,7 +100,15 @@ namespace hops {
                                                                                                        step);
             return detailedBalanceState - detailedBalanceProposal;
         } else {
-            return 0;
+            double detailedBalanceState = chordStepDistribution.computeInverseNormalizationConstant(1,
+                                                                                                    backwardDistance,
+                                                                                                    forwardDistance);
+            double detailedBalanceProposal = chordStepDistribution.computeInverseNormalizationConstant(1,
+                                                                                                       backwardDistance -
+                                                                                                       step,
+                                                                                                       forwardDistance -
+                                                                                                       step);
+            return detailedBalanceState - detailedBalanceProposal;
         }
     }
 
