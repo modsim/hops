@@ -7,10 +7,8 @@
 
 #include <hops/MarkovChain/Draw/MetropolisHastingsFilter.hpp>
 #include <hops/MarkovChain/MarkovChainAdapter.hpp>
-#include <hops/MarkovChain/ModelMixin.hpp>
 #include <hops/MarkovChain/ModelWrapper.hpp>
 #include <hops/MarkovChain/Proposal/TruncatedGaussianProposal.hpp>
-#include <hops/Model/Rosenbrock.hpp>
 #include <hops/Model/Gaussian.hpp>
 #include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
 #include <hops/Statistics/EffectiveSampleSize.hpp>
@@ -119,7 +117,7 @@ BOOST_AUTO_TEST_SUITE(TruncatedGaussianProposal)
         }
 
         auto model = std::make_shared<hops::Gaussian>(interiorPoint, Eigen::MatrixXd::Identity(cols, cols));
-        auto gaussian = hops::Gaussian(interiorPoint, 0.3*Eigen::MatrixXd::Identity(cols, cols));
+        auto gaussian = hops::Gaussian(interiorPoint, 0.3 * Eigen::MatrixXd::Identity(cols, cols));
 
         auto mc = hops::MarkovChainAdapter(
                 hops::MetropolisHastingsFilter(
@@ -153,6 +151,55 @@ BOOST_AUTO_TEST_SUITE(TruncatedGaussianProposal)
 
         BOOST_CHECK(std::abs(mean - model->getMean()(0)) < 2 * standardErrorOfMean);
         BOOST_CHECK_CLOSE(stdev, std::sqrt(0.3), 1);
+    }
+
+    BOOST_AUTO_TEST_CASE(Other2DGaussianInWideCubeHasCorrectStd) {
+        const long rows = 4;
+        const long cols = 2;
+        Eigen::MatrixXd A(rows, cols);
+        A << 1, 0, 0, 1, -1, 0, 0, -1;
+        Eigen::VectorXd b = 1000 * Eigen::VectorXd::Ones(rows);
+        Eigen::VectorXd interiorPoint(cols);
+        for (size_t i = 0; i < cols; ++i) {
+            interiorPoint(i) = 5;
+        }
+
+        auto model = std::make_shared<hops::Gaussian>(interiorPoint, Eigen::MatrixXd::Identity(cols, cols));
+        double expected_std = 0.5;
+        auto gaussian = hops::Gaussian(interiorPoint, std::pow(expected_std, 2) * Eigen::MatrixXd::Identity(cols, cols));
+
+        auto mc = hops::MarkovChainAdapter(
+                hops::MetropolisHastingsFilter(
+                        hops::TruncatedGaussianProposal(A,
+                                                        b,
+                                                        interiorPoint,
+                                                        gaussian)
+                )
+        );
+
+        hops::RandomNumberGenerator randomNumberGenerator(42);
+        std::vector<Eigen::VectorXd> samples;
+        double num_samples = 50'000;
+        Eigen::VectorXd sample_sum = Eigen::VectorXd::Zero(cols);
+        for (int i = 0; i < num_samples; ++i) {
+            auto[alpha, state] = mc.draw(randomNumberGenerator);
+            samples.emplace_back(state);
+            sample_sum += state;
+        }
+
+        long col = 0;
+        double mean = sample_sum(col) / samples.size();
+
+        double ess = hops::computeEffectiveSampleSize(std::vector<decltype(samples)>{samples}, col);
+        double standardErrorOfMean = expected_std / std::sqrt(ess);
+        double sq_sum = 0;
+        for (const auto &s:samples) {
+            sq_sum += (s(col) - mean) * (s(col) - mean);
+        }
+        double stdev = std::sqrt(sq_sum / (samples.size() - 1));
+
+        BOOST_CHECK(std::abs(mean - model->getMean()(col)) < 2 * standardErrorOfMean);
+        BOOST_CHECK_CLOSE(stdev, expected_std, 1);
     }
 
 

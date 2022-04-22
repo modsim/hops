@@ -124,6 +124,7 @@ namespace hops {
         VectorType state;
         VectorType driftedState;
         VectorType proposal;
+        VectorType unreflectedProposal;
         VectorType driftedProposal;
 
         double stateLogSqrtDeterminant = 0;
@@ -160,18 +161,20 @@ namespace hops {
             b(std::move(b)),
             maxNumberOfReflections(maxReflections) {
         if (ModelType::hasConstantExpectedFisherInformation()) {
+            computeGradient(currentState);
             stateMetric = ModelType::computeExpectedFisherInformation(currentState).value();
             stateSolver = Eigen::LLT<MatrixType>(stateMetric);
             if (stateSolver.info() != Eigen::Success) {
                 throw std::runtime_error("cholesky decomposition of fisher information failed,"
                                          "because fisher information is not positive definite.");
             };
-            stateLogSqrtDeterminant = logSqrtDeterminant(stateSolver.matrixLLT());
+            stateLogSqrtDeterminant = logSqrtDeterminant(Eigen::MatrixXd(stateSolver.matrixL()));
         }
         BilliardMALAProposal::setState(currentState);
         BilliardMALAProposal::setStepSize(newStepSize);
 
         proposal = state;
+        unreflectedProposal = state;
         proposalNegativeLogLikelihood = stateNegativeLogLikelihood;
         proposalMetric = stateMetric;
         proposalSolver = stateSolver;
@@ -206,7 +209,7 @@ namespace hops {
         for (long i = 0; i < proposal.rows(); ++i) {
             proposal(i) = normalDistribution(rng);
         }
-        proposal = driftedState + covarianceFactor * stateSolver.matrixL().transpose().solve(proposal);
+        unreflectedProposal = driftedState + covarianceFactor * stateSolver.matrixU().solve(proposal);
 
         std::tuple<bool, long, VectorType> reflectionResult;
         if (quadraticConstraintsMatrix) {
@@ -216,13 +219,13 @@ namespace hops {
                                                               quadraticConstraintsOffset.value(),
                                                               quadraticConstraintsLhs.value(),
                                                               state,
-                                                              proposal,
+                                                              unreflectedProposal,
                                                               maxNumberOfReflections);
         } else {
             reflectionResult = Reflector::reflectIntoPolytope(Adense,
                                                               b,
                                                               state,
-                                                              proposal,
+                                                              unreflectedProposal,
                                                               maxNumberOfReflections);
         }
         if (isProposalInfosTrackingActive) {
@@ -239,6 +242,7 @@ namespace hops {
         state.swap(proposal);
         driftedState.swap(driftedProposal);
         stateNegativeLogLikelihood = proposalNegativeLogLikelihood;
+        unreflectedProposal = state;
         if (!ModelType::hasConstantExpectedFisherInformation()) {
             stateSolver = proposalSolver;
             stateMetric.swap(proposalMetric);
@@ -272,11 +276,11 @@ namespace hops {
                 throw std::runtime_error("cholesky decomposition of fisher information failed,"
                                          "because fisher information is not positive definite.");
             };
-            stateLogSqrtDeterminant = logSqrtDeterminant(stateSolver.matrixLLT());
+            stateLogSqrtDeterminant = logSqrtDeterminant(Eigen::MatrixXd(stateSolver.matrixL()));
         }
 
         driftedState = state + 0.5 * std::pow(covarianceFactor, 2) *
-                               stateSolver.matrixL().transpose().template solve(stateSolver.matrixL().solve(gradient));
+                               stateSolver.matrixU().template solve(stateSolver.matrixL().solve(gradient));
 
         stateNegativeLogLikelihood = ModelType::computeNegativeLogLikelihood(state);
     }
@@ -331,18 +335,18 @@ namespace hops {
                 // state is not valid, because metric is not positive definite.
                 return -std::numeric_limits<double>::infinity();
             };
-            proposalLogSqrtDeterminant = logSqrtDeterminant(proposalSolver.matrixLLT());
+            proposalLogSqrtDeterminant = logSqrtDeterminant(Eigen::MatrixXd(proposalSolver.matrixL()));
         }
 
         driftedProposal = proposal +
                           0.5 * std::pow(covarianceFactor, 2) *
-                          proposalSolver.matrixL().transpose().template solve(
+                          proposalSolver.matrixU().template solve(
                                   proposalSolver.matrixL().solve(gradient));
 
         proposalNegativeLogLikelihood = ModelType::computeNegativeLogLikelihood(proposal);
 
         double normDifference =
-                static_cast<double>((driftedState - proposal).transpose() * stateMetric * (driftedState - proposal)) -
+                static_cast<double>((driftedState - unreflectedProposal).transpose() * stateMetric * (driftedState - unreflectedProposal)) -
                 static_cast<double>((state - driftedProposal).transpose() * proposalMetric * (state - driftedProposal));
 
         if (isProposalInfosTrackingActive) {
@@ -359,7 +363,7 @@ namespace hops {
 
     template<typename ModelType, typename InternalMatrixType>
     VectorType BilliardMALAProposal<ModelType, InternalMatrixType>::computeGradient(VectorType x) {
-        auto gradient = ModelType::computeLogLikelihoodGradient(x);
+        std::optional<Eigen::VectorXd> gradient = ModelType::computeLogLikelihoodGradient(x);
         if (gradient) {
             return gradient.value();
         }
