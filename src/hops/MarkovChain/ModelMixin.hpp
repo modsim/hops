@@ -24,7 +24,7 @@ namespace hops {
             stateNegativeLogLikelihood = ModelType::computeNegativeLogLikelihood(ProposalType::getState());
         }
 
-        VectorType& acceptProposal();
+        VectorType &acceptProposal();
 
         double computeLogAcceptanceProbability();
 
@@ -38,7 +38,7 @@ namespace hops {
          */
         [[nodiscard]] std::vector<std::string> getDimensionNames() const;
 
-        void setState(const VectorType&);
+        void setState(const VectorType &);
 
     private:
         double stateNegativeLogLikelihood;
@@ -46,7 +46,7 @@ namespace hops {
     };
 
     template<typename MarkovChainProposer, typename ModelType>
-    VectorType& ModelMixin<MarkovChainProposer, ModelType>::acceptProposal() {
+    VectorType &ModelMixin<MarkovChainProposer, ModelType>::acceptProposal() {
         stateNegativeLogLikelihood = proposalNegativeLogLikelihood;
         return MarkovChainProposer::acceptProposal();
     }
@@ -75,19 +75,19 @@ namespace hops {
     }
 
     template<typename MarkovChainProposer, typename ModelType>
-    void ModelMixin<MarkovChainProposer, ModelType>::setState(const VectorType& state) {
+    void ModelMixin<MarkovChainProposer, ModelType>::setState(const VectorType &state) {
         MarkovChainProposer::setState(state);
         stateNegativeLogLikelihood = ModelType::computeNegativeLogLikelihood(state);
     }
 
     template<typename ProposalType, typename ModelType>
     std::vector<std::string> ModelMixin<ProposalType, ModelType>::getDimensionNames() const {
-        std::optional<std::vector<std::string>> modelDimensionNames = ModelType::getDimensionNames();
-        if(modelDimensionNames) {
-            return modelDimensionNames.value();
+        std::vector<std::string> modelDimensionNames = ModelType::getDimensionNames();
+        if (modelDimensionNames.empty()) {
+            // If the model does not provide parameter names, return whatever default the proposal returns
+            return ProposalType::getDimensionNames();
         }
-        // If the model does not provide parameter names, return whatever default the proposal returns
-        return ProposalType::getDimensionNames();
+        return modelDimensionNames;
     }
 }
 

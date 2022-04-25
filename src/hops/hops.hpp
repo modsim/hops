@@ -46,6 +46,7 @@
 #include "MarkovChain/Proposal/ProposalFactory.hpp"
 #include "MarkovChain/Proposal/Proposal.hpp"
 #include "MarkovChain/Proposal/ProposalParameter.hpp"
+#include "MarkovChain/Proposal/TruncatedGaussianProposal.hpp"
 #include "MarkovChain/Proposal/TruncatedNormalDistribution.hpp"
 
 #include "MarkovChain/Recorder/AcceptanceRateRecorder.hpp"

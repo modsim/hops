@@ -14,7 +14,8 @@ namespace hops {
         explicit ModelWrapper(std::shared_ptr<Model> model) : model(std::move(model)) {}
 
         ModelWrapper(const ModelWrapper &modelWrapper) {
-            this->model = std::move(modelWrapper.getModel()->copyModel());
+            // deep copy of model
+            this->model = modelWrapper.getModel()->copyModel();
         }
 
         /**
@@ -53,6 +54,15 @@ namespace hops {
         bool hasModel() {
             return model != nullptr;
         }
+
+        std::vector<std::string> getDimensionNames() const {
+            if(model) {
+                return model->getDimensionNames();
+            }
+            else {
+                return std::vector<std::string>();
+            }
+        };
 
     private:
         std::shared_ptr<Model> model;
