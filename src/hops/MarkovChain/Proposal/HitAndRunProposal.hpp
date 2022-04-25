@@ -199,7 +199,6 @@ namespace hops {
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
     void HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::setState(
             const VectorType &newState) {
-        assert(((b - A * newState).array() >= 0).all());
         if (((b - A * newState).array() < 0).any()) {
             throw std::invalid_argument("Starting point outside polytope always gives constant Markov chain.");
         }
