@@ -2,6 +2,7 @@
 #define HOPS_DIKINPROPOSAL_HPP
 
 #include <Eigen/LU>
+#include <optional>
 #include <random>
 
 #include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>

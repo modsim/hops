@@ -1,6 +1,7 @@
 #ifndef HOPS_ADAPTIVEMETROPOLISPROPOSAL_HPP
 #define HOPS_ADAPTIVEMETROPOLISPROPOSAL_HPP
 
+#include <optional>
 #include <random>
 
 #include <hops/MarkovChain/Proposal/Proposal.hpp>

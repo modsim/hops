@@ -1,6 +1,7 @@
 #ifndef HOPS_BALLWALKPROPOSAL_HPP
 #define HOPS_BALLWALKPROPOSAL_HPP
 
+#include <optional>
 #include <random>
 
 #include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
