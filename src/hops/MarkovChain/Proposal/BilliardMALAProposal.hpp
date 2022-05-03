@@ -3,6 +3,7 @@
 
 #include <Eigen/Eigenvalues>
 #include <random>
+#include <optional>
 #include <utility>
 
 #include <hops/Model/Model.hpp>

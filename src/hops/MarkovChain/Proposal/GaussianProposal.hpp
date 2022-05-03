@@ -1,6 +1,7 @@
 #ifndef HOPS_GAUSSIANPROPOSAL_HPP
 #define HOPS_GAUSSIANPROPOSAL_HPP
 
+#include <optional>
 #include <random>
 
 #include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>

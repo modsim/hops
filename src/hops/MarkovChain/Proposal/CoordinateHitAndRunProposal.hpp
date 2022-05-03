@@ -1,6 +1,7 @@
 #ifndef HOPS_COORDINATEHITANDRUNPROPOSAL_HPP
 #define HOPS_COORDINATEHITANDRUNPROPOSAL_HPP
 
+#include <optional>
 #include <random>
 
 #include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>

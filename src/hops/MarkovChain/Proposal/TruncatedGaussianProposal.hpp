@@ -1,6 +1,7 @@
 #ifndef HOPS_TRUNCATEDGAUSSIANPROPOSAL_HPP
 #define HOPS_TRUNCATEDGAUSSIANPROPOSAL_HPP
 
+#include <optional>
 #include <random>
 
 #include <hops/Model/Gaussian.hpp>
