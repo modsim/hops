@@ -1,4 +1,4 @@
-image: jugit-registry.fz-juelich.de/fluxomics/hops
+image: jugit-registry.fz-juelich.de/ibg-1/modsim/hops
 
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
