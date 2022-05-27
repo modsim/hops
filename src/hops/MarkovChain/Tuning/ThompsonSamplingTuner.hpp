@@ -124,7 +124,7 @@ bool hops::ThompsonSamplingTuner::tune(
     Kernel kernel(sigma, length);
     GP gp = GP(kernel);
 
-    RandomNumberGenerator thompsonSamplingRandomNumberGenerator(parameters.randomSeed, targetRandomNumberGenerators.size() + 1);
+    RandomNumberGenerator thompsonSamplingRandomNumberGenerator(parameters.randomSeed, targetRandomNumberGenerators.size());
     bool isThompsonSamplingConverged = ThompsonSampling<GP, TuningTargetType>::optimize(
             parameters.posteriorUpdateIterations,
             parameters.pureSamplingIterations,
