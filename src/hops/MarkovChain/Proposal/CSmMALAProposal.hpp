@@ -2,6 +2,7 @@
 #define HOPS_CSMMALA_HPP
 
 #include <Eigen/Eigenvalues>
+#include <optional>
 #include <random>
 #include <utility>
 

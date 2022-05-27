@@ -2,6 +2,7 @@
 #include <chrono>
 #include <iostream>
 #include <filesystem>
+#include <optional>
 
 #include <hops/hops.hpp>
 
