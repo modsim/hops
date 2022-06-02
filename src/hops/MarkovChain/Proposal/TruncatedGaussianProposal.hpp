@@ -144,7 +144,7 @@ namespace hops {
             double ub = forwardDistance + whiteState(i);
 
             double step = chordStepDistribution.draw(rng, 1., lb, ub);
-            if(!std::isfinite(step)) {
+            if(step <= lb || step >= ub) {
                 // Numerical issues: The gaussian looks uniform on the interval far from mean, so replace by uniform step.
                 step = backUpChordStepDistribution.draw(rng, lb, ub);
             }
