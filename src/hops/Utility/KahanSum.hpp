@@ -1,7 +1,7 @@
 #ifndef HOPS_KAHANSUM_HPP
 #define HOPS_KAHANSUM_HPP
 
-#include <bits/stdc++.h>
+#include <vector>
 
 namespace hops {
     using namespace std;

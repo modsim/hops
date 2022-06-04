@@ -26,7 +26,6 @@ std::pair<double, double> hops::AcceptanceRateTarget::operator()(const hops::Vec
 
     double stepSize = std::pow(10, x(0));
     std::vector<double> acceptanceRateScores(markovChains.size());
-#pragma omp parallel for num_threads(numberOfThreads)
     for (size_t i = 0; i < markovChains.size(); ++i) {
         markovChains[i]->setParameter(ProposalParameter::STEP_SIZE, stepSize);
 

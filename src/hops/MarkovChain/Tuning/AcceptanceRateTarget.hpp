@@ -14,6 +14,7 @@
 #include <memory>
 #include <numeric>
 #include <stdexcept>
+#include <utility>
 
 #ifdef _OPENMP
 #include <omp.h>
