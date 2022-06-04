@@ -8,7 +8,7 @@ bool hops::ExpectedSquaredJumpDistanceTuner::tune(
         ExpectedSquaredJumpDistanceTuner::param_type& parameters,
         Eigen::MatrixXd& data) {
     auto target = ExpectedSquaredJumpDistanceTarget{markovChains, 
-                                                    parameters.iterationsToTestStepSize, 
+                                                    static_cast<unsigned long>(parameters.iterationsToTestStepSize), 
                                                     /*lags=*/{1},
                                                     parameters.considerTimeCost,
                                                     parameters.estimateCovariance};

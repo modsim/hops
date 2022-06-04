@@ -30,8 +30,8 @@ namespace hops {
         unsigned long numberOfDraws = draws[0]->size();
         unsigned long dimension = draws[0]->at(0).size();
 
-        unsigned long _start = std::max(numberOfSeenDraws, start);
-        unsigned long _stop = std::min(numberOfDraws, stop);
+        unsigned long _start = std::max(numberOfSeenDraws, static_cast<unsigned long>(start));
+        unsigned long _stop = std::min(numberOfDraws, static_cast<unsigned long>(stop));
 
         unsigned long numberOfUnseenDraws = _stop - _start;
         double eta = 1.0 * numberOfSeenDraws / (numberOfUnseenDraws + numberOfSeenDraws);
