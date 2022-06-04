@@ -64,6 +64,7 @@ $ sudo make install                                     # install
 #### Install on Windows 10:
 
 Use an IDE (e.g. CLion) to parse the project and its CMakeLists.txt.
+Note: Much easier to compile with clang than with MSCV.
 
 
 ## Examples
