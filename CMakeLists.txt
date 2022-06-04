@@ -17,7 +17,8 @@ endif (UNIX)
 ########################################################################################################################
 if (CMAKE_GENERATOR MATCHES "Visual Studio")
     add_definitions(-D_USE_MATH_DEFINES)
-    add_compile_options("/Za")
+    add_compile_options(/Ze)
+    add_compile_options(/bigobj)
 endif ()
 
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
@@ -35,7 +36,7 @@ set(MKL_USE_interface lp64)
 
 option(HOPS_SBML_SUPPORT "Enables SBML support. Use -DHOPS_SBML_SUPPORT=ON to enable." OFF)
 option(HOPS_HDF5_SUPPORT "Enables HDF5 support with HighFive. Use -DHOPS_HDF5_SUPPORT=ON to enable." OFF)
-option(HOPS_DNEST4_SUPPORT "Enables Nested Sampling support with DNEST4. Use -DHOPS_DNEST4_SUPPORT=ON to enable." OFF)
+option(HOPS_DNEST4_SUPPORT "Enables Nested Sampling support with DNEST4. Use -DHOPS_DNEST4_SUPPORT=ON to enable." ON)
 option(HOPS_BENCHMARKS "Enables compilation of Benchmarks (Requires Celero). Use -DHOPS_BENCHMARKS=ON to enable." OFF)
 option(HOPS_DOCS "Enables generation of documentation. Use -DHOPS_DOCS=OFF to disable." ON)
 option(HOPS_BINARIES "Enables compilation of hops executables. Use -DHOPS_BINARIES=OFF to disable." ON)

@@ -61,7 +61,6 @@ namespace hops {
 
         double stepSize = std::pow(10, x(0));
         std::vector<double> expectedSquaredJumpDistances(markovChains.size());
-        #pragma omp parallel for num_threads(numberOfThreads)
         for (size_t i = 0; i < markovChains.size(); ++i) {
             markovChains[i]->setParameter(ProposalParameter::STEP_SIZE, stepSize);
            
