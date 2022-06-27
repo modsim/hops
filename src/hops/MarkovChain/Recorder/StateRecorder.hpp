@@ -26,7 +26,7 @@ namespace hops {
             }
         }
 
-        const std::vector<VectorType>& getStateRecords() const {
+        [[nodiscard]] const std::vector<VectorType>& getStateRecords() const {
             return *records;
         }
 

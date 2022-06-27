@@ -7,13 +7,12 @@
 #include <utility>
 #include <vector>
 
-#include <hops/Utility/MatrixType.hpp>
-#include <hops/Utility/VectorType.hpp>
-
-#include <hops/MarkovChain/Proposal/ReversibleJumpProposal.hpp>
 #include <hops/MarkovChain/MarkovChainAdapter.hpp>
-#include <hops/MarkovChain/Recorder/StateRecorder.hpp>
+#include <hops/MarkovChain/ModelMixin.hpp>
+#include <hops/MarkovChain/Draw/MetropolisHastingsFilter.hpp>
 #include <hops/MarkovChain/Proposal/HitAndRunProposal.hpp>
+#include <hops/MarkovChain/Proposal/ReversibleJumpProposalOld.hpp>
+#include <hops/MarkovChain/Recorder/StateRecorder.hpp>
 #include <hops/Utility/MatrixType.hpp>
 #include <hops/Utility/VectorType.hpp>
 
@@ -269,14 +268,17 @@ BOOST_AUTO_TEST_SUITE(ReversibleJumpProposal)
 
         auto markovChainImpl = hops::MarkovChainAdapter(
                 hops::StateRecorder(
-                        hops::ReversibleJumpProposal(
-                                hops::HitAndRunProposal(
-                                        A,
-                                        b,
-                                        start),
-                                model,
-                                jumpIndices,
-                                defaultValues
+                        hops::MetropolisHastingsFilter(
+                                hops::ReversibleJumpProposalOld(
+                                        hops::ModelMixin(
+                                                hops::HitAndRunProposal(
+                                                        A,
+                                                        b,
+                                                        start),
+                                                model),
+                                        jumpIndices,
+                                        defaultValues
+                                )
                         )
                 )
         );

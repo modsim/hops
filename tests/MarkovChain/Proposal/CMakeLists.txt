@@ -7,6 +7,7 @@ set(TEST_SOURCES
         HitAndRunTestSuite.cpp
         ProposalStatisticsTestSuite.cpp
         ReflectorTestSuite.cpp
+        # TODO
 #        ReversibleJumpProposalTestSuite.cpp
         TrunatedGaussianProposalTestSuite.cpp
         )

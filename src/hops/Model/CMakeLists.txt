@@ -4,6 +4,8 @@ if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
             Gamma.hpp
             Gaussian.hpp
             Model.hpp
+#            ModelSet.hpp
+#            ModelSet.cpp
             Mixture.hpp
             Rosenbrock.hpp
             )

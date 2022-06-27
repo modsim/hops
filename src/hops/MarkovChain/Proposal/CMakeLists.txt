@@ -18,6 +18,7 @@ if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
             ProposalStatistics.hpp
             ProposalStatistics.cpp
             # TODO
+#            ReversibleJumpProposalOld.hpp
 #            ReversibleJumpProposal.hpp
             Reflector.hpp
             BilliardMALAProposal.hpp

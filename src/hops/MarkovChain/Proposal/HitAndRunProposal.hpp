@@ -22,7 +22,7 @@ namespace hops {
 
         VectorType &propose(RandomNumberGenerator &rng) override;
 
-        VectorType &propose(RandomNumberGenerator &rng, const Eigen::VectorXd &activeSubspace) override;
+        VectorType &propose(RandomNumberGenerator &rng, const Eigen::VectorXi &activeSubspace) override;
 
         VectorType &acceptProposal() override;
 
@@ -166,7 +166,7 @@ namespace hops {
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
     VectorType &
     HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::propose(
-            RandomNumberGenerator &rng, const Eigen::VectorXd &activeSubspace) {
+            RandomNumberGenerator &rng, const Eigen::VectorXi &activeSubspace) {
         for (long i = 0; i < updateDirection.rows(); ++i) {
             if (activeSubspace[i]) {
                 updateDirection(i) = normalDistribution(rng);

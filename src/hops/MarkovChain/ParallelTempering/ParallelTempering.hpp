@@ -5,14 +5,13 @@
 
 #include <random>
 
-#include <hops/FileWriter/FileWriter.hpp>
-#include <hops/MarkovChain/Recorder/IsStoreRecordAvailable.hpp>
-#include <hops/MarkovChain/Recorder/IsWriteRecordsToFileAvailable.hpp>
+#include <hops/MarkovChain/MarkovChain.hpp>
 #include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
+#include <hops/Parallel/MpiInitializerFinalizer.hpp>
 #include <hops/Utility/VectorType.hpp>
-#include "hops/Parallel/MpiInitializerFinalizer.hpp"
 
 namespace hops {
+
     /**
      * @brief Mixin for adding parallel tempering to Markov chains. Requires MPI.
      * @tparam MarkovChainImpl A class that has the ColdnessAttribute and its Recorders mixed in.
@@ -47,26 +46,6 @@ namespace hops {
             // TODO how to log PT exchanges well
             double PTacceptance = executeParallelTemperingStep();
             return (acceptance + PTacceptance) / 2;
-        }
-
-        void writeRecordsToFile(const FileWriter *const fileWriter) const {
-            if constexpr(IsWriteRecordsToFileAvailable<MarkovChainImpl>::value) {
-                int chainIndex;
-                MPI_Comm_rank(communicator, &chainIndex);
-                if (chainIndex == 0) {
-                    MarkovChainImpl::writeRecordsToFile(fileWriter);
-                }
-            }
-        }
-
-        void storeRecord() {
-            if constexpr(IsStoreRecordAvailable<MarkovChainImpl>::value) {
-                int chainIndex;
-                MPI_Comm_rank(communicator, &chainIndex);
-                if (chainIndex == 0) {
-                    MarkovChainImpl::storeRecord();
-                }
-            }
         }
 
         /**

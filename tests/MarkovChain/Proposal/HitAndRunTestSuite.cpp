@@ -136,7 +136,8 @@ BOOST_AUTO_TEST_SUITE(HitAndRunProposal)
         for (int i = 0; i < 100; ++i) {
             Eigen::VectorXd proposal = hitAndRunProposal.propose(randomNumberGenerator);
             BOOST_CHECK(((b - A * proposal).array() > 0).all());
-            hitAndRunProposal.computeLogAcceptanceProbability();
+            double acceptancePropability = hitAndRunProposal.computeLogAcceptanceProbability();
+            BOOST_CHECK(acceptancePropability <= 0);
             hitAndRunProposal.acceptProposal();
         }
     }

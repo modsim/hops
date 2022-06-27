@@ -30,7 +30,7 @@ namespace hops {
 
         VectorType &propose(RandomNumberGenerator &rng) override;
 
-        VectorType &propose(RandomNumberGenerator &rng, const Eigen::VectorXd &activeSubspace) override;
+        VectorType &propose(RandomNumberGenerator &rng, const Eigen::VectorXi &activeSubspace) override;
 
         VectorType &acceptProposal() override;
 
@@ -142,11 +142,11 @@ namespace hops {
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
     VectorType &CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::propose(
-            RandomNumberGenerator &rng, const Eigen::VectorXd &activeSubspace) {
+            RandomNumberGenerator &rng, const Eigen::VectorXi &activeSubspace) {
         proposal(coordinateToUpdate) = state(coordinateToUpdate);
         // Checks that at least some spaces are active
         assert(activeSubspace.sum() > 0);
-        for (long i; activeSubspace(coordinateToUpdate) == 0 && i < activeSubspace.rows(); ++i) {
+        for (long i=0; activeSubspace(coordinateToUpdate) == 0 && i < activeSubspace.rows(); ++i) {
             ++coordinateToUpdate %= state.rows();
         }
 

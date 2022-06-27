@@ -10,15 +10,14 @@ foreach (TEST_SOURCE ${TEST_SOURCES})
 endforeach (TEST_SOURCE)
 
 
-# TODO reinclude
-#find_package(MPI)
-#
-#if(MPI_FOUND AND UNIX)
-#    message(STATUS "Adding tests that require MPI")
-#    add_executable(ParallelTemperingTestSuite ParallelTemperingTestSuite.cpp)
-#    target_include_directories(ParallelTemperingTestSuite PRIVATE ${MPI_INCLUDE_PATH})
-#    target_link_libraries(ParallelTemperingTestSuite ${MPI_LIBRARIES} hops)
-#    add_test(NAME ParallelTemperingTestSuite
-#            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-#            COMMAND ${MPIEXEC} --oversubscribe ${MPIEXEC_NUMPROC_FLAG} 3 ${CMAKE_CURRENT_BINARY_DIR}/ParallelTemperingTestSuite --log_format=JUNIT --log_sink=${PROJECT_BINARY_DIR}/test-reports/${TEST_NAME}.xml --log_level=all --report_level=detailed)
-#endif(MPI_FOUND AND UNIX)
+find_package(MPI)
+
+if(MPI_FOUND AND UNIX)
+    message(STATUS "Adding tests that require MPI")
+    add_executable(ParallelTemperingTestSuite ParallelTemperingTestSuite.cpp)
+    target_include_directories(ParallelTemperingTestSuite PRIVATE ${MPI_INCLUDE_PATH})
+    target_link_libraries(ParallelTemperingTestSuite ${MPI_LIBRARIES} hops)
+    add_test(NAME ParallelTemperingTestSuite
+            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+            COMMAND ${MPIEXEC} --oversubscribe ${MPIEXEC_NUMPROC_FLAG} 3 ${CMAKE_CURRENT_BINARY_DIR}/ParallelTemperingTestSuite --log_format=JUNIT --log_sink=${PROJECT_BINARY_DIR}/test-reports/${TEST_NAME}.xml --log_level=all --report_level=detailed)
+endif(MPI_FOUND AND UNIX)

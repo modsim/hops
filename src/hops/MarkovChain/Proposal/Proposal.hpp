@@ -27,9 +27,9 @@ namespace hops {
          * @Brief Proposes new state on a subspace and returns it. The returned state can be stored, transformed or use in conjunction with
          * a metropolis-hastings filter, reversible jump mcmc and other techniques
          * the new state.
-          * @param activeSubspace vector should contain 1 for active dimensions and 0 for inactive dimensions.
+         * @param activeParameters vector should contain true active parameters and 0 for inactive parameters.
          */
-        virtual VectorType &propose(RandomNumberGenerator &rng, const Eigen::VectorXd &activeSubspace) {
+        virtual VectorType &propose(RandomNumberGenerator &rng, const  Eigen::VectorXi &activeParameters) {
             throw std::runtime_error("Not implemented");
         };
 
