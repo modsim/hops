@@ -66,6 +66,8 @@ namespace hops {
 
         ProposalStatistics getAndResetProposalStatistics() override;
 
+        bool isSymmetric() const override;
+
     private:
         VectorType state;
         VectorType proposal;
@@ -356,6 +358,16 @@ namespace hops {
         ProposalStatistics newStatistic;
         std::swap(newStatistic, proposalStatistics);
         return newStatistic;
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
+    bool
+    HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::isSymmetric() const {
+        // As soon as there is a step size the polytope borders and normalization will make the proposal asymmetric.
+        if (getStepSize()) {
+            return false;
+        }
+        return true;
     }
 }
 

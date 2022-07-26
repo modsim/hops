@@ -74,6 +74,8 @@ namespace hops {
 
         ProposalStatistics getAndResetProposalStatistics() override;
 
+        bool isSymmetric() const override;
+
     private:
         InternalMatrixType A;
         InternalVectorType b;
@@ -146,7 +148,7 @@ namespace hops {
         proposal(coordinateToUpdate) = state(coordinateToUpdate);
         // Checks that at least some spaces are active
         assert(activeSubspace.sum() > 0);
-        for (long i=0; activeSubspace(coordinateToUpdate) == 0 && i < activeSubspace.rows(); ++i) {
+        for (long i = 0; activeSubspace(coordinateToUpdate) == 0 && i < activeSubspace.rows(); ++i) {
             ++coordinateToUpdate %= state.rows();
         }
 
@@ -342,6 +344,16 @@ namespace hops {
         ProposalStatistics newStatistic;
         std::swap(newStatistic, proposalStatistics);
         return newStatistic;
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
+    bool
+    CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::isSymmetric() const {
+        // As soon as there is a step size the polytope borders and normalization will make the proposal asymmetric.
+        if (getStepSize()) {
+            return false;
+        }
+        return true;
     }
 }
 

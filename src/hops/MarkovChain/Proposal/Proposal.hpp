@@ -156,6 +156,13 @@ namespace hops {
         };
 
         /**
+         * @Brief returns whether proposal is symmetric or not.
+         */
+        [[nodiscard]] virtual bool isSymmetric() const {
+            return false;
+        };
+
+        /**
          * @brief Returns const reference to dense left-hand side operator A from the polytope defining inequality Ax <= b.
          */
         [[nodiscard]] virtual const MatrixType &getA() const = 0;
