@@ -21,8 +21,7 @@ namespace hops {
          * @param A
          * @param b
          * @param currentState
-         * @param stepSize          The step size by which the trained Gaussian proposal distribution is scaled.
-         * @param eps               Scaling factor of the maximum volume ellipsoid, which is added to the covariance to preserve 
+         * @param eps               Scaling factor of the maximum volume ellipsoid, which is added to the covariance to preserve
          *                          (numerical) irreducibility.
          * @param warmUp            Number of warm up samples during which the maximum volume ellipsoid is used as covariance of 
          *                          the proposal distribution. After the warm up, the adaptive covariance is used.
@@ -30,7 +29,6 @@ namespace hops {
         AdaptiveMetropolisProposal(InternalMatrixType A,
                                    VectorType b,
                                    VectorType currentState,
-                                   double stepSize = 1,
                                    double eps = 1.e-3,
                                    unsigned long warmUp = 100,
                                    unsigned long t = 0);
@@ -39,16 +37,19 @@ namespace hops {
                                    VectorType b,
                                    VectorType currentState,
                                    const MatrixType &sqrtMaximumVolumeEllipsoid,
-                                   double stepSize = 1,
                                    double eps = 1.e-3,
                                    unsigned long warmUp = 100,
                                    unsigned long t = 0);
 
         VectorType &propose(RandomNumberGenerator &randomNumberGenerator) override;
 
+        VectorType &propose(RandomNumberGenerator &rng, const Eigen::VectorXd &activeIndices) override;
+
         VectorType &acceptProposal() override;
 
         void setState(const VectorType &newState) override;
+
+        void setProposal(const VectorType &newProposal) override;
 
         [[nodiscard]] VectorType getState() const override;
 
@@ -62,11 +63,9 @@ namespace hops {
 
         void setParameter(const ProposalParameter &parameter, const std::any &value) override;
 
-        void setStepSize(double stepSize);
+        [[nodiscard]] std::optional<double> getStepSize() const override;
 
-        [[nodiscard]] std::optional<double> getStepSize() const;
-
-        [[nodiscard]] bool hasStepSize() const override;
+        [[nodiscard]] static bool hasStepSize();
 
         [[nodiscard]] std::string getProposalName() const override;
 
@@ -119,7 +118,7 @@ namespace hops {
         unsigned long warmUp;
 
         double eps;
-        double stepSize;
+        constexpr static double stepSize = 1;
         double boundaryCushion = 0;
 
         std::normal_distribution<double> normal;
@@ -146,7 +145,6 @@ namespace hops {
             VectorType b_,
             VectorType currentState_,
             const MatrixType &sqrtMaximumVolumeEllipsoid,
-            double stepSize_,
             double eps_,
             unsigned long warmUp_,
             unsigned long t_) :
@@ -155,8 +153,7 @@ namespace hops {
             state(std::move(currentState_)),
             proposal(this->state),
             t(t_),
-            warmUp(warmUp_),
-            stepSize(stepSize_) {
+            warmUp(warmUp_) {
         if (((b - A * state).array() < boundaryCushion).any()) {
             throw std::invalid_argument("Starting point outside polytope always gives constant Markov chain.");
         }
@@ -183,7 +180,6 @@ namespace hops {
             InternalMatrixType A_,
             VectorType b_,
             VectorType currentState_,
-            double stepSize_,
             double eps_,
             unsigned long warmUp_,
             unsigned long t_) :
@@ -192,8 +188,7 @@ namespace hops {
             state(std::move(currentState_)),
             proposal(this->state),
             t(t_),
-            warmUp(warmUp_),
-            stepSize(stepSize_) {
+            warmUp(warmUp_) {
         if (((b - A * state).array() < boundaryCushion).any()) {
             throw std::invalid_argument("Starting point outside polytope always gives constant Markov chain.");
         }
@@ -290,20 +285,18 @@ namespace hops {
     }
 
     template<typename InternalMatrixType>
-    void AdaptiveMetropolisProposal<InternalMatrixType>::setStepSize(double newStepSize) {
-        stepSize = newStepSize;
-        normal = std::normal_distribution<double>(0, stepSize);
+    void AdaptiveMetropolisProposal<InternalMatrixType>::setProposal(const VectorType &newProposal) {
+        AdaptiveMetropolisProposal::proposal = newProposal;
     }
-
 
     template<typename InternalMatrixType>
     std::optional<double> AdaptiveMetropolisProposal<InternalMatrixType>::getStepSize() const {
-        return stepSize;
+        return std::nullopt;
     }
 
     template<typename InternalMatrixType>
-    bool AdaptiveMetropolisProposal<InternalMatrixType>::hasStepSize() const {
-        return true;
+    bool AdaptiveMetropolisProposal<InternalMatrixType>::hasStepSize() {
+        return false;
     }
 
     template<typename InternalMatrixType>
@@ -333,8 +326,6 @@ namespace hops {
             this->boundaryCushion = std::any_cast<double>(value);
         } else if (parameter == ProposalParameter::EPSILON) {
             this->eps = std::any_cast<double>(value);
-        } else if (parameter == ProposalParameter::STEP_SIZE) {
-            setStepSize(std::any_cast<double>(value));
         } else if (parameter == ProposalParameter::WARM_UP) {
             this->warmUp = std::any_cast<long>(value);
         } else {
@@ -360,8 +351,6 @@ namespace hops {
             return std::any(boundaryCushion);
         } else if (parameter == ProposalParameter::EPSILON) {
             return std::any(eps);
-        } else if (parameter == ProposalParameter::STEP_SIZE) {
-            return std::any(stepSize);
         } else if (parameter == ProposalParameter::WARM_UP) {
             return std::any(warmUp);
         } else {
@@ -432,6 +421,12 @@ namespace hops {
         ProposalStatistics newStatistic;
         std::swap(newStatistic, proposalStatistics);
         return newStatistic;
+    }
+
+    template<typename InternalMatrixType>
+    VectorType &AdaptiveMetropolisProposal<InternalMatrixType>::propose(RandomNumberGenerator &rng,
+                                                                        const Eigen::VectorXd &activeIndices) {
+        throw std::runtime_error("Propose with rng and activeIndices not implemented");
     }
 }
 

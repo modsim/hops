@@ -58,9 +58,13 @@ namespace hops {
 
         VectorType &propose(RandomNumberGenerator &rng) override;
 
+        VectorType &propose(RandomNumberGenerator &rng, const Eigen::VectorXd &activeIndices) override;
+
         VectorType &acceptProposal() override;
 
         void setState(const VectorType &state) override;
+
+        void setProposal(const VectorType &newProposal) override;
 
         [[nodiscard]] VectorType getState() const override;
 
@@ -68,11 +72,11 @@ namespace hops {
 
         [[nodiscard]] std::vector<std::string> getDimensionNames() const override;
 
-        [[nodiscard]] std::optional<double> getStepSize() const;
+        [[nodiscard]] std::optional<double> getStepSize() const override;
 
         void setStepSize(double stepSize);
 
-        [[nodiscard]] bool hasStepSize() const override;
+        [[nodiscard]] static bool hasStepSize();
 
         [[nodiscard]] std::vector<std::string> getParameterNames() const override;
 
@@ -287,6 +291,12 @@ namespace hops {
     }
 
     template<typename ModelType, typename InternalMatrixType>
+    void BilliardMALAProposal<ModelType, InternalMatrixType>::setProposal(const VectorType &newProposal) {
+        proposal = newProposal;
+        proposalNegativeLogLikelihood = ModelType::computeNegativeLogLikelihood(proposal);
+    }
+
+    template<typename ModelType, typename InternalMatrixType>
     std::optional<double> BilliardMALAProposal<ModelType, InternalMatrixType>::getStepSize() const {
         return stepSize;
     }
@@ -347,7 +357,8 @@ namespace hops {
         proposalNegativeLogLikelihood = ModelType::computeNegativeLogLikelihood(proposal);
 
         double normDifference =
-                static_cast<double>((driftedState - unreflectedProposal).transpose() * stateMetric * (driftedState - unreflectedProposal)) -
+                static_cast<double>((driftedState - unreflectedProposal).transpose() * stateMetric *
+                                    (driftedState - unreflectedProposal)) -
                 static_cast<double>((state - driftedProposal).transpose() * proposalMetric * (state - driftedProposal));
 
         if (isProposalInfosTrackingActive) {
@@ -372,7 +383,7 @@ namespace hops {
     }
 
     template<typename ModelType, typename InternalMatrixType>
-    bool BilliardMALAProposal<ModelType, InternalMatrixType>::hasStepSize() const {
+    bool BilliardMALAProposal<ModelType, InternalMatrixType>::hasStepSize() {
         return true;
     }
 
@@ -488,6 +499,12 @@ namespace hops {
     template<typename ModelType, typename InternalMatrixType>
     std::unique_ptr<Model> BilliardMALAProposal<ModelType, InternalMatrixType>::getModel() const {
         return ModelType::copyModel();
+    }
+
+    template<typename ModelType, typename InternalMatrixType>
+    VectorType &BilliardMALAProposal<ModelType, InternalMatrixType>::propose(RandomNumberGenerator &rng,
+                                                                             const Eigen::VectorXd &activeIndices) {
+        throw std::runtime_error("Propose with rng and activeIndices not implemented");
     }
 }
 

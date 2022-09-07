@@ -6,21 +6,18 @@
 
 #include <memory>
 #include <boost/test/included/unit_test.hpp>
-#include <cmath>
-#include <memory>
 #include <vector>
 #include <Eigen/Core>
 
 #include <hops/MarkovChain/Draw/MetropolisHastingsFilter.hpp>
 #include <hops/MarkovChain/MarkovChain.hpp>
 #include <hops/MarkovChain/MarkovChainAdapter.hpp>
-#include <hops/MarkovChain/Proposal/Proposal.hpp>
 #include <hops/MarkovChain/Tuning/AcceptanceRateTuner.hpp>
 
 namespace {
-    class ProposerMock : public hops::Proposal {
+    class ProposalMock : public hops::Proposal {
     public:
-        explicit ProposerMock(double stepSize) : stepSize(stepSize) {}
+        explicit ProposalMock(double stepSize) : stepSize(stepSize) {}
 
         hops::VectorType &propose(hops::RandomNumberGenerator &) override {
             numberOfStepsTaken++;
@@ -37,7 +34,7 @@ namespace {
 
         [[nodiscard]] hops::VectorType getState() const override { return state; };
 
-        [[nodiscard]] std::string getProposalName() const override { return "ProposerMock"; };
+        [[nodiscard]] std::string getProposalName() const override { return "ProposalMock"; };
 
         void setParameter(const hops::ProposalParameter &parameter, const std::any &value) override {
             stepSize = std::any_cast<double>(value);
@@ -61,12 +58,8 @@ namespace {
             return std::string();
         }
 
-        bool hasStepSize() const override {
-            return true;
-        }
-
         std::unique_ptr<Proposal> copyProposal() const override {
-            return std::make_unique<ProposerMock>(*this);
+            return std::make_unique<ProposalMock>(*this);
         }
 
         const hops::MatrixType &getA() const override {
@@ -92,8 +85,8 @@ BOOST_AUTO_TEST_SUITE(AcceptanceRateTuner)
         auto markovChain
                 = std::make_shared<
                         decltype(hops::MarkovChainAdapter(
-                                hops::MetropolisHastingsFilter(ProposerMock(startingStepSize))))>(
-                        hops::MetropolisHastingsFilter(ProposerMock(startingStepSize))
+                                hops::MetropolisHastingsFilter(ProposalMock(startingStepSize))))>(
+                        hops::MetropolisHastingsFilter(ProposalMock(startingStepSize))
                 );
         hops::RandomNumberGenerator generator(42);
         markovChain->setParameter(hops::ProposalParameter::STEP_SIZE, startingStepSize);

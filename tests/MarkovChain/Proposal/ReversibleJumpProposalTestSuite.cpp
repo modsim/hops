@@ -4,6 +4,7 @@
 #include <boost/test/included/unit_test.hpp>
 #include <cmath>
 #include <Eigen/Core>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
@@ -11,10 +12,11 @@
 #include <hops/MarkovChain/ModelMixin.hpp>
 #include <hops/MarkovChain/Draw/MetropolisHastingsFilter.hpp>
 #include <hops/MarkovChain/Proposal/HitAndRunProposal.hpp>
-#include <hops/MarkovChain/Proposal/ReversibleJumpProposalOld.hpp>
-#include <hops/MarkovChain/Recorder/StateRecorder.hpp>
+#include <hops/MarkovChain/Proposal/ReversibleJumpProposal.hpp>
+#include <hops/Model/Model.hpp>
 #include <hops/Utility/MatrixType.hpp>
 #include <hops/Utility/VectorType.hpp>
+#include <hops/MarkovChain/Proposal/CoordinateHitAndRunProposal.hpp>
 
 namespace {
     double gammaProbabilityDensityFunction(double x, double location, double scale, double shape) {
@@ -28,11 +30,12 @@ namespace {
                (std::tgamma(shape) * std::pow(scale, shape));
     }
 
-    class FullGammaModel {
+    /**
+     * @brief The GammaModel is a simple nested model for unit testing RJMCMC
+     */
+    class GammaModel : public hops::Model {
     public:
-        using FloatType = double;
-
-        explicit FullGammaModel(std::vector<FloatType> measurements) : measurements(std::move(measurements)) {
+        explicit GammaModel(std::vector<double> measurements) : measurements(std::move(measurements)) {
             A = hops::MatrixType(6, 3);
             A << 1, 0, 0,
                     -1, 0, 0,
@@ -45,14 +48,13 @@ namespace {
             b << 0.9, 0., 10, -0.1, 10, -0.1;
         }
 
-        [[nodiscard]] FloatType computeNegativeLogLikelihood(const hops::VectorType &parameters) const {
-            FloatType neglike = 0;
-            for (const auto &measurement : this->measurements) {
-                neglike -= std::log(
-                        gammaProbabilityDensityFunction(measurement,
-                                                        parameters(0),
-                                                        parameters(1),
-                                                        parameters(2)));
+        [[nodiscard]] double computeNegativeLogLikelihood(const hops::VectorType &parameters) override {
+            double neglike = 0;
+            for (const auto &measurement: this->measurements) {
+                neglike -= std::log(gammaProbabilityDensityFunction(measurement,
+                                                                    parameters(0),
+                                                                    parameters(1),
+                                                                    parameters(2)));
 
             }
             return neglike;
@@ -62,281 +64,827 @@ namespace {
             return parameterNames;
         }
 
-        hops::VectorType getB() const {
+        [[nodiscard]] hops::VectorType getB() const {
             return b;
         }
 
-        hops::MatrixType getA() const {
+        [[nodiscard]] hops::MatrixType getA() const {
             return A;
         }
 
-        [[nodiscard]] const std::string &getModelName() const {
-            return modelName;
+        [[nodiscard]] std::vector<std::string> getDimensionNames() const override {
+            return parameterNames;
+        }
+
+        [[nodiscard]] std::unique_ptr<Model> copyModel() const override {
+            return std::make_unique<GammaModel>(*this);
         }
 
     private:
         std::vector<std::string> parameterNames = {"location", "scale", "shape"};
-
         hops::VectorType b;
         hops::MatrixType A;
-        std::vector<FloatType> measurements;
-        std::string modelName = "FullGammaModel";
-    };
-
-
-    class GammaModel1 {
-    public:
-        using FloatType = double;
-
-        explicit GammaModel1(std::vector<FloatType> measurements) : measurements(std::move(measurements)) {
-            A = hops::MatrixType(4, 2);
-            A << 1, 0,
-                    -1, 0,
-                    0, 1,
-                    0, -1;
-
-            b = hops::VectorType(4);
-            b << 0.9, 0., 10, -0.1;
-        }
-
-        FloatType computeNegativeLogLikelihood(const hops::VectorType &parameters) const {
-            FloatType neglike = 0;
-            for (const auto &measurement : this->measurements) {
-                neglike -= std::log(
-                        gammaProbabilityDensityFunction(measurement,
-                                                        parameters(0),
-                                                        scale,
-                                                        parameters(1)));
-
-            }
-            return neglike;
-        }
-
-        [[nodiscard]] const std::vector<std::string> &getParameterNames() const {
-            return parameterNames;
-        }
-
-        hops::VectorType getB() const {
-            return b;
-        }
-
-        hops::MatrixType getA() const {
-            return A;
-        }
-
-        [[nodiscard]] const std::string &getModelName() const {
-            return modelName;
-        }
-
-    private:
-        std::vector<std::string> parameterNames = {"location", "shape"};
-
-        hops::VectorType b;
-        hops::MatrixType A;
-        std::vector<FloatType> measurements;
-        constexpr static const double scale = 1;
-        std::string modelName = "GammaModel1";
-    };
-
-    class GammaModel2 {
-    public:
-        using FloatType = double;
-
-        explicit GammaModel2(std::vector<FloatType> measurements) : measurements(std::move(measurements)) {
-            A = hops::MatrixType(4, 2);
-            A << 1, 0,
-                    -1, 0,
-                    0, 1,
-                    0, -1;
-
-            b = hops::VectorType(4);
-            b << 10, -0.1, 10, -0.1;
-        }
-
-        [[nodiscard]] FloatType computeNegativeLogLikelihood(const hops::VectorType &parameters) const {
-            FloatType neglike = 0;
-            for (const auto &measurement : this->measurements) {
-                neglike -= std::log(
-                        gammaProbabilityDensityFunction(measurement,
-                                                        location,
-                                                        parameters(0),
-                                                        parameters(1)));
-
-            }
-            return neglike;
-        }
-
-        [[nodiscard]] const std::vector<std::string> &getParameterNames() const {
-            return parameterNames;
-        }
-
-        [[nodiscard]] hops::VectorType getB() const {
-            return b;
-        }
-
-        [[nodiscard]] hops::MatrixType getA() const {
-            return A;
-        }
-
-        [[nodiscard]] const std::string &getModelName() const {
-            return modelName;
-        }
-
-    private:
-        std::vector<std::string> parameterNames = {"scale", "shape"};
-
-        hops::VectorType b;
-        hops::MatrixType A;
-        std::vector<FloatType> measurements;
-
-        constexpr static double location = 0;
-        std::string modelName = "GammaModel2";
-    };
-
-
-    class MinimalGammaModel {
-    public:
-        using FloatType = double;
-
-        explicit MinimalGammaModel(std::vector<FloatType> measurements) : measurements(std::move(measurements)) {
-            A = hops::MatrixType(2, 1);
-            A << 1, -1;
-            b = hops::VectorType(2);
-            b << 10, -0.1;
-        }
-
-        [[nodiscard]] FloatType computeNegativeLogLikelihood(const hops::VectorType &parameters) const {
-            FloatType neglike = 0;
-            for (const auto &measurement : this->measurements) {
-                neglike -= std::log(
-                        gammaProbabilityDensityFunction(measurement,
-                                                        location,
-                                                        scale,
-                                                        parameters(0)));
-
-            }
-            return neglike;
-        }
-
-        [[nodiscard]] const std::vector<std::string> &getParameterNames() const {
-            return parameterNames;
-        }
-
-        [[nodiscard]] hops::VectorType getB() const {
-            return b;
-        }
-
-        [[nodiscard]] hops::MatrixType getA() const {
-            return A;
-        }
-
-        [[nodiscard]] const std::string &getModelName() const {
-            return modelName;
-        }
-
-    private:
-        std::vector<std::string> parameterNames = {"shape"};
-
-        hops::VectorType b;
-        hops::MatrixType A;
-        std::vector<FloatType> measurements;
-
-        constexpr static double location = 0;
-        constexpr static double scale = 1;
-        std::string modelName = "MinimalGammaModel";
+        std::vector<double> measurements;
     };
 }
 
-BOOST_AUTO_TEST_SUITE(ReversibleJumpProposal)
+struct ReversibleJumpProposalTestFixture {
+public:
+    ReversibleJumpProposalTestFixture() {
+        start = 0.5 * Eigen::VectorXd::Ones(3);
 
-// TODO fix to work with updated api
-    BOOST_AUTO_TEST_CASE(GammaModel) {
-        // The gamma model is a simple test case where the RJMCMC algorithm jumps a nested model structure of gamma functions.
-        double measurement = 1;
-        FullGammaModel model({measurement});
-        auto A = model.getA();
-        auto b = model.getB();
-
-        Eigen::VectorXd start(3);
-        start << 0.5, 0.5, 0.5;
-
-        Eigen::VectorXi jumpIndices(2);
+        jumpIndices = Eigen::VectorXi(2);
         // location and scale are parameters suitable for jumping. They are the first and second parameters respectively
         jumpIndices << 0, 1;
-        Eigen::VectorXd defaultValues(3);
-        defaultValues << 0, 1, 1;
+        defaultValues = Eigen::VectorXd(2);
+        // 2 default values for the jumpable parameters
+        defaultValues << 0, 1;
+        wrongDefaultValues = Eigen::VectorXd(3);
+        // 3 default values to test wrong initialization
+        wrongDefaultValues << 0, 1, 1;
+
+        A = model.getA();
+        b = model.getB();
+    }
+
+    Eigen::VectorXi jumpIndices;
+    Eigen::VectorXd defaultValues;
+    Eigen::VectorXd wrongDefaultValues;
+    Eigen::VectorXd start;
+    static constexpr double measurement = 1.;
+    GammaModel model = GammaModel({measurement});
+    Eigen::MatrixXd A;
+    Eigen::VectorXd b;
+
+    // expected model probabilities integrated with scipy, see resources/test_rjmcmc.py
+    std::vector<double> expectedModelProbabilityPercentages{
+            0.3147978599901968,
+            0.15325738646688555,
+            0.3485946848672095,
+            0.18335006867570805,
+    };
+
+    // expected means, also found in scipy, see resources/test_rjmcmc.py
+    double expectedLocationMean = 0.25526276132468817;
+    double expectedScaleMean = 1.5716092072465253;
+    double expectedShapeMean = 1.7841099019665436;
+};
+
+BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixture)
+
+    BOOST_AUTO_TEST_CASE(DimensionsMissMatch) {
+        BOOST_CHECK_THROW(
+                hops::ReversibleJumpProposal(nullptr,
+                                             jumpIndices,
+                                             wrongDefaultValues
+                ),
+                std::runtime_error
+        );
+    }
+
+    BOOST_AUTO_TEST_CASE(ProposalNameTest) {
+        auto proposalImpl = hops::ModelMixin(
+                hops::HitAndRunProposal<decltype(A), decltype(b), hops::GaussianStepDistribution<double>, true>(
+                        A,
+                        b,
+                        start),
+                model);
+
+        proposalImpl.setProposal(start);
+        std::unique_ptr<hops::Proposal> proposal = std::make_unique<decltype(proposalImpl)>(proposalImpl);
+
+        auto RJMCMCProposal = hops::ReversibleJumpProposal(
+                std::move(proposal),
+                jumpIndices,
+                defaultValues);
+        BOOST_CHECK_EQUAL(RJMCMCProposal.getProposalName(), "RJMCMC(HitAndRun + mixed in Model)");
+    }
+
+
+    BOOST_AUTO_TEST_CASE(DimensionNamesTest) {
+        auto proposalImpl = hops::ModelMixin(
+                hops::HitAndRunProposal<decltype(A), decltype(b), hops::GaussianStepDistribution<double>, true>(
+                        A,
+                        b,
+                        start),
+                model);
+
+        proposalImpl.setProposal(start);
+        std::unique_ptr<hops::Proposal> proposal = std::make_unique<decltype(proposalImpl)>(proposalImpl);
+
+        auto RJMCMCProposal = hops::ReversibleJumpProposal(
+                std::move(proposal),
+                jumpIndices,
+                defaultValues);
+
+        std::vector<std::string> expectedParameterNames = {
+                "step_size",
+                "model_jump_probability",
+                "activation_probability",
+                "deactivation_probability"};
+
+        auto actualParameterNames = RJMCMCProposal.getParameterNames();
+        std::cout << actualParameterNames.size() << std::endl;
+        BOOST_CHECK(actualParameterNames.size() == expectedParameterNames.size());
+        for (long i = 0; i < actualParameterNames.size(); ++i) {
+            BOOST_CHECK_EQUAL(actualParameterNames[i], expectedParameterNames[i]);
+        }
+    }
+
+    BOOST_AUTO_TEST_CASE(ParameterNamesTest) {
+        auto proposalImpl = hops::ModelMixin(
+                hops::HitAndRunProposal<decltype(A), decltype(b), hops::UniformStepDistribution<double>, true>(
+                        A,
+                        b,
+                        start),
+                model);
+
+        proposalImpl.setProposal(start);
+        std::unique_ptr<hops::Proposal> proposal = std::make_unique<decltype(proposalImpl)>(proposalImpl);
+
+        auto RJMCMCProposal = hops::ReversibleJumpProposal(
+                std::move(proposal),
+                jumpIndices,
+                defaultValues);
+
+        std::vector<std::string> expectedDimensionNames = {
+                "location_activation",
+                "scale_activation",
+                "location",
+                "scale",
+                "shape"};
+
+        auto actualDimensionNames = RJMCMCProposal.getDimensionNames();
+        BOOST_CHECK(actualDimensionNames.size() == expectedDimensionNames.size());
+        for (long i = 0; i < actualDimensionNames.size(); ++i) {
+            BOOST_CHECK_EQUAL(actualDimensionNames[i], expectedDimensionNames[i]);
+        }
+    }
+
+    BOOST_AUTO_TEST_CASE(SetBadParametersTest) {
+        auto proposalImpl = hops::ModelMixin(
+                hops::HitAndRunProposal<decltype(A), decltype(b), hops::UniformStepDistribution<double>, true>(
+                        A,
+                        b,
+                        start),
+                model);
+
+        proposalImpl.setProposal(start);
+        std::unique_ptr<hops::Proposal> proposal = std::make_unique<decltype(proposalImpl)>(proposalImpl);
+
+        auto RJMCMCProposal = hops::ReversibleJumpProposal(
+                std::move(proposal),
+                jumpIndices,
+                defaultValues);
+
+
+        BOOST_CHECK_THROW(RJMCMCProposal.setParameter(hops::ProposalParameter::MODEL_JUMP_PROBABILITY, 1.),
+                          std::invalid_argument);
+        BOOST_CHECK_THROW(RJMCMCProposal.setParameter(hops::ProposalParameter::MODEL_JUMP_PROBABILITY, 1.1),
+                          std::invalid_argument);
+        BOOST_CHECK_THROW(RJMCMCProposal.setParameter(hops::ProposalParameter::ACTIVATION_PROBABILITY, 1.),
+                          std::invalid_argument);
+        BOOST_CHECK_THROW(RJMCMCProposal.setParameter(hops::ProposalParameter::ACTIVATION_PROBABILITY, 1.1),
+                          std::invalid_argument);
+        BOOST_CHECK_THROW(RJMCMCProposal.setParameter(hops::ProposalParameter::DEACTIVATION_PROBABILITY, 1.),
+                          std::invalid_argument);
+        BOOST_CHECK_THROW(RJMCMCProposal.setParameter(hops::ProposalParameter::DEACTIVATION_PROBABILITY, 1.1),
+                          std::invalid_argument);
+    }
+
+
+    BOOST_AUTO_TEST_CASE(GetAndSetParametersTest) {
+        auto proposalImpl = hops::ModelMixin(
+                hops::HitAndRunProposal<decltype(A), decltype(b), hops::GaussianStepDistribution<double>, false>(
+                        A,
+                        b,
+                        start),
+                model);
+
+        proposalImpl.setProposal(start);
+        std::unique_ptr<hops::Proposal> proposal = std::make_unique<decltype(proposalImpl)>(proposalImpl);
+
+        auto RJMCMCProposal = hops::ReversibleJumpProposal(
+                std::move(proposal),
+                jumpIndices,
+                defaultValues);
+
+        double modelJumpProbability = 0.5;
+        double activationProbability = 0.5;
+        double deactivationProbability = 0.5;
+        double stepSize = 0.5;
+        RJMCMCProposal.setParameter(hops::ProposalParameter::MODEL_JUMP_PROBABILITY, modelJumpProbability);
+        RJMCMCProposal.setParameter(hops::ProposalParameter::ACTIVATION_PROBABILITY, activationProbability);
+        RJMCMCProposal.setParameter(hops::ProposalParameter::DEACTIVATION_PROBABILITY, deactivationProbability);
+        RJMCMCProposal.setParameter(hops::ProposalParameter::STEP_SIZE, stepSize);
+
+        BOOST_CHECK_EQUAL(
+                std::any_cast<double>(RJMCMCProposal.getParameter(hops::ProposalParameter::MODEL_JUMP_PROBABILITY)),
+                modelJumpProbability);
+        BOOST_CHECK_EQUAL(
+                std::any_cast<double>(RJMCMCProposal.getParameter(hops::ProposalParameter::ACTIVATION_PROBABILITY)),
+                activationProbability);
+        BOOST_CHECK_EQUAL(
+                std::any_cast<double>(RJMCMCProposal.getParameter(hops::ProposalParameter::DEACTIVATION_PROBABILITY)),
+                deactivationProbability);
+        BOOST_CHECK_EQUAL(
+                std::any_cast<double>(RJMCMCProposal.getParameter(hops::ProposalParameter::STEP_SIZE)),
+                stepSize);
+
+        modelJumpProbability = 0.75;
+        activationProbability = 0.75;
+        deactivationProbability = 0.75;
+        stepSize = 0.75;
+
+        RJMCMCProposal.setParameter(hops::ProposalParameter::MODEL_JUMP_PROBABILITY, modelJumpProbability);
+        RJMCMCProposal.setParameter(hops::ProposalParameter::ACTIVATION_PROBABILITY, activationProbability);
+        RJMCMCProposal.setParameter(hops::ProposalParameter::DEACTIVATION_PROBABILITY, deactivationProbability);
+        RJMCMCProposal.setParameter(hops::ProposalParameter::STEP_SIZE, stepSize);
+
+        BOOST_CHECK_EQUAL(
+                std::any_cast<double>(RJMCMCProposal.getParameter(hops::ProposalParameter::MODEL_JUMP_PROBABILITY)),
+                modelJumpProbability);
+        BOOST_CHECK_EQUAL(
+                std::any_cast<double>(RJMCMCProposal.getParameter(hops::ProposalParameter::ACTIVATION_PROBABILITY)),
+                activationProbability);
+        BOOST_CHECK_EQUAL(
+                std::any_cast<double>(RJMCMCProposal.getParameter(hops::ProposalParameter::DEACTIVATION_PROBABILITY)),
+                deactivationProbability);
+        BOOST_CHECK_EQUAL(
+                std::any_cast<double>(RJMCMCProposal.getParameter(hops::ProposalParameter::STEP_SIZE)),
+                stepSize);
+
+    }
+
+    BOOST_AUTO_TEST_CASE(GammaModelHRTest) {
+        auto proposalImpl = hops::ModelMixin(
+                hops::HitAndRunProposal(
+                        A,
+                        b,
+                        start),
+                model);
+
+        proposalImpl.setProposal(start);
+        std::unique_ptr<hops::Proposal> proposal = std::make_unique<decltype(proposalImpl)>(proposalImpl);
 
         auto markovChainImpl = hops::MarkovChainAdapter(
-                hops::StateRecorder(
-                        hops::MetropolisHastingsFilter(
-                                hops::ReversibleJumpProposalOld(
-                                        hops::ModelMixin(
-                                                hops::HitAndRunProposal(
-                                                        A,
-                                                        b,
-                                                        start),
-                                                model),
-                                        jumpIndices,
-                                        defaultValues
-                                )
+                hops::MetropolisHastingsFilter(
+                        hops::ReversibleJumpProposal(
+                                std::move(proposal),
+                                jumpIndices,
+                                defaultValues
                         )
                 )
         );
 
-        auto markovChain = std::make_unique<decltype(markovChainImpl)>(markovChainImpl);
+        std::unique_ptr<hops::MarkovChain> markovChain = std::make_unique<decltype(markovChainImpl)>(
+                markovChainImpl
+        );
 
         hops::RandomNumberGenerator randomNumberGenerator(42);
 
-
-        for (auto p : markovChain->getParameterNames()) {
-            std::cout << p << std::endl;
-        }
-        long thinning = 10;
-        long numberOfSamples = 100'0000;
-        markovChain->draw(randomNumberGenerator, numberOfSamples, thinning);
-
-
+        long numberOfSamples = 5'000'000;
         std::vector<double> model_visit_counts = {0, 0, 0, 0};
+        std::set<std::string> model_names;
+        std::vector<Eigen::VectorXd> models;
         std::vector<double> location;
         std::vector<double> scale;
         std::vector<double> shape;
 
-        for (auto state: markovChain->getStateRecords()) {
-            double model_binary_name = state(0);
+        std::string model_name = "";
+        double acceptanceRates = 0;
+        for (long i = 0; i < numberOfSamples; ++i) {
+            auto[acceptanceRate, state] = markovChain->draw(randomNumberGenerator);
+            acceptanceRates += acceptanceRate;
+            models.emplace_back(state.topRows(state.rows() / 2));
+            int model_index = 0;
 
-            int index = model_binary_name == 7 ? 0 :
-                        model_binary_name == 5 ? 1 :
-                        model_binary_name == 3 ? 2 : 3;
+            for (long j = 0; j < jumpIndices.rows(); ++j) {
+                model_index += std::pow(2, jumpIndices.rows() - 1 - j) * state(jumpIndices(j));
+                model_name += std::to_string(static_cast<int>(state(jumpIndices(j))));
+            }
+            model_names.insert(model_name);
+            model_name = "";
+            model_visit_counts[model_index]++;
 
-            model_visit_counts[index]++;
-            location.emplace_back(state(1));
-            scale.emplace_back(state(2));
-            shape.emplace_back(state(3));
+            location.emplace_back(state(state.rows() / 2));
+            scale.emplace_back(state(state.rows() / 2 + 1));
+            shape.emplace_back(state(state.rows() / 2 + 2));
         }
 
-        std::vector<int> actualModelProbabilities;
+        double actualLocationMean = std::accumulate(location.begin(), location.end(), 0.) / location.size();
+        double actualScaleMean = std::accumulate(scale.begin(), scale.end(), 0.) / scale.size();
+        double actualShapeMean = std::accumulate(shape.begin(), shape.end(), 0.) / shape.size();
+
+        std::vector<double> actualModelProbabilities;
         actualModelProbabilities.reserve(model_visit_counts.size());
-        for (auto count:model_visit_counts) {
-            actualModelProbabilities.emplace_back(count * 100 / numberOfSamples);
+        for (auto count: model_visit_counts) {
+            actualModelProbabilities.emplace_back(static_cast<double>(count) / numberOfSamples);
         }
 
-        // Actual model probabilities integrated with scipy and rounded:
-        std::vector<int> expectedModelProbabilityPercentages{
-                18, // 0.18335007
-                34, // 0.34859468
-                15, // 0.15325739
-                31, // 0.31479786
-        };
-
+        double relative_tolerance = 1.5;
+        BOOST_CHECK_CLOSE(actualLocationMean, expectedLocationMean, relative_tolerance);
+        BOOST_CHECK_CLOSE(actualScaleMean, expectedScaleMean, relative_tolerance);
+        BOOST_CHECK_CLOSE(actualShapeMean, expectedShapeMean, relative_tolerance);
         BOOST_ASSERT(actualModelProbabilities.size() == expectedModelProbabilityPercentages.size());
+        auto it = model_names.begin();
         for (size_t i = 0; i < actualModelProbabilities.size(); ++i) {
-            std::cout << actualModelProbabilities[i] << std::endl;
-            BOOST_CHECK_EQUAL(
+            BOOST_CHECK_CLOSE(
                     actualModelProbabilities[i],
-                    expectedModelProbabilityPercentages[i]
+                    expectedModelProbabilityPercentages[i],
+                    relative_tolerance
+            );
+        }
+    }
+
+    BOOST_AUTO_TEST_CASE(GammaModelAdaptedJumpParametersHRTest) {
+        auto proposalImpl = hops::ModelMixin(
+                hops::HitAndRunProposal(
+                        A,
+                        b,
+                        start),
+                model);
+
+        proposalImpl.setProposal(start);
+        std::unique_ptr<hops::Proposal> proposal = std::make_unique<decltype(proposalImpl)>(proposalImpl);
+
+        auto markovChainImpl = hops::MarkovChainAdapter(
+                hops::MetropolisHastingsFilter(
+                        hops::ReversibleJumpProposal(
+                                std::move(proposal),
+                                jumpIndices,
+                                defaultValues
+                        )
+                )
+        );
+
+        std::unique_ptr<hops::MarkovChain> markovChain = std::make_unique<decltype(markovChainImpl)>(
+                markovChainImpl
+        );
+
+        markovChain->setParameter(hops::ProposalParameter::MODEL_JUMP_PROBABILITY, .5);
+        markovChain->setParameter(hops::ProposalParameter::ACTIVATION_PROBABILITY, .35);
+        markovChain->setParameter(hops::ProposalParameter::DEACTIVATION_PROBABILITY, .25);
+
+        hops::RandomNumberGenerator randomNumberGenerator(42);
+
+        long numberOfSamples = 5'000'000;
+        std::vector<double> model_visit_counts = {0, 0, 0, 0};
+        std::set<std::string> model_names;
+        std::vector<Eigen::VectorXd> models;
+        std::vector<double> location;
+        std::vector<double> scale;
+        std::vector<double> shape;
+
+        std::string model_name = "";
+        double acceptanceRates = 0;
+        for (long i = 0; i < numberOfSamples; ++i) {
+            auto[acceptanceRate, state] = markovChain->draw(randomNumberGenerator);
+            acceptanceRates += acceptanceRate;
+            models.emplace_back(state.topRows(state.rows() / 2));
+            int model_index = 0;
+
+            for (long j = 0; j < jumpIndices.rows(); ++j) {
+                model_index += std::pow(2, jumpIndices.rows() - 1 - j) * state(jumpIndices(j));
+                model_name += std::to_string(static_cast<int>(state(jumpIndices(j))));
+            }
+            model_names.insert(model_name);
+            model_name = "";
+            model_visit_counts[model_index]++;
+
+            location.emplace_back(state(state.rows() / 2));
+            scale.emplace_back(state(state.rows() / 2 + 1));
+            shape.emplace_back(state(state.rows() / 2 + 2));
+        }
+
+        double actualLocationMean = std::accumulate(location.begin(), location.end(), 0.) / location.size();
+        double actualScaleMean = std::accumulate(scale.begin(), scale.end(), 0.) / scale.size();
+        double actualShapeMean = std::accumulate(shape.begin(), shape.end(), 0.) / shape.size();
+
+        std::vector<double> actualModelProbabilities;
+        actualModelProbabilities.reserve(model_visit_counts.size());
+        for (auto count: model_visit_counts) {
+            actualModelProbabilities.emplace_back(static_cast<double>(count) / numberOfSamples);
+        }
+
+        double relative_tolerance = 1.5;
+        BOOST_CHECK_CLOSE(actualLocationMean, expectedLocationMean, relative_tolerance);
+        BOOST_CHECK_CLOSE(actualScaleMean, expectedScaleMean, relative_tolerance);
+        BOOST_CHECK_CLOSE(actualShapeMean, expectedShapeMean, relative_tolerance);
+        BOOST_ASSERT(actualModelProbabilities.size() == expectedModelProbabilityPercentages.size());
+        auto it = model_names.begin();
+        for (size_t i = 0; i < actualModelProbabilities.size(); ++i) {
+            BOOST_CHECK_CLOSE(
+                    actualModelProbabilities[i],
+                    expectedModelProbabilityPercentages[i],
+                    relative_tolerance
+            );
+        }
+    }
+
+    BOOST_AUTO_TEST_CASE(GammaModelPreciceHRTest) {
+        auto proposalImpl = hops::ModelMixin(
+                hops::HitAndRunProposal<decltype(A), decltype(b), hops::UniformStepDistribution<double>, true>(
+                        A,
+                        b,
+                        start),
+                model);
+
+        proposalImpl.setProposal(start);
+        std::unique_ptr<hops::Proposal> proposal = std::make_unique<decltype(proposalImpl)>(proposalImpl);
+
+        auto markovChainImpl = hops::MarkovChainAdapter(
+                hops::MetropolisHastingsFilter(
+                        hops::ReversibleJumpProposal(
+                                std::move(proposal),
+                                jumpIndices,
+                                defaultValues
+                        )
+                )
+        );
+
+        std::unique_ptr<hops::MarkovChain> markovChain = std::make_unique<decltype(markovChainImpl)>(
+                markovChainImpl
+        );
+
+        hops::RandomNumberGenerator randomNumberGenerator(42);
+
+        long numberOfSamples = 5'000'000;
+        std::vector<double> model_visit_counts = {0, 0, 0, 0};
+        std::set<std::string> model_names;
+        std::vector<Eigen::VectorXd> models;
+        std::vector<double> location;
+        std::vector<double> scale;
+        std::vector<double> shape;
+
+        std::string model_name = "";
+        double acceptanceRates = 0;
+        for (long i = 0; i < numberOfSamples; ++i) {
+            auto[acceptanceRate, state] = markovChain->draw(randomNumberGenerator);
+            acceptanceRates += acceptanceRate;
+            models.emplace_back(state.topRows(state.rows() / 2));
+            int model_index = 0;
+
+            for (long j = 0; j < jumpIndices.rows(); ++j) {
+                model_index += std::pow(2, jumpIndices.rows() - 1 - j) * state(jumpIndices(j));
+                model_name += std::to_string(static_cast<int>(state(jumpIndices(j))));
+            }
+            model_names.insert(model_name);
+            model_name = "";
+            model_visit_counts[model_index]++;
+
+            location.emplace_back(state(state.rows() / 2));
+            scale.emplace_back(state(state.rows() / 2 + 1));
+            shape.emplace_back(state(state.rows() / 2 + 2));
+        }
+
+        double actualLocationMean = std::accumulate(location.begin(), location.end(), 0.) / location.size();
+        double actualScaleMean = std::accumulate(scale.begin(), scale.end(), 0.) / scale.size();
+        double actualShapeMean = std::accumulate(shape.begin(), shape.end(), 0.) / shape.size();
+
+        std::vector<double> actualModelProbabilities;
+        actualModelProbabilities.reserve(model_visit_counts.size());
+        for (auto count: model_visit_counts) {
+            actualModelProbabilities.emplace_back(static_cast<double>(count) / numberOfSamples);
+        }
+
+        double relative_tolerance = 1.5;
+        BOOST_CHECK_CLOSE(actualLocationMean, expectedLocationMean, relative_tolerance);
+        BOOST_CHECK_CLOSE(actualScaleMean, expectedScaleMean, relative_tolerance);
+        BOOST_CHECK_CLOSE(actualShapeMean, expectedShapeMean, relative_tolerance);
+        BOOST_ASSERT(actualModelProbabilities.size() == expectedModelProbabilityPercentages.size());
+        auto it = model_names.begin();
+        for (size_t i = 0; i < actualModelProbabilities.size(); ++i) {
+            BOOST_CHECK_CLOSE(
+                    actualModelProbabilities[i],
+                    expectedModelProbabilityPercentages[i],
+                    relative_tolerance
+            );
+        }
+    }
+
+    BOOST_AUTO_TEST_CASE(GammaModelGaussianHRTest) {
+        auto proposalImpl = hops::ModelMixin(
+                hops::HitAndRunProposal<decltype(A), decltype(b), hops::GaussianStepDistribution<double>, false>(
+                        A,
+                        b,
+                        start),
+                model);
+
+        proposalImpl.setProposal(start);
+        std::unique_ptr<hops::Proposal> proposal = std::make_unique<decltype(proposalImpl)>(proposalImpl);
+
+        auto markovChainImpl = hops::MarkovChainAdapter(
+                hops::MetropolisHastingsFilter(
+                        hops::ReversibleJumpProposal(
+                                std::move(proposal),
+                                jumpIndices,
+                                defaultValues
+                        )
+                )
+        );
+
+        std::unique_ptr<hops::MarkovChain> markovChain = std::make_unique<decltype(markovChainImpl)>(
+                markovChainImpl
+        );
+
+        hops::RandomNumberGenerator randomNumberGenerator(42);
+
+        long numberOfSamples = 5'000'000;
+        std::vector<double> model_visit_counts = {0, 0, 0, 0};
+        std::set<std::string> model_names;
+        std::vector<Eigen::VectorXd> models;
+        std::vector<double> location;
+        std::vector<double> scale;
+        std::vector<double> shape;
+
+        std::string model_name = "";
+        double acceptanceRates = 0;
+        for (long i = 0; i < numberOfSamples; ++i) {
+            auto[acceptanceRate, state] = markovChain->draw(randomNumberGenerator);
+            acceptanceRates += acceptanceRate;
+            models.emplace_back(state.topRows(state.rows() / 2));
+            int model_index = 0;
+
+            for (long j = 0; j < jumpIndices.rows(); ++j) {
+                model_index += std::pow(2, jumpIndices.rows() - 1 - j) * state(jumpIndices(j));
+                model_name += std::to_string(static_cast<int>(state(jumpIndices(j))));
+            }
+            model_names.insert(model_name);
+            model_name = "";
+            model_visit_counts[model_index]++;
+
+            location.emplace_back(state(state.rows() / 2));
+            scale.emplace_back(state(state.rows() / 2 + 1));
+            shape.emplace_back(state(state.rows() / 2 + 2));
+        }
+
+        double actualLocationMean = std::accumulate(location.begin(), location.end(), 0.) / location.size();
+        double actualScaleMean = std::accumulate(scale.begin(), scale.end(), 0.) / scale.size();
+        double actualShapeMean = std::accumulate(shape.begin(), shape.end(), 0.) / shape.size();
+
+        std::vector<double> actualModelProbabilities;
+        actualModelProbabilities.reserve(model_visit_counts.size());
+        for (auto count: model_visit_counts) {
+            actualModelProbabilities.emplace_back(static_cast<double>(count) / numberOfSamples);
+        }
+
+        double relative_tolerance = 2.;
+        BOOST_CHECK_CLOSE(actualLocationMean, expectedLocationMean, relative_tolerance);
+        BOOST_CHECK_CLOSE(actualScaleMean, expectedScaleMean, relative_tolerance);
+        BOOST_CHECK_CLOSE(actualShapeMean, expectedShapeMean, relative_tolerance);
+        BOOST_ASSERT(actualModelProbabilities.size() == expectedModelProbabilityPercentages.size());
+        auto it = model_names.begin();
+        for (size_t i = 0; i < actualModelProbabilities.size(); ++i) {
+            BOOST_CHECK_CLOSE(
+                    actualModelProbabilities[i],
+                    expectedModelProbabilityPercentages[i],
+                    relative_tolerance
+            );
+        }
+    }
+
+    BOOST_AUTO_TEST_CASE(GammaModelPreciceGaussianHRTest) {
+        auto proposalImpl = hops::ModelMixin(
+                hops::HitAndRunProposal<decltype(A), decltype(b), hops::GaussianStepDistribution<double>, true>(
+                        A,
+                        b,
+                        start),
+                model);
+
+        proposalImpl.setProposal(start);
+        std::unique_ptr<hops::Proposal> proposal = std::make_unique<decltype(proposalImpl)>(proposalImpl);
+
+        auto markovChainImpl = hops::MarkovChainAdapter(
+                hops::MetropolisHastingsFilter(
+                        hops::ReversibleJumpProposal(
+                                std::move(proposal),
+                                jumpIndices,
+                                defaultValues
+                        )
+                )
+        );
+
+        std::unique_ptr<hops::MarkovChain> markovChain = std::make_unique<decltype(markovChainImpl)>(
+                markovChainImpl
+        );
+
+        hops::RandomNumberGenerator randomNumberGenerator(42);
+
+        long numberOfSamples = 5'000'000;
+        std::vector<double> model_visit_counts = {0, 0, 0, 0};
+        std::set<std::string> model_names;
+        std::vector<Eigen::VectorXd> models;
+        std::vector<double> location;
+        std::vector<double> scale;
+        std::vector<double> shape;
+
+        std::string model_name = "";
+        double acceptanceRates = 0;
+        for (long i = 0; i < numberOfSamples; ++i) {
+            auto[acceptanceRate, state] = markovChain->draw(randomNumberGenerator);
+            acceptanceRates += acceptanceRate;
+            models.emplace_back(state.topRows(state.rows() / 2));
+            int model_index = 0;
+
+            for (long j = 0; j < jumpIndices.rows(); ++j) {
+                model_index += std::pow(2, jumpIndices.rows() - 1 - j) * state(jumpIndices(j));
+                model_name += std::to_string(static_cast<int>(state(jumpIndices(j))));
+            }
+            model_names.insert(model_name);
+            model_name = "";
+            model_visit_counts[model_index]++;
+
+            location.emplace_back(state(state.rows() / 2));
+            scale.emplace_back(state(state.rows() / 2 + 1));
+            shape.emplace_back(state(state.rows() / 2 + 2));
+        }
+
+        double actualLocationMean = std::accumulate(location.begin(), location.end(), 0.) / location.size();
+        double actualScaleMean = std::accumulate(scale.begin(), scale.end(), 0.) / scale.size();
+        double actualShapeMean = std::accumulate(shape.begin(), shape.end(), 0.) / shape.size();
+
+        std::vector<double> actualModelProbabilities;
+        actualModelProbabilities.reserve(model_visit_counts.size());
+        for (auto count: model_visit_counts) {
+            actualModelProbabilities.emplace_back(static_cast<double>(count) / numberOfSamples);
+        }
+
+        double relative_tolerance = 2.;
+        BOOST_CHECK_CLOSE(actualLocationMean, expectedLocationMean, relative_tolerance);
+        BOOST_CHECK_CLOSE(actualScaleMean, expectedScaleMean, relative_tolerance);
+        BOOST_CHECK_CLOSE(actualShapeMean, expectedShapeMean, relative_tolerance);
+        BOOST_ASSERT(actualModelProbabilities.size() == expectedModelProbabilityPercentages.size());
+        auto it = model_names.begin();
+        for (size_t i = 0; i < actualModelProbabilities.size(); ++i) {
+            BOOST_CHECK_CLOSE(
+                    actualModelProbabilities[i],
+                    expectedModelProbabilityPercentages[i],
+                    relative_tolerance
+            );
+        }
+    }
+
+    BOOST_AUTO_TEST_CASE(GammaModelCHRTest) {
+        auto proposalImpl = hops::ModelMixin(
+                hops::CoordinateHitAndRunProposal(
+                        A,
+                        b,
+                        start),
+                model);
+
+        proposalImpl.setProposal(start);
+        std::unique_ptr<hops::Proposal> proposal = std::make_unique<decltype(proposalImpl)>(proposalImpl);
+
+        auto markovChainImpl = hops::MarkovChainAdapter(
+                hops::MetropolisHastingsFilter(
+                        hops::ReversibleJumpProposal(
+                                std::move(proposal),
+                                jumpIndices,
+                                defaultValues
+                        )
+                )
+        );
+
+        std::unique_ptr<hops::MarkovChain> markovChain = std::make_unique<decltype(markovChainImpl)>(
+                markovChainImpl
+        );
+
+        hops::RandomNumberGenerator randomNumberGenerator(42);
+
+        long numberOfSamples = 5'000'000;
+        std::vector<double> model_visit_counts = {0, 0, 0, 0};
+        std::set<std::string> model_names;
+        std::vector<Eigen::VectorXd> models;
+        std::vector<double> location;
+        std::vector<double> scale;
+        std::vector<double> shape;
+
+        std::string model_name = "";
+        double acceptanceRates = 0;
+        for (long i = 0; i < numberOfSamples; ++i) {
+            auto[acceptanceRate, state] = markovChain->draw(randomNumberGenerator);
+            acceptanceRates += acceptanceRate;
+            models.emplace_back(state.topRows(state.rows() / 2));
+            int model_index = 0;
+
+            for (long j = 0; j < jumpIndices.rows(); ++j) {
+                model_index += std::pow(2, jumpIndices.rows() - 1 - j) * state(jumpIndices(j));
+                model_name += std::to_string(static_cast<int>(state(jumpIndices(j))));
+            }
+            model_names.insert(model_name);
+            model_name = "";
+            model_visit_counts[model_index]++;
+
+            location.emplace_back(state(state.rows() / 2));
+            scale.emplace_back(state(state.rows() / 2 + 1));
+            shape.emplace_back(state(state.rows() / 2 + 2));
+        }
+
+        double actualLocationMean = std::accumulate(location.begin(), location.end(), 0.) / location.size();
+        double actualScaleMean = std::accumulate(scale.begin(), scale.end(), 0.) / scale.size();
+        double actualShapeMean = std::accumulate(shape.begin(), shape.end(), 0.) / shape.size();
+
+        std::vector<double> actualModelProbabilities;
+        actualModelProbabilities.reserve(model_visit_counts.size());
+        for (auto count: model_visit_counts) {
+            actualModelProbabilities.emplace_back(static_cast<double>(count) / numberOfSamples);
+        }
+
+        double relative_tolerance = 1.5;
+        BOOST_CHECK_CLOSE(actualLocationMean, expectedLocationMean, relative_tolerance);
+        BOOST_CHECK_CLOSE(actualScaleMean, expectedScaleMean, relative_tolerance);
+        BOOST_CHECK_CLOSE(actualShapeMean, expectedShapeMean, relative_tolerance);
+        BOOST_ASSERT(actualModelProbabilities.size() == expectedModelProbabilityPercentages.size());
+        auto it = model_names.begin();
+        for (size_t i = 0; i < actualModelProbabilities.size(); ++i) {
+            BOOST_CHECK_CLOSE(
+                    actualModelProbabilities[i],
+                    expectedModelProbabilityPercentages[i],
+                    relative_tolerance
+            );
+        }
+    }
+
+    BOOST_AUTO_TEST_CASE(GammaModelGaussianCHRTest) {
+        auto proposalImpl = hops::ModelMixin(
+                hops::CoordinateHitAndRunProposal<decltype(A), decltype(b), hops::GaussianStepDistribution<double>>(
+                        A,
+                        b,
+                        start),
+                model);
+
+        proposalImpl.setProposal(start);
+        std::unique_ptr<hops::Proposal> proposal = std::make_unique<decltype(proposalImpl)>(proposalImpl);
+
+        auto markovChainImpl = hops::MarkovChainAdapter(
+                hops::MetropolisHastingsFilter(
+                        hops::ReversibleJumpProposal(
+                                std::move(proposal),
+                                jumpIndices,
+                                defaultValues
+                        )
+                )
+        );
+
+        std::unique_ptr<hops::MarkovChain> markovChain = std::make_unique<decltype(markovChainImpl)>(
+                markovChainImpl
+        );
+
+        hops::RandomNumberGenerator randomNumberGenerator(42);
+
+        long numberOfSamples = 5'000'000;
+        std::vector<double> model_visit_counts = {0, 0, 0, 0};
+        std::set<std::string> model_names;
+        std::vector<Eigen::VectorXd> models;
+        std::vector<double> location;
+        std::vector<double> scale;
+        std::vector<double> shape;
+
+        std::string model_name = "";
+        double acceptanceRates = 0;
+        for (long i = 0; i < numberOfSamples; ++i) {
+            auto[acceptanceRate, state] = markovChain->draw(randomNumberGenerator);
+            acceptanceRates += acceptanceRate;
+            models.emplace_back(state.topRows(state.rows() / 2));
+            int model_index = 0;
+
+            for (long j = 0; j < jumpIndices.rows(); ++j) {
+                model_index += std::pow(2, jumpIndices.rows() - 1 - j) * state(jumpIndices(j));
+                model_name += std::to_string(static_cast<int>(state(jumpIndices(j))));
+            }
+            model_names.insert(model_name);
+            model_name = "";
+            model_visit_counts[model_index]++;
+
+            location.emplace_back(state(state.rows() / 2));
+            scale.emplace_back(state(state.rows() / 2 + 1));
+            shape.emplace_back(state(state.rows() / 2 + 2));
+        }
+
+        double actualLocationMean = std::accumulate(location.begin(), location.end(), 0.) / location.size();
+        double actualScaleMean = std::accumulate(scale.begin(), scale.end(), 0.) / scale.size();
+        double actualShapeMean = std::accumulate(shape.begin(), shape.end(), 0.) / shape.size();
+
+        std::vector<double> actualModelProbabilities;
+        actualModelProbabilities.reserve(model_visit_counts.size());
+        for (auto count: model_visit_counts) {
+            actualModelProbabilities.emplace_back(static_cast<double>(count) / numberOfSamples);
+        }
+
+        double relative_tolerance = 2.;
+        BOOST_CHECK_CLOSE(actualLocationMean, expectedLocationMean, relative_tolerance);
+        BOOST_CHECK_CLOSE(actualScaleMean, expectedScaleMean, relative_tolerance);
+        BOOST_CHECK_CLOSE(actualShapeMean, expectedShapeMean, relative_tolerance);
+        BOOST_ASSERT(actualModelProbabilities.size() == expectedModelProbabilityPercentages.size());
+        auto it = model_names.begin();
+        for (size_t i = 0; i < actualModelProbabilities.size(); ++i) {
+            BOOST_CHECK_CLOSE(
+                    actualModelProbabilities[i],
+                    expectedModelProbabilityPercentages[i],
+                    relative_tolerance
             );
         }
     }
 
 BOOST_AUTO_TEST_SUITE_END()
-

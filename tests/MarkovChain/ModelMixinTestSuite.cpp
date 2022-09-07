@@ -15,13 +15,15 @@ namespace {
     public:
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "readability-convert-member-functions-to-static"
+
         [[nodiscard]] double computeNegativeLogLikelihood(const Eigen::VectorXd &state) override {
             return state(0);
         }
+
 #pragma clang diagnostic pop
 
         [[nodiscard]] std::vector<std::string> getDimensionNames() const override {
-            return std::vector<std::string> {"correct name"};
+            return std::vector<std::string>{"correct name"};
         }
 
         [[nodiscard]] std::unique_ptr<Model> copyModel() const override {
@@ -56,6 +58,10 @@ namespace {
             return proposal;
         }
 
+        hops::VectorType &propose(hops::RandomNumberGenerator &rng, const Eigen::VectorXd &activeIndices) override {
+            return Proposal::propose(rng, activeIndices);
+        }
+
         double computeLogAcceptanceProbability() override {
             return state(0) - proposal(0);
         }
@@ -77,10 +83,6 @@ namespace {
         }
 
         void setParameter(const hops::ProposalParameter &parameter, const std::any &value) override {
-        }
-
-        bool hasStepSize() const override {
-            return false;
         }
 
         std::string getProposalName() const override {

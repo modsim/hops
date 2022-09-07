@@ -36,6 +36,8 @@ namespace hops {
 
         VectorType &propose(RandomNumberGenerator &randomNumberGenerator) override;
 
+        VectorType &propose(RandomNumberGenerator &rng, const Eigen::VectorXd &activeIndices) override;
+
         [[nodiscard]] std::vector<std::string> getParameterNames() const override;
 
         [[nodiscard]] std::any getParameter(const ProposalParameter &parameter) const override;
@@ -163,6 +165,12 @@ namespace hops {
     std::unique_ptr<Proposal>
     BilliardAdaptiveMetropolisProposal<InternalMatrixType>::copyProposal() const {
         return std::make_unique<BilliardAdaptiveMetropolisProposal>(*this);
+    }
+
+    template<typename InternalMatrixType>
+    VectorType &BilliardAdaptiveMetropolisProposal<InternalMatrixType>::propose(RandomNumberGenerator &rng,
+                                                                                const Eigen::VectorXd &activeIndices) {
+        throw std::runtime_error("Propose with rng and activeIndices not implemented");
     }
 }
 

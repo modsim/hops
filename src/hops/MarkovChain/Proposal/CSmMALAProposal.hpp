@@ -41,9 +41,13 @@ namespace hops {
 
         VectorType &propose(RandomNumberGenerator &rng) override;
 
+        VectorType &propose(RandomNumberGenerator &rng, const Eigen::VectorXd &activeIndices) override;
+
         VectorType &acceptProposal() override;
 
         void setState(const VectorType &state) override;
+
+        void setProposal(const VectorType &newProposal) override;
 
         [[nodiscard]] VectorType getState() const override;
 
@@ -51,11 +55,11 @@ namespace hops {
 
         [[nodiscard]] std::vector<std::string> getDimensionNames() const override;
 
-        [[nodiscard]] std::optional<double> getStepSize() const;
+        [[nodiscard]] std::optional<double> getStepSize() const override;
 
         void setStepSize(double stepSize);
 
-        [[nodiscard]] bool hasStepSize() const override;
+        [[nodiscard]] static bool hasStepSize();
 
         [[nodiscard]] std::vector<std::string> getParameterNames() const override;
 
@@ -129,7 +133,7 @@ namespace hops {
 
     template<typename ModelType, typename InternalMatrixType>
     CSmMALAProposal<ModelType, InternalMatrixType>::CSmMALAProposal(InternalMatrixType A,
-                                                                    hops::VectorType b,
+                                                                    VectorType b,
                                                                     const VectorType &currentState,
                                                                     ModelType model,
                                                                     double newFisherWeight,
@@ -210,6 +214,13 @@ namespace hops {
                                stateSolver.matrixL().transpose().template solve(stateSolver.matrixL().solve(gradient));
         stateNegativeLogLikelihood = ModelType::computeNegativeLogLikelihood(state);
     }
+
+    template<typename ModelType, typename InternalMatrixType>
+    void CSmMALAProposal<ModelType, InternalMatrixType>::setProposal(const VectorType &newProposal) {
+        proposal = newProposal;
+        proposalNegativeLogLikelihood = ModelType::computeNegativeLogLikelihood(proposal);
+    }
+
 
     template<typename ModelType, typename InternalMatrixType>
     std::optional<double> CSmMALAProposal<ModelType, InternalMatrixType>::getStepSize() const {
@@ -304,7 +315,7 @@ namespace hops {
     }
 
     template<typename ModelType, typename InternalMatrixType>
-    bool CSmMALAProposal<ModelType, InternalMatrixType>::hasStepSize() const {
+    bool CSmMALAProposal<ModelType, InternalMatrixType>::hasStepSize() {
         return true;
     }
 
@@ -420,6 +431,12 @@ namespace hops {
         ProposalStatistics newStatistic;
         std::swap(newStatistic, proposalStatistics);
         return newStatistic;
+    }
+
+    template<typename ModelType, typename InternalMatrixType>
+    VectorType &CSmMALAProposal<ModelType, InternalMatrixType>::propose(RandomNumberGenerator &rng,
+                                                                        const Eigen::VectorXd &activeIndices) {
+        throw std::runtime_error("Propose with rng and activeIndices not implemented");
     }
 }
 

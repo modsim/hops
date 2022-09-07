@@ -8,16 +8,14 @@
 #include <cmath>
 #include <Eigen/Core>
 
-#include <hops/MarkovChain/MarkovChain.hpp>
 #include <hops/MarkovChain/MarkovChainAdapter.hpp>
 #include <hops/MarkovChain/Draw/MetropolisHastingsFilter.hpp>
-#include <hops/MarkovChain/Proposal/Proposal.hpp>
 #include <hops/MarkovChain/Tuning/BinarySearchAcceptanceRateTuner.hpp>
 
 namespace {
-    class ProposerMock : public hops::Proposal {
+    class ProposalMock : public hops::Proposal {
     public:
-        explicit ProposerMock(double stepSize) : stepSize(stepSize) {}
+        explicit ProposalMock(double stepSize) : stepSize(stepSize) {}
 
         hops::VectorType &propose(hops::RandomNumberGenerator &) override {
             numberOfStepsTaken++;
@@ -34,7 +32,7 @@ namespace {
 
         [[nodiscard]] hops::VectorType getState() const override { return state; };
 
-        [[nodiscard]] std::string getProposalName() const override { return "ProposerMock"; };
+        [[nodiscard]] std::string getProposalName() const override { return "ProposalMock"; };
 
         void setParameter(const hops::ProposalParameter &parameter, const std::any &value) override {
             stepSize = std::any_cast<double>(value);
@@ -62,12 +60,8 @@ namespace {
             return std::string();
         }
 
-        bool hasStepSize() const override {
-            return true;
-        }
-
         std::unique_ptr<Proposal> copyProposal() const override {
-            return std::make_unique<ProposerMock>(*this);
+            return std::make_unique<ProposalMock>(*this);
         }
 
         const hops::MatrixType &getA() const override {
@@ -91,7 +85,7 @@ BOOST_AUTO_TEST_SUITE(BinarySearchAcceptanceRateTuner)
     BOOST_AUTO_TEST_CASE(nothingToTune) {
         double startingStepSize = 0.2;
         hops::MarkovChain *markovChain
-                = new hops::MarkovChainAdapter(hops::MetropolisHastingsFilter(ProposerMock(startingStepSize)));
+                = new hops::MarkovChainAdapter(hops::MetropolisHastingsFilter(ProposalMock(startingStepSize)));
         hops::RandomNumberGenerator generator(42);
 
         double upperLimitAcceptanceRate = 0.85;
@@ -125,7 +119,7 @@ BOOST_AUTO_TEST_SUITE(BinarySearchAcceptanceRateTuner)
     BOOST_AUTO_TEST_CASE(throwsExceptionIfUpperLimitAcceptanceRateIsLessThanLowerLimitAcceptanceRate) {
         double startingStepSize = 0.2;
         hops::MarkovChain *markovChain
-                = new hops::MarkovChainAdapter(hops::MetropolisHastingsFilter(ProposerMock(startingStepSize)));
+                = new hops::MarkovChainAdapter(hops::MetropolisHastingsFilter(ProposalMock(startingStepSize)));
         hops::RandomNumberGenerator generator(42);
 
         double upperLimitAcceptanceRate = 0;
@@ -155,7 +149,7 @@ BOOST_AUTO_TEST_SUITE(BinarySearchAcceptanceRateTuner)
     BOOST_AUTO_TEST_CASE(throwsExceptionIfUpperLimitStepSizeIsLessThanLowerLimitStepSize) {
         double startingStepSize = 0.2;
         hops::MarkovChain *markovChain
-                = new hops::MarkovChainAdapter(hops::MetropolisHastingsFilter(ProposerMock(startingStepSize)));
+                = new hops::MarkovChainAdapter(hops::MetropolisHastingsFilter(ProposalMock(startingStepSize)));
         hops::RandomNumberGenerator generator(42);
 
         float upperLimitAcceptanceRate = 0.3;
@@ -186,7 +180,7 @@ BOOST_AUTO_TEST_SUITE(BinarySearchAcceptanceRateTuner)
     BOOST_AUTO_TEST_CASE(throwsExceptionIfIterationsToTestStepSizeIs0) {
         double startingStepSize = 0.2;
         hops::MarkovChain *markovChain
-                = new hops::MarkovChainAdapter(hops::MetropolisHastingsFilter(ProposerMock(startingStepSize)));
+                = new hops::MarkovChainAdapter(hops::MetropolisHastingsFilter(ProposalMock(startingStepSize)));
         hops::RandomNumberGenerator generator(42);
 
         float upperLimitAcceptanceRate = 0.3;
@@ -216,7 +210,7 @@ BOOST_AUTO_TEST_SUITE(BinarySearchAcceptanceRateTuner)
     BOOST_AUTO_TEST_CASE(tuneByIncreasingStepSize) {
         double startingStepSize = 0.2;
         hops::MarkovChain *markovChain
-                = new hops::MarkovChainAdapter(hops::MetropolisHastingsFilter(ProposerMock(startingStepSize)));
+                = new hops::MarkovChainAdapter(hops::MetropolisHastingsFilter(ProposalMock(startingStepSize)));
         hops::RandomNumberGenerator generator(42);
 
         float upperLimitAcceptanceRate = 0.3;
@@ -249,7 +243,7 @@ BOOST_AUTO_TEST_SUITE(BinarySearchAcceptanceRateTuner)
     BOOST_AUTO_TEST_CASE(tuneByDecreasingStepSize) {
         double startingStepSize = 0.2;
         hops::MarkovChain *markovChain
-                = new hops::MarkovChainAdapter(hops::MetropolisHastingsFilter(ProposerMock(startingStepSize)));
+                = new hops::MarkovChainAdapter(hops::MetropolisHastingsFilter(ProposalMock(startingStepSize)));
         hops::RandomNumberGenerator generator(42);
 
         float upperLimitAcceptanceRate = 0.7;
@@ -282,7 +276,7 @@ BOOST_AUTO_TEST_SUITE(BinarySearchAcceptanceRateTuner)
     BOOST_AUTO_TEST_CASE(stopsWhenMaxIterationsAreReached) {
         double startingStepSize = 0.2;
         hops::MarkovChain *markovChain
-                = new hops::MarkovChainAdapter(hops::MetropolisHastingsFilter(ProposerMock(startingStepSize)));
+                = new hops::MarkovChainAdapter(hops::MetropolisHastingsFilter(ProposalMock(startingStepSize)));
         hops::RandomNumberGenerator generator(42);
 
         float upperLimitAcceptanceRate = 0.7;

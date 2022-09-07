@@ -22,11 +22,13 @@ namespace hops {
 
         VectorType &propose(RandomNumberGenerator &rng) override;
 
-        VectorType &propose(RandomNumberGenerator &rng, const Eigen::VectorXi &activeSubspace) override;
+        VectorType &propose(RandomNumberGenerator &rng, const Eigen::VectorXd &activeIndices) override;
 
         VectorType &acceptProposal() override;
 
         void setState(const VectorType &state) override;
+
+        void setProposal(const VectorType &newProposal) override;
 
         [[nodiscard]] VectorType getState() const override;
 
@@ -40,11 +42,11 @@ namespace hops {
 
         void setParameter(const ProposalParameter &parameter, const std::any &value) override;
 
-        [[nodiscard]] std::optional<double> getStepSize() const;
+        [[nodiscard]] std::optional<double> getStepSize() const override;
 
         void setStepSize(double stepSize);
 
-        [[nodiscard]] bool hasStepSize() const override;
+        [[nodiscard]] static bool hasStepSize();
 
         [[nodiscard]] std::string getProposalName() const override;
 
@@ -168,23 +170,16 @@ namespace hops {
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
     VectorType &
     HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::propose(
-            RandomNumberGenerator &rng, const Eigen::VectorXi &activeSubspace) {
-        for (long i = 0; i < updateDirection.rows(); ++i) {
-            if (activeSubspace[i]) {
-                updateDirection(i) = normalDistribution(rng);
-            } else {
-                updateDirection[i] = 0;
-            }
+            RandomNumberGenerator &rng, const Eigen::VectorXd &activeIndices) {
+        slacks = this->b - this->A * this->state;
+        updateDirection.setZero();
+        assert(activeIndices.sum() > 0);
+        for (long i = 0; i < activeIndices.rows(); ++i) {
+            updateDirection(i) = (activeIndices(i) != 0) ? normalDistribution(rng) : 0;
         }
         updateDirection.normalize();
 
         inverseDistances = (A * updateDirection).cwiseQuotient(slacks);
-        // Inverse distance are potentially nan due to default values on the boundary of the polytope.
-        // Replaces nan because nan should not influence the distances.
-        inverseDistances = inverseDistances
-                .array()
-                .unaryExpr([](double value) { return std::isfinite(value) ? value : 0.; })
-                .matrix();
 
         forwardDistance = 1. / inverseDistances.maxCoeff();
         backwardDistance = 1. / inverseDistances.minCoeff();
@@ -202,7 +197,7 @@ namespace hops {
     VectorType &
     HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::acceptProposal() {
         state = proposal;
-        if (Precise) {
+        if constexpr (Precise) {
             slacks = b - A * state;
             if ((slacks.array() < 0).any()) {
                 throw std::runtime_error("Hit-and-Run sampled point outside of polytope.");
@@ -226,6 +221,27 @@ namespace hops {
     }
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
+    void HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::setProposal(
+            const VectorType &newProposal) {
+        HitAndRunProposal::proposal = newProposal;
+
+        step = (proposal - state).coeff(0);
+        updateDirection = (proposal - state).normalized();
+
+        inverseDistances = (A * updateDirection).cwiseQuotient(slacks);
+        forwardDistance = 1. / inverseDistances.maxCoeff();
+        backwardDistance = 1. / inverseDistances.minCoeff();
+        if (forwardDistance < 0) {
+            // forward direction is unconstrained
+            forwardDistance = std::numeric_limits<typename InternalMatrixType::Scalar>::infinity();
+        }
+        if (backwardDistance > 0) {
+            // backward direction is unconstrained
+            backwardDistance = -std::numeric_limits<typename InternalMatrixType::Scalar>::infinity();
+        }
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
     std::optional<double>
     HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::getStepSize() const {
         if constexpr (IsSetStepSizeAvailable<ChordStepDistribution>::value) {
@@ -244,7 +260,7 @@ namespace hops {
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
     bool
-    HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::hasStepSize() const {
+    HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::hasStepSize() {
         if constexpr (IsSetStepSizeAvailable<ChordStepDistribution>::value) {
             return true;
         }
@@ -279,7 +295,7 @@ namespace hops {
     std::vector<std::string>
     HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::getParameterNames() const {
         if (this->getStepSize().has_value()) {
-            return {"step_size"};
+            return {ProposalParameterName[static_cast<int>(ProposalParameter::STEP_SIZE)]};
         }
         return {};
     }

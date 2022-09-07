@@ -28,9 +28,13 @@ namespace hops {
 
         VectorType &propose(RandomNumberGenerator &rng) override;
 
+        VectorType &propose(RandomNumberGenerator &rng, const Eigen::VectorXd &activeIndices) override;
+
         VectorType &acceptProposal() override;
 
         void setState(const VectorType &state) override;
+
+        void setProposal(const VectorType &newProposal) override;
 
         [[nodiscard]] VectorType getState() const override;
 
@@ -44,13 +48,13 @@ namespace hops {
 
         void setParameter(const ProposalParameter &parameter, const std::any &value) override;
 
-        [[nodiscard]] std::optional<double> getStepSize() const;
+        [[nodiscard]] std::optional<double> getStepSize() const override;
 
         void setStepSize(double stepSize);
 
         [[nodiscard]] std::string getProposalName() const override;
 
-        [[nodiscard]] bool hasStepSize() const override;
+        [[nodiscard]] static bool hasStepSize();
 
         [[nodiscard]] std::unique_ptr<Proposal> copyProposal() const override;
 
@@ -123,6 +127,11 @@ namespace hops {
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
+    void GaussianProposal<InternalMatrixType, InternalVectorType>::setProposal(const VectorType &newProposal) {
+        GaussianProposal::proposal = newProposal;
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
     std::optional<double> GaussianProposal<InternalMatrixType, InternalVectorType>::getStepSize() const {
         return stepSize;
     }
@@ -148,7 +157,7 @@ namespace hops {
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    bool GaussianProposal<InternalMatrixType, InternalVectorType>::hasStepSize() const {
+    bool GaussianProposal<InternalMatrixType, InternalVectorType>::hasStepSize() {
         return true;
     }
 
@@ -227,6 +236,12 @@ namespace hops {
     template<typename InternalMatrixType, typename InternalVectorType>
     bool GaussianProposal<InternalMatrixType, InternalVectorType>::isTrackingOfProposalStatisticsActivated() {
         return false;
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    VectorType &GaussianProposal<InternalMatrixType, InternalVectorType>::propose(RandomNumberGenerator &rng,
+                                                                                  const Eigen::VectorXd &activeIndices) {
+        throw std::runtime_error("Propose with rng and activeIndices not implemented");
     }
 }
 

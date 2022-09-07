@@ -4,7 +4,6 @@
 #include <memory>
 #include <boost/test/included/unit_test.hpp>
 #include <cmath>
-#include <memory>
 #include <vector>
 #include <Eigen/Core>
 
@@ -15,20 +14,22 @@
 #include <hops/MarkovChain/Tuning/ExpectedSquaredJumpDistanceTuner.hpp>
 
 namespace {
-    class ProposerMock : public hops::Proposal {
+    class ProposalMock : public hops::Proposal {
     public:
-        explicit ProposerMock(double stepSize, double targetStepSize) :
-                stepSize(stepSize), 
-                targetStepSize(targetStepSize), 
+        explicit ProposalMock(double stepSize, double targetStepSize) :
+                stepSize(stepSize),
+                targetStepSize(targetStepSize),
                 x(hops::VectorType::Zero(1)),
                 y(hops::VectorType::Zero(1)) {}
 
-        hops::VectorType& propose(hops::RandomNumberGenerator&) override { numberOfStepsTaken++;
-            y = x + std::exp(-std::pow(std::log10(targetStepSize) - std::log10(stepSize), 2)) * hops::VectorType::Ones(1);
+        hops::VectorType &propose(hops::RandomNumberGenerator &) override {
+            numberOfStepsTaken++;
+            y = x +
+                std::exp(-std::pow(std::log10(targetStepSize) - std::log10(stepSize), 2)) * hops::VectorType::Ones(1);
             return y;
         }
 
-        hops::VectorType& acceptProposal() override {
+        hops::VectorType &acceptProposal() override {
             x = y;
             return x;
         };
@@ -39,13 +40,13 @@ namespace {
 
         [[nodiscard]] hops::VectorType getState() const override { return x; };
 
-        [[nodiscard]] std::string getProposalName() const override { return "ProposerMock"; };
+        [[nodiscard]] std::string getProposalName() const override { return "ProposalMock"; };
 
         void setParameter(const hops::ProposalParameter &parameter, const std::any &value) override {
             stepSize = std::any_cast<double>(value);
         }
 
-        void setState(const Eigen::VectorXd&) override {};
+        void setState(const Eigen::VectorXd &) override {};
 
         std::any getParameter(const hops::ProposalParameter &parameter) const override {
             return stepSize;
@@ -67,13 +68,8 @@ namespace {
             return "double";
         }
 
-
-        bool hasStepSize() const override {
-            return true;
-        }
-
         [[nodiscard]] std::unique_ptr<Proposal> copyProposal() const override {
-            return std::make_unique<ProposerMock>(*this);
+            return std::make_unique<ProposalMock>(*this);
         }
 
         const hops::MatrixType &getA() const override {
@@ -101,8 +97,8 @@ BOOST_AUTO_TEST_SUITE(ExpectedSquaredJumpDistanceTuner)
         auto markovChain
                 = std::make_shared<
                         decltype(hops::MarkovChainAdapter(
-                                hops::MetropolisHastingsFilter(ProposerMock(startingStepSize, targetStepSize))))>(
-                        hops::MetropolisHastingsFilter(ProposerMock(startingStepSize, targetStepSize))
+                                hops::MetropolisHastingsFilter(ProposalMock(startingStepSize, targetStepSize))))>(
+                        hops::MetropolisHastingsFilter(ProposalMock(startingStepSize, targetStepSize))
                 );
         hops::RandomNumberGenerator generator(42);
         markovChain->setParameter(hops::ProposalParameter::STEP_SIZE, startingStepSize);
@@ -138,7 +134,7 @@ BOOST_AUTO_TEST_SUITE(ExpectedSquaredJumpDistanceTuner)
         double optimalValue;
 
         std::vector<std::shared_ptr<hops::MarkovChain>> mcs{markovChain};
-        std::vector<hops::RandomNumberGenerator*> generators{&generator};
+        std::vector<hops::RandomNumberGenerator *> generators{&generator};
         bool isTuned = hops::ExpectedSquaredJumpDistanceTuner::tune(
                 optimalParameter,
                 optimalValue,
@@ -156,7 +152,8 @@ BOOST_AUTO_TEST_SUITE(ExpectedSquaredJumpDistanceTuner)
         }
 
         Eigen::MatrixXd sqrtCovariance = Eigen::MatrixXd::Identity(1, 1);
-        double expectedSquaredJumpDistance = hops::computeExpectedSquaredJumpDistance<Eigen::VectorXd, Eigen::MatrixXd>(states, sqrtCovariance, 1);
+        double expectedSquaredJumpDistance = hops::computeExpectedSquaredJumpDistance<Eigen::VectorXd, Eigen::MatrixXd>(
+                states, sqrtCovariance, 1);
 
         BOOST_CHECK_EQUAL(optimalParameter(0), 1);
     }

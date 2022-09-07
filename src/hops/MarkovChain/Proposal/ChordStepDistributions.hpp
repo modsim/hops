@@ -26,6 +26,16 @@ namespace hops {
             return 1.;
         }
 
+        RealType computeProbabilityDensity(RealType x, RealType lowerLimit, RealType upperLimit){
+            if(lowerLimit >= upperLimit) {
+                throw std::invalid_argument("GaussianStepDistribution: Lower limit is larger than upper limit. Check the polytope.");
+            }
+            if (lowerLimit < x && x < upperLimit) {
+                return 1./(upperLimit - lowerLimit);
+            }
+            return 0.;
+        }
+
     private:
         std::uniform_real_distribution<RealType> uniformRealDistribution;
     };

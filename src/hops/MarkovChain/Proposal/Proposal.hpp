@@ -27,10 +27,10 @@ namespace hops {
          * @Brief Proposes new state on a subspace and returns it. The returned state can be stored, transformed or use in conjunction with
          * a metropolis-hastings filter, reversible jump mcmc and other techniques
          * the new state.
-         * @param activeParameters vector should contain true active parameters and 0 for inactive parameters.
+         * @param activeIndices vector should contain true active parameters and 0 for inactive parameters.
          */
-        virtual VectorType &propose(RandomNumberGenerator &rng, const  Eigen::VectorXi &activeParameters) {
-            throw std::runtime_error("Not implemented");
+        virtual VectorType &propose(RandomNumberGenerator &rng, const Eigen::VectorXd &activeIndices) {
+            throw std::runtime_error("Propose with rng and activeIndices not implemented");
         };
 
         /**
@@ -55,7 +55,7 @@ namespace hops {
          * considerably slows down the sampling, therefore it has to be activated when required.
          */
         virtual void activateTrackingOfProposalStatistics() {
-            throw std::runtime_error("Not implemented.");
+            throw std::runtime_error("activate tracking not implemented.");
         };
 
         /**
@@ -89,6 +89,13 @@ namespace hops {
          */
         virtual void setState(const VectorType &state) = 0;
 
+        virtual void setProposal(const VectorType &newProposal) {
+            // expensive default implementation. Replace by specialized implementation where required.
+            RandomNumberGenerator rng(0);
+            VectorType &internalProposal = this->propose(rng);
+            internalProposal = newProposal;
+        }
+
         [[nodiscard]] virtual VectorType getState() const = 0;
 
         [[nodiscard]] virtual VectorType getProposal() const = 0;
@@ -99,13 +106,21 @@ namespace hops {
         [[nodiscard]] virtual std::vector<std::string> getDimensionNames() const {
             // Default implementation sets names as x_i for dimension i
             std::vector<std::string> names;
-            for (long i = 0; i < getState().rows(); ++i) {
+            for (long i = 0; i < this->getState().rows(); ++i) {
                 names.emplace_back("x_" + std::to_string(i));
             }
             return names;
         }
 
+        /**
+         * @brief returns names of parameters of the underlying proposal implementation.
+         * @return
+         */
         [[nodiscard]] virtual std::vector<std::string> getParameterNames() const = 0;
+
+        [[nodiscard]] virtual std::optional<double> getStepSize() const {
+            return std::nullopt;
+        };
 
         [[nodiscard]] virtual std::any getParameter(const ProposalParameter &parameter) const = 0;
 
@@ -121,12 +136,6 @@ namespace hops {
          * @details Implementations should list possible parameterNames in the exception message.
          */
         virtual void setParameter(const ProposalParameter &parameter, const std::any &value) = 0;
-
-        /**
-         * @Brief Returns whether underlying implementation has step size. Useful because tuning should be skipped
-         * if it doesn't have a step size.
-         */
-        [[nodiscard]] virtual bool hasStepSize() const = 0;
 
         /**
          * @Brief Returns name of proposal class.

@@ -9,16 +9,22 @@ namespace hops {
         FISHER_WEIGHT,
         STEP_SIZE,
         WARM_UP,
-        MAX_REFLECTIONS
+        MAX_REFLECTIONS,
+        MODEL_JUMP_PROBABILITY,
+        ACTIVATION_PROBABILITY,
+        DEACTIVATION_PROBABILITY,
     };
 
-    static char const* ProposalParameterName[] = {
-        "boundary_cushion",
-        "epsilon",
-        "fisher_weight",
-        "step_size",
-        "warm_up",
-        "max_reflections"
+    static char const *ProposalParameterName[] = {
+            "boundary_cushion",
+            "epsilon",
+            "fisher_weight",
+            "step_size",
+            "warm_up",
+            "max_reflections",
+            "model_jump_probability",
+            "activation_probability",
+            "deactivation_probability"
     };
 }
 

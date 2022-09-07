@@ -32,9 +32,13 @@ namespace hops {
 
         VectorType &propose(RandomNumberGenerator &rng) override;
 
+        VectorType &propose(RandomNumberGenerator &rng, const Eigen::VectorXd &activeIndices) override;
+
         VectorType &acceptProposal() override;
 
         void setState(const VectorType &state) override;
+
+        void setProposal(const VectorType &newProposal) override;
 
         [[nodiscard]] VectorType getState() const override;
 
@@ -48,9 +52,9 @@ namespace hops {
 
         void setParameter(const ProposalParameter &parameter, const std::any &value) override;
 
-        [[nodiscard]] std::optional<double> getStepSize() const;
+        [[nodiscard]] std::optional<double> getStepSize() const override;
 
-        [[nodiscard]] bool hasStepSize() const override;
+        [[nodiscard]] static bool hasStepSize();
 
         [[nodiscard]] std::string getProposalName() const override;
 
@@ -127,7 +131,8 @@ namespace hops {
     VectorType &TruncatedGaussianProposal<InternalMatrixType, InternalVectorType>::propose(RandomNumberGenerator &rng) {
         // A * (L * (wS) + mu) < b
         // A * L * ws < b - A * mu
-        whiteState = cholesky.template triangularView<Eigen::Lower>().template solve(state - mean);
+        whiteState = cholesky.template triangularView<Eigen::Lower>().
+                template solve(state - mean);
         for (long i = state.rows() - 1; i >= 0; --i) {
             slacks = whitenedB - whitenedA * whiteState;
             inverseDistances = whitenedA.col(i).cwiseQuotient(slacks);
@@ -144,7 +149,7 @@ namespace hops {
             double ub = forwardDistance + whiteState(i);
 
             double step = chordStepDistribution.draw(rng, 1., lb, ub);
-            if(step <= lb || step >= ub) {
+            if (step <= lb || step >= ub) {
                 // Numerical issues: The gaussian looks uniform on the interval far from mean, so replace by uniform step.
                 step = backUpChordStepDistribution.draw(rng, lb, ub);
             }
@@ -174,6 +179,11 @@ namespace hops {
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
+    void TruncatedGaussianProposal<InternalMatrixType, InternalVectorType>::setProposal(const VectorType &newProposal) {
+        TruncatedGaussianProposal::proposal = newProposal;
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
     std::optional<double>
     TruncatedGaussianProposal<InternalMatrixType, InternalVectorType>::getStepSize() const {
         return std::nullopt;
@@ -193,7 +203,7 @@ namespace hops {
 
     template<typename InternalMatrixType, typename InternalVectorType>
     bool
-    TruncatedGaussianProposal<InternalMatrixType, InternalVectorType>::hasStepSize() const {
+    TruncatedGaussianProposal<InternalMatrixType, InternalVectorType>::hasStepSize() {
         return false;
     }
 
@@ -303,6 +313,12 @@ namespace hops {
     template<typename InternalMatrixType, typename InternalVectorType>
     bool TruncatedGaussianProposal<InternalMatrixType, InternalVectorType>::hasNegativeLogLikelihood() const {
         return true;
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    VectorType &TruncatedGaussianProposal<InternalMatrixType, InternalVectorType>::propose(RandomNumberGenerator &rng,
+                                                                                           const Eigen::VectorXd &activeIndices) {
+        throw std::runtime_error("Propose with rng and activeIndices not implemented");
     }
 }
 

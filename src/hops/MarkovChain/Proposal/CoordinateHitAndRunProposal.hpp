@@ -30,11 +30,13 @@ namespace hops {
 
         VectorType &propose(RandomNumberGenerator &rng) override;
 
-        VectorType &propose(RandomNumberGenerator &rng, const Eigen::VectorXi &activeSubspace) override;
+        VectorType &propose(RandomNumberGenerator &rng, const Eigen::VectorXd &activeIndices) override;
 
         VectorType &acceptProposal() override;
 
         void setState(const VectorType &state) override;
+
+        void setProposal(const VectorType &newProposal) override;
 
         [[nodiscard]] VectorType getState() const override;
 
@@ -48,11 +50,11 @@ namespace hops {
 
         void setParameter(const ProposalParameter &parameter, const std::any &value) override;
 
-        [[nodiscard]] std::optional<double> getStepSize() const;
+        [[nodiscard]] std::optional<double> getStepSize() const override;
 
         void setStepSize(double stepSize);
 
-        [[nodiscard]] bool hasStepSize() const override;
+        [[nodiscard]] static bool hasStepSize();
 
         [[nodiscard]] std::string getProposalName() const override;
 
@@ -82,8 +84,11 @@ namespace hops {
         VectorType state;
         VectorType proposal;
         InternalVectorType slacks;
+        InternalVectorType proposalSlacks;
         InternalVectorType inverseDistances;
         ProposalStatistics proposalStatistics;
+        bool shouldRecomputeSlacks = false;
+        double detailedBalance = 0;
 
         long coordinateToUpdate = 0;
         typename InternalMatrixType::Scalar step = 0;
@@ -139,41 +144,66 @@ namespace hops {
 
         proposal(coordinateToUpdate) += step;
 
+        shouldRecomputeSlacks = false;
         return proposal;
     }
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
     VectorType &CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::propose(
-            RandomNumberGenerator &rng, const Eigen::VectorXi &activeSubspace) {
-        proposal(coordinateToUpdate) = state(coordinateToUpdate);
-        // Checks that at least some spaces are active
-        assert(activeSubspace.sum() > 0);
-        for (long i = 0; activeSubspace(coordinateToUpdate) == 0 && i < activeSubspace.rows(); ++i) {
-            ++coordinateToUpdate %= state.rows();
+            RandomNumberGenerator &rng, const Eigen::VectorXd &activeIndices) {
+        if (activeIndices.sum() <= 0) {
+            // No active subspaces
+            detailedBalance = 0;
+            shouldRecomputeSlacks = true;
+            return state;
         }
 
-        inverseDistances = A.col(coordinateToUpdate).cwiseQuotient(slacks);
-        // Inverse distance are potentially nan due to default values on the boundary of the polytope.
-        // Replaces nan because nan should not influence the distances.
-        inverseDistances = inverseDistances
-                .array()
-                .unaryExpr([](double value) { return std::isfinite(value) ? value : 0.; })
-                .matrix();
-        forwardDistance = 1. / inverseDistances.maxCoeff();
-        backwardDistance = 1. / inverseDistances.minCoeff();
-        assert(backwardDistance < 0 && forwardDistance > 0);
-        assert(((b - A * state).array() >= 0).all());
+        proposal = state;
+        proposalSlacks = slacks;
+        for (long i = 0; i < activeIndices.rows(); ++i) {
+            if (activeIndices(i) == 0) { continue; }
+            inverseDistances = A.col(i).cwiseQuotient(proposalSlacks);
 
-        step = chordStepDistribution.draw(rng, backwardDistance, forwardDistance);
+            forwardDistance = 1. / inverseDistances.maxCoeff();
+            backwardDistance = 1. / inverseDistances.minCoeff();
+            assert(backwardDistance < 0 && forwardDistance > 0);
+            assert(((b - A * state).array() >= 0).all());
 
-        proposal(coordinateToUpdate) += step;
+            step = chordStepDistribution.draw(rng, backwardDistance, forwardDistance);
 
+            proposal(i) += step;
+            proposalSlacks.noalias() -= A.col(i) * step;
+
+            if constexpr (IsSetStepSizeAvailable<ChordStepDistribution>::value) {
+                double stepSize = chordStepDistribution.getStepSize();
+                double detailedBalanceState = chordStepDistribution.computeInverseNormalizationConstant(stepSize,
+                                                                                                        backwardDistance,
+                                                                                                        forwardDistance);
+                double detailedBalanceProposal = chordStepDistribution.computeInverseNormalizationConstant(stepSize,
+                                                                                                           backwardDistance -
+                                                                                                           step,
+                                                                                                           forwardDistance -
+                                                                                                           step);
+                detailedBalance += detailedBalanceState - detailedBalanceProposal;
+            }
+
+        }
+
+
+        shouldRecomputeSlacks = true;
         return proposal;
     }
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
     VectorType &
     CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::acceptProposal() {
+        if (shouldRecomputeSlacks) {
+            state = proposal;
+            slacks = proposalSlacks;
+            detailedBalance = 0;
+            return state;
+        }
+
         state(coordinateToUpdate) += step;
         slacks.noalias() -= A.col(coordinateToUpdate) * step;
         return state;
@@ -188,6 +218,15 @@ namespace hops {
         CoordinateHitAndRunProposal::state = newState;
         CoordinateHitAndRunProposal::proposal = CoordinateHitAndRunProposal::state;
         slacks = b - A * CoordinateHitAndRunProposal::state;
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
+    void CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::setProposal(
+            const VectorType &newProposal) {
+        shouldRecomputeSlacks = true;
+        CoordinateHitAndRunProposal::proposal = newProposal;
+        proposalSlacks = b - A * CoordinateHitAndRunProposal::proposal;
+        detailedBalance = 0;
     }
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
@@ -217,6 +256,10 @@ namespace hops {
     double
     CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::computeLogAcceptanceProbability() {
         if constexpr (IsSetStepSizeAvailable<ChordStepDistribution>::value) {
+            if (shouldRecomputeSlacks) {
+                return detailedBalance;
+            }
+
             double stepSize = chordStepDistribution.getStepSize();
             double detailedBalanceState = chordStepDistribution.computeInverseNormalizationConstant(stepSize,
                                                                                                     backwardDistance,
@@ -234,7 +277,7 @@ namespace hops {
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
     bool
-    CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::hasStepSize() const {
+    CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::hasStepSize() {
         if constexpr (IsSetStepSizeAvailable<ChordStepDistribution>::value) {
             return true;
         }

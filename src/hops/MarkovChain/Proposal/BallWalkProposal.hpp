@@ -27,9 +27,13 @@ namespace hops {
 
         VectorType &propose(RandomNumberGenerator &randomNumberGenerator) override;
 
+        VectorType &propose(RandomNumberGenerator &rng, const Eigen::VectorXd &activeIndices) override;
+
         VectorType &acceptProposal() override;
 
         void setState(const VectorType &newState) override;
+
+        void setProposal(const VectorType &newProposal) override;
 
         [[nodiscard]] VectorType getState() const override;
 
@@ -47,19 +51,19 @@ namespace hops {
 
         [[nodiscard]] std::string getProposalName() const override;
 
-        [[nodiscard]] std::optional<double> getStepSize() const;
+        [[nodiscard]] std::optional<double> getStepSize() const override;
 
-        [[nodiscard]] bool hasStepSize() const override;
+        [[nodiscard]] static bool hasStepSize();
 
         [[nodiscard]] std::unique_ptr<Proposal> copyProposal() const override;
 
         [[nodiscard]] double computeLogAcceptanceProbability() override;
 
-        [[nodiscard]] const MatrixType& getA() const override;
+        [[nodiscard]] const MatrixType &getA() const override;
 
-        [[nodiscard]] const VectorType& getB() const override;
+        [[nodiscard]] const VectorType &getB() const override;
 
-        ProposalStatistics & getProposalStatistics() override;
+        ProposalStatistics &getProposalStatistics() override;
 
         void activateTrackingOfProposalStatistics() override;
 
@@ -130,6 +134,11 @@ namespace hops {
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
+    void BallWalkProposal<InternalMatrixType, InternalVectorType>::setProposal(const VectorType &newProposal) {
+        BallWalkProposal::proposal = newProposal;
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
     void BallWalkProposal<InternalMatrixType, InternalVectorType>::setStepSize(double newStepSize) {
         BallWalkProposal::stepSize = newStepSize;
     }
@@ -154,7 +163,7 @@ namespace hops {
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    bool BallWalkProposal<InternalMatrixType, InternalVectorType>::hasStepSize() const {
+    bool BallWalkProposal<InternalMatrixType, InternalVectorType>::hasStepSize() {
         return true;
     }
 
@@ -200,7 +209,8 @@ namespace hops {
 
     template<typename InternalMatrixType, typename InternalVectorType>
     std::string
-    BallWalkProposal<InternalMatrixType, InternalVectorType>::getParameterType(const ProposalParameter &parameter) const {
+    BallWalkProposal<InternalMatrixType, InternalVectorType>::getParameterType(
+            const ProposalParameter &parameter) const {
         if (parameter == ProposalParameter::STEP_SIZE) {
             return "double";
         } else {
@@ -209,17 +219,17 @@ namespace hops {
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    const MatrixType& BallWalkProposal<InternalMatrixType, InternalVectorType>::getA() const {
+    const MatrixType &BallWalkProposal<InternalMatrixType, InternalVectorType>::getA() const {
         return A;
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    const VectorType& BallWalkProposal<InternalMatrixType, InternalVectorType>::getB() const {
+    const VectorType &BallWalkProposal<InternalMatrixType, InternalVectorType>::getB() const {
         return b;
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    ProposalStatistics & BallWalkProposal<InternalMatrixType, InternalVectorType>::getProposalStatistics() {
+    ProposalStatistics &BallWalkProposal<InternalMatrixType, InternalVectorType>::getProposalStatistics() {
         return infos;
     }
 
@@ -234,6 +244,12 @@ namespace hops {
     template<typename InternalMatrixType, typename InternalVectorType>
     bool BallWalkProposal<InternalMatrixType, InternalVectorType>::isTrackingOfProposalStatisticsActivated() {
         return false;
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    VectorType &BallWalkProposal<InternalMatrixType, InternalVectorType>::propose(RandomNumberGenerator &rng,
+                                                                                  const Eigen::VectorXd &activeIndices) {
+        throw std::runtime_error("Propose with rng and activeIndices not implemented");
     }
 }
 
