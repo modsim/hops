@@ -16,7 +16,6 @@ add_subdirectory(Optimization)
 add_subdirectory(Polytope)
 add_subdirectory(Parallel)
 add_subdirectory(RandomNumberGenerator)
-add_subdirectory(Sampler)
 add_subdirectory(Transformation)
 add_subdirectory(Utility)
 

@@ -21,15 +21,6 @@ namespace hops {
          */
         virtual std::pair<double, VectorType> draw(RandomNumberGenerator &randomNumberGenerator, long thinning = 1) = 0;
 
-        /**
-         * @brief tracks proposalStatistics while drawing
-         * @param randomNumberGenerator
-         * @param thinning
-         * @return
-         */
-        virtual std::tuple<double, VectorType, ProposalStatistics> detailedDraw(
-                RandomNumberGenerator &randomNumberGenerator, long thinning = 1) = 0;
-
         [[nodiscard]] virtual VectorType getState() const = 0;
 
         virtual void setState(const VectorType &) = 0;

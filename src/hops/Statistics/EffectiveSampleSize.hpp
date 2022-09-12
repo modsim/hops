@@ -10,6 +10,13 @@
 namespace hops {
     using IntermediateEffectiveSampleSizeResults = double;
 
+    /**
+     * @deprecated
+     * @tparam StateType
+     * @param chains
+     * @param dimension
+     * @return
+     */
     template <typename StateType>
     double computeEffectiveSampleSize (const std::vector<const std::vector<StateType>*>& chains, 
                                        unsigned long dimension) {
@@ -97,10 +104,6 @@ namespace hops {
             rhoHat.push_back(rhoHatEven);
         }
 
-        //for (auto& rho : rhoHat) {
-        //    std::cout << rho << std::endl;
-        //}
-
         double tauHat = -1;
 
         // turn initial positive sequence to initial monotone sequence, as in stan implementation.
@@ -121,13 +124,18 @@ namespace hops {
             tauHat += rhoHat.back();
         }
 
-        //std::cout << "tauHat=" << tauHat << std::endl;
-        //std::cout << "N*M/tauHat=" << numDraws * numChains / tauHat << std::endl;
 
         // according to Vehtari et al. 2020
         return std::min(numDraws * numChains / tauHat, numDraws * numChains * std::log10(numDraws * numChains));
     }
 
+    /**
+     * @deprecated
+     * @tparam StateType
+     * @param chains
+     * @param dimension
+     * @return
+     */
     template <typename StateType>
     std::vector<double> computeEffectiveSampleSize (const std::vector<const std::vector<StateType>*>& chains) {
         std::vector<double> ess;
@@ -138,6 +146,13 @@ namespace hops {
         return ess;
     }
 
+    /**
+     * @deprecated
+     * @tparam StateType
+     * @param chains
+     * @param dimension
+     * @return
+     */
     template <typename StateType>
     double computeEffectiveSampleSize (const std::vector<std::vector<StateType>>& chains, unsigned long dimension) {
         std::vector<const std::vector<StateType>*> chainsPtrArray;
@@ -147,6 +162,13 @@ namespace hops {
         return computeEffectiveSampleSize<StateType>(chainsPtrArray, dimension);
     }
 
+    /**
+     * @deprecated
+     * @tparam StateType
+     * @param chains
+     * @param dimension
+     * @return
+     */
     template <typename StateType>
     std::vector<double> computeEffectiveSampleSize (const std::vector<std::vector<StateType>>& chains) {
         std::vector<const std::vector<StateType>*> chainsPtrArray;

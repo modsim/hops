@@ -66,16 +66,6 @@ namespace hops {
 
         [[nodiscard]] const VectorType &getB() const override;
 
-        ProposalStatistics &getProposalStatistics() override;
-
-        void activateTrackingOfProposalStatistics() override;
-
-        void disableTrackingOfProposalStatistics() override;
-
-        bool isTrackingOfProposalStatisticsActivated() override;
-
-        ProposalStatistics getAndResetProposalStatistics() override;
-
         bool isSymmetric() const override;
 
     private:
@@ -86,7 +76,6 @@ namespace hops {
         InternalVectorType slacks;
         InternalVectorType proposalSlacks;
         InternalVectorType inverseDistances;
-        ProposalStatistics proposalStatistics;
         bool shouldRecomputeSlacks = false;
         double detailedBalance = 0;
 
@@ -135,10 +124,6 @@ namespace hops {
         }
 
         assert(((b - A * state).array() >= 0).all());
-        if (isProposalInfosTrackingActive) {
-            proposalStatistics.appendInfo("backwardDistance", forwardDistance);
-            proposalStatistics.appendInfo("forwardDistance", backwardDistance);
-        }
 
         step = chordStepDistribution.draw(rng, backwardDistance, forwardDistance);
 
@@ -355,38 +340,6 @@ namespace hops {
     const VectorType &
     CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::getB() const {
         return b;
-    }
-
-    template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
-    ProposalStatistics &
-    CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::getProposalStatistics() {
-        return proposalStatistics;
-    }
-
-    template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
-    void
-    CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::activateTrackingOfProposalStatistics() {
-        isProposalInfosTrackingActive = true;
-    }
-
-    template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
-    void
-    CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::disableTrackingOfProposalStatistics() {
-        isProposalInfosTrackingActive = false;
-    }
-
-    template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
-    bool
-    CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::isTrackingOfProposalStatisticsActivated() {
-        return isProposalInfosTrackingActive;
-    }
-
-    template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
-    ProposalStatistics
-    CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::getAndResetProposalStatistics() {
-        ProposalStatistics newStatistic;
-        std::swap(newStatistic, proposalStatistics);
-        return newStatistic;
     }
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>

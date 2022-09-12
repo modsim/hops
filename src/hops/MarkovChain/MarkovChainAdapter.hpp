@@ -1,17 +1,9 @@
 #ifndef HOPS_MARKOVCHAINADAPTER_HPP
 #define HOPS_MARKOVCHAINADAPTER_HPP
 
-#include "MarkovChain.hpp"
-
-#include "IsGetColdnessAvailable.hpp"
-#include "IsGetExchangeAttemptProbabilityAvailable.hpp"
-#include "IsGetStepSizeAvailable.hpp"
-#include "IsSetColdnessAvailable.hpp"
-#include "IsSetExchangeAttemptProbabilityAvailable.hpp"
-#include "IsSetFisherWeightAvailable.hpp"
-#include "hops/MarkovChain/Proposal/IsSetStepSizeAvailable.hpp"
-
 #include <hops/Utility/HopsWithinHopsy.hpp>
+
+#include "MarkovChain.hpp"
 
 namespace hops {
     template<typename MarkovChainImpl>
@@ -26,21 +18,6 @@ namespace hops {
                 acceptanceRate += MarkovChainImpl::draw(randomNumberGenerator);
             }
             return {acceptanceRate / thinning, MarkovChainImpl::getState()};
-        }
-
-        std::tuple<double, VectorType, ProposalStatistics>
-        detailedDraw(RandomNumberGenerator &randomNumberGenerator, long thinning) override {
-            MarkovChainImpl::activateTrackingOfProposalStatistics();
-            double acceptanceRate = 0;
-            ProposalStatistics proposalStatistics;
-            for (long i = 0; i < thinning; ++i) {
-                ABORTABLE;
-                acceptanceRate += MarkovChainImpl::draw(randomNumberGenerator);
-                proposalStatistics = MarkovChainImpl::getAndResetProposalStatistics();
-                proposalStatistics.appendInfo("accepted", acceptanceRate);
-            }
-            MarkovChainImpl::disableTrackingOfProposalStatistics();
-            return {acceptanceRate / thinning, MarkovChainImpl::getState(), proposalStatistics};
         }
 
         [[nodiscard]] VectorType getState() const override {

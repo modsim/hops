@@ -81,16 +81,6 @@ namespace hops {
 
         [[nodiscard]] unsigned long getT() const;
 
-        ProposalStatistics &getProposalStatistics() override;
-
-        void activateTrackingOfProposalStatistics() override;
-
-        void disableTrackingOfProposalStatistics() override;
-
-        bool isTrackingOfProposalStatisticsActivated() override;
-
-        ProposalStatistics getAndResetProposalStatistics() override;
-
     protected:
         // These protected types are/should be accessed in BillliardAdaptiveMetropolisProposal only
         MatrixType A;
@@ -99,7 +89,6 @@ namespace hops {
     private:
         VectorType state;
         VectorType proposal;
-        ProposalStatistics proposalStatistics;
 
         VectorType stateMean;
 
@@ -122,8 +111,6 @@ namespace hops {
         double boundaryCushion = 0;
 
         std::normal_distribution<double> normal;
-
-        bool isProposalInfosTrackingActive = false;
 
         MatrixType updateCovariance(const MatrixType &covariance, const VectorType &mean, const VectorType &newState) {
             assert(t > 0 && "cannot update covariance without samples having been drawn");
@@ -203,7 +190,7 @@ namespace hops {
         auto MVE = MaximumVolumeEllipsoid<double>::construct(A, b, 10000);
         maximumVolumeEllipsoid = MVE.getEllipsoid();
         stateCovariance = maximumVolumeEllipsoid;
-        Eigen::LLT<MatrixType> solverMaximumVolumeEllipsoid(maximumVolumeEllipsoid);
+        Eigen::LLT<decltype(maximumVolumeEllipsoid)> solverMaximumVolumeEllipsoid(maximumVolumeEllipsoid);
         choleskyOfMaximumVolumeEllipsoid = MVE.getRoundingTransformation();
         stateCholeskyOfCovariance = MVE.getRoundingTransformation();
 
@@ -240,7 +227,7 @@ namespace hops {
         }
 
         proposalCovariance = updateCovariance(stateCovariance, stateMean, proposal);
-        Eigen::LLT<MatrixType> solver(
+        Eigen::LLT<decltype(proposalCovariance)> solver(
                 proposalCovariance);
         if (solver.info() != Eigen::Success) {
             return -std::numeric_limits<double>::infinity();
@@ -393,34 +380,6 @@ namespace hops {
     template<typename InternalMatrixType>
     unsigned long AdaptiveMetropolisProposal<InternalMatrixType>::getT() const {
         return t;
-    }
-
-    template<typename InternalMatrixType>
-    ProposalStatistics &AdaptiveMetropolisProposal<InternalMatrixType>::getProposalStatistics() {
-        return proposalStatistics;
-    }
-
-    template<typename InternalMatrixType>
-    void AdaptiveMetropolisProposal<InternalMatrixType>::activateTrackingOfProposalStatistics() {
-        isProposalInfosTrackingActive = true;
-    }
-
-    template<typename InternalMatrixType>
-    void AdaptiveMetropolisProposal<InternalMatrixType>::disableTrackingOfProposalStatistics() {
-        isProposalInfosTrackingActive = false;
-    }
-
-    template<typename InternalMatrixType>
-    bool AdaptiveMetropolisProposal<InternalMatrixType>::isTrackingOfProposalStatisticsActivated() {
-        return isProposalInfosTrackingActive;
-    }
-
-    template<typename InternalMatrixType>
-    ProposalStatistics
-    AdaptiveMetropolisProposal<InternalMatrixType>::getAndResetProposalStatistics() {
-        ProposalStatistics newStatistic;
-        std::swap(newStatistic, proposalStatistics);
-        return newStatistic;
     }
 
     template<typename InternalMatrixType>

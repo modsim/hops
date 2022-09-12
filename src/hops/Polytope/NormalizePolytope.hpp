@@ -7,6 +7,7 @@ namespace hops {
 
     /**
      * @brief Normalizes polytope defined by Ax < b
+     * @deprecated Use PolyRound instead.
      * @tparam Derived1
      * @tparam Derived2
      * @param A Dense representation of A

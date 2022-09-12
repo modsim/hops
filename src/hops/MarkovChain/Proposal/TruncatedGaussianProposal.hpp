@@ -11,7 +11,6 @@
 #include <hops/Utility/VectorType.hpp>
 
 #include "ChordStepDistributions.hpp"
-#include "IsSetStepSizeAvailable.hpp"
 #include "Proposal.hpp"
 
 namespace hops {
@@ -66,17 +65,7 @@ namespace hops {
 
         [[nodiscard]] const VectorType &getB() const override;
 
-        ProposalStatistics &getProposalStatistics() override;
-
-        void activateTrackingOfProposalStatistics() override;
-
-        void disableTrackingOfProposalStatistics() override;
-
-        bool isTrackingOfProposalStatisticsActivated() override;
-
         [[nodiscard]] std::unique_ptr<Model> getModel() const;
-
-        ProposalStatistics getAndResetProposalStatistics() override;
 
         std::vector<std::string> getDimensionNames() const override;
 
@@ -89,7 +78,6 @@ namespace hops {
         VectorType state;
         VectorType proposal;
         InternalVectorType inverseDistances;
-        ProposalStatistics proposalStatistics;
 
         GaussianStepDistribution<VectorType::Scalar> chordStepDistribution;
         UniformStepDistribution<VectorType::Scalar> backUpChordStepDistribution;
@@ -265,38 +253,6 @@ namespace hops {
     const VectorType &
     TruncatedGaussianProposal<InternalMatrixType, InternalVectorType>::getB() const {
         return b;
-    }
-
-    template<typename InternalMatrixType, typename InternalVectorType>
-    ProposalStatistics &
-    TruncatedGaussianProposal<InternalMatrixType, InternalVectorType>::getProposalStatistics() {
-        return proposalStatistics;
-    }
-
-    template<typename InternalMatrixType, typename InternalVectorType>
-    void
-    TruncatedGaussianProposal<InternalMatrixType, InternalVectorType>::activateTrackingOfProposalStatistics() {
-        isProposalInfosTrackingActive = true;
-    }
-
-    template<typename InternalMatrixType, typename InternalVectorType>
-    void
-    TruncatedGaussianProposal<InternalMatrixType, InternalVectorType>::disableTrackingOfProposalStatistics() {
-        isProposalInfosTrackingActive = false;
-    }
-
-    template<typename InternalMatrixType, typename InternalVectorType>
-    bool
-    TruncatedGaussianProposal<InternalMatrixType, InternalVectorType>::isTrackingOfProposalStatisticsActivated() {
-        return isProposalInfosTrackingActive;
-    }
-
-    template<typename InternalMatrixType, typename InternalVectorType>
-    ProposalStatistics
-    TruncatedGaussianProposal<InternalMatrixType, InternalVectorType>::getAndResetProposalStatistics() {
-        ProposalStatistics newStatistic;
-        std::swap(newStatistic, proposalStatistics);
-        return newStatistic;
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>

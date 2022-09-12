@@ -1,14 +1,7 @@
 if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
     target_sources(hops PRIVATE
-            IsGetColdnessAvailable.hpp
-            IsGetExchangeAttemptProbabilityAvailable.hpp
-            IsGetStepSizeAvailable.hpp
-            IsSetColdnessAvailable.hpp
-            IsSetExchangeAttemptProbabilityAvailable.hpp
-            Proposal/IsSetStepSizeAvailable.hpp
             MarkovChain.hpp
             MarkovChainAdapter.hpp
-            MarkovChainAttribute.hpp
             MarkovChainFactory.hpp
             MarkovChainType.hpp
             ModelMixin.hpp

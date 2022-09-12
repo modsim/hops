@@ -5,6 +5,7 @@ set(TEST_SOURCES
         CoordinateHitAndRunTestSuite.cpp
         DikinEllipsoidCalculatorTestSuite.cpp
         HitAndRunTestSuite.cpp
+        IsSetStepSizeAvailableTestSuite.cpp
         ProposalStatisticsTestSuite.cpp
         ReflectorTestSuite.cpp
         ReversibleJumpProposalTestSuite.cpp

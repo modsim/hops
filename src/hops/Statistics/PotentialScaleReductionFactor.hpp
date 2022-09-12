@@ -12,7 +12,9 @@
 
 namespace hops {
     using IntermediatePotentialScaleReductionFactorResults = double;
+
     /*
+     * @deprecated
      * states.size() is the number of chains, states[i].size() is the number of draws, states[i][j].rows() is the dimensionality
      *
      *
@@ -94,6 +96,7 @@ namespace hops {
 
     /*
      * states.size() is the number of chains, states[i].size() is the number of draws, states[i][j].rows() is the dimensionality
+     * @deprecated
      *
      *
      */
@@ -121,6 +124,7 @@ namespace hops {
     /*
      * Compute PSRF for all dimensions at once.
      *
+     * @deprecated
      *
      */
     template<typename StateType>
@@ -178,7 +182,7 @@ namespace hops {
 
     /*
      * Compute PSRF for all dimensions at once.
-     *
+     * @deprecated
      *
      */
     template<typename StateType>
@@ -200,6 +204,13 @@ namespace hops {
                                                     numSeen);
     }
 
+    /**
+     * @deprecated
+     * @tparam StateType
+     * @param chains
+     * @param dimension
+     * @return
+     */
     template<typename StateType>
     double computePotentialScaleReductionFactor (const std::vector<const std::vector<StateType>*>& chains,
                                                  unsigned long dimension) {
@@ -216,6 +227,13 @@ namespace hops {
                                                     numSeen);
     }
 
+    /**
+     * @deprecated
+     * @tparam StateType
+     * @param chains
+     * @param dimension
+     * @return
+     */
     template<typename StateType>
     double computePotentialScaleReductionFactor (const std::vector<std::vector<StateType>>& chains, 
                                                  unsigned long dimension) {
@@ -226,6 +244,13 @@ namespace hops {
         return computePotentialScaleReductionFactor(chainsPtrArray, dimension);
     }
 
+    /**
+     * @deprecated
+     * @tparam StateType
+     * @param chains
+     * @param dimension
+     * @return
+     */
     template<typename StateType>
     std::vector<double> computePotentialScaleReductionFactor (const std::vector<const std::vector<StateType>*>& chains) {
         unsigned long dimensions = (*chains[0])[0].rows();
@@ -236,6 +261,13 @@ namespace hops {
         return rhats;
     }
 
+    /**
+     * @deprecated
+     * @tparam StateType
+     * @param chains
+     * @param dimension
+     * @return
+     */
     template<typename StateType>
     std::vector<double> computePotentialScaleReductionFactor (const std::vector<std::vector<StateType>>& chains) {
         std::vector<const std::vector<StateType>*> chainsPtrArray;

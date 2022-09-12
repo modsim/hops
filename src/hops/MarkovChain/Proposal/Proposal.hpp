@@ -10,7 +10,6 @@
 #include <stdexcept>
 
 #include "ProposalParameter.hpp"
-#include "ProposalStatistics.hpp"
 
 
 namespace hops {
@@ -32,39 +31,6 @@ namespace hops {
         virtual VectorType &propose(RandomNumberGenerator &rng, const Eigen::VectorXd &activeIndices) {
             throw std::runtime_error("Propose with rng and activeIndices not implemented");
         };
-
-        /**
-         * @brief ProposalStatistics are only useful, when tracking of proposal infos is activated.
-         * The infos about a series of proposals should be called before getSate,
-         * because the infos are reset, when a proposal is accepted.
-         * @return
-         */
-        [[nodiscard]] virtual ProposalStatistics &getProposalStatistics() {
-            throw std::runtime_error("getProposalStatistics is not implemented for this Proposal");
-        };
-
-        /**
-         * @brief Returns proposalStatistics and resets proposalStatistics to empty statistic
-         */
-        virtual ProposalStatistics getAndResetProposalStatistics() {
-            throw std::runtime_error("getAndResetProposalStatistics is not implemented for this Proposal");
-        }
-
-        /**
-         * @brief In some settings, like uniform sampling, tracking proposal info is not very useful but also
-         * considerably slows down the sampling, therefore it has to be activated when required.
-         */
-        virtual void activateTrackingOfProposalStatistics() {
-            throw std::runtime_error("activate tracking not implemented.");
-        };
-
-        /**
-         * @brief In some settings, like uniform sampling, tracking proposal info is not very useful but also
-         * considerably slows down the sampling. This function can be used to disable tracking.
-         */
-        virtual void disableTrackingOfProposalStatistics() {};
-
-        virtual bool isTrackingOfProposalStatisticsActivated() { return false; }
 
         /**
          * @Brief Calculates detailed balance using internal proposal. Saves one copy operation compared to

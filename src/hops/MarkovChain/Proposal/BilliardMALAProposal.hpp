@@ -98,16 +98,6 @@ namespace hops {
 
         [[nodiscard]] double computeLogAcceptanceProbability() override;
 
-        ProposalStatistics &getProposalStatistics() override;
-
-        void activateTrackingOfProposalStatistics() override;
-
-        void disableTrackingOfProposalStatistics() override;
-
-        bool isTrackingOfProposalStatisticsActivated() override;
-
-        ProposalStatistics getAndResetProposalStatistics() override;
-
         const MatrixType &getA() const override;
 
         const VectorType &getB() const override;
@@ -123,8 +113,6 @@ namespace hops {
         std::optional<MatrixType> quadraticConstraintsMatrix;
         std::optional<VectorType> quadraticConstraintsOffset;
         std::optional<double> quadraticConstraintsLhs;
-
-        ProposalStatistics proposalStatistics;
 
         VectorType state;
         VectorType driftedState;
@@ -233,10 +221,6 @@ namespace hops {
                                                               unreflectedProposal,
                                                               maxNumberOfReflections);
         }
-        if (isProposalInfosTrackingActive) {
-            proposalStatistics.appendInfo("reflection_successful", std::get<0>(reflectionResult));
-            proposalStatistics.appendInfo("number_of_reflections", std::get<1>(reflectionResult));
-        }
 
         proposal = std::get<2>(reflectionResult);
         return proposal;
@@ -323,10 +307,6 @@ namespace hops {
     double BilliardMALAProposal<ModelType, InternalMatrixType>::computeLogAcceptanceProbability() {
         bool isProposalInteriorPoint = ((A * proposal - b).array() < 0).all();
         if (!isProposalInteriorPoint) {
-            if (isProposalInfosTrackingActive) {
-                proposalStatistics.appendInfo("proposal_is_interior", isProposalInteriorPoint);
-                proposalStatistics.appendInfo("proposal_neg_like", std::numeric_limits<double>::quiet_NaN());
-            }
             return -std::numeric_limits<double>::infinity();
         }
         // Important: compute gradient before fisher info or else x3cflux2 will throw
@@ -360,11 +340,6 @@ namespace hops {
                 static_cast<double>((driftedState - unreflectedProposal).transpose() * stateMetric *
                                     (driftedState - unreflectedProposal)) -
                 static_cast<double>((state - driftedProposal).transpose() * proposalMetric * (state - driftedProposal));
-
-        if (isProposalInfosTrackingActive) {
-            proposalStatistics.appendInfo("proposal_is_interior", isProposalInteriorPoint);
-            proposalStatistics.appendInfo("proposal_neg_like", proposalNegativeLogLikelihood);
-        }
 
         return -proposalNegativeLogLikelihood
                + stateNegativeLogLikelihood
@@ -457,33 +432,6 @@ namespace hops {
     template<typename ModelType, typename InternalMatrixType>
     bool BilliardMALAProposal<ModelType, InternalMatrixType>::hasNegativeLogLikelihood() const {
         return true;
-    }
-
-    template<typename ModelType, typename InternalMatrixType>
-    ProposalStatistics &BilliardMALAProposal<ModelType, InternalMatrixType>::getProposalStatistics() {
-        return proposalStatistics;
-    }
-
-    template<typename ModelType, typename InternalMatrixType>
-    void BilliardMALAProposal<ModelType, InternalMatrixType>::activateTrackingOfProposalStatistics() {
-        isProposalInfosTrackingActive = true;
-    }
-
-    template<typename ModelType, typename InternalMatrixType>
-    void BilliardMALAProposal<ModelType, InternalMatrixType>::disableTrackingOfProposalStatistics() {
-        isProposalInfosTrackingActive = false;
-    }
-
-    template<typename ModelType, typename InternalMatrixType>
-    bool BilliardMALAProposal<ModelType, InternalMatrixType>::isTrackingOfProposalStatisticsActivated() {
-        return isProposalInfosTrackingActive;
-    }
-
-    template<typename ModelType, typename InternalMatrixType>
-    ProposalStatistics BilliardMALAProposal<ModelType, InternalMatrixType>::getAndResetProposalStatistics() {
-        ProposalStatistics newStatistic;
-        std::swap(newStatistic, proposalStatistics);
-        return newStatistic;
     }
 
     template<typename ModelType, typename InternalMatrixType>

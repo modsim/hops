@@ -1,12 +1,3 @@
-// TODO check if headers are complete
-
-#include "Statistics/Autocorrelation.hpp"
-#include "Statistics/Covariance.hpp"
-#include "Statistics/EffectiveSampleSize.hpp"
-#include "Statistics/ExpectedSquaredJumpDistance.hpp"
-#include "Statistics/IsConstantChain.hpp"
-#include "Statistics/PotentialScaleReductionFactor.hpp"
-
 #include "FileReader/CsvReader.hpp"
 #include "FileReader/Hdf5Reader.hpp"
 #include "FileReader/SbmlModel.hpp"
@@ -14,10 +5,10 @@
 
 #include "FileWriter/CsvWriter.hpp"
 #include "FileWriter/CsvWriterImpl.hpp"
+#include "FileWriter/Hdf5Writer.hpp"
 #include "FileWriter/FileWriter.hpp"
 #include "FileWriter/FileWriterFactory.hpp"
 #include "FileWriter/FileWriterType.hpp"
-#include "FileWriter/Hdf5Writer.hpp"
 
 #include "LinearProgram/LinearProgram.hpp"
 #include "LinearProgram/LinearProgramFactory.hpp"
@@ -33,19 +24,23 @@
 #include "MarkovChain/ParallelTempering/ParallelTempering.hpp"
 
 #include "MarkovChain/Proposal/AdaptiveMetropolisProposal.hpp"
-#include "MarkovChain/Proposal/BilliardAdaptiveMetropolisProposal.hpp"
 #include "MarkovChain/Proposal/BallWalkProposal.hpp"
+#include "MarkovChain/Proposal/BilliardAdaptiveMetropolisProposal.hpp"
 #include "MarkovChain/Proposal/BilliardMALAProposal.hpp"
 #include "MarkovChain/Proposal/ChordStepDistributions.hpp"
 #include "MarkovChain/Proposal/CoordinateHitAndRunProposal.hpp"
 #include "MarkovChain/Proposal/CSmMALAProposal.hpp"
 #include "MarkovChain/Proposal/DikinEllipsoidCalculator.hpp"
 #include "MarkovChain/Proposal/DikinProposal.hpp"
-#include "MarkovChain/Proposal/HitAndRunProposal.hpp"
 #include "MarkovChain/Proposal/GaussianProposal.hpp"
+#include "MarkovChain/Proposal/HitAndRunProposal.hpp"
+#include "MarkovChain/Proposal/IsSetStepSizeAvailable.hpp"
 #include "MarkovChain/Proposal/ProposalFactory.hpp"
 #include "MarkovChain/Proposal/Proposal.hpp"
 #include "MarkovChain/Proposal/ProposalParameter.hpp"
+#include "MarkovChain/Proposal/ProposalStatistics.hpp"
+#include "MarkovChain/Proposal/Reflector.hpp"
+#include "MarkovChain/Proposal/ReversibleJumpProposal.hpp"
 #include "MarkovChain/Proposal/TruncatedGaussianProposal.hpp"
 #include "MarkovChain/Proposal/TruncatedNormalDistribution.hpp"
 
@@ -55,6 +50,7 @@
 #include "MarkovChain/Recorder/IsStoreRecordAvailable.hpp"
 #include "MarkovChain/Recorder/IsWriteRecordsToFileAvailable.hpp"
 #include "MarkovChain/Recorder/MessageRecorder.hpp"
+#include "MarkovChain/Recorder/NegativeLogLikelihoodRecorder.hpp"
 #include "MarkovChain/Recorder/StateRecorder.hpp"
 #include "MarkovChain/Recorder/TimestampRecorder.hpp"
 
@@ -68,28 +64,29 @@
 #include "MarkovChain/Tuning/ThompsonSamplingTuner.hpp"
 #include "MarkovChain/Tuning/TuningTarget.hpp"
 
-#include "MarkovChain/IsGetColdnessAvailable.hpp"
-#include "MarkovChain/IsGetExchangeAttemptProbabilityAvailable.hpp"
-#include "MarkovChain/IsGetStepSizeAvailable.hpp"
-#include "MarkovChain/IsResetAcceptanceRateAvailable.hpp"
-#include "MarkovChain/IsSetColdnessAvailable.hpp"
-#include "MarkovChain/IsSetExchangeAttemptProbabilityAvailable.hpp"
-#include "MarkovChain/IsSetFisherWeightAvailable.hpp"
-#include "MarkovChain/Proposal/IsSetStepSizeAvailable.hpp"
 #include "MarkovChain/MarkovChain.hpp"
 #include "MarkovChain/MarkovChainAdapter.hpp"
-#include "MarkovChain/MarkovChainAttribute.hpp"
 #include "MarkovChain/MarkovChainFactory.hpp"
 #include "MarkovChain/MarkovChainType.hpp"
 #include "MarkovChain/ModelMixin.hpp"
+#include "MarkovChain/ModelWrapper.hpp"
 #include "MarkovChain/StateTransformation.hpp"
 
 #include "Model/DegenerateGaussian.hpp"
+#include "Model/Gaussian.hpp"
 #include "Model/Mixture.hpp"
 #include "Model/Model.hpp"
-#include "Model/Gaussian.hpp"
 #include "Model/Rosenbrock.hpp"
 
+#ifdef HOPS_DNEST4_SUPPORT
+#include "NestedSampling/DNest4EnvironmentSingleton.hpp"
+#include "NestedSampling/DNest4Adapter.hpp"
+#endif //HOPS_DNEST4_SUPPORT
+
+#include "Optimization/GaussianProcess.hpp"
+#include "Optimization/ThompsonSampling.hpp"
+
+#include "Parallel/MpiInitializerFinalizer.hpp"
 #include "Parallel/OpenMPControls.hpp"
 
 #include "Polytope/MaximumVolumeEllipsoid.hpp"
@@ -97,22 +94,36 @@
 #include "Polytope/SimplexFactory.hpp"
 
 #include "RandomNumberGenerator/RandomNumberGenerator.hpp"
-#include "Sampler/Sampler.hpp"
 
+#include "Statistics/Autocorrelation.hpp"
+#include "Statistics/Covariance.hpp"
+#include "Statistics/EffectiveSampleSize.hpp"
+#include "Statistics/ExpectedSquaredJumpDistance.hpp"
+#include "Statistics/IsConstantChain.hpp"
+#include "Statistics/PotentialScaleReductionFactor.hpp"
+
+
+#include "Transformation/LinearTransformation.hpp"
 #include "Transformation/Transformation.hpp"
 
-#include "Utility/Sampling.hpp"
+#include "Utility/HopsWithinHopsy.hpp"
+#include "Utility/KahanSum.hpp"
+#include "Utility/LogSqrtDeterminant.hpp"
 #include "Utility/MatrixType.hpp"
+#include "Utility/Sampling.hpp"
+#include "Utility/StringUtility.hpp"
 #include "Utility/VectorType.hpp"
-#ifdef HOPS_DNEST4_SUPPORT
-#include "NestedSampling/DNest4EnvironmentSingleton.hpp"
-#include "NestedSampling/DNest4Adapter.hpp"
-#endif //HOPS_DNEST4_SUPPORT
 
 #ifdef HOPS_HEADER_ONLY
 
+
 #include "FileReader/CsvReader.cpp"
 #include "FileReader/SbmlReader.cpp"
+
+#ifdef HOPS_HDF5_SUPPORT
+#include "FileReader/Hdf5Reader.cpp"
+#include "FileWriter/Hdf5Writer.cpp"
+#endif //HOPS_HDF5_SUPPORT
 
 #include "FileWriter/CsvWriter.cpp"
 #include "FileWriter/CsvWriterImpl.cpp"
@@ -130,12 +141,7 @@
 
 #include "Polytope/MaximumVolumeEllipsoid.cpp"
 
-#include "Utility/Data.cpp"
 #include "Utility/Sampling.cpp"
 
-#ifdef HOPS_HDF5_SUPPORT
-#include "FileReader/Hdf5Reader.cpp"
-#include "FileWriter/Hdf5Writer.cpp"
-#endif //HOPS_HDF5_SUPPORT
 
 #endif //HOPS_HEADER_ONLY

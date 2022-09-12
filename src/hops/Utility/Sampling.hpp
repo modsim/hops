@@ -218,7 +218,6 @@ namespace hops {
         std::vector<double> negLogLikelihoods;
         std::vector<Eigen::VectorXd> states;
         std::vector<long> timestamps;
-        std::vector<ProposalStatistics> proposalStatistics;
 
         acceptanceRates.reserve(numberOfSamples);
         negLogLikelihoods.reserve(numberOfSamples);
@@ -248,7 +247,7 @@ namespace hops {
         for (long checkPoint = 0; checkPoint < numberOfCheckPoints; ++checkPoint) {
             for (long i = 0; i < numberOfSamples / numberOfCheckPoints; ++i) {
                 ABORTABLE
-                auto[acceptanceRate, state, proposalStatistic] = markovChain->detailedDraw(randomNumberGenerator,
+                auto[acceptanceRate, state] = markovChain->draw(randomNumberGenerator,
                                                                                            thinning);
                 acceptanceRates.emplace_back(acceptanceRate);
                 negLogLikelihoods.emplace_back(markovChain->getStateNegativeLogLikelihood());
@@ -256,15 +255,8 @@ namespace hops {
                 timestamps.emplace_back(std::chrono::duration_cast<std::chrono::milliseconds>(
                         std::chrono::high_resolution_clock::now().time_since_epoch()
                 ).count());
-                proposalStatistics.template emplace_back(proposalStatistic);
             }
 
-            for (auto &statistic : proposalStatistics) {
-                auto statisticMap = statistic.getStatistics();
-                for (auto &sm: statisticMap) {
-                    writer->write(sm.first, sm.second);
-                }
-            }
             writer->write("states", states);
             writer->write("acceptance_rates", std::vector<double>{
                     std::reduce(acceptanceRates.begin(), acceptanceRates.end(), 0.) / acceptanceRates.size()});

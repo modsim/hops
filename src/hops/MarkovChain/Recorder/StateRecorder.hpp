@@ -6,7 +6,6 @@
 
 #include <hops/FileWriter/FileWriter.hpp>
 #include <hops/MarkovChain/Recorder/IsClearRecordsAvailable.hpp>
-#include <hops/MarkovChain/Recorder/IsInstallDataObjectAvailable.hpp>
 #include <hops/MarkovChain/Recorder/IsStoreRecordAvailable.hpp>
 #include <hops/MarkovChain/Recorder/IsWriteRecordsToFileAvailable.hpp>
 #include <hops/Utility/VectorType.hpp>

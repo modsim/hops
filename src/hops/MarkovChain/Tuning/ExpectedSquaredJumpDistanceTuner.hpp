@@ -5,7 +5,6 @@
 #include <hops/FileWriter/FileWriterFactory.hpp>
 #include <hops/FileWriter/FileWriterType.hpp>
 #include <hops/MarkovChain/MarkovChain.hpp>
-#include <hops/MarkovChain/MarkovChainAttribute.hpp>
 #include <hops/MarkovChain/Tuning/ExpectedSquaredJumpDistanceTarget.hpp>
 #include <hops/MarkovChain/Tuning/ThompsonSamplingTuner.hpp>
 #include <hops/Parallel/OpenMPControls.hpp>

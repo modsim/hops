@@ -3,7 +3,6 @@
 
 #include "../../FileWriter/FileWriter.hpp"
 #include "IsClearRecordsAvailable.hpp"
-#include "IsInstallDataObjectAvailable.hpp"
 #include "IsStoreRecordAvailable.hpp"
 #include "IsWriteRecordsToFileAvailable.hpp"
 

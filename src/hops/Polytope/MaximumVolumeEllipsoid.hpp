@@ -9,7 +9,7 @@ namespace hops {
     template<typename RealType>
     /**
     * @brief [Deprectated] Use PolyRound (https://gitlab.com/csb.ethz/PolyRound) for effective and efficient rounding.
-    * @deprecated This class is known to be ineffective for a wide class of models.
+    * @deprecated This class is known to be ineffective for a wide class of models. Use PolyRound instead.
     *
     * @details
     *  Reference:

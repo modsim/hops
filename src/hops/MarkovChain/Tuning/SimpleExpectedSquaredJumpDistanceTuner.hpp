@@ -6,7 +6,6 @@
 #include <hops/FileWriter/FileWriterFactory.hpp>
 #include <hops/FileWriter/FileWriterType.hpp>
 #include <hops/MarkovChain/MarkovChain.hpp>
-#include <hops/MarkovChain/MarkovChainAttribute.hpp>
 
 #include <chrono>
 #include <cmath>

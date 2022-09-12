@@ -74,7 +74,8 @@ namespace hops {
                                                                                  std::move(b),
                                                                                  currentState,
                                                                                  stepSize,
-                                                                                 eps, warmUp,
+                                                                                 eps,
+                                                                                 warmUp,
                                                                                  t),
                                   maxReflections(maxReflections) {}
 
@@ -108,12 +109,6 @@ namespace hops {
 
         const auto &reflectionResult = Reflector::reflectIntoPolytope(this->A, this->b, state, proposal,
                                                                       maxReflections);
-        if (this->isTrackingOfProposalStatisticsActivated()) {
-            ProposalStatistics &infos = this->getProposalStatistics();
-            infos.appendInfo("reflection_successful", std::get<0>(reflectionResult));
-            infos.appendInfo("number_of_reflections", std::get<1>(reflectionResult));
-        }
-
         proposal = std::get<2>(reflectionResult);
         return proposal;
     }

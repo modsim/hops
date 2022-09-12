@@ -87,24 +87,12 @@ namespace hops {
 
         [[nodiscard]] std::unique_ptr<Model> getModel() const;
 
-        ProposalStatistics &getProposalStatistics() override;
-
-        void activateTrackingOfProposalStatistics() override;
-
-        void disableTrackingOfProposalStatistics() override;
-
-        bool isTrackingOfProposalStatisticsActivated() override;
-
-        ProposalStatistics getAndResetProposalStatistics() override;
-
-
     private:
         VectorType computeTruncatedGradient(VectorType x);
 
         InternalMatrixType A;
         MatrixType Adense;
         VectorType b;
-        ProposalStatistics proposalStatistics;
 
         VectorType state;
         VectorType driftedState;
@@ -249,10 +237,6 @@ namespace hops {
     double CSmMALAProposal<ModelType, InternalMatrixType>::computeLogAcceptanceProbability() {
         bool isProposalInteriorPoint = ((A * proposal - b).array() < 0).all();
         if (!isProposalInteriorPoint) {
-            if (isProposalInfosTrackingActive) {
-                proposalStatistics.appendInfo("proposal_is_interior", isProposalInteriorPoint);
-                proposalStatistics.appendInfo("proposal_neg_like", std::numeric_limits<double>::quiet_NaN());
-            }
             return -std::numeric_limits<double>::infinity();
         }
 
@@ -288,11 +272,6 @@ namespace hops {
         double normDifference =
                 static_cast<double>((driftedState - proposal).transpose() * stateMetric * (driftedState - proposal)) -
                 static_cast<double>((state - driftedProposal).transpose() * proposalMetric * (state - driftedProposal));
-
-        if (isProposalInfosTrackingActive) {
-            proposalStatistics.appendInfo("proposal_is_interior", isProposalInteriorPoint);
-            proposalStatistics.appendInfo("proposal_neg_like", proposalNegativeLogLikelihood);
-        }
 
         return -proposalNegativeLogLikelihood
                + stateNegativeLogLikelihood
@@ -404,33 +383,6 @@ namespace hops {
     template<typename ModelType, typename InternalMatrixType>
     std::unique_ptr<Model> CSmMALAProposal<ModelType, InternalMatrixType>::getModel() const {
         return ModelType::copyModel();
-    }
-
-    template<typename ModelType, typename InternalMatrixType>
-    ProposalStatistics &CSmMALAProposal<ModelType, InternalMatrixType>::getProposalStatistics() {
-        return proposalStatistics;
-    }
-
-    template<typename ModelType, typename InternalMatrixType>
-    void CSmMALAProposal<ModelType, InternalMatrixType>::activateTrackingOfProposalStatistics() {
-        isProposalInfosTrackingActive = true;
-    }
-
-    template<typename ModelType, typename InternalMatrixType>
-    void CSmMALAProposal<ModelType, InternalMatrixType>::disableTrackingOfProposalStatistics() {
-        isProposalInfosTrackingActive = false;
-    }
-
-    template<typename ModelType, typename InternalMatrixType>
-    bool CSmMALAProposal<ModelType, InternalMatrixType>::isTrackingOfProposalStatisticsActivated() {
-        return isProposalInfosTrackingActive;
-    }
-
-    template<typename ModelType, typename InternalMatrixType>
-    ProposalStatistics CSmMALAProposal<ModelType, InternalMatrixType>::getAndResetProposalStatistics() {
-        ProposalStatistics newStatistic;
-        std::swap(newStatistic, proposalStatistics);
-        return newStatistic;
     }
 
     template<typename ModelType, typename InternalMatrixType>

@@ -5,6 +5,7 @@ namespace hops {
 
     enum class ProposalParameter {
         BOUNDARY_CUSHION,
+        COLDNESS,
         EPSILON,
         FISHER_WEIGHT,
         STEP_SIZE,
@@ -17,6 +18,7 @@ namespace hops {
 
     static char const *ProposalParameterName[] = {
             "boundary_cushion",
+            "coldness",
             "epsilon",
             "fisher_weight",
             "step_size",

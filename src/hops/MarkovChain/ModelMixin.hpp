@@ -70,6 +70,8 @@ namespace hops {
 
         [[nodiscard]] std::unique_ptr<Proposal> copyProposal() const override;
 
+        [[nodiscard]] bool isSymmetric() const override;
+
     private:
         double stateNegativeLogLikelihood;
         double proposalNegativeLogLikelihood;
@@ -195,6 +197,11 @@ namespace hops {
             return proposal.getDimensionNames();
         }
         return modelDimensionNames;
+    }
+
+    template<typename ProposalType, typename ModelType>
+    bool ModelMixin<ProposalType, ModelType>::isSymmetric() const {
+        return proposal.isSymmetric();
     }
 }
 

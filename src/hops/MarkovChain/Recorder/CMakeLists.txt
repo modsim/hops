@@ -3,7 +3,6 @@ if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
             AcceptanceRateRecorder.hpp
             IsAddMessageAvailabe.hpp
             IsClearRecordsAvailable.hpp
-            IsInstallDataObjectAvailable.hpp
             IsStoreRecordAvailable.hpp
             IsWriteRecordsToFileAvailable.hpp
             MessageRecorder.hpp

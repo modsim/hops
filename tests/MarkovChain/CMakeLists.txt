@@ -4,15 +4,6 @@ add_subdirectory(Recorder)
 add_subdirectory(Tuning)
 
 set(TEST_SOURCES
-        IsGetColdnessAvailableTestSuite.cpp
-        IsGetExchangeAttemptProbabilityAvailableTestSuite.cpp
-        IsResetAcceptanceRateAvailableTestSuite.cpp
-        IsGetStepSizeAvailableTestSuite.cpp
-        IsSetColdnessAvailableTestSuite.cpp
-        IsSetExchangeAttemptProbabilityAvailableTestSuite.cpp
-        IsSetFisherWeightAvailableTestSuite.cpp
-        IsSetStepSizeAvailableTestSuite.cpp
-        # TODO reinclude factory
         MarkovChainFactoryTestSuite.cpp
         ModelMixinTestSuite.cpp
         ModelWrapperTestSuite.cpp

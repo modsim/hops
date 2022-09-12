@@ -9,7 +9,6 @@
 #include <hops/Utility/StringUtility.hpp>
 #include <hops/Utility/VectorType.hpp>
 
-#include "IsSetStepSizeAvailable.hpp"
 #include "Proposal.hpp"
 
 namespace hops {
@@ -64,21 +63,11 @@ namespace hops {
 
         [[nodiscard]] const VectorType& getB() const override;
 
-        ProposalStatistics & getProposalStatistics() override;
-
-        void activateTrackingOfProposalStatistics() override;
-
-        void disableTrackingOfProposalStatistics() override;
-
-        bool isTrackingOfProposalStatisticsActivated() override;
-
     private:
         InternalMatrixType A;
         InternalVectorType b;
         VectorType state;
         VectorType proposal;
-
-        ProposalStatistics infos;
 
         double stepSize;
 
@@ -218,24 +207,6 @@ namespace hops {
     template<typename InternalMatrixType, typename InternalVectorType>
     const VectorType& GaussianProposal<InternalMatrixType, InternalVectorType>::getB() const {
         return b;
-    }
-
-    template<typename InternalMatrixType, typename InternalVectorType>
-    ProposalStatistics & GaussianProposal<InternalMatrixType, InternalVectorType>::getProposalStatistics() {
-        return infos;
-    }
-
-    template<typename InternalMatrixType, typename InternalVectorType>
-    void GaussianProposal<InternalMatrixType, InternalVectorType>::activateTrackingOfProposalStatistics() {
-        // TODO
-    }
-
-    template<typename InternalMatrixType, typename InternalVectorType>
-    void GaussianProposal<InternalMatrixType, InternalVectorType>::disableTrackingOfProposalStatistics() {}
-
-    template<typename InternalMatrixType, typename InternalVectorType>
-    bool GaussianProposal<InternalMatrixType, InternalVectorType>::isTrackingOfProposalStatisticsActivated() {
-        return false;
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
