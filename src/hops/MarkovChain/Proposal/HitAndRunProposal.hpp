@@ -76,8 +76,6 @@ namespace hops {
         std::normal_distribution<double> normalDistribution;
         double forwardDistance = 0;
         double backwardDistance = 0;
-
-        bool isProposalInfosTrackingActive = false;
     };
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
@@ -121,6 +119,7 @@ namespace hops {
         }
         slacks = this->b - this->A * this->state;
         updateDirection = state;
+        proposal = state;
         setStepSize(stepSize);
     }
 
@@ -129,27 +128,31 @@ namespace hops {
     HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::propose(
             RandomNumberGenerator &rng) {
         for (long i = 0; i < updateDirection.rows(); ++i) {
-            updateDirection(i) = normalDistribution(rng);
+            this->updateDirection(i) = normalDistribution(rng);
         }
-        updateDirection.normalize();
+        this->updateDirection.normalize();
 
-        inverseDistances = (A * updateDirection).cwiseQuotient(slacks);
-        forwardDistance = 1. / inverseDistances.maxCoeff();
-        backwardDistance = 1. / inverseDistances.minCoeff();
-        if (forwardDistance < 0) {
+        this->inverseDistances = (this->A * this->updateDirection).cwiseQuotient(this->slacks);
+        this->inverseDistances = this->inverseDistances
+                .array()
+                .unaryExpr([](double value) { return std::isnan(value) ? 0. : value; })
+                .matrix();
+        this->forwardDistance = 1. / this->inverseDistances.maxCoeff();
+        this->backwardDistance = 1. / this->inverseDistances.minCoeff();
+        if (this->forwardDistance < 0) {
             // forward direction is unconstrained
-            forwardDistance = std::numeric_limits<typename InternalMatrixType::Scalar>::infinity();
+            this->forwardDistance = std::numeric_limits<typename InternalMatrixType::Scalar>::infinity();
         }
-        if (backwardDistance > 0) {
+        if (this->backwardDistance > 0) {
             // backward direction is unconstrained
-            backwardDistance = -std::numeric_limits<typename InternalMatrixType::Scalar>::infinity();
+            this->backwardDistance = -std::numeric_limits<typename InternalMatrixType::Scalar>::infinity();
         }
-        assert(((b - A * state).array() >= 0).all());
+        assert(((this->b - this->A * this->state).array() >= 0).all());
 
-        step = chordStepDistribution.draw(rng, backwardDistance, forwardDistance);
-        proposal = state + updateDirection * step;
+        this->step = this->chordStepDistribution.draw(rng, backwardDistance, forwardDistance);
+        this->proposal = this->state + this->updateDirection * this->step;
 
-        return proposal;
+        return this->proposal;
     }
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
@@ -165,6 +168,12 @@ namespace hops {
         updateDirection.normalize();
 
         inverseDistances = (A * updateDirection).cwiseQuotient(slacks);
+        // Inverse distance are potentially nan due to default values on the boundary of the polytope.
+        // Replaces nan because nan should not influence the distances.
+        this->inverseDistances = this->inverseDistances
+                .array()
+                .unaryExpr([](double value) { return std::isnan(value) ? 0. : value; })
+                .matrix();
 
         forwardDistance = 1. / inverseDistances.maxCoeff();
         backwardDistance = 1. / inverseDistances.minCoeff();
@@ -173,6 +182,18 @@ namespace hops {
 
         step = chordStepDistribution.draw(rng, backwardDistance, forwardDistance);
         proposal = state + updateDirection * step;
+//        if (!((b - A * proposal).array() < 0).any()) {
+//            std::cout << "slacks" << std::endl;
+//            std::cout << slacks.transpose() << std::endl;
+//            std::cout << "proposal slacks" << std::endl;
+//            std::cout << (b - A * proposal).transpose() << std::endl;
+//
+//            std::cout << "(!((b - A * proposal).array() < 0).any())" << std::endl;
+//            std::cout << (!((b - A * proposal).array() < 0).any()) << std::endl;
+//            std::cout << "(((b - A * proposal).array() >= 0).all())" << std::endl;
+//            std::cout << (((b - A * proposal).array() >= 0).all()) << std::endl;
+//
+//        }
         assert(((b - A * proposal).array() >= 0).all());
 
         return proposal;
@@ -182,6 +203,7 @@ namespace hops {
     VectorType &
     HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::acceptProposal() {
         state = proposal;
+        proposal = state;
         if constexpr (Precise) {
             slacks = b - A * state;
             if ((slacks.array() < 0).any()) {
@@ -197,7 +219,11 @@ namespace hops {
     void HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::setState(
             const VectorType &newState) {
         if (((b - A * newState).array() < 0).any()) {
-            throw std::invalid_argument("Starting point outside polytope always gives constant Markov chain.");
+            std::stringstream str;
+            str << (b - A * newState).transpose() << std::endl;
+            str << "state was\n" << newState.transpose() << std::endl;
+            throw std::invalid_argument(
+                    "Starting point outside polytope always gives constant Markov chain.\n" + str.str());
         }
         HitAndRunProposal::state = newState;
         HitAndRunProposal::proposal = HitAndRunProposal::state;

@@ -17,6 +17,7 @@
 #include <hops/Utility/MatrixType.hpp>
 #include <hops/Utility/VectorType.hpp>
 #include <hops/MarkovChain/Proposal/CoordinateHitAndRunProposal.hpp>
+#include <hops/Model/JumpableModel.hpp>
 
 namespace {
     double gammaProbabilityDensityFunction(double x, double location, double scale, double shape) {
@@ -150,7 +151,6 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
                         start),
                 model);
 
-        proposalImpl.setProposal(start);
         std::unique_ptr<hops::Proposal> proposal = std::make_unique<decltype(proposalImpl)>(proposalImpl);
 
         auto RJMCMCProposal = hops::ReversibleJumpProposal(
@@ -169,7 +169,6 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
                         start),
                 model);
 
-        proposalImpl.setProposal(start);
         std::unique_ptr<hops::Proposal> proposal = std::make_unique<decltype(proposalImpl)>(proposalImpl);
 
         auto RJMCMCProposal = hops::ReversibleJumpProposal(
@@ -199,7 +198,6 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
                         start),
                 model);
 
-        proposalImpl.setProposal(start);
         std::unique_ptr<hops::Proposal> proposal = std::make_unique<decltype(proposalImpl)>(proposalImpl);
 
         auto RJMCMCProposal = hops::ReversibleJumpProposal(
@@ -229,7 +227,6 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
                         start),
                 model);
 
-        proposalImpl.setProposal(start);
         std::unique_ptr<hops::Proposal> proposal = std::make_unique<decltype(proposalImpl)>(proposalImpl);
 
         auto RJMCMCProposal = hops::ReversibleJumpProposal(
@@ -261,7 +258,6 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
                         start),
                 model);
 
-        proposalImpl.setProposal(start);
         std::unique_ptr<hops::Proposal> proposal = std::make_unique<decltype(proposalImpl)>(proposalImpl);
 
         auto RJMCMCProposal = hops::ReversibleJumpProposal(
@@ -324,7 +320,6 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
                         start),
                 model);
 
-        proposalImpl.setProposal(start);
         std::unique_ptr<hops::Proposal> proposal = std::make_unique<decltype(proposalImpl)>(proposalImpl);
 
         auto markovChainImpl = hops::MarkovChainAdapter(
@@ -397,6 +392,88 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
         }
     }
 
+
+    BOOST_AUTO_TEST_CASE(GammaModelHRTestModelOutsideOfRJMCMC) {
+        auto proposalImpl = hops::HitAndRunProposal(
+                A,
+                b,
+                start);
+
+        std::unique_ptr<hops::Proposal> proposal = std::make_unique<decltype(proposalImpl)>(proposalImpl);
+
+        auto markovChainImpl = hops::MarkovChainAdapter(
+                hops::MetropolisHastingsFilter(
+                        hops::ModelMixin(
+                                hops::ReversibleJumpProposal(
+                                        std::move(proposal),
+                                        jumpIndices,
+                                        defaultValues
+                                ),
+                                hops::JumpableModel(model)
+                        )
+                )
+        );
+
+        std::unique_ptr<hops::MarkovChain> markovChain = std::make_unique<decltype(markovChainImpl)>(
+                markovChainImpl
+        );
+
+        hops::RandomNumberGenerator randomNumberGenerator(42);
+
+        long numberOfSamples = 5'000'000;
+        std::vector<double> model_visit_counts = {0, 0, 0, 0};
+        std::set<std::string> model_names;
+        std::vector<Eigen::VectorXd> models;
+        std::vector<double> location;
+        std::vector<double> scale;
+        std::vector<double> shape;
+
+        std::string model_name = "";
+        double acceptanceRates = 0;
+        for (long i = 0; i < numberOfSamples; ++i) {
+            auto[acceptanceRate, state] = markovChain->draw(randomNumberGenerator);
+            acceptanceRates += acceptanceRate;
+            models.emplace_back(state.topRows(state.rows() / 2));
+            int model_index = 0;
+
+            for (long j = 0; j < jumpIndices.rows(); ++j) {
+                model_index += std::pow(2, jumpIndices.rows() - 1 - j) * state(jumpIndices(j));
+                model_name += std::to_string(static_cast<int>(state(jumpIndices(j))));
+            }
+            model_names.insert(model_name);
+            model_name = "";
+            model_visit_counts[model_index]++;
+
+            location.emplace_back(state(state.rows() / 2));
+            scale.emplace_back(state(state.rows() / 2 + 1));
+            shape.emplace_back(state(state.rows() / 2 + 2));
+        }
+
+        double actualLocationMean = std::accumulate(location.begin(), location.end(), 0.) / location.size();
+        double actualScaleMean = std::accumulate(scale.begin(), scale.end(), 0.) / scale.size();
+        double actualShapeMean = std::accumulate(shape.begin(), shape.end(), 0.) / shape.size();
+
+        std::vector<double> actualModelProbabilities;
+        actualModelProbabilities.reserve(model_visit_counts.size());
+        for (auto count: model_visit_counts) {
+            actualModelProbabilities.emplace_back(static_cast<double>(count) / numberOfSamples);
+        }
+
+        double relative_tolerance = 1.5;
+        BOOST_CHECK_CLOSE(actualLocationMean, expectedLocationMean, relative_tolerance);
+        BOOST_CHECK_CLOSE(actualScaleMean, expectedScaleMean, relative_tolerance);
+        BOOST_CHECK_CLOSE(actualShapeMean, expectedShapeMean, relative_tolerance);
+        BOOST_ASSERT(actualModelProbabilities.size() == expectedModelProbabilityPercentages.size());
+        auto it = model_names.begin();
+        for (size_t i = 0; i < actualModelProbabilities.size(); ++i) {
+            BOOST_CHECK_CLOSE(
+                    actualModelProbabilities[i],
+                    expectedModelProbabilityPercentages[i],
+                    relative_tolerance
+            );
+        }
+    }
+
     BOOST_AUTO_TEST_CASE(GammaModelAdaptedJumpParametersHRTest) {
         auto proposalImpl = hops::ModelMixin(
                 hops::HitAndRunProposal(
@@ -405,7 +482,6 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
                         start),
                 model);
 
-        proposalImpl.setProposal(start);
         std::unique_ptr<hops::Proposal> proposal = std::make_unique<decltype(proposalImpl)>(proposalImpl);
 
         auto markovChainImpl = hops::MarkovChainAdapter(
@@ -490,7 +566,6 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
                         start),
                 model);
 
-        proposalImpl.setProposal(start);
         std::unique_ptr<hops::Proposal> proposal = std::make_unique<decltype(proposalImpl)>(proposalImpl);
 
         auto markovChainImpl = hops::MarkovChainAdapter(
@@ -571,7 +646,6 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
                         start),
                 model);
 
-        proposalImpl.setProposal(start);
         std::unique_ptr<hops::Proposal> proposal = std::make_unique<decltype(proposalImpl)>(proposalImpl);
 
         auto markovChainImpl = hops::MarkovChainAdapter(
@@ -652,7 +726,6 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
                         start),
                 model);
 
-        proposalImpl.setProposal(start);
         std::unique_ptr<hops::Proposal> proposal = std::make_unique<decltype(proposalImpl)>(proposalImpl);
 
         auto markovChainImpl = hops::MarkovChainAdapter(
@@ -733,7 +806,6 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
                         start),
                 model);
 
-        proposalImpl.setProposal(start);
         std::unique_ptr<hops::Proposal> proposal = std::make_unique<decltype(proposalImpl)>(proposalImpl);
 
         auto markovChainImpl = hops::MarkovChainAdapter(
@@ -814,7 +886,6 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
                         start),
                 model);
 
-        proposalImpl.setProposal(start);
         std::unique_ptr<hops::Proposal> proposal = std::make_unique<decltype(proposalImpl)>(proposalImpl);
 
         auto markovChainImpl = hops::MarkovChainAdapter(

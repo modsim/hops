@@ -117,7 +117,12 @@ namespace hops {
 
     void DNest4Adapter::from_prior(DNest4::RNG &) {
         priorProposer->propose(internal_rng);
-        double logAcceptanceProbability = priorProposer->computeLogAcceptanceProbability();
+        // In case the proposer uses the loglikelihoods directly, we subtract them again, because DNEST4
+        // expects this  acceptance chance to not contain them already.
+        // If the proposers doesn't know the loglikelihoods, they are 0 anyways.
+        double logAcceptanceProbability = priorProposer->computeLogAcceptanceProbability()
+                                           + priorProposer->getProposalNegativeLogLikelihood()
+                                           - priorProposer->getStateNegativeLogLikelihood();
         double logAcceptanceChance = std::log(uniformRealDistribution(internal_rng));
         if (logAcceptanceChance < logAcceptanceProbability && std::isfinite(logAcceptanceProbability)) {
             this->state = priorProposer->acceptProposal();
@@ -127,9 +132,9 @@ namespace hops {
     double DNest4Adapter::perturb(DNest4::RNG &) {
         posteriorProposer->setState(state);
         proposal = posteriorProposer->propose(internal_rng);
-        // Incase the proposer uses the loglikelihoods directly, we substract them again, because DNEST4
+        // In case the proposer uses the loglikelihoods directly, we subtract them again, because DNEST4
         // expects this  acceptance chance to not contain them already.
-        // If the proposers doesn't know the loglikelihoods, they are 0 anways.
+        // If the proposers doesn't know the loglikelihoods, they are 0 anyways.
         proposalLogAcceptanceProbability = posteriorProposer->computeLogAcceptanceProbability()
                                            + posteriorProposer->getProposalNegativeLogLikelihood()
                                            - posteriorProposer->getStateNegativeLogLikelihood();
@@ -190,7 +195,7 @@ namespace hops {
     }
 
     void DNest4Adapter::accept_perturbation() {
-        state = std::move(proposal);
+        state = proposal;
         stateLogAcceptanceProbability = proposalLogAcceptanceProbability;
     }
 }

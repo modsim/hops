@@ -23,6 +23,12 @@ namespace {
                                                             long coordinate) {
         Eigen::VectorXd slacks = b - A.col(coordinate) * currentValue;
         Eigen::VectorXd inverseDistances = A.col(coordinate).cwiseQuotient(slacks);
+        // Inverse distance are potentially nan due to default values on the boundary of the polytope.
+        // Replaces nan because nan should not influence the distances.
+        inverseDistances = inverseDistances
+                .array()
+                .unaryExpr([](double value) { return std::isnan(value) ? 0. : value; })
+                .matrix();
         double forwardDistance = 1. / inverseDistances.maxCoeff();
         double backwardDistance = 1. / inverseDistances.minCoeff();
         forwardDistance = (forwardDistance < 0) ? 0 : forwardDistance;
@@ -209,12 +215,13 @@ namespace hops {
     VectorType &ReversibleJumpProposal::propose(RandomNumberGenerator &rng) {
         if (uniformRealDistribution(rng) < modelJumpProbability) {
             lastProposalJumpedModel = true;
-            return proposeModel(rng);
+            proposal = proposeModel(rng);
         } else {
             lastProposalJumpedModel = false;
             this->activationProposal = this->activationState;
-            return wrapProposal(proposalImpl->propose(rng, activationState));
+            proposal = wrapProposal(proposalImpl->propose(rng, activationState));
         }
+        return proposal;
     }
 
     double ReversibleJumpProposal::computeLogAcceptanceProbability() {

@@ -2,9 +2,8 @@ if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
     target_sources(hops PRIVATE
             DegenerateGaussian.hpp
             Gaussian.hpp
+            JumpableModel.hpp
             Model.hpp
-#            ModelSet.hpp
-#            ModelSet.cpp
             Mixture.hpp
             Rosenbrock.hpp
             )

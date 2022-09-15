@@ -112,6 +112,12 @@ namespace hops {
         ++coordinateToUpdate %= state.rows();
 
         inverseDistances = A.col(coordinateToUpdate).cwiseQuotient(slacks);
+        // Inverse distance are potentially nan due to default values on the boundary of the polytope.
+        // Replaces nan because nan should not influence the distances.
+        this->inverseDistances = this->inverseDistances
+                .array()
+                .unaryExpr([](double value) { return std::isnan(value) ? 0. : value; })
+                .matrix();
         forwardDistance = 1. / inverseDistances.maxCoeff();
         backwardDistance = 1. / inverseDistances.minCoeff();
         if (forwardDistance < 0) {
@@ -148,6 +154,12 @@ namespace hops {
         for (long i = 0; i < activeIndices.rows(); ++i) {
             if (activeIndices(i) == 0) { continue; }
             inverseDistances = A.col(i).cwiseQuotient(proposalSlacks);
+            // Inverse distance are potentially nan due to default values on the boundary of the polytope.
+            // Replaces nan because nan should not influence the distances.
+            this->inverseDistances = this->inverseDistances
+                    .array()
+                    .unaryExpr([](double value) { return std::isnan(value) ? 0. : value; })
+                    .matrix();
 
             forwardDistance = 1. / inverseDistances.maxCoeff();
             backwardDistance = 1. / inverseDistances.minCoeff();

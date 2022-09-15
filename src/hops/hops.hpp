@@ -76,6 +76,7 @@
 #include "Model/Gaussian.hpp"
 #include "Model/Mixture.hpp"
 #include "Model/Model.hpp"
+#include "Model/JumpableModel.hpp"
 #include "Model/Rosenbrock.hpp"
 
 #ifdef HOPS_DNEST4_SUPPORT

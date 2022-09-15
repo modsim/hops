@@ -6,7 +6,6 @@
 
 #include <hops/MarkovChain/ModelMixin.hpp>
 #include <hops/MarkovChain/Proposal/ProposalParameter.hpp>
-#include <hops/MarkovChain/Proposal/GaussianProposal.hpp>
 #include <hops/MarkovChain/Proposal/CoordinateHitAndRunProposal.hpp>
 #include <hops/Model/Gaussian.hpp>
 #include <hops/NestedSampling/DNest4Adapter.hpp>
