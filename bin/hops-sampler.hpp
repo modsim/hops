@@ -1,7 +1,7 @@
 #ifndef HOPS_SAMPLERS_HPP
 #define HOPS_SAMPLERS_HPP
 
-#include <hops/hops.hpp>
+#include "hops/hops.hpp"
 
 std::tuple<hops::RandomNumberGenerator, std::unique_ptr<hops::MarkovChain>, std::unique_ptr<hops::Transformation>>
 setUpSampling(

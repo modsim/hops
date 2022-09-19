@@ -4,10 +4,10 @@
 #include <memory>
 #include <utility>
 
-#include <hops/MarkovChain/Proposal/Proposal.hpp>
-#include <hops/MarkovChain/Proposal/ProposalParameter.hpp>
-#include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
-#include <hops/Utility/VectorType.hpp>
+#include "hops/MarkovChain/Proposal/Proposal.hpp"
+#include "hops/MarkovChain/Proposal/ProposalParameter.hpp"
+#include "hops/RandomNumberGenerator/RandomNumberGenerator.hpp"
+#include "hops/Utility/VectorType.hpp"
 
 namespace hops {
     class MarkovChain {

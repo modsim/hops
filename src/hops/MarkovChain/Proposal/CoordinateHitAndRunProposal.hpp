@@ -4,10 +4,11 @@
 #include <optional>
 #include <random>
 
-#include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
-#include <hops/Utility/MatrixType.hpp>
-#include <hops/Utility/StringUtility.hpp>
-#include <hops/Utility/VectorType.hpp>
+#include "hops/RandomNumberGenerator/RandomNumberGenerator.hpp"
+#include "hops/Utility/DefaultDimensionNames.hpp"
+#include "hops/Utility/MatrixType.hpp"
+#include "hops/Utility/StringUtility.hpp"
+#include "hops/Utility/VectorType.hpp"
 
 #include "ChordStepDistributions.hpp"
 #include "IsSetStepSizeAvailable.hpp"
@@ -41,6 +42,10 @@ namespace hops {
         [[nodiscard]] VectorType getState() const override;
 
         [[nodiscard]] VectorType getProposal() const override;
+
+        void setDimensionNames(const std::vector<std::string> &names) override;
+
+        [[nodiscard]] std::vector<std::string> getDimensionNames() const override;
 
         [[nodiscard]] std::vector<std::string> getParameterNames() const override;
 
@@ -85,7 +90,7 @@ namespace hops {
         typename InternalMatrixType::Scalar forwardDistance = 0;
         typename InternalMatrixType::Scalar backwardDistance = 0;
 
-        bool isProposalInfosTrackingActive = false;
+        std::vector<std::string> dimensionNames;
     };
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
@@ -103,6 +108,8 @@ namespace hops {
         }
         slacks = this->b - this->A * this->state;
         setStepSize(stepSize);
+
+        this->dimensionNames = createDefaultDimensionNames(this->state.rows());
     }
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
@@ -362,6 +369,18 @@ namespace hops {
             return false;
         }
         return true;
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
+    void CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::setDimensionNames(
+            const std::vector<std::string> &names) {
+        dimensionNames = names;
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
+    std::vector<std::string>
+    CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::getDimensionNames() const {
+        return dimensionNames;
     }
 }
 

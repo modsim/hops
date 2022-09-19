@@ -4,9 +4,9 @@ set(TEST_SOURCES
         CSmMALATestSuite.cpp
         CoordinateHitAndRunTestSuite.cpp
         DikinEllipsoidCalculatorTestSuite.cpp
+        DikinTestSuite.cpp
         HitAndRunTestSuite.cpp
         IsSetStepSizeAvailableTestSuite.cpp
-        ProposalStatisticsTestSuite.cpp
         ReflectorTestSuite.cpp
         ReversibleJumpProposalTestSuite.cpp
         TrunatedGaussianProposalTestSuite.cpp

@@ -3,14 +3,15 @@
 
 #include <optional>
 #include <random>
-
-#include <hops/MarkovChain/Proposal/Proposal.hpp>
-#include <hops/Polytope/MaximumVolumeEllipsoid.hpp>
-#include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
-#include <hops/Utility/MatrixType.hpp>
-#include <hops/Utility/StringUtility.hpp>
-#include <hops/Utility/VectorType.hpp>
 #include <stdexcept>
+
+#include "hops/MarkovChain/Proposal/Proposal.hpp"
+#include "hops/Polytope/MaximumVolumeEllipsoid.hpp"
+#include "hops/RandomNumberGenerator/RandomNumberGenerator.hpp"
+#include "hops/Utility/DefaultDimensionNames.hpp"
+#include "hops/Utility/MatrixType.hpp"
+#include "hops/Utility/StringUtility.hpp"
+#include "hops/Utility/VectorType.hpp"
 
 namespace hops {
     template<typename InternalMatrixType = MatrixType>
@@ -54,6 +55,10 @@ namespace hops {
         [[nodiscard]] VectorType getState() const override;
 
         [[nodiscard]] VectorType getProposal() const override;
+
+        void setDimensionNames(const std::vector<std::string> &names) override;
+
+        [[nodiscard]] std::vector<std::string> getDimensionNames() const override;
 
         [[nodiscard]] std::vector<std::string> getParameterNames() const override;
 
@@ -110,6 +115,8 @@ namespace hops {
         constexpr static double stepSize = 1;
         double boundaryCushion = 0;
 
+        std::vector<std::string> dimensionNames;
+
         std::normal_distribution<double> normal;
 
         MatrixType updateCovariance(const MatrixType &covariance, const VectorType &mean, const VectorType &newState) {
@@ -160,6 +167,8 @@ namespace hops {
         stateLogSqrtDeterminant = stateCholeskyOfCovariance.diagonal().array().log().sum();
         proposalLogSqrtDeterminant = stateLogSqrtDeterminant;
         proposalCovariance = stateCovariance;
+
+        this->dimensionNames = hops::createDefaultDimensionNames(this->state.rows());
     }
 
     template<typename InternalMatrixType>
@@ -386,6 +395,16 @@ namespace hops {
     VectorType &AdaptiveMetropolisProposal<InternalMatrixType>::propose(RandomNumberGenerator &rng,
                                                                         const Eigen::VectorXd &activeIndices) {
         throw std::runtime_error("Propose with rng and activeIndices not implemented");
+    }
+
+    template<typename InternalMatrixType>
+    void AdaptiveMetropolisProposal<InternalMatrixType>::setDimensionNames(const std::vector<std::string> &names) {
+        dimensionNames = names;
+    }
+
+    template<typename InternalMatrixType>
+    std::vector<std::string> AdaptiveMetropolisProposal<InternalMatrixType>::getDimensionNames() const {
+        return dimensionNames;
     }
 }
 

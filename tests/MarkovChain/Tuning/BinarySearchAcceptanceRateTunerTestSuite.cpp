@@ -8,9 +8,9 @@
 #include <cmath>
 #include <Eigen/Core>
 
-#include <hops/MarkovChain/MarkovChainAdapter.hpp>
-#include <hops/MarkovChain/Draw/MetropolisHastingsFilter.hpp>
-#include <hops/MarkovChain/Tuning/BinarySearchAcceptanceRateTuner.hpp>
+#include "hops/MarkovChain/MarkovChainAdapter.hpp"
+#include "hops/MarkovChain/Draw/MetropolisHastingsFilter.hpp"
+#include "hops/MarkovChain/Tuning/BinarySearchAcceptanceRateTuner.hpp"
 
 namespace {
     class ProposalMock : public hops::Proposal {
@@ -39,6 +39,12 @@ namespace {
         }
 
         void setState(const Eigen::VectorXd &) override {};
+
+        void setDimensionNames(const std::vector<std::string> &names) override { }
+
+        std::vector<std::string> getDimensionNames() const override {
+            return std::vector<std::string>();
+        }
 
         std::any getParameter(const hops::ProposalParameter &parameter) const override {
             return stepSize;

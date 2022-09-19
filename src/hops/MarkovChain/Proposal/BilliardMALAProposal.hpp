@@ -6,13 +6,14 @@
 #include <optional>
 #include <utility>
 
-#include <hops/Model/Model.hpp>
-#include <hops/MarkovChain/ParallelTempering/Coldness.hpp>
-#include <hops/Utility/MatrixType.hpp>
-#include <hops/Utility/LogSqrtDeterminant.hpp>
-#include <hops/Utility/StringUtility.hpp>
-#include <hops/Utility/VectorType.hpp>
-#include <hops/Transformation/Transformation.hpp>
+#include "hops/Model/Model.hpp"
+#include "hops/MarkovChain/ParallelTempering/Coldness.hpp"
+#include "hops/Transformation/Transformation.hpp"
+#include "hops/Utility/DefaultDimensionNames.hpp"
+#include "hops/Utility/MatrixType.hpp"
+#include "hops/Utility/LogSqrtDeterminant.hpp"
+#include "hops/Utility/StringUtility.hpp"
+#include "hops/Utility/VectorType.hpp"
 
 #include "Proposal.hpp"
 #include "Reflector.hpp"
@@ -78,6 +79,8 @@ namespace hops {
 
         [[nodiscard]] static bool hasStepSize();
 
+        void setDimensionNames(const std::vector<std::string> &names) override;
+
         [[nodiscard]] std::vector<std::string> getParameterNames() const override;
 
         [[nodiscard]] std::any getParameter(const ProposalParameter &parameter) const override;
@@ -135,10 +138,11 @@ namespace hops {
         double geometricFactor = 0;
         double covarianceFactor = 0;
 
+        std::vector<std::string> dimensionNames;
+
         std::normal_distribution<double> normalDistribution{0., 1.};
 
         long maxNumberOfReflections;
-        bool isProposalInfosTrackingActive = false;
     };
 
     template<typename ModelType, typename InternalMatrixType>
@@ -172,6 +176,13 @@ namespace hops {
         proposalMetric = stateMetric;
         proposalSolver = stateSolver;
         proposalLogSqrtDeterminant = stateLogSqrtDeterminant;
+
+        if (!ModelType::getDimensionNames().empty()) {
+            assert(ModelType::getDimensionNames().size() == this->state.rows());
+            this->dimensionNames = ModelType::getDimensionNames();
+        } else {
+            this->dimensionNames = hops::createDefaultDimensionNames(this->state.rows());
+        }
     }
 
 
@@ -419,12 +430,6 @@ namespace hops {
     }
 
     template<typename ModelType, typename InternalMatrixType>
-    std::vector<std::string>
-    BilliardMALAProposal<ModelType, InternalMatrixType>::getDimensionNames() const {
-        return ModelType::getDimensionNames();
-    }
-
-    template<typename ModelType, typename InternalMatrixType>
     double BilliardMALAProposal<ModelType, InternalMatrixType>::getProposalNegativeLogLikelihood() const {
         return proposalNegativeLogLikelihood;
     }
@@ -453,6 +458,18 @@ namespace hops {
     VectorType &BilliardMALAProposal<ModelType, InternalMatrixType>::propose(RandomNumberGenerator &rng,
                                                                              const Eigen::VectorXd &activeIndices) {
         throw std::runtime_error("Propose with rng and activeIndices not implemented");
+    }
+
+    template<typename ModelType, typename InternalMatrixType>
+    void BilliardMALAProposal<ModelType, InternalMatrixType>::setDimensionNames(const std::vector<std::string> &names) {
+        dimensionNames = names;
+    }
+
+
+    template<typename ModelType, typename InternalMatrixType>
+    std::vector<std::string>
+    BilliardMALAProposal<ModelType, InternalMatrixType>::getDimensionNames() const {
+        return dimensionNames;
     }
 }
 

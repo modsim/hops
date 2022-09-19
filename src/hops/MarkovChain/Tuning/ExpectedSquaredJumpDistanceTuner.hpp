@@ -1,19 +1,19 @@
 #ifndef NEW_HOPS_EXPECTEDSQUAREDJUMPDISTANCETUNER_HPP
 #define NEW_HOPS_EXPECTEDSQUAREDJUMPDISTANCETUNER_HPP
 
-#include <hops/FileWriter/FileWriter.hpp>
-#include <hops/FileWriter/FileWriterFactory.hpp>
-#include <hops/FileWriter/FileWriterType.hpp>
-#include <hops/MarkovChain/MarkovChain.hpp>
-#include <hops/MarkovChain/Tuning/ExpectedSquaredJumpDistanceTarget.hpp>
-#include <hops/MarkovChain/Tuning/ThompsonSamplingTuner.hpp>
-#include <hops/Parallel/OpenMPControls.hpp>
-#include <hops/Optimization/GaussianProcess.hpp>
-#include <hops/Optimization/ThompsonSampling.hpp>
-#include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
-#include <hops/Statistics/ExpectedSquaredJumpDistance.hpp>
-#include <hops/Utility/MatrixType.hpp>
-#include <hops/Utility/VectorType.hpp>
+#include "hops/FileWriter/FileWriter.hpp"
+#include "hops/FileWriter/FileWriterFactory.hpp"
+#include "hops/FileWriter/FileWriterType.hpp"
+#include "hops/MarkovChain/MarkovChain.hpp"
+#include "hops/MarkovChain/Tuning/ExpectedSquaredJumpDistanceTarget.hpp"
+#include "hops/MarkovChain/Tuning/ThompsonSamplingTuner.hpp"
+#include "hops/Parallel/OpenMPControls.hpp"
+#include "hops/Optimization/GaussianProcess.hpp"
+#include "hops/Optimization/ThompsonSampling.hpp"
+#include "hops/RandomNumberGenerator/RandomNumberGenerator.hpp"
+#include "hops/Statistics/ExpectedSquaredJumpDistance.hpp"
+#include "hops/Utility/MatrixType.hpp"
+#include "hops/Utility/VectorType.hpp"
 
 #include <Eigen/Core>
 

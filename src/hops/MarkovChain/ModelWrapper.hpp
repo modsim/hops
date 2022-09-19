@@ -1,8 +1,9 @@
 #ifndef HOPS_MODELWRAPPER_HPP
 #define HOPS_MODELWRAPPER_HPP
 
-#include <hops/Model/Model.hpp>
 #include <utility>
+
+#include "hops/Model/Model.hpp"
 
 namespace hops {
 

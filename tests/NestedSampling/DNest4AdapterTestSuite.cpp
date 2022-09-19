@@ -4,11 +4,11 @@
 #include <boost/test/included/unit_test.hpp>
 #include <Eigen/Core>
 
-#include <hops/MarkovChain/ModelMixin.hpp>
-#include <hops/MarkovChain/Proposal/ProposalParameter.hpp>
-#include <hops/MarkovChain/Proposal/CoordinateHitAndRunProposal.hpp>
-#include <hops/Model/Gaussian.hpp>
-#include <hops/NestedSampling/DNest4Adapter.hpp>
+#include "hops/MarkovChain/ModelMixin.hpp"
+#include "hops/MarkovChain/Proposal/ProposalParameter.hpp"
+#include "hops/MarkovChain/Proposal/CoordinateHitAndRunProposal.hpp"
+#include "hops/Model/Gaussian.hpp"
+#include "hops/NestedSampling/DNest4Adapter.hpp"
 
 BOOST_AUTO_TEST_SUITE(DNest4AdapterTestSuite)
 

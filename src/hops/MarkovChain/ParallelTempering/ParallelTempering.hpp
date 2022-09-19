@@ -5,10 +5,10 @@
 
 #include <random>
 
-#include <hops/MarkovChain/MarkovChain.hpp>
-#include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
-#include <hops/Parallel/MpiInitializerFinalizer.hpp>
-#include <hops/Utility/VectorType.hpp>
+#include "hops/MarkovChain/MarkovChain.hpp"
+#include "hops/RandomNumberGenerator/RandomNumberGenerator.hpp"
+#include "hops/Parallel/MpiInitializerFinalizer.hpp"
+#include "hops/Utility/VectorType.hpp"
 
 namespace hops {
 

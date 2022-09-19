@@ -3,11 +3,11 @@
 
 #include <random>
 
-#include <hops/FileWriter/FileWriter.hpp>
-#include <hops/MarkovChain/Recorder/IsAddMessageAvailabe.hpp>
-#include <hops/MarkovChain/Recorder/IsClearRecordsAvailable.hpp>
-#include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
-#include <hops/Utility/VectorType.hpp>
+#include "hops/FileWriter/FileWriter.hpp"
+#include "hops/MarkovChain/Recorder/IsAddMessageAvailabe.hpp"
+#include "hops/MarkovChain/Recorder/IsClearRecordsAvailable.hpp"
+#include "hops/RandomNumberGenerator/RandomNumberGenerator.hpp"
+#include "hops/Utility/VectorType.hpp"
 
 
 namespace hops {

@@ -4,8 +4,9 @@
 #include <Eigen/Dense>
 #include <Eigen/LU>
 #include <Eigen/SparseQR>
-#include <hops/Polytope/MaximumVolumeEllipsoid.hpp>
 #include <iostream>
+
+#include "hops/Polytope/MaximumVolumeEllipsoid.hpp"
 
 template<typename Derived>
 std::ostream &operator<<(std::ostream &out, const hops::MaximumVolumeEllipsoid<Derived> &maximumVolumeEllipsoid) {

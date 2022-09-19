@@ -1,7 +1,7 @@
 #ifndef HOPS_STATETRANSFORMATION_HPP
 #define HOPS_STATETRANSFORMATION_HPP
 
-#include <hops/Utility/VectorType.hpp>
+#include "hops/Utility/VectorType.hpp"
 
 namespace hops {
     /**

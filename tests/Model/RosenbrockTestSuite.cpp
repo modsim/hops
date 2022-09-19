@@ -4,7 +4,7 @@
 #include <boost/test/included/unit_test.hpp>
 #include <Eigen/Core>
 
-#include <hops/Model/Rosenbrock.hpp>
+#include "hops/Model/Rosenbrock.hpp"
 
 BOOST_AUTO_TEST_SUITE(RosenbrockTestSuite)
 

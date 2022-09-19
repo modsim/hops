@@ -3,10 +3,48 @@
 
 #include <boost/test/included/unit_test.hpp>
 #include <Eigen/Core>
-#include <hops/MarkovChain/Proposal/HitAndRunProposal.hpp>
-#include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
+
+#include "hops/MarkovChain/Proposal/HitAndRunProposal.hpp"
+#include "hops/RandomNumberGenerator/RandomNumberGenerator.hpp"
 
 BOOST_AUTO_TEST_SUITE(HitAndRunProposal)
+
+    BOOST_AUTO_TEST_CASE(DimensionNames) {
+        const long rows = 6;
+        const long cols = 3;
+        Eigen::MatrixXd A(rows, cols);
+        A << 1, 0, 0,
+                0, 1, 0,
+                0, 0, 1,
+                -1, 0, 0,
+                0, -1, 0,
+                0, 0, -1;
+        Eigen::VectorXd b(rows);
+        b << 1, 1, 1, 1, 1, 1;
+        Eigen::VectorXd interiorPoint(cols);
+        for (size_t i = 0; i < cols; ++i) {
+            interiorPoint(i) = 0;
+        }
+
+        hops::HitAndRunProposal hitAndRunProposal(A, b, interiorPoint);
+
+        std::vector<std::string> expectedNames = {"x_0", "x_1", "x_2"};
+        auto actualNames = hitAndRunProposal.getDimensionNames();
+
+        BOOST_CHECK_EQUAL(actualNames.size(), expectedNames.size());
+        for (size_t i = 0; i < expectedNames.size(); ++i) {
+            BOOST_CHECK_EQUAL(actualNames[i], expectedNames[i]);
+        }
+
+        expectedNames = std::vector<std::string>{"y_1", "y_2", "y_3"};
+        hitAndRunProposal.setDimensionNames(expectedNames);
+        actualNames = hitAndRunProposal.getDimensionNames();
+
+        BOOST_CHECK_EQUAL(actualNames.size(), expectedNames.size());
+        for (size_t i = 0; i < expectedNames.size(); ++i) {
+            BOOST_CHECK_EQUAL(actualNames[i], expectedNames[i]);
+        }
+    }
 
     BOOST_AUTO_TEST_CASE(Cube) {
         const long rows = 6;

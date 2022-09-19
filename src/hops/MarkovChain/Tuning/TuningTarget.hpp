@@ -6,8 +6,8 @@
 #include <string>
 #include <utility>
 
-#include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
-#include <hops/Utility/VectorType.hpp>
+#include "hops/RandomNumberGenerator/RandomNumberGenerator.hpp"
+#include "hops/Utility/VectorType.hpp"
 
 namespace hops {
     struct TuningTarget {

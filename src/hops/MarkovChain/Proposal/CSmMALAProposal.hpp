@@ -6,12 +6,13 @@
 #include <random>
 #include <utility>
 
-#include <hops/MarkovChain/Recorder/IsAddMessageAvailabe.hpp>
-#include <hops/Model/Model.hpp>
-#include <hops/Utility/MatrixType.hpp>
-#include <hops/Utility/LogSqrtDeterminant.hpp>
-#include <hops/Utility/StringUtility.hpp>
-#include <hops/Utility/VectorType.hpp>
+#include "hops/MarkovChain/Recorder/IsAddMessageAvailabe.hpp"
+#include "hops/Model/Model.hpp"
+#include "hops/Utility/DefaultDimensionNames.hpp"
+#include "hops/Utility/MatrixType.hpp"
+#include "hops/Utility/LogSqrtDeterminant.hpp"
+#include "hops/Utility/StringUtility.hpp"
+#include "hops/Utility/VectorType.hpp"
 
 #include "DikinEllipsoidCalculator.hpp"
 #include "Proposal.hpp"
@@ -52,6 +53,8 @@ namespace hops {
         [[nodiscard]] VectorType getState() const override;
 
         [[nodiscard]] VectorType getProposal() const override;
+
+        void setDimensionNames(const std::vector<std::string> &names) override;
 
         [[nodiscard]] std::vector<std::string> getDimensionNames() const override;
 
@@ -116,7 +119,7 @@ namespace hops {
         std::normal_distribution<double> normalDistribution{0., 1.};
         DikinEllipsoidCalculator<MatrixType, VectorType> dikinEllipsoidCalculator;
 
-        bool isProposalInfosTrackingActive = false;
+        std::vector<std::string> dimensionNames;
     };
 
     template<typename ModelType, typename InternalMatrixType>
@@ -144,6 +147,13 @@ namespace hops {
         CSmMALAProposal::setState(currentState);
         CSmMALAProposal::setStepSize(newStepSize);
         proposal = state;
+
+        if (!ModelType::getDimensionNames().empty()) {
+            assert(ModelType::getDimensionNames().size() == this->state.rows());
+            this->dimensionNames = ModelType::getDimensionNames();
+        } else {
+            this->dimensionNames = hops::createDefaultDimensionNames(this->state.rows());
+        }
     }
 
     template<typename ModelType, typename InternalMatrixType>
@@ -356,11 +366,6 @@ namespace hops {
     }
 
     template<typename ModelType, typename InternalMatrixType>
-    std::vector<std::string> CSmMALAProposal<ModelType, InternalMatrixType>::getDimensionNames() const {
-        return ModelType::getDimensionNames();
-    }
-
-    template<typename ModelType, typename InternalMatrixType>
     double CSmMALAProposal<ModelType, InternalMatrixType>::getProposalNegativeLogLikelihood() const {
         return proposalNegativeLogLikelihood;
     }
@@ -390,6 +395,17 @@ namespace hops {
                                                                         const Eigen::VectorXd &activeIndices) {
         throw std::runtime_error("Propose with rng and activeIndices not implemented");
     }
+
+    template<typename ModelType, typename InternalMatrixType>
+    void CSmMALAProposal<ModelType, InternalMatrixType>::setDimensionNames(const std::vector<std::string> &names) {
+        dimensionNames = names;
+    }
+
+    template<typename ModelType, typename InternalMatrixType>
+    std::vector<std::string> CSmMALAProposal<ModelType, InternalMatrixType>::getDimensionNames() const {
+        return dimensionNames;
+    }
+
 }
 
 #endif //HOPS_CSMMALA_HPP

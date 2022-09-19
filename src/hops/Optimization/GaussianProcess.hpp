@@ -1,17 +1,17 @@
 #ifndef HOPS_GAUSSIANPROCESS_HPP
 #define HOPS_GAUSSIANPROCESS_HPP
 
-#include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
-
-#include <Eigen/Core>
+#include <cmath>
 #include <Eigen/Cholesky>
+#include <Eigen/Core>
 #include <Eigen/SVD>
-
+#include <iostream>
 #include <random>
 #include <vector>
-#include <cmath>
 
-#include <iostream>
+
+#include "hops/RandomNumberGenerator/RandomNumberGenerator.hpp"
+
 
 namespace hops {
     namespace internal{

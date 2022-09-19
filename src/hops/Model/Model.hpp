@@ -6,8 +6,8 @@
 #include <string>
 #include <vector>
 
-#include <hops/Utility/MatrixType.hpp>
-#include <hops/Utility/VectorType.hpp>
+#include "hops/Utility/MatrixType.hpp"
+#include "hops/Utility/VectorType.hpp"
 
 namespace hops {
     class Model {

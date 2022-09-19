@@ -9,10 +9,10 @@
 #include <vector>
 #include <Eigen/Core>
 
-#include <hops/MarkovChain/Draw/MetropolisHastingsFilter.hpp>
-#include <hops/MarkovChain/MarkovChain.hpp>
-#include <hops/MarkovChain/MarkovChainAdapter.hpp>
-#include <hops/MarkovChain/Tuning/AcceptanceRateTuner.hpp>
+#include "hops/MarkovChain/Draw/MetropolisHastingsFilter.hpp"
+#include "hops/MarkovChain/MarkovChain.hpp"
+#include "hops/MarkovChain/MarkovChainAdapter.hpp"
+#include "hops/MarkovChain/Tuning/AcceptanceRateTuner.hpp"
 
 namespace {
     class ProposalMock : public hops::Proposal {
@@ -35,6 +35,12 @@ namespace {
         [[nodiscard]] hops::VectorType getState() const override { return state; };
 
         [[nodiscard]] std::string getProposalName() const override { return "ProposalMock"; };
+
+        void setDimensionNames(const std::vector<std::string> &names) override { }
+
+        std::vector<std::string> getDimensionNames() const override {
+            return std::vector<std::string>();
+        }
 
         void setParameter(const hops::ProposalParameter &parameter, const std::any &value) override {
             stepSize = std::any_cast<double>(value);

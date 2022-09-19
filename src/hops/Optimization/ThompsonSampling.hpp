@@ -1,12 +1,12 @@
 #ifndef HOPS_THOMPSONSAMPLING_HPP
 #define HOPS_THOMPSONSAMPLING_HPP
 
-#include <hops/Optimization/GaussianProcess.hpp>
-#include <hops/Optimization/Kernel/UniformBallKernel.hpp>
-#include <hops/Optimization/Kernel/SquaredExponentialKernel.hpp>
-#include <hops/Optimization/Kernel/ZeroKernel.hpp>
-#include <hops/Utility/MatrixType.hpp>
-#include <hops/Utility/VectorType.hpp>
+#include "hops/Optimization/GaussianProcess.hpp"
+#include "hops/Optimization/Kernel/UniformBallKernel.hpp"
+#include "hops/Optimization/Kernel/SquaredExponentialKernel.hpp"
+#include "hops/Optimization/Kernel/ZeroKernel.hpp"
+#include "hops/Utility/MatrixType.hpp"
+#include "hops/Utility/VectorType.hpp"
 
 #include <cmath>
 #include <limits>

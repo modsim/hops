@@ -2,7 +2,8 @@
 #define BOOST_TEST_DYN_LINK
 
 #include <boost/test/included/unit_test.hpp>
-#include <hops/MarkovChain/Proposal/IsSetStepSizeAvailable.hpp>
+
+#include "hops/MarkovChain/Proposal/IsSetStepSizeAvailable.hpp"
 
 BOOST_AUTO_TEST_SUITE(IsSetStepSizeAvailable)
 

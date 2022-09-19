@@ -15,16 +15,16 @@
 
 #include <vector>
 
-#include <hops/FileWriter/FileWriter.hpp>
-#include <hops/FileWriter/FileWriterFactory.hpp>
-#include <hops/FileWriter/FileWriterType.hpp>
-#include <hops/MarkovChain/MarkovChain.hpp>
-#include <hops/MarkovChain/Tuning/AcceptanceRateTarget.hpp>
-#include <hops/MarkovChain/Tuning/ThompsonSamplingTuner.hpp>
-#include <hops/Parallel/OpenMPControls.hpp>
-#include <hops/Optimization/GaussianProcess.hpp>
-#include <hops/Optimization/ThompsonSampling.hpp>
-#include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
+#include "hops/FileWriter/FileWriter.hpp"
+#include "hops/FileWriter/FileWriterFactory.hpp"
+#include "hops/FileWriter/FileWriterType.hpp"
+#include "hops/MarkovChain/MarkovChain.hpp"
+#include "hops/MarkovChain/Tuning/AcceptanceRateTarget.hpp"
+#include "hops/MarkovChain/Tuning/ThompsonSamplingTuner.hpp"
+#include "hops/Parallel/OpenMPControls.hpp"
+#include "hops/Optimization/GaussianProcess.hpp"
+#include "hops/Optimization/ThompsonSampling.hpp"
+#include "hops/RandomNumberGenerator/RandomNumberGenerator.hpp"
 
 
 namespace hops {

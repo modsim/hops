@@ -1,20 +1,20 @@
 #ifndef HOPS_EXPECTEDSQUAREDJUMPDISTANCE_HPP
 #define HOPS_EXPECTEDSQUAREDJUMPDISTANCE_HPP
 
-#include <hops/Statistics/Covariance.hpp>
-#include <hops/Statistics/IsConstantChain.hpp>
-
+#include <cassert>
+#include <cmath>
 #include <Eigen/Core>
 #include <Eigen/Cholesky>
-
-#include <tuple>
 #include <limits>
+#include <memory>
 #include <string>
 #include <stdexcept>
+#include <tuple>
 #include <vector>
-#include <cmath>
-#include <cassert>
-#include <memory>
+
+#include "hops/Statistics/Covariance.hpp"
+#include "hops/Statistics/IsConstantChain.hpp"
+
 
 namespace hops {
     // intermediate results needed to compute expected squared jump distance incrementally are:

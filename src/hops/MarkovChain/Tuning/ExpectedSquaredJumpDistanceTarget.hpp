@@ -1,13 +1,13 @@
 #ifndef HOPS_EXPECTEDSQUAREDJUMPDISTANCETARGET_HPP
 #define HOPS_EXPECTEDSQUAREDJUMPDISTANCETARGET_HPP
 
-#include <hops/MarkovChain/MarkovChain.hpp>
-#include <hops/MarkovChain/Tuning/TuningTarget.hpp>
-#include <hops/Parallel/OpenMPControls.hpp>
-#include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
-#include <hops/Statistics/ExpectedSquaredJumpDistance.hpp>
-#include <hops/Utility/MatrixType.hpp>
-#include <hops/Utility/VectorType.hpp>
+#include "hops/MarkovChain/MarkovChain.hpp"
+#include "hops/MarkovChain/Tuning/TuningTarget.hpp"
+#include "hops/Parallel/OpenMPControls.hpp"
+#include "hops/RandomNumberGenerator/RandomNumberGenerator.hpp"
+#include "hops/Statistics/ExpectedSquaredJumpDistance.hpp"
+#include "hops/Utility/MatrixType.hpp"
+#include "hops/Utility/VectorType.hpp"
 
 #include <chrono>
 #include <cmath>

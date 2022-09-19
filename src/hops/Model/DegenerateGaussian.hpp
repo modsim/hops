@@ -10,9 +10,10 @@
 #include <math.h> // Using deprecated math for windows
 #include <utility>
 
+#include "hops/Utility/MatrixType.hpp"
+#include "hops/Utility/VectorType.hpp"
+
 #include "Gaussian.hpp"
-#include <hops/Utility/MatrixType.hpp>
-#include <hops/Utility/VectorType.hpp>
 
 
 namespace hops {

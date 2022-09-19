@@ -4,7 +4,8 @@
 #include <Eigen/Core>
 #include <Eigen/Sparse>
 #include <vector>
-#include <hops/hops.hpp>
+
+#include "hops/hops.hpp"
 
 BOOST_AUTO_TEST_SUITE(EffectiveSampleSizeTestSuite)
     BOOST_AUTO_TEST_CASE(ComputeOneDimSingleChain) {

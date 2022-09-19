@@ -3,7 +3,8 @@
 
 #include <boost/test/included/unit_test.hpp>
 #include <Eigen/Core>
-#include <hops/hops.hpp>
+
+#include "hops/hops.hpp"
 
 namespace {
     class ModelMock : public hops::Model {

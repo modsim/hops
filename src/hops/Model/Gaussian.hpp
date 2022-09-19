@@ -10,7 +10,8 @@
 #include <Eigen/Core>
 #include <Eigen/LU>
 #include <utility>
-#include <hops/Model/Model.hpp>
+
+#include "hops/Model/Model.hpp"
 
 namespace hops {
     class Gaussian : public Model {

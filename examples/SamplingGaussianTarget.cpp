@@ -3,7 +3,7 @@
 #include <iostream>
 #include <filesystem>
 
-#include <hops/hops.hpp>
+#include "hops/hops.hpp"
 
 using RealType = double;
 

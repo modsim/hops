@@ -17,8 +17,6 @@ if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
             Proposal.hpp
             ProposalFactory.hpp
             ProposalParameter.hpp
-            ProposalStatistics.hpp
-            ProposalStatistics.cpp
             ReversibleJumpProposal.hpp
             Reflector.hpp
             TruncatedGaussianProposal.hpp

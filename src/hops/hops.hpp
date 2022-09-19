@@ -38,7 +38,6 @@
 #include "MarkovChain/Proposal/ProposalFactory.hpp"
 #include "MarkovChain/Proposal/Proposal.hpp"
 #include "MarkovChain/Proposal/ProposalParameter.hpp"
-#include "MarkovChain/Proposal/ProposalStatistics.hpp"
 #include "MarkovChain/Proposal/Reflector.hpp"
 #include "MarkovChain/Proposal/ReversibleJumpProposal.hpp"
 #include "MarkovChain/Proposal/TruncatedGaussianProposal.hpp"
@@ -107,6 +106,7 @@
 #include "Transformation/LinearTransformation.hpp"
 #include "Transformation/Transformation.hpp"
 
+#include "Utility/DefaultDimensionNames.hpp"
 #include "Utility/HopsWithinHopsy.hpp"
 #include "Utility/KahanSum.hpp"
 #include "Utility/LogSqrtDeterminant.hpp"
@@ -142,7 +142,10 @@
 
 #include "Polytope/MaximumVolumeEllipsoid.cpp"
 
+#include "Utility/DefaultDimensionNames.cpp"
+#include "Utility/KahanSum.cpp"
 #include "Utility/Sampling.cpp"
+#include "Utility/StringUtility.hpp"
 
 
 #endif //HOPS_HEADER_ONLY

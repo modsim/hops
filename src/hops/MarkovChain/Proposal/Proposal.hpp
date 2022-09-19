@@ -3,11 +3,11 @@
 
 #include <algorithm>
 #include <any>
-
-#include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
-#include <hops/Utility/MatrixType.hpp>
-#include <hops/Utility/VectorType.hpp>
 #include <stdexcept>
+
+#include "hops/RandomNumberGenerator/RandomNumberGenerator.hpp"
+#include "hops/Utility/MatrixType.hpp"
+#include "hops/Utility/VectorType.hpp"
 
 #include "ProposalParameter.hpp"
 
@@ -67,16 +67,14 @@ namespace hops {
         [[nodiscard]] virtual VectorType getProposal() const = 0;
 
         /**
+         * @brief set names for each dimension of the state space. Should typically be set from the Model to be sampled.
+         */
+        virtual void setDimensionNames(const std::vector<std::string>& names) = 0;
+
+        /**
          * @return names for each dimension of the state space
          */
-        [[nodiscard]] virtual std::vector<std::string> getDimensionNames() const {
-            // Default implementation sets names as x_i for dimension i
-            std::vector<std::string> names;
-            for (long i = 0; i < this->getState().rows(); ++i) {
-                names.emplace_back("x_" + std::to_string(i));
-            }
-            return names;
-        }
+        [[nodiscard]] virtual std::vector<std::string> getDimensionNames() const = 0;
 
         /**
          * @brief returns names of parameters of the underlying proposal implementation.

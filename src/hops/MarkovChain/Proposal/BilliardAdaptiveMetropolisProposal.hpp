@@ -38,6 +38,10 @@ namespace hops {
 
         VectorType &propose(RandomNumberGenerator &rng, const Eigen::VectorXd &activeIndices) override;
 
+        void setDimensionNames(const std::vector<std::string> &names) override;
+
+        [[nodiscard]] std::vector<std::string> getDimensionNames() const override;
+
         [[nodiscard]] std::vector<std::string> getParameterNames() const override;
 
         [[nodiscard]] std::any getParameter(const ProposalParameter &parameter) const override;
@@ -166,6 +170,17 @@ namespace hops {
     VectorType &BilliardAdaptiveMetropolisProposal<InternalMatrixType>::propose(RandomNumberGenerator &rng,
                                                                                 const Eigen::VectorXd &activeIndices) {
         throw std::runtime_error("Propose with rng and activeIndices not implemented");
+    }
+
+    template<typename InternalMatrixType>
+    void
+    BilliardAdaptiveMetropolisProposal<InternalMatrixType>::setDimensionNames(const std::vector<std::string> &names) {
+        AdaptiveMetropolisProposal<InternalMatrixType>::setDimensionNames(names);
+    }
+
+    template<typename InternalMatrixType>
+    std::vector<std::string> BilliardAdaptiveMetropolisProposal<InternalMatrixType>::getDimensionNames() const {
+        return AdaptiveMetropolisProposal<InternalMatrixType>::getDimensionNames();
     }
 }
 

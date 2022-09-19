@@ -4,10 +4,11 @@
 #include <optional>
 #include <random>
 
-#include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
-#include <hops/Utility/MatrixType.hpp>
-#include <hops/Utility/StringUtility.hpp>
-#include <hops/Utility/VectorType.hpp>
+#include "hops/RandomNumberGenerator/RandomNumberGenerator.hpp"
+#include "hops/Utility/DefaultDimensionNames.hpp"
+#include "hops/Utility/MatrixType.hpp"
+#include "hops/Utility/StringUtility.hpp"
+#include "hops/Utility/VectorType.hpp"
 
 #include "Proposal.hpp"
 
@@ -38,6 +39,10 @@ namespace hops {
         [[nodiscard]] VectorType getState() const override;
 
         [[nodiscard]] VectorType getProposal() const override;
+
+        void setDimensionNames(const std::vector<std::string> &names) override;
+
+        [[nodiscard]] std::vector<std::string> getDimensionNames() const override;
 
         [[nodiscard]] std::vector<std::string> getParameterNames() const override;
 
@@ -71,6 +76,8 @@ namespace hops {
 
         double stepSize;
 
+        std::vector<std::string> dimensionNames;
+
         std::normal_distribution<typename InternalMatrixType::Scalar> normal;
     };
 
@@ -88,6 +95,7 @@ namespace hops {
             throw std::invalid_argument("Starting point outside polytope always gives constant Markov chain.");
         }
         normal = std::normal_distribution<typename InternalMatrixType::Scalar>(0, stepSize);
+        this->dimensionNames = createDefaultDimensionNames(this->state.rows());
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
@@ -213,6 +221,17 @@ namespace hops {
     VectorType &GaussianProposal<InternalMatrixType, InternalVectorType>::propose(RandomNumberGenerator &rng,
                                                                                   const Eigen::VectorXd &activeIndices) {
         throw std::runtime_error("Propose with rng and activeIndices not implemented");
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    void
+    GaussianProposal<InternalMatrixType, InternalVectorType>::setDimensionNames(const std::vector<std::string> &names) {
+        dimensionNames = names;
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    std::vector<std::string> GaussianProposal<InternalMatrixType, InternalVectorType>::getDimensionNames() const {
+        return dimensionNames;
     }
 }
 

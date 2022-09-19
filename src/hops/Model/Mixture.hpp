@@ -5,7 +5,7 @@
 #include <utility>
 #include <vector>
 
-#include <hops/Model/Model.hpp>
+#include "hops/Model/Model.hpp"
 
 namespace hops {
     class Mixture : public Model {

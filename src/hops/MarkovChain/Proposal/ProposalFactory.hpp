@@ -3,8 +3,8 @@
 
 #include <Eigen/SparseCore>
 
-#include <hops/Model/Model.hpp>
-#include <hops/Utility/VectorType.hpp>
+#include "hops/Model/Model.hpp"
+#include "hops/Utility/VectorType.hpp"
 
 namespace hops {
     /**

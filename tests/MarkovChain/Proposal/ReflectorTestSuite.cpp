@@ -3,8 +3,8 @@
 
 #include <boost/test/included/unit_test.hpp>
 
-#include <hops/MarkovChain/Proposal/Reflector.hpp>
-#include <hops/Utility/VectorType.hpp>
+#include "hops/MarkovChain/Proposal/Reflector.hpp"
+#include "hops/Utility/VectorType.hpp"
 
 BOOST_AUTO_TEST_SUITE(Reflector)
 

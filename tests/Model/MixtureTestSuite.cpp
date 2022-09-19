@@ -4,9 +4,9 @@
 #include <boost/test/included/unit_test.hpp>
 #include <Eigen/Core>
 
-#include <hops/Model/Model.hpp>
-#include <hops/Model/Mixture.hpp>
-#include <hops/Model/Gaussian.hpp>
+#include "hops/Model/Model.hpp"
+#include "hops/Model/Mixture.hpp"
+#include "hops/Model/Gaussian.hpp"
 
 namespace {
     class ModelMock : public hops::Model {

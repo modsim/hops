@@ -3,8 +3,9 @@
 
 #include <boost/test/included/unit_test.hpp>
 #include <Eigen/Core>
-#include <hops/hops.hpp>
 #include <Eigen/Dense>
+
+#include "hops/hops.hpp"
 
 namespace {
     class ModelMock {

@@ -4,11 +4,12 @@
 #include <optional>
 #include <random>
 
-#include <hops/Model/Gaussian.hpp>
-#include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
-#include <hops/Utility/MatrixType.hpp>
-#include <hops/Utility/StringUtility.hpp>
-#include <hops/Utility/VectorType.hpp>
+#include "hops/Model/Gaussian.hpp"
+#include "hops/RandomNumberGenerator/RandomNumberGenerator.hpp"
+#include "hops/Utility/DefaultDimensionNames.hpp"
+#include "hops/Utility/MatrixType.hpp"
+#include "hops/Utility/StringUtility.hpp"
+#include "hops/Utility/VectorType.hpp"
 
 #include "ChordStepDistributions.hpp"
 #include "Proposal.hpp"
@@ -43,6 +44,10 @@ namespace hops {
 
         [[nodiscard]] VectorType getProposal() const override;
 
+        void setDimensionNames(const std::vector<std::string> &names) override;
+
+        [[nodiscard]] std::vector<std::string> getDimensionNames() const override;
+
         [[nodiscard]] std::vector<std::string> getParameterNames() const override;
 
         [[nodiscard]] std::any getParameter(const ProposalParameter &parameter) const override;
@@ -66,10 +71,7 @@ namespace hops {
         [[nodiscard]] const VectorType &getB() const override;
 
         [[nodiscard]] std::unique_ptr<Model> getModel() const;
-
-        std::vector<std::string> getDimensionNames() const override;
-
-        bool hasNegativeLogLikelihood() const override;
+        [[nodiscard]] bool hasNegativeLogLikelihood() const override;
 
     private:
         InternalMatrixType A;
@@ -84,8 +86,7 @@ namespace hops {
         typename InternalMatrixType::Scalar forwardDistance = 0;
         typename InternalMatrixType::Scalar backwardDistance = 0;
 
-        bool isProposalInfosTrackingActive = false;
-
+        std::vector<std::string> dimensionNames;
 
         MatrixType cholesky;
         VectorType mean;
@@ -113,6 +114,8 @@ namespace hops {
         mean = Gaussian::getMean();
         whitenedA = A * cholesky.template triangularView<Eigen::Lower>();
         whitenedB = b - A * mean;
+
+        this->dimensionNames = Gaussian::getDimensionNames();
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
@@ -260,11 +263,6 @@ namespace hops {
         return Gaussian::copyModel();
     }
 
-    template<typename InternalMatrixType, typename InternalVectorType>
-    std::vector<std::string>
-    TruncatedGaussianProposal<InternalMatrixType, InternalVectorType>::getDimensionNames() const {
-        return Gaussian::getDimensionNames();
-    }
 
     template<typename InternalMatrixType, typename InternalVectorType>
     bool TruncatedGaussianProposal<InternalMatrixType, InternalVectorType>::hasNegativeLogLikelihood() const {
@@ -275,6 +273,18 @@ namespace hops {
     VectorType &TruncatedGaussianProposal<InternalMatrixType, InternalVectorType>::propose(RandomNumberGenerator &rng,
                                                                                            const Eigen::VectorXd &activeIndices) {
         throw std::runtime_error("Propose with rng and activeIndices not implemented");
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    std::vector<std::string>
+    TruncatedGaussianProposal<InternalMatrixType, InternalVectorType>::getDimensionNames() const {
+        return dimensionNames;
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    void TruncatedGaussianProposal<InternalMatrixType, InternalVectorType>::setDimensionNames(
+            const std::vector<std::string> &names) {
+        dimensionNames = names;
     }
 }
 

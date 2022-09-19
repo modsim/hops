@@ -2,9 +2,7 @@
 #include <iostream>
 #include <iomanip>
 
-#include <hops/hops.hpp>
-#include <hops/Parallel/MpiInitializerFinalizer.hpp>
-#include <hops/MarkovChain/Proposal/TruncatedGaussianProposal.hpp>
+#include "hops/hops.hpp"
 
 
 std::tuple<Eigen::MatrixXd, Eigen::VectorXd> createSimplex(size_t dims) {

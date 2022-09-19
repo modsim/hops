@@ -3,7 +3,8 @@
 
 #include <cmath>
 #include <Eigen/Core>
-#include <hops/LinearProgram/LinearProgramFactory.hpp>
+
+#include "hops/LinearProgram/LinearProgramFactory.hpp"
 
 namespace hops {
     template<typename RealType>

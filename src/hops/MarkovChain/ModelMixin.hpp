@@ -3,10 +3,10 @@
 
 #include <cmath>
 
-#include <hops/MarkovChain/Proposal/Proposal.hpp>
-#include <hops/MarkovChain/Draw/IsCalculateLogAcceptanceProbabilityAvailable.hpp>
-#include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
-#include <hops/Utility/VectorType.hpp>
+#include "hops/MarkovChain/Proposal/Proposal.hpp"
+#include "hops/MarkovChain/Draw/IsCalculateLogAcceptanceProbabilityAvailable.hpp"
+#include "hops/RandomNumberGenerator/RandomNumberGenerator.hpp"
+#include "hops/Utility/VectorType.hpp"
 
 namespace hops {
     /**
@@ -26,6 +26,11 @@ namespace hops {
             }
             proposalNegativeLogLikelihood = 0;
             stateNegativeLogLikelihood = ModelType::computeNegativeLogLikelihood(this->proposal.getState());
+            std::vector<std::string> modelDimensionNames = ModelType::getDimensionNames();
+            if (!modelDimensionNames.empty()) {
+                // If the model does provide dimension names, update the proposal dimension names
+                this->proposal.setDimensionNames(modelDimensionNames);
+            }
         }
 
         VectorType &propose(RandomNumberGenerator &rng) override;
@@ -65,6 +70,8 @@ namespace hops {
         [[nodiscard]] const MatrixType &getA() const override;
 
         [[nodiscard]] const VectorType &getB() const override;
+
+        void setDimensionNames(const std::vector<std::string> &names) override;
 
         [[nodiscard]] std::vector<std::string> getDimensionNames() const override;
 
@@ -191,17 +198,17 @@ namespace hops {
 
     template<typename ProposalType, typename ModelType>
     std::vector<std::string> ModelMixin<ProposalType, ModelType>::getDimensionNames() const {
-        std::vector<std::string> modelDimensionNames = ModelType::getDimensionNames();
-        if (modelDimensionNames.empty()) {
-            // If the model does not provide parameter names, return whatever default the proposal returns
-            return proposal.getDimensionNames();
-        }
-        return modelDimensionNames;
+        return proposal.getDimensionNames();
     }
 
     template<typename ProposalType, typename ModelType>
     bool ModelMixin<ProposalType, ModelType>::isSymmetric() const {
         return proposal.isSymmetric();
+    }
+
+    template<typename ProposalType, typename ModelType>
+    void ModelMixin<ProposalType, ModelType>::setDimensionNames(const std::vector<std::string> &names) {
+        proposal.setDimensionNames(names);
     }
 }
 

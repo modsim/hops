@@ -3,31 +3,31 @@
 
 #include <type_traits>
 
-#include <hops/MarkovChain/MarkovChain.hpp>
-#include <hops/MarkovChain/MarkovChainType.hpp>
-#include <hops/MarkovChain/MarkovChainAdapter.hpp>
-#include <hops/MarkovChain/Draw/NoOpDrawAdapter.hpp>
-#include <hops/MarkovChain/Draw/MetropolisHastingsFilter.hpp>
-#include <hops/MarkovChain/ParallelTempering/Coldness.hpp>
-#include <hops/MarkovChain/ParallelTempering/ParallelTempering.hpp>
-#include <hops/MarkovChain/Proposal/AdaptiveMetropolisProposal.hpp>
-#include <hops/MarkovChain/Proposal/BallWalkProposal.hpp>
-#include <hops/MarkovChain/Proposal/BilliardAdaptiveMetropolisProposal.hpp>
-#include <hops/MarkovChain/Proposal/BilliardMALAProposal.hpp>
-#include <hops/MarkovChain/Proposal/CoordinateHitAndRunProposal.hpp>
-#include <hops/MarkovChain/Proposal/CSmMALAProposal.hpp>
-#include <hops/MarkovChain/Proposal/DikinProposal.hpp>
-#include <hops/MarkovChain/Proposal/GaussianProposal.hpp>
-#include <hops/MarkovChain/Proposal/HitAndRunProposal.hpp>
-#include <hops/MarkovChain/Recorder/AcceptanceRateRecorder.hpp>
-#include <hops/MarkovChain/Recorder/NegativeLogLikelihoodRecorder.hpp>
-#include <hops/MarkovChain/Recorder/StateRecorder.hpp>
-#include <hops/MarkovChain/Recorder/TimestampRecorder.hpp>
-#include <hops/MarkovChain/StateTransformation.hpp>
-#include <hops/MarkovChain/ModelMixin.hpp>
-#include <hops/MarkovChain/ModelWrapper.hpp>
-#include <hops/Transformation/LinearTransformation.hpp>
-#include <hops/MarkovChain/Recorder/NegativeLogLikelihoodRecorder.hpp>
+#include "hops/MarkovChain/MarkovChain.hpp"
+#include "hops/MarkovChain/MarkovChainType.hpp"
+#include "hops/MarkovChain/MarkovChainAdapter.hpp"
+#include "hops/MarkovChain/Draw/NoOpDrawAdapter.hpp"
+#include "hops/MarkovChain/Draw/MetropolisHastingsFilter.hpp"
+#include "hops/MarkovChain/ParallelTempering/Coldness.hpp"
+#include "hops/MarkovChain/ParallelTempering/ParallelTempering.hpp"
+#include "hops/MarkovChain/Proposal/AdaptiveMetropolisProposal.hpp"
+#include "hops/MarkovChain/Proposal/BallWalkProposal.hpp"
+#include "hops/MarkovChain/Proposal/BilliardAdaptiveMetropolisProposal.hpp"
+#include "hops/MarkovChain/Proposal/BilliardMALAProposal.hpp"
+#include "hops/MarkovChain/Proposal/CoordinateHitAndRunProposal.hpp"
+#include "hops/MarkovChain/Proposal/CSmMALAProposal.hpp"
+#include "hops/MarkovChain/Proposal/DikinProposal.hpp"
+#include "hops/MarkovChain/Proposal/GaussianProposal.hpp"
+#include "hops/MarkovChain/Proposal/HitAndRunProposal.hpp"
+#include "hops/MarkovChain/Recorder/AcceptanceRateRecorder.hpp"
+#include "hops/MarkovChain/Recorder/NegativeLogLikelihoodRecorder.hpp"
+#include "hops/MarkovChain/Recorder/StateRecorder.hpp"
+#include "hops/MarkovChain/Recorder/TimestampRecorder.hpp"
+#include "hops/MarkovChain/StateTransformation.hpp"
+#include "hops/MarkovChain/ModelMixin.hpp"
+#include "hops/MarkovChain/ModelWrapper.hpp"
+#include "hops/Transformation/LinearTransformation.hpp"
+#include "hops/MarkovChain/Recorder/NegativeLogLikelihoodRecorder.hpp"
 
 namespace hops {
     class MarkovChainFactory {

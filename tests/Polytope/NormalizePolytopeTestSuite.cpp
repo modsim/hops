@@ -3,7 +3,7 @@
 
 #include <boost/test/included/unit_test.hpp>
 #include <cmath>
-#include <hops/Polytope/NormalizePolytope.hpp>
+#include "hops/Polytope/NormalizePolytope.hpp"
 
 BOOST_AUTO_TEST_SUITE(NormalizePolytope)
 

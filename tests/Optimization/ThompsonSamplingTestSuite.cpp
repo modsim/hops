@@ -7,8 +7,9 @@
 #include <Eigen/Core>
 #include <Eigen/Sparse>
 #include <vector>
-#include <hops/Optimization/ThompsonSampling.hpp>
-#include <hops/Optimization/Kernel/SquaredExponentialKernel.hpp>
+
+#include "hops/Optimization/ThompsonSampling.hpp"
+#include "hops/Optimization/Kernel/SquaredExponentialKernel.hpp"
 
 struct TestTarget {
 	std::unordered_map<double, std::vector<double>> values;

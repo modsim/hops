@@ -1,8 +1,8 @@
 #ifndef HOPS_DNEST4ENVIRONMENTSINGLETON_HPP
 #define HOPS_DNEST4ENVIRONMENTSINGLETON_HPP
 
-#include <hops/MarkovChain/Proposal/Proposal.hpp>
-#include <hops/Model/Model.hpp>
+#include "hops/MarkovChain/Proposal/Proposal.hpp"
+#include "hops/Model/Model.hpp"
 
 namespace hops {
     class DNest4EnvironmentSingleton {

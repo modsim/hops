@@ -1,9 +1,8 @@
 #ifndef HOPS_DNEST4ADAPTER_HPP
 #define HOPS_DNEST4ADAPTER_HPP
 
-#include <hops/extern/DNest4.hpp>
-
-#include <hops/MarkovChain/MarkovChain.hpp>
+#include "hops/extern/DNest4.hpp"
+#include "hops/MarkovChain/MarkovChain.hpp"
 
 #include "DNest4EnvironmentSingleton.hpp"
 
@@ -144,17 +143,15 @@ namespace hops {
     double DNest4Adapter::log_likelihood() const {
         if (std::isfinite(stateLogAcceptanceProbability)) {
             return -model->computeNegativeLogLikelihood(this->state);
-        } else {
-            return stateLogAcceptanceProbability;
         }
+        return -std::numeric_limits<double>::infinity();
     }
 
     double DNest4Adapter::proposal_log_likelihood() const {
         if (std::isfinite(proposalLogAcceptanceProbability)) {
             return -model->computeNegativeLogLikelihood(this->proposal);
-        } else {
-            return proposalLogAcceptanceProbability;
         }
+        return -std::numeric_limits<double>::infinity();
     }
 
     void DNest4Adapter::print(std::ostream &out) const {
@@ -164,7 +161,7 @@ namespace hops {
 
     std::string DNest4Adapter::description() const {
         std::string description;
-        auto parameterNames = model->getDimensionNames();
+        auto parameterNames = posteriorProposer->getDimensionNames();
         for (const auto &p: parameterNames) {
             description += p + " ,";
         }

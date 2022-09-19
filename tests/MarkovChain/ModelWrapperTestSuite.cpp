@@ -3,10 +3,10 @@
 
 #include <boost/test/included/unit_test.hpp>
 #include <memory>
-
-#include <hops/Model/Model.hpp>
-#include <hops/MarkovChain/ModelWrapper.hpp>
 #include <utility>
+
+#include "hops/Model/Model.hpp"
+#include "hops/MarkovChain/ModelWrapper.hpp"
 
 namespace {
     class ModelMock : public hops::Model {

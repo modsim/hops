@@ -3,7 +3,8 @@
 
 #include <boost/test/included/unit_test.hpp>
 #include <Eigen/Core>
-#include <hops/Model/DegenerateGaussian.hpp>
+
+#include "hops/Model/DegenerateGaussian.hpp"
 
 BOOST_AUTO_TEST_SUITE(DegenerateMultivariateGaussianModel)
 

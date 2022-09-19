@@ -3,7 +3,7 @@
 
 #include <boost/test/included/unit_test.hpp>
 #include <Eigen/Core>
-#include <hops/hops.hpp>
+#include "hops/hops.hpp"
 
 BOOST_AUTO_TEST_SUITE(SbmlReader)
 

@@ -8,16 +8,16 @@
 #include <utility>
 #include <vector>
 
-#include <hops/MarkovChain/MarkovChainAdapter.hpp>
-#include <hops/MarkovChain/ModelMixin.hpp>
-#include <hops/MarkovChain/Draw/MetropolisHastingsFilter.hpp>
-#include <hops/MarkovChain/Proposal/HitAndRunProposal.hpp>
-#include <hops/MarkovChain/Proposal/ReversibleJumpProposal.hpp>
-#include <hops/Model/Model.hpp>
-#include <hops/Utility/MatrixType.hpp>
-#include <hops/Utility/VectorType.hpp>
-#include <hops/MarkovChain/Proposal/CoordinateHitAndRunProposal.hpp>
-#include <hops/Model/JumpableModel.hpp>
+#include "hops/MarkovChain/MarkovChainAdapter.hpp"
+#include "hops/MarkovChain/ModelMixin.hpp"
+#include "hops/MarkovChain/Draw/MetropolisHastingsFilter.hpp"
+#include "hops/MarkovChain/Proposal/HitAndRunProposal.hpp"
+#include "hops/MarkovChain/Proposal/ReversibleJumpProposal.hpp"
+#include "hops/MarkovChain/Proposal/CoordinateHitAndRunProposal.hpp"
+#include "hops/Model/JumpableModel.hpp"
+#include "hops/Model/Model.hpp"
+#include "hops/Utility/MatrixType.hpp"
+#include "hops/Utility/VectorType.hpp"
 
 namespace {
     double gammaProbabilityDensityFunction(double x, double location, double scale, double shape) {
@@ -143,7 +143,7 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
         );
     }
 
-    BOOST_AUTO_TEST_CASE(ProposalNameTest) {
+    BOOST_AUTO_TEST_CASE(ProposalName) {
         auto proposalImpl = hops::ModelMixin(
                 hops::HitAndRunProposal<decltype(A), decltype(b), hops::GaussianStepDistribution<double>, true>(
                         A,
@@ -161,7 +161,7 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
     }
 
 
-    BOOST_AUTO_TEST_CASE(DimensionNamesTest) {
+    BOOST_AUTO_TEST_CASE(ParameterNames) {
         auto proposalImpl = hops::ModelMixin(
                 hops::HitAndRunProposal<decltype(A), decltype(b), hops::GaussianStepDistribution<double>, true>(
                         A,
@@ -184,13 +184,13 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
 
         auto actualParameterNames = RJMCMCProposal.getParameterNames();
         std::cout << actualParameterNames.size() << std::endl;
-        BOOST_CHECK(actualParameterNames.size() == expectedParameterNames.size());
+        BOOST_CHECK_EQUAL(actualParameterNames.size(), expectedParameterNames.size());
         for (long i = 0; i < actualParameterNames.size(); ++i) {
             BOOST_CHECK_EQUAL(actualParameterNames[i], expectedParameterNames[i]);
         }
     }
 
-    BOOST_AUTO_TEST_CASE(ParameterNamesTest) {
+    BOOST_AUTO_TEST_CASE(DimensionNames) {
         auto proposalImpl = hops::ModelMixin(
                 hops::HitAndRunProposal<decltype(A), decltype(b), hops::UniformStepDistribution<double>, true>(
                         A,
@@ -208,6 +208,7 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
         std::vector<std::string> expectedDimensionNames = {
                 "location_activation",
                 "scale_activation",
+                "shape_activation",
                 "location",
                 "scale",
                 "shape"};
@@ -217,9 +218,24 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
         for (long i = 0; i < actualDimensionNames.size(); ++i) {
             BOOST_CHECK_EQUAL(actualDimensionNames[i], expectedDimensionNames[i]);
         }
+
+        expectedDimensionNames = std::vector<std::string>{"location_2_activation",
+                                                          "scale_2_activation",
+                                                          "shape_2_activation",
+                                                          "location_2",
+                                                          "scale_2",
+                                                          "shape_2"};
+
+        // names for activation states are added automatically, only have to rename location, scale and shape parameter.
+        RJMCMCProposal.setDimensionNames({"location_2", "scale_2", "shape_2"});
+        actualDimensionNames = RJMCMCProposal.getDimensionNames();
+        BOOST_CHECK_EQUAL(actualDimensionNames.size(), expectedDimensionNames.size());
+        for (long i = 0; i < actualDimensionNames.size(); ++i) {
+            BOOST_CHECK_EQUAL(actualDimensionNames[i], expectedDimensionNames[i]);
+        }
     }
 
-    BOOST_AUTO_TEST_CASE(SetBadParametersTest) {
+    BOOST_AUTO_TEST_CASE(SetBadParameters) {
         auto proposalImpl = hops::ModelMixin(
                 hops::HitAndRunProposal<decltype(A), decltype(b), hops::UniformStepDistribution<double>, true>(
                         A,
@@ -250,7 +266,7 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
     }
 
 
-    BOOST_AUTO_TEST_CASE(GetAndSetParametersTest) {
+    BOOST_AUTO_TEST_CASE(GetAndSetParameters) {
         auto proposalImpl = hops::ModelMixin(
                 hops::HitAndRunProposal<decltype(A), decltype(b), hops::GaussianStepDistribution<double>, false>(
                         A,
@@ -312,7 +328,7 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
 
     }
 
-    BOOST_AUTO_TEST_CASE(GammaModelHRTest) {
+    BOOST_AUTO_TEST_CASE(GammaModelHR) {
         auto proposalImpl = hops::ModelMixin(
                 hops::HitAndRunProposal(
                         A,
@@ -393,7 +409,7 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
     }
 
 
-    BOOST_AUTO_TEST_CASE(GammaModelHRTestModelOutsideOfRJMCMC) {
+    BOOST_AUTO_TEST_CASE(GammaModelHRModelOutsideOfRJMCMC) {
         auto proposalImpl = hops::HitAndRunProposal(
                 A,
                 b,
@@ -474,7 +490,7 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
         }
     }
 
-    BOOST_AUTO_TEST_CASE(GammaModelAdaptedJumpParametersHRTest) {
+    BOOST_AUTO_TEST_CASE(GammaModelAdaptedJumpParametersHR) {
         auto proposalImpl = hops::ModelMixin(
                 hops::HitAndRunProposal(
                         A,
@@ -558,7 +574,7 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
         }
     }
 
-    BOOST_AUTO_TEST_CASE(GammaModelPreciceHRTest) {
+    BOOST_AUTO_TEST_CASE(GammaModelPreciceHR) {
         auto proposalImpl = hops::ModelMixin(
                 hops::HitAndRunProposal<decltype(A), decltype(b), hops::UniformStepDistribution<double>, true>(
                         A,
@@ -638,7 +654,7 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
         }
     }
 
-    BOOST_AUTO_TEST_CASE(GammaModelGaussianHRTest) {
+    BOOST_AUTO_TEST_CASE(GammaModelGaussianHR) {
         auto proposalImpl = hops::ModelMixin(
                 hops::HitAndRunProposal<decltype(A), decltype(b), hops::GaussianStepDistribution<double>, false>(
                         A,
@@ -718,7 +734,7 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
         }
     }
 
-    BOOST_AUTO_TEST_CASE(GammaModelPreciceGaussianHRTest) {
+    BOOST_AUTO_TEST_CASE(GammaModelPreciceGaussianHR) {
         auto proposalImpl = hops::ModelMixin(
                 hops::HitAndRunProposal<decltype(A), decltype(b), hops::GaussianStepDistribution<double>, true>(
                         A,
@@ -798,7 +814,7 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
         }
     }
 
-    BOOST_AUTO_TEST_CASE(GammaModelCHRTest) {
+    BOOST_AUTO_TEST_CASE(GammaModelCHR) {
         auto proposalImpl = hops::ModelMixin(
                 hops::CoordinateHitAndRunProposal(
                         A,
@@ -878,7 +894,7 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
         }
     }
 
-    BOOST_AUTO_TEST_CASE(GammaModelGaussianCHRTest) {
+    BOOST_AUTO_TEST_CASE(GammaModelGaussianCHR) {
         auto proposalImpl = hops::ModelMixin(
                 hops::CoordinateHitAndRunProposal<decltype(A), decltype(b), hops::GaussianStepDistribution<double>>(
                         A,

@@ -4,9 +4,9 @@
 #include <memory>
 #include <utility>
 
-#include <hops/Transformation/Transformation.hpp>
-#include <hops/Utility/MatrixType.hpp>
-#include <hops/Utility/VectorType.hpp>
+#include "hops/Transformation/Transformation.hpp"
+#include "hops/Utility/MatrixType.hpp"
+#include "hops/Utility/VectorType.hpp"
 
 namespace hops {
 

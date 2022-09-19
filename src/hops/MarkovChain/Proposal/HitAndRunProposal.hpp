@@ -4,10 +4,11 @@
 #include <optional>
 #include <random>
 
-#include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
-#include <hops/Utility/MatrixType.hpp>
-#include <hops/Utility/StringUtility.hpp>
-#include <hops/Utility/VectorType.hpp>
+#include "hops/RandomNumberGenerator/RandomNumberGenerator.hpp"
+#include "hops/Utility/DefaultDimensionNames.hpp"
+#include "hops/Utility/MatrixType.hpp"
+#include "hops/Utility/StringUtility.hpp"
+#include "hops/Utility/VectorType.hpp"
 
 #include "ChordStepDistributions.hpp"
 #include "IsGetStepSizeAvailable.hpp"
@@ -34,6 +35,10 @@ namespace hops {
         [[nodiscard]] VectorType getState() const override;
 
         [[nodiscard]] VectorType getProposal() const override;
+
+        void setDimensionNames(const std::vector<std::string> &names) override;
+
+        [[nodiscard]] std::vector<std::string> getDimensionNames() const override;
 
         [[nodiscard]] std::vector<std::string> getParameterNames() const override;
 
@@ -76,6 +81,8 @@ namespace hops {
         std::normal_distribution<double> normalDistribution;
         double forwardDistance = 0;
         double backwardDistance = 0;
+
+        std::vector<std::string> dimensionNames;
     };
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
@@ -121,6 +128,7 @@ namespace hops {
         updateDirection = state;
         proposal = state;
         setStepSize(stepSize);
+        this->dimensionNames = createDefaultDimensionNames(this->state.rows());
     }
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
@@ -182,18 +190,6 @@ namespace hops {
 
         step = chordStepDistribution.draw(rng, backwardDistance, forwardDistance);
         proposal = state + updateDirection * step;
-//        if (!((b - A * proposal).array() < 0).any()) {
-//            std::cout << "slacks" << std::endl;
-//            std::cout << slacks.transpose() << std::endl;
-//            std::cout << "proposal slacks" << std::endl;
-//            std::cout << (b - A * proposal).transpose() << std::endl;
-//
-//            std::cout << "(!((b - A * proposal).array() < 0).any())" << std::endl;
-//            std::cout << (!((b - A * proposal).array() < 0).any()) << std::endl;
-//            std::cout << "(((b - A * proposal).array() >= 0).all())" << std::endl;
-//            std::cout << (((b - A * proposal).array() >= 0).all()) << std::endl;
-//
-//        }
         assert(((b - A * proposal).array() >= 0).all());
 
         return proposal;
@@ -362,6 +358,18 @@ namespace hops {
             return false;
         }
         return true;
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
+    void HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::setDimensionNames(
+            const std::vector<std::string> &names) {
+        dimensionNames = names;
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
+    std::vector<std::string>
+    HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::getDimensionNames() const {
+        return dimensionNames;
     }
 }
 

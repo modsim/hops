@@ -5,8 +5,9 @@
 #include <Eigen/Core>
 #include <Eigen/Sparse>
 #include <vector>
-#include <hops/Optimization/GaussianProcess.hpp>
-#include <hops/Optimization/Kernel/SquaredExponentialKernel.hpp>
+
+#include "hops/Optimization/GaussianProcess.hpp"
+#include "hops/Optimization/Kernel/SquaredExponentialKernel.hpp"
 
 BOOST_AUTO_TEST_SUITE(GaussianProcessTestSuite)
 

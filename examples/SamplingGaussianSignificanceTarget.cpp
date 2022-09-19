@@ -4,7 +4,7 @@
 #include <filesystem>
 #include <optional>
 
-#include <hops/hops.hpp>
+#include "hops/hops.hpp"
 
 using RealType = double;
 

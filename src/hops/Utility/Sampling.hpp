@@ -9,13 +9,13 @@
 #include <iomanip>
 #include <utility>
 
-#include <hops/MarkovChain/MarkovChainFactory.hpp>
+#include "hops/MarkovChain/MarkovChainFactory.hpp"
 #include "hops/FileWriter/FileWriter.hpp"
 #include "hops/FileWriter/FileWriterType.hpp"
 #include "hops/FileWriter/FileWriterFactory.hpp"
 #include "hops/MarkovChain/MarkovChain.hpp"
 #include "hops/MarkovChain/MarkovChainType.hpp"
-#include <hops/Polytope/MaximumVolumeEllipsoid.hpp>
+#include "hops/Polytope/MaximumVolumeEllipsoid.hpp"
 #include "hops/RandomNumberGenerator/RandomNumberGenerator.hpp"
 #include "hops/Utility/MatrixType.hpp"
 #include "hops/Utility/VectorType.hpp"

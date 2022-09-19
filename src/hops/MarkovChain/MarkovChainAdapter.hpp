@@ -1,7 +1,7 @@
 #ifndef HOPS_MARKOVCHAINADAPTER_HPP
 #define HOPS_MARKOVCHAINADAPTER_HPP
 
-#include <hops/Utility/HopsWithinHopsy.hpp>
+#include "hops/Utility/HopsWithinHopsy.hpp"
 
 #include "MarkovChain.hpp"
 

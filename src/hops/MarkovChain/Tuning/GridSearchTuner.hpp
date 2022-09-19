@@ -1,8 +1,8 @@
 #ifndef HOPS_GRIDSEARCHTUNER_HPP
 #define HOPS_GRIDSEARCHTUNER_HPP
 
-#include <hops/Utility/MatrixType.hpp>
-#include <hops/Utility/VectorType.hpp>
+#include "hops/Utility/MatrixType.hpp"
+#include "hops/Utility/VectorType.hpp"
 
 #include <Eigen/Core>
 

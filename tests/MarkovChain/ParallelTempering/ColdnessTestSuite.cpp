@@ -3,9 +3,9 @@
 
 #include <boost/test/included/unit_test.hpp>
 
-#include <hops/MarkovChain/ParallelTempering/Coldness.hpp>
-#include <hops/Utility/VectorType.hpp>
-#include <hops/Model/Model.hpp>
+#include "hops/MarkovChain/ParallelTempering/Coldness.hpp"
+#include "hops/Utility/VectorType.hpp"
+#include "hops/Model/Model.hpp"
 
 namespace {
     class ModelMock : public hops::Model {

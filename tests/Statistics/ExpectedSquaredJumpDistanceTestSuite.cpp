@@ -3,7 +3,7 @@
 #include <boost/test/included/unit_test.hpp>
 #include <Eigen/Core>
 
-#include <hops/Statistics/ExpectedSquaredJumpDistance.hpp>
+#include "hops/Statistics/ExpectedSquaredJumpDistance.hpp"
 
 BOOST_AUTO_TEST_SUITE(ExpectedSquaredJumpDistanceTestSuite)
     BOOST_AUTO_TEST_CASE(ComputeAllDraws) {

@@ -1,22 +1,21 @@
 #ifndef HOPS_THOMPSONSAMPLINGTUNER_HPP
 #define HOPS_THOMPSONSAMPLINGTUNER_HPP
 
-#include <hops/FileWriter/FileWriter.hpp>
-#include <hops/FileWriter/FileWriterFactory.hpp>
-#include <hops/FileWriter/FileWriterType.hpp>
-#include <hops/MarkovChain/MarkovChain.hpp>
-#include <hops/Optimization/GaussianProcess.hpp>
-#include <hops/Optimization/ThompsonSampling.hpp>
-#include <hops/Statistics/ExpectedSquaredJumpDistance.hpp>
-#include <hops/Utility/MatrixType.hpp>
-#include <hops/Utility/VectorType.hpp>
-
 #include <Eigen/Core>
-
 #include <chrono>
 #include <cmath>
 #include <memory>
 #include <stdexcept>
+
+#include "hops/FileWriter/FileWriter.hpp"
+#include "hops/FileWriter/FileWriterFactory.hpp"
+#include "hops/FileWriter/FileWriterType.hpp"
+#include "hops/MarkovChain/MarkovChain.hpp"
+#include "hops/Optimization/GaussianProcess.hpp"
+#include "hops/Optimization/ThompsonSampling.hpp"
+#include "hops/Statistics/ExpectedSquaredJumpDistance.hpp"
+#include "hops/Utility/MatrixType.hpp"
+#include "hops/Utility/VectorType.hpp"
 
 namespace hops {
     class ThompsonSamplingTuner {

@@ -7,11 +7,11 @@
 #include <vector>
 #include <Eigen/Core>
 
-#include <hops/MarkovChain/MarkovChain.hpp>
-#include <hops/MarkovChain/MarkovChainAdapter.hpp>
-#include <hops/MarkovChain/Draw/MetropolisHastingsFilter.hpp>
-#include <hops/MarkovChain/Proposal/Proposal.hpp>
-#include <hops/MarkovChain/Tuning/ExpectedSquaredJumpDistanceTuner.hpp>
+#include "hops/MarkovChain/MarkovChain.hpp"
+#include "hops/MarkovChain/MarkovChainAdapter.hpp"
+#include "hops/MarkovChain/Draw/MetropolisHastingsFilter.hpp"
+#include "hops/MarkovChain/Proposal/Proposal.hpp"
+#include "hops/MarkovChain/Tuning/ExpectedSquaredJumpDistanceTuner.hpp"
 
 namespace {
     class ProposalMock : public hops::Proposal {
@@ -47,6 +47,12 @@ namespace {
         }
 
         void setState(const Eigen::VectorXd &) override {};
+
+        void setDimensionNames(const std::vector<std::string> &names) override { }
+
+        std::vector<std::string> getDimensionNames() const override {
+            return std::vector<std::string>();
+        }
 
         std::any getParameter(const hops::ProposalParameter &parameter) const override {
             return stepSize;

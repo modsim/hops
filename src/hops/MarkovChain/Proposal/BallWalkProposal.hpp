@@ -4,10 +4,10 @@
 #include <optional>
 #include <random>
 
-#include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
-#include <hops/Utility/MatrixType.hpp>
-#include <hops/Utility/StringUtility.hpp>
-#include <hops/Utility/VectorType.hpp>
+#include "hops/RandomNumberGenerator/RandomNumberGenerator.hpp"
+#include "hops/Utility/MatrixType.hpp"
+#include "hops/Utility/StringUtility.hpp"
+#include "hops/Utility/VectorType.hpp"
 
 #include "Proposal.hpp"
 
@@ -37,6 +37,10 @@ namespace hops {
         [[nodiscard]] VectorType getState() const override;
 
         [[nodiscard]] VectorType getProposal() const override;
+
+        void setDimensionNames(const std::vector<std::string> &names) override;
+
+        [[nodiscard]] std::vector<std::string> getDimensionNames() const override;
 
         [[nodiscard]] std::vector<std::string> getParameterNames() const override;
 
@@ -70,6 +74,8 @@ namespace hops {
 
         double stepSize;
 
+        std::vector<std::string> dimensionNames;
+
         std::uniform_real_distribution<typename InternalMatrixType::Scalar> uniform;
         std::normal_distribution<typename InternalMatrixType::Scalar> normal;
     };
@@ -87,6 +93,7 @@ namespace hops {
         if (((b - A * state).array() < 0).any()) {
             throw std::invalid_argument("Starting point outside polytope always gives constant Markov chain.");
         }
+        this->dimensionNames = hops::createDefaultDimensionNames(this->state.rows());
     }
 
 
@@ -220,6 +227,17 @@ namespace hops {
     VectorType &BallWalkProposal<InternalMatrixType, InternalVectorType>::propose(RandomNumberGenerator &rng,
                                                                                   const Eigen::VectorXd &activeIndices) {
         throw std::runtime_error("Propose with rng and activeIndices not implemented");
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    void
+    BallWalkProposal<InternalMatrixType, InternalVectorType>::setDimensionNames(const std::vector<std::string> &names) {
+        dimensionNames = names;
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    std::vector<std::string> BallWalkProposal<InternalMatrixType, InternalVectorType>::getDimensionNames() const {
+        return dimensionNames;
     }
 }
 

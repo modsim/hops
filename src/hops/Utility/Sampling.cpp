@@ -1,7 +1,7 @@
 #include "Sampling.hpp"
 
-#include <hops/MarkovChain/Tuning/AcceptanceRateTarget.hpp>
-#include <hops/MarkovChain/Tuning/ThompsonSamplingTuner.hpp>
+#include "hops/MarkovChain/Tuning/AcceptanceRateTarget.hpp"
+#include "hops/MarkovChain/Tuning/ThompsonSamplingTuner.hpp"
 
 bool hops::Sampling::tuneChain(hops::RandomNumberGenerator &randomNumberGenerator,
                                const double targetAcceptanceRate,

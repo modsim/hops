@@ -6,9 +6,9 @@
 #include <unsupported/Eigen/MatrixFunctions>
 #include <utility>
 
-#include <hops/Model/Model.hpp>
-#include <hops/Utility/MatrixType.hpp>
-#include <hops/Utility/VectorType.hpp>
+#include "hops/Model/Model.hpp"
+#include "hops/Utility/MatrixType.hpp"
+#include "hops/Utility/VectorType.hpp"
 
 namespace hops {
 

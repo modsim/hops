@@ -8,11 +8,11 @@
 #include <vector>
 #include <random>
 
-#include <hops/MarkovChain/Proposal/ChordStepDistributions.hpp>
-#include <hops/MarkovChain/Proposal/Proposal.hpp>
-#include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
-#include <hops/Utility/VectorType.hpp>
-#include <hops/Utility/StringUtility.hpp>
+#include "hops/MarkovChain/Proposal/ChordStepDistributions.hpp"
+#include "hops/MarkovChain/Proposal/Proposal.hpp"
+#include "hops/RandomNumberGenerator/RandomNumberGenerator.hpp"
+#include "hops/Utility/VectorType.hpp"
+#include "hops/Utility/StringUtility.hpp"
 
 #include "Proposal.hpp"
 
@@ -85,6 +85,8 @@ namespace hops {
         void setParameter(const ProposalParameter &parameter, const std::any &value) override;
 
         [[nodiscard]] std::unique_ptr<Proposal> copyProposal() const override;
+
+        void setDimensionNames(const std::vector<std::string> &names) override;
 
         [[nodiscard]] std::vector<std::string> getDimensionNames() const override;
 
@@ -254,17 +256,6 @@ namespace hops {
         return state;
     }
 
-    std::vector<std::string> ReversibleJumpProposal::getDimensionNames() const {
-        // Vector is constructed on demand, because it typically is not used repeatedly.
-        std::vector<std::string> dimensionNames = proposalImpl->getDimensionNames();
-        std::vector<std::string> names;
-        for (long i = 0; i < jumpIndices.rows(); ++i) {
-            names.emplace_back(dimensionNames[i] + "_activation");
-        }
-        names.insert(names.end(), dimensionNames.begin(), dimensionNames.end());
-        return names;
-    }
-
     VectorType ReversibleJumpProposal::getProposal() const {
         return proposal;
     }
@@ -402,6 +393,22 @@ namespace hops {
         proposal << this->activationProposal, parameterProposal;
         return proposal;
     }
+
+    void ReversibleJumpProposal::setDimensionNames(const std::vector<std::string> &names) {
+        proposalImpl->setDimensionNames(names);
+    }
+
+    std::vector<std::string> ReversibleJumpProposal::getDimensionNames() const {
+        // Vector is constructed on demand, because it typically is not used repeatedly.
+        std::vector<std::string> dimensionNames = proposalImpl->getDimensionNames();
+        std::vector<std::string> names;
+        for (long i = 0; i < this->activationState.rows(); ++i) {
+            names.emplace_back(dimensionNames[i] + "_activation");
+        }
+        names.insert(names.end(), dimensionNames.begin(), dimensionNames.end());
+        return names;
+    }
+
 }
 
 #endif //HOPS_REVERSIBLEJUMPPROPOSAL_HPP

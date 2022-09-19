@@ -5,10 +5,11 @@
 #include <optional>
 #include <random>
 
-#include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
-#include <hops/Utility/MatrixType.hpp>
-#include <hops/Utility/StringUtility.hpp>
-#include <hops/Utility/VectorType.hpp>
+#include "hops/RandomNumberGenerator/RandomNumberGenerator.hpp"
+#include "hops/Utility/DefaultDimensionNames.hpp"
+#include "hops/Utility/MatrixType.hpp"
+#include "hops/Utility/StringUtility.hpp"
+#include "hops/Utility/VectorType.hpp"
 
 #include "Proposal.hpp"
 #include "DikinEllipsoidCalculator.hpp"
@@ -43,6 +44,10 @@ namespace hops {
         [[nodiscard]] VectorType getState() const override;
 
         [[nodiscard]] VectorType getProposal() const override;
+
+        void setDimensionNames(const std::vector<std::string> &names) override;
+
+        std::vector<std::string> getDimensionNames() const override;
 
         [[nodiscard]] std::vector<std::string> getParameterNames() const override;
 
@@ -88,7 +93,7 @@ namespace hops {
         std::normal_distribution<double> normalDistribution{0., 1.};
         DikinEllipsoidCalculator <MatrixType, VectorType> dikinEllipsoidCalculator;
 
-        bool isProposalInfosTrackingActive = false;
+        std::vector<std::string> dimensionNames;
     };
 
     template<typename InternalMatrixType, typename InternalVectorType>
@@ -102,6 +107,8 @@ namespace hops {
         DikinProposal::setStepSize(stepSize);
         DikinProposal::setState(currentState);
         proposal = state;
+
+        this->dimensionNames = createDefaultDimensionNames(this->state.rows());
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
@@ -260,6 +267,17 @@ namespace hops {
     VectorType &DikinProposal<InternalMatrixType, InternalVectorType>::propose(RandomNumberGenerator &rng,
                                                                                const Eigen::VectorXd &activeIndices) {
         throw std::runtime_error("Propose with rng and activeIndices not implemented");
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    void
+    DikinProposal<InternalMatrixType, InternalVectorType>::setDimensionNames(const std::vector<std::string> &names) {
+        dimensionNames = names;
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    std::vector<std::string> DikinProposal<InternalMatrixType, InternalVectorType>::getDimensionNames() const {
+        return dimensionNames;
     }
 }
 
