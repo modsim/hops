@@ -1,8 +1,9 @@
 #define BOOST_TEST_MODULE NormalizePolytopeTestSuite
 #define BOOST_TEST_DYN_LINK
-
-#include <boost/test/included/unit_test.hpp>
+#define BOOST_TEST_DYN_LINK
+#include <boost/test/unit_test.hpp>
 #include <cmath>
+
 #include "hops/Polytope/NormalizePolytope.hpp"
 
 BOOST_AUTO_TEST_SUITE(NormalizePolytope)

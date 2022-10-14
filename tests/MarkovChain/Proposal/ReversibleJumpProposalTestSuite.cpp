@@ -1,7 +1,7 @@
-#define BOOST_TEST_MODULE ReversibleJumpProposalTestSuite
 #define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE ReversibleJumpProposalTestSuite
 
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 #include <cmath>
 #include <Eigen/Core>
 #include <unordered_set>
@@ -356,7 +356,7 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
 
         long numberOfSamples = 5'000'000;
         std::vector<double> model_visit_counts = {0, 0, 0, 0};
-        std::set<std::string> model_names;
+        std::unordered_set<std::string> model_names;
         std::vector<Eigen::VectorXd> models;
         std::vector<double> location;
         std::vector<double> scale;
@@ -438,7 +438,7 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
 
         long numberOfSamples = 5'000'000;
         std::vector<double> model_visit_counts = {0, 0, 0, 0};
-        std::set<std::string> model_names;
+        std::unordered_set<std::string> model_names;
         std::vector<Eigen::VectorXd> models;
         std::vector<double> location;
         std::vector<double> scale;
@@ -522,7 +522,7 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
 
         long numberOfSamples = 5'000'000;
         std::vector<double> model_visit_counts = {0, 0, 0, 0};
-        std::set<std::string> model_names;
+        std::unordered_set<std::string> model_names;
         std::vector<Eigen::VectorXd> models;
         std::vector<double> location;
         std::vector<double> scale;
@@ -602,7 +602,7 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
 
         long numberOfSamples = 5'000'000;
         std::vector<double> model_visit_counts = {0, 0, 0, 0};
-        std::set<std::string> model_names;
+        std::unordered_set<std::string> model_names;
         std::vector<Eigen::VectorXd> models;
         std::vector<double> location;
         std::vector<double> scale;
@@ -682,7 +682,7 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
 
         long numberOfSamples = 5'000'000;
         std::vector<double> model_visit_counts = {0, 0, 0, 0};
-        std::set<std::string> model_names;
+        std::unordered_set<std::string> model_names;
         std::vector<Eigen::VectorXd> models;
         std::vector<double> location;
         std::vector<double> scale;
@@ -762,7 +762,7 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
 
         long numberOfSamples = 5'000'000;
         std::vector<double> model_visit_counts = {0, 0, 0, 0};
-        std::set<std::string> model_names;
+        std::unordered_set<std::string> model_names;
         std::vector<Eigen::VectorXd> models;
         std::vector<double> location;
         std::vector<double> scale;
@@ -842,7 +842,7 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
 
         long numberOfSamples = 5'000'000;
         std::vector<double> model_visit_counts = {0, 0, 0, 0};
-        std::set<std::string> model_names;
+        std::unordered_set<std::string> model_names;
         std::vector<Eigen::VectorXd> models;
         std::vector<double> location;
         std::vector<double> scale;
@@ -922,7 +922,7 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
 
         long numberOfSamples = 5'000'000;
         std::vector<double> model_visit_counts = {0, 0, 0, 0};
-        std::set<std::string> model_names;
+        std::unordered_set<std::string> model_names;
         std::vector<Eigen::VectorXd> models;
         std::vector<double> location;
         std::vector<double> scale;

@@ -28,7 +28,7 @@ namespace hops {
          * the new state.
          * @param activeIndices vector should contain true active parameters and 0 for inactive parameters.
          */
-        virtual VectorType &propose(RandomNumberGenerator &rng, const Eigen::VectorXd &activeIndices) {
+        virtual VectorType &propose(RandomNumberGenerator &, const Eigen::VectorXd &) {
             throw std::runtime_error("Propose with rng and activeIndices not implemented");
         };
 
@@ -69,7 +69,7 @@ namespace hops {
         /**
          * @brief set names for each dimension of the state space. Should typically be set from the Model to be sampled.
          */
-        virtual void setDimensionNames(const std::vector<std::string>& names) = 0;
+        virtual void setDimensionNames(const std::vector<std::string> &names) = 0;
 
         /**
          * @return names for each dimension of the state space

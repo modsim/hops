@@ -1,7 +1,7 @@
-#define BOOST_TEST_MODULE MixtureTestSuite
 #define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE MixtureTestSuite
 
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 #include <Eigen/Core>
 
 #include "hops/Model/Model.hpp"

@@ -1,15 +1,15 @@
-#include "hops/RandomNumberGenerator/RandomNumberGenerator.hpp"
-#define BOOST_TEST_MODULE GaussianProcessTestSuite
 #define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE GaussianProcessTestSuite
 
 #include <unordered_map>
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 #include <Eigen/Core>
 #include <Eigen/Sparse>
 #include <vector>
 
 #include "hops/Optimization/ThompsonSampling.hpp"
 #include "hops/Optimization/Kernel/SquaredExponentialKernel.hpp"
+#include "hops/RandomNumberGenerator/RandomNumberGenerator.hpp"
 
 struct TestTarget {
 	std::unordered_map<double, std::vector<double>> values;

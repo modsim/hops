@@ -9,16 +9,8 @@ if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
             FileWriterFactory.hpp
             FileWriterFactory.cpp
             FileWriterType.hpp
-            Hdf5Writer.hpp
             )
 endif (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
-
-find_package(HDF5 COMPONENTS C CXX)
-if (HDF5_FOUND AND HOPS_HDF5_SUPPORT)
-    if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
-        target_sources(hops ${SCOPE} Hdf5Writer.cpp)
-    endif (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
-endif ()
 
 if (NOT WIN32)
     target_link_libraries(hops INTERFACE stdc++fs)

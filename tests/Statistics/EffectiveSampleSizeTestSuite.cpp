@@ -1,11 +1,13 @@
+#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE EffectiveSampleSizeTestSuite
 
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 #include <Eigen/Core>
 #include <Eigen/Sparse>
 #include <vector>
 
-#include "hops/hops.hpp"
+#include "hops/FileReader/CsvReader.hpp"
+#include "hops/Statistics/EffectiveSampleSize.hpp"
 
 BOOST_AUTO_TEST_SUITE(EffectiveSampleSizeTestSuite)
     BOOST_AUTO_TEST_CASE(ComputeOneDimSingleChain) {

@@ -1,7 +1,7 @@
-#define BOOST_TEST_MODULE ModelMixinTestSuite
 #define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE ModelMixinTestSuite
 
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 #include <memory>
 #include <utility>
 
@@ -58,7 +58,7 @@ namespace {
             return {dimensionName};
         }
 
-        hops::VectorType &propose(hops::RandomNumberGenerator &rng) override {
+        hops::VectorType &propose(hops::RandomNumberGenerator &) override {
             return proposal;
         }
 
@@ -78,30 +78,30 @@ namespace {
             return std::vector<std::string>{};
         }
 
-        std::any getParameter(const hops::ProposalParameter &parameter) const override {
+        std::any getParameter(const hops::ProposalParameter &) const override {
             return std::any(0);
         }
 
-        std::string getParameterType(const hops::ProposalParameter &parameter) const override {
+        std::string getParameterType(const hops::ProposalParameter &) const override {
             return std::string();
         }
 
-        void setParameter(const hops::ProposalParameter &parameter, const std::any &value) override {
+        void setParameter(const hops::ProposalParameter &, const std::any &) override {
         }
 
-        std::string getProposalName() const override {
+        [[nodiscard]] std::string getProposalName() const override {
             return "MockProposal";
         }
 
-        std::unique_ptr<Proposal> copyProposal() const override {
+        [[nodiscard]] std::unique_ptr<Proposal> copyProposal() const override {
             return std::make_unique<ProposalMock>(*this);
         }
 
-        const hops::MatrixType &getA() const override {
+        [[nodiscard]] const hops::MatrixType &getA() const override {
             throw std::runtime_error("Should not be called");
         }
 
-        const hops::VectorType &getB() const override {
+        [[nodiscard]] const hops::VectorType &getB() const override {
             throw std::runtime_error("Should not be called");
         }
 

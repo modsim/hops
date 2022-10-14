@@ -247,6 +247,8 @@ namespace hops {
             double stepSize) {
         if constexpr (IsSetStepSizeAvailable<ChordStepDistribution>::value) {
             chordStepDistribution.setStepSize(stepSize);
+        } else {
+            (void) stepSize;
         }
     }
 

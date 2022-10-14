@@ -455,8 +455,8 @@ namespace hops {
     }
 
     template<typename ModelType, typename InternalMatrixType>
-    VectorType &BilliardMALAProposal<ModelType, InternalMatrixType>::propose(RandomNumberGenerator &rng,
-                                                                             const Eigen::VectorXd &activeIndices) {
+    VectorType &BilliardMALAProposal<ModelType, InternalMatrixType>::propose(RandomNumberGenerator &,
+                                                                             const Eigen::VectorXd &) {
         throw std::runtime_error("Propose with rng and activeIndices not implemented");
     }
 

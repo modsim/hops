@@ -1,7 +1,7 @@
-#define BOOST_TEST_MODULE GaussianProcessTestSuite
 #define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE GaussianProcessTestSuite
 
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 #include <Eigen/Core>
 #include <Eigen/Sparse>
 #include <vector>

@@ -1,11 +1,8 @@
-#include "hops/MarkovChain/Proposal/Proposal.hpp"
-#include "hops/MarkovChain/Proposal/ProposalParameter.hpp"
-
-#define BOOST_TEST_MODULE AcceptanceRateTunerTestSuite
 #define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE AcceptanceRateTunerTestSuite
 
 #include <memory>
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 #include <vector>
 #include <Eigen/Core>
 
@@ -13,6 +10,8 @@
 #include "hops/MarkovChain/MarkovChain.hpp"
 #include "hops/MarkovChain/MarkovChainAdapter.hpp"
 #include "hops/MarkovChain/Tuning/AcceptanceRateTuner.hpp"
+#include "hops/MarkovChain/Proposal/Proposal.hpp"
+#include "hops/MarkovChain/Proposal/ProposalParameter.hpp"
 
 namespace {
     class ProposalMock : public hops::Proposal {

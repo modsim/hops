@@ -34,8 +34,6 @@ set(MKL_USE_interface lp64)
 # Set Options
 ########################################################################################################################
 
-option(HOPS_SBML_SUPPORT "Enables SBML support. Use -DHOPS_SBML_SUPPORT=ON to enable." OFF)
-option(HOPS_HDF5_SUPPORT "Enables HDF5 support with HighFive. Use -DHOPS_HDF5_SUPPORT=ON to enable." OFF)
 option(HOPS_DNEST4_SUPPORT "Enables Nested Sampling support with DNEST4. Use -DHOPS_DNEST4_SUPPORT=ON to enable." ON)
 option(HOPS_BENCHMARKS "Enables compilation of Benchmarks (Requires Celero). Use -DHOPS_BENCHMARKS=ON to enable." OFF)
 option(HOPS_DOCS "Enables generation of documentation. Use -DHOPS_DOCS=OFF to disable." ON)
@@ -43,7 +41,6 @@ option(HOPS_BINARIES "Enables compilation of hops executables. Use -DHOPS_BINARI
 option(HOPS_EXAMPLES "Enables compilation of hops examples. Use -DHOPS_EXAMPLES=OFF to disable." ON)
 option(HOPS_TESTS "Enables compilation of unit tests. Use -DHOPS_TESTS=OFF to disable." ON)
 option(HOPS_NO_INSTALL "Disables installation. Use -DHOPS_NO_INSTALL=ON to disable installation." OFF)
-option(HOPS_OPENMP "Disables installation. Use -DHOPS_NO_INSTALL=ON to disable installation." ON)
 set(HOPS_LIBRARY_TYPE SHARED CACHE STRING "Type of library to build. Options are HEADER_ONLY, STATIC or SHARED")
 set_property(CACHE HOPS_LIBRARY_TYPE PROPERTY STRINGS HEADER_ONLY STATIC SHARED)
 
@@ -95,9 +92,6 @@ endif (NOT ${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 find_package(Doxygen)
 find_package(Eigen3 REQUIRED)
 find_package(MKL)
-if (HOPS_OPENMP)
-    find_package(OpenMP)
-endif(HOPS_OPENMP)
 message(STATUS "FOUND MKL ? ${MKL_FOUND}")
 
 ########################################################################################################################
@@ -120,10 +114,6 @@ if (HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
 
     target_compile_definitions(hops INTERFACE HOPS_HEADER_ONLY)
 
-    if (HOPS_HDF5_SUPPORT)
-        target_compile_definitions(hops INTERFACE HOPS_HDF5_SUPPORT)
-    endif (HOPS_HDF5_SUPPORT)
-
     if (HOPS_DNEST4_SUPPORT)
         target_compile_definitions(hops INTERFACE HOPS_DNEST4_SUPPORT)
     endif (HOPS_DNEST4_SUPPORT)
@@ -143,15 +133,6 @@ else (HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
             $<INSTALL_INTERFACE:include>
             )
 endif (HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
-
-if (OpenMP_CXX_FOUND)
-    target_link_libraries(hops INTERFACE OpenMP::OpenMP_CXX)
-    target_link_libraries(hops ${SCOPE} OpenMP::OpenMP_CXX)
-    target_link_options(hops INTERFACE ${OpenMP_CXX_LIBRARY} ${OpenMP_CXX_FLAGS})
-    target_link_options(hops ${SCOPE} ${OpenMP_CXX_LIBRARY} ${OpenMP_CXX_FLAGS})
-else (OpenMP_CXX_FOUND)
-    message(WARNING "OPENMP not found.")
-endif (OpenMP_CXX_FOUND)
 
 add_subdirectory(src)
 

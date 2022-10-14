@@ -134,11 +134,12 @@ namespace hops {
 
     private:
         int numberOfChains;
+        RandomNumberGenerator synchronizedRandomNumberGenerator;
         double exchangeAttemptProbability;
+        MPI_Comm communicator;
+
         std::uniform_int_distribution<int> uniformIntDistribution;
         std::uniform_real_distribution<double> uniformRealDistribution;
-        MPI_Comm communicator;
-        RandomNumberGenerator synchronizedRandomNumberGenerator;
     };
 }
 

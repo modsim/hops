@@ -3,7 +3,6 @@
 
 #include "hops/MarkovChain/MarkovChain.hpp"
 #include "hops/MarkovChain/Tuning/TuningTarget.hpp"
-#include "hops/Parallel/OpenMPControls.hpp"
 #include "hops/RandomNumberGenerator/RandomNumberGenerator.hpp"
 #include "hops/Statistics/ExpectedSquaredJumpDistance.hpp"
 #include "hops/Utility/MatrixType.hpp"

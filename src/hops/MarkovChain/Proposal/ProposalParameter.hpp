@@ -16,7 +16,7 @@ namespace hops {
         DEACTIVATION_PROBABILITY,
     };
 
-    static char const *ProposalParameterName[] = {
+    __attribute__((unused)) static char const *ProposalParameterName[] = {
             "boundary_cushion",
             "coldness",
             "epsilon",

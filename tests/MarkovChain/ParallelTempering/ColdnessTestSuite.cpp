@@ -1,7 +1,7 @@
-#define BOOST_TEST_MODULE ColdnessTestSuite
 #define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE ColdnessTestSuite
 
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include "hops/MarkovChain/ParallelTempering/Coldness.hpp"
 #include "hops/Utility/VectorType.hpp"

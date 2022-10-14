@@ -1,9 +1,9 @@
-#define BOOST_TEST_MODULE ChordStepDistributionsTestSuite
 #define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE ChordStepDistributionsTestSuite
 
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 
-#include "hops/hops.hpp"
+#include "hops/MarkovChain/Proposal/ChordStepDistributions.hpp"
 
 BOOST_AUTO_TEST_SUITE(ChordStepDistributionTestSuite)
 

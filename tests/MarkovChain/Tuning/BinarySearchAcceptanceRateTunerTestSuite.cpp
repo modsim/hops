@@ -1,16 +1,16 @@
-#include "hops/MarkovChain/MarkovChain.hpp"
-#include "hops/MarkovChain/Proposal/Proposal.hpp"
-
-#define BOOST_TEST_MODULE AcceptanceRateTunerTestSuite
 #define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE AcceptanceRateTunerTestSuite
 
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 #include <cmath>
 #include <Eigen/Core>
 
 #include "hops/MarkovChain/MarkovChainAdapter.hpp"
 #include "hops/MarkovChain/Draw/MetropolisHastingsFilter.hpp"
 #include "hops/MarkovChain/Tuning/BinarySearchAcceptanceRateTuner.hpp"
+#include "hops/MarkovChain/MarkovChain.hpp"
+#include "hops/MarkovChain/Proposal/Proposal.hpp"
+
 
 namespace {
     class ProposalMock : public hops::Proposal {
@@ -40,13 +40,13 @@ namespace {
 
         void setState(const Eigen::VectorXd &) override {};
 
-        void setDimensionNames(const std::vector<std::string> &names) override { }
+        void setDimensionNames(const std::vector<std::string> &) override { }
 
         std::vector<std::string> getDimensionNames() const override {
             return std::vector<std::string>();
         }
 
-        std::any getParameter(const hops::ProposalParameter &parameter) const override {
+        std::any getParameter(const hops::ProposalParameter &) const override {
             return stepSize;
         }
 
@@ -62,7 +62,7 @@ namespace {
             return std::vector<std::string>();
         }
 
-        std::string getParameterType(const hops::ProposalParameter &parameter) const override {
+        std::string getParameterType(const hops::ProposalParameter &) const override {
             return std::string();
         }
 

@@ -1,11 +1,13 @@
 #ifdef HOPS_CLP_FOUND
 
-#define BOOST_TEST_MODULE LinearProgrammingClpImplTestSuite
 #define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE LinearProgrammingClpImplTestSuite
 
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 #include <Eigen/Core>
-#include "hops/hops.hpp"
+
+#include "hops/LinearProgram/LinearProgramClpImpl.hpp"
+#include "hops/LinearProgram/LinearProgramSolution.hpp"
 
 BOOST_AUTO_TEST_SUITE(LinearProgrammingClp)
 

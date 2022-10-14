@@ -7,7 +7,6 @@
 #include "hops/MarkovChain/MarkovChain.hpp"
 #include "hops/MarkovChain/Tuning/ExpectedSquaredJumpDistanceTarget.hpp"
 #include "hops/MarkovChain/Tuning/ThompsonSamplingTuner.hpp"
-#include "hops/Parallel/OpenMPControls.hpp"
 #include "hops/Optimization/GaussianProcess.hpp"
 #include "hops/Optimization/ThompsonSampling.hpp"
 #include "hops/RandomNumberGenerator/RandomNumberGenerator.hpp"

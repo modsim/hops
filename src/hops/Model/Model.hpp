@@ -21,7 +21,7 @@ namespace hops {
          */
         [[nodiscard]] virtual typename MatrixType::Scalar computeNegativeLogLikelihood(const VectorType &x) = 0;
 
-        [[nodiscard]] virtual std::optional<VectorType> computeLogLikelihoodGradient(const VectorType &x) {
+        [[nodiscard]] virtual std::optional<VectorType> computeLogLikelihoodGradient(const VectorType &) {
             return std::nullopt;
         };
 

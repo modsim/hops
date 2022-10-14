@@ -71,6 +71,7 @@ namespace hops {
         [[nodiscard]] const VectorType &getB() const override;
 
         [[nodiscard]] std::unique_ptr<Model> getModel() const;
+
         [[nodiscard]] bool hasNegativeLogLikelihood() const override;
 
     private:
@@ -242,7 +243,7 @@ namespace hops {
 
     template<typename InternalMatrixType, typename InternalVectorType>
     void TruncatedGaussianProposal<InternalMatrixType, InternalVectorType>::setParameter(
-            const ProposalParameter &parameter, const std::any &value) {
+            const ProposalParameter &, const std::any &) {
         throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
     }
 
@@ -270,8 +271,8 @@ namespace hops {
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    VectorType &TruncatedGaussianProposal<InternalMatrixType, InternalVectorType>::propose(RandomNumberGenerator &rng,
-                                                                                           const Eigen::VectorXd &activeIndices) {
+    VectorType &TruncatedGaussianProposal<InternalMatrixType, InternalVectorType>::propose(RandomNumberGenerator &,
+                                                                                           const Eigen::VectorXd &) {
         throw std::runtime_error("Propose with rng and activeIndices not implemented");
     }
 

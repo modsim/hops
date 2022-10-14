@@ -1,8 +1,8 @@
-#define BOOST_TEST_MODULE ExpectedSquaredJumpDistanceTunerTestSuite
 #define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE ExpectedSquaredJumpDistanceTunerTestSuite
 
 #include <memory>
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 #include <cmath>
 #include <vector>
 #include <Eigen/Core>

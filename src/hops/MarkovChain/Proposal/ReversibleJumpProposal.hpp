@@ -110,8 +110,8 @@ namespace hops {
         VectorType backwardDistances;
         VectorType forwardDistances;
 
-        VectorType defaultValues;
         Eigen::VectorXi jumpIndices;
+        VectorType defaultValues;
         // VectorType is used instead of VectorXi or some other type because it avoids many casts.
         VectorType activationState;
         VectorType activationProposal;

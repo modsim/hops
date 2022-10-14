@@ -73,7 +73,7 @@ namespace hops {
         }
 
         [[nodiscard]] std::optional<MatrixType>
-        computeExpectedFisherInformation(const VectorType &x) override {
+        computeExpectedFisherInformation(const VectorType &) override {
             return std::nullopt;
         }
 

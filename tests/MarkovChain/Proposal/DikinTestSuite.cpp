@@ -1,7 +1,7 @@
-#define BOOST_TEST_MODULE dikinProposalTestSuite
 #define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE dikinProposalTestSuite
 
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 #include <Eigen/Core>
 
 #include "hops/MarkovChain/Proposal/DikinProposal.hpp"

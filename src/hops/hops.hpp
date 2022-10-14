@@ -1,11 +1,7 @@
 #include "FileReader/CsvReader.hpp"
-#include "FileReader/Hdf5Reader.hpp"
-#include "FileReader/SbmlModel.hpp"
-#include "FileReader/SbmlReader.hpp"
 
 #include "FileWriter/CsvWriter.hpp"
 #include "FileWriter/CsvWriterImpl.hpp"
-#include "FileWriter/Hdf5Writer.hpp"
 #include "FileWriter/FileWriter.hpp"
 #include "FileWriter/FileWriterFactory.hpp"
 #include "FileWriter/FileWriterType.hpp"
@@ -87,7 +83,6 @@
 #include "Optimization/ThompsonSampling.hpp"
 
 #include "Parallel/MpiInitializerFinalizer.hpp"
-#include "Parallel/OpenMPControls.hpp"
 
 #include "Polytope/MaximumVolumeEllipsoid.hpp"
 #include "Polytope/NormalizePolytope.hpp"
@@ -97,10 +92,8 @@
 
 #include "Statistics/Autocorrelation.hpp"
 #include "Statistics/Covariance.hpp"
-#include "Statistics/EffectiveSampleSize.hpp"
 #include "Statistics/ExpectedSquaredJumpDistance.hpp"
 #include "Statistics/IsConstantChain.hpp"
-#include "Statistics/PotentialScaleReductionFactor.hpp"
 
 
 #include "Transformation/LinearTransformation.hpp"

@@ -1,11 +1,12 @@
-#include "hops/Statistics/Covariance.hpp"
+#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE ExpectecSquaredJumpDistanceTestSuite
 
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 #include <Eigen/Core>
 #include <Eigen/Sparse>
 
-#include "hops/hops.hpp"
+#include "hops/FileReader/CsvReader.hpp"
+#include "hops/Statistics/Covariance.hpp"
 
 BOOST_AUTO_TEST_SUITE(CovarianceTestSuite)
     BOOST_AUTO_TEST_CASE(ComputeFull) {

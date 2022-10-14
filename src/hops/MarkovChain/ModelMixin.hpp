@@ -80,9 +80,9 @@ namespace hops {
         [[nodiscard]] bool isSymmetric() const override;
 
     private:
-        double stateNegativeLogLikelihood;
-        double proposalNegativeLogLikelihood;
         ProposalType proposal;
+        double proposalNegativeLogLikelihood;
+        double stateNegativeLogLikelihood;
     };
 
     template<typename ProposalType, typename ModelType>

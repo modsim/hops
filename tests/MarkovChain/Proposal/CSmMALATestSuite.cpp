@@ -1,7 +1,7 @@
-#define BOOST_TEST_MODULE CSmMALAProposalTestSuite
 #define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE CSmMALAProposalTestSuite
 
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 #include <numeric>
 #include <Eigen/Core>
 

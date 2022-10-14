@@ -1,7 +1,7 @@
-#define BOOST_TEST_MODULE IsAddMessageAvailableTestSuite
 #define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE IsAddMessageAvailableTestSuite
 
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include "hops/MarkovChain/Recorder/IsAddMessageAvailabe.hpp"
 
