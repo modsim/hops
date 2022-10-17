@@ -82,8 +82,6 @@
 #include "Optimization/GaussianProcess.hpp"
 #include "Optimization/ThompsonSampling.hpp"
 
-#include "Parallel/MpiInitializerFinalizer.hpp"
-
 #include "Polytope/MaximumVolumeEllipsoid.hpp"
 #include "Polytope/NormalizePolytope.hpp"
 #include "Polytope/SimplexFactory.hpp"
