@@ -112,7 +112,7 @@ namespace hops {
         unsigned long warmUp;
 
         double eps;
-        constexpr static double stepSize = 1;
+        const constexpr static double stepSize = 1;
         double boundaryCushion = 0;
 
         std::vector<std::string> dimensionNames;
@@ -335,7 +335,6 @@ namespace hops {
         return {
                 ProposalParameterName[static_cast<int>(ProposalParameter::BOUNDARY_CUSHION)],
                 ProposalParameterName[static_cast<int>(ProposalParameter::EPSILON)],
-                ProposalParameterName[static_cast<int>(ProposalParameter::STEP_SIZE)],
                 ProposalParameterName[static_cast<int>(ProposalParameter::WARM_UP)],
         };
     }
