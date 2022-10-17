@@ -360,8 +360,6 @@ namespace hops {
             return "double";
         } else if (parameter == ProposalParameter::EPSILON) {
             return "double";
-        } else if (parameter == ProposalParameter::STEP_SIZE) {
-            return "double";
         } else if (parameter == ProposalParameter::WARM_UP) {
             return "long";
         } else {
