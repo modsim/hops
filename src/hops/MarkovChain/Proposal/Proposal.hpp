@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <any>
 #include <stdexcept>
+#include <optional>
 
 #include "hops/RandomNumberGenerator/RandomNumberGenerator.hpp"
 #include "hops/Utility/MatrixType.hpp"
