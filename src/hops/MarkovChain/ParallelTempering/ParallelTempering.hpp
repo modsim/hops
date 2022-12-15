@@ -158,6 +158,12 @@ namespace hops {
             throw std::runtime_error("MPI not supported on current platform");
         }
         ParallelTempering(const MarkovChainImpl &markovChainImpl, // NOLINT(cppcoreguidelines-pro-type-member-init)
+                          RandomNumberGenerator synchronizedRandomNumberGenerator) : MarkovChainImpl(markovChainImpl) {
+            throw std::runtime_error("MPI not supported on current platform");
+        }
+
+        ParallelTempering(const MarkovChainImpl &markovChainImpl, // NOLINT(cppcoreguidelines-pro-type-member-init)
+                            RandomNumberGenerator,
                           double) : MarkovChainImpl(markovChainImpl) {
             throw std::runtime_error("MPI not supported on current platform");
         }
