@@ -9,7 +9,7 @@ set(TEST_SOURCES
         IsSetStepSizeAvailableTestSuite.cpp
         ReflectorTestSuite.cpp
         ReversibleJumpProposalTestSuite.cpp
-#        TrunatedGaussianProposalTestSuite.cpp
+        TrunatedGaussianProposalTestSuite.cpp
         )
 
 foreach (TEST_SOURCE ${TEST_SOURCES})
