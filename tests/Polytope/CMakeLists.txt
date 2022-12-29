@@ -1,5 +1,5 @@
 set(TEST_SOURCES
-        MaximumVolumeEllipsoidTestSuite.cpp
+#        MaximumVolumeEllipsoidTestSuite.cpp
         NormalizePolytopeTestSuite.cpp
         SimplexFactoryTestSuite.cpp
         )

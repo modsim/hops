@@ -4,6 +4,7 @@ if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
             MarkovChainAdapter.hpp
             MarkovChainFactory.hpp
             MarkovChainType.hpp
+            MarkovChainType.cpp
             ModelMixin.hpp
             ModelWrapper.hpp
             StateTransformation.hpp
