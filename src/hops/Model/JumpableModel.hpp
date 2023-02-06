@@ -38,7 +38,7 @@ namespace hops {
 
     template<typename ModelImpl>
     std::unique_ptr<Model> JumpableModel<ModelImpl>::copyModel() const {
-        return std::make_unique<JumpableModel>(*this);
+        return std::make_unique<JumpableModel<ModelImpl>>(*this);
     }
 
     template<typename ModelImpl>

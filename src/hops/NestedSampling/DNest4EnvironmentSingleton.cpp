@@ -6,14 +6,24 @@ hops::DNest4EnvironmentSingleton &hops::DNest4EnvironmentSingleton::getInstance(
 }
 
 [[nodiscard]] std::unique_ptr<hops::Proposal> hops::DNest4EnvironmentSingleton::getPriorProposer() const {
+    if(!priorProposer) {
+        return nullptr;
+    }
     return priorProposer->copyProposal();
+
 }
 
 [[nodiscard]] std::unique_ptr<hops::Model> hops::DNest4EnvironmentSingleton::getModel() const {
+    if(!model) {
+        return nullptr;
+    }
     return model->copyModel();
 }
 
 [[nodiscard]] std::unique_ptr<hops::Proposal> hops::DNest4EnvironmentSingleton::getPosteriorProposer() const {
+    if(!posteriorProposer) {
+        return nullptr;
+    }
     return posteriorProposer->copyProposal();
 }
 

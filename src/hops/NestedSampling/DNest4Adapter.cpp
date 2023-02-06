@@ -24,9 +24,15 @@ hops::DNest4Adapter::DNest4Adapter(const DNest4Adapter &other) {
     proposal = other.proposal;
     stateLogAcceptanceProbability = other.stateLogAcceptanceProbability;
     proposalLogAcceptanceProbability = other.proposalLogAcceptanceProbability;
-    priorProposer = other.priorProposer->copyProposal();
-    posteriorProposer = other.posteriorProposer->copyProposal();
-    model = other.model->copyModel();
+    if (other.priorProposer) {
+        priorProposer = other.priorProposer->copyProposal();
+    }
+    if (other.posteriorProposer) {
+        posteriorProposer = other.posteriorProposer->copyProposal();
+    }
+    if (other.model) {
+        model = other.model->copyModel();
+    }
     internal_rng = other.internal_rng;
 }
 

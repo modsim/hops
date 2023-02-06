@@ -50,6 +50,7 @@ if(HOPS_DNEST4_SUPPORT)
 		DNest4/code/LikelihoodType.h
 		DNest4/code/Options.cpp
 		DNest4/code/Options.h
+		DNest4/code/Pybind11_abortable.hpp
 		DNest4/code/RNG.cpp
 		DNest4/code/RNG.h
 		DNest4/code/Sampler.h
