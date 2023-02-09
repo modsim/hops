@@ -32,12 +32,18 @@ hops::ReversibleJumpProposal::ReversibleJumpProposal(std::unique_ptr<Proposal> p
         jumpIndices(jumpIndices),
         defaultValues(parameterDefaultValues) {
 
-    this->A = A.has_value() ? A.value() : this->proposalImpl->getA();
-    this->b = b.has_value() ? b.value() : this->proposalImpl->getB();
+    std::cout << "jump " << this->jumpIndices.transpose() << std::endl;
+    std::cout << "dv " << this->defaultValues.transpose() << std::endl;
 
     if (this->jumpIndices.rows() != this->defaultValues.rows()) {
         throw std::runtime_error("dimension missmatch in input");
     }
+    if (!this->proposalImpl) {
+        throw std::runtime_error("proposal mechanism is nullptr.");
+    }
+
+    this->A = A.has_value() ? A.value() : this->proposalImpl->getA();
+    this->b = b.has_value() ? b.value() : this->proposalImpl->getB();
 
     VectorType parameterState = this->proposalImpl->getState();
     this->activationState = Eigen::VectorXd::Ones(parameterState.rows());
