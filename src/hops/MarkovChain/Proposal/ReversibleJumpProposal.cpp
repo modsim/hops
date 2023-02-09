@@ -32,9 +32,6 @@ hops::ReversibleJumpProposal::ReversibleJumpProposal(std::unique_ptr<Proposal> p
         jumpIndices(jumpIndices),
         defaultValues(parameterDefaultValues) {
 
-    std::cout << "jump " << this->jumpIndices.transpose() << std::endl;
-    std::cout << "dv " << this->defaultValues.transpose() << std::endl;
-
     if (this->jumpIndices.rows() != this->defaultValues.rows()) {
         throw std::runtime_error("dimension missmatch in input");
     }
