@@ -23,13 +23,17 @@ namespace {
 }
 
 
-
 hops::ReversibleJumpProposal::ReversibleJumpProposal(std::unique_ptr<Proposal> proposalImpl,
-                                               const Eigen::VectorXi &jumpIndices,
-                                               const VectorType &parameterDefaultValues) :
+                                                     const Eigen::VectorXi &jumpIndices,
+                                                     const VectorType &parameterDefaultValues,
+                                                     const std::optional<Eigen::MatrixXd> &A,
+                                                     const std::optional<Eigen::VectorXd> &b) :
         proposalImpl(std::move(proposalImpl)),
         jumpIndices(jumpIndices),
         defaultValues(parameterDefaultValues) {
+
+    this->A = A.has_value() ? A.value() : this->proposalImpl->getA();
+    this->b = b.has_value() ? b.value() : this->proposalImpl->getB();
 
     if (this->jumpIndices.rows() != this->defaultValues.rows()) {
         throw std::runtime_error("dimension missmatch in input");
@@ -44,8 +48,8 @@ hops::ReversibleJumpProposal::ReversibleJumpProposal(std::unique_ptr<Proposal> p
         parameterState(this->jumpIndices(i)) = this->defaultValues(i);
         // Starts with all optional parameters deactivated, which is the simplest model
         this->activationState(jumpIndices(i)) = 0.;
-        auto[b, f] = distanceInCoordinateDirection(this->proposalImpl->getA(),
-                                                   this->proposalImpl->getB(),
+        auto[b, f] = distanceInCoordinateDirection(this->A,
+                                                   this->b,
                                                    this->defaultValues(i),
                                                    this->jumpIndices(i));
         this->backwardDistances(i) = b;
@@ -233,11 +237,11 @@ std::unique_ptr<hops::Proposal> hops::ReversibleJumpProposal::copyProposal() con
 }
 
 const hops::MatrixType &hops::ReversibleJumpProposal::getA() const {
-    return proposalImpl->getA();
+    return this->A;
 }
 
 const hops::VectorType &hops::ReversibleJumpProposal::getB() const {
-    return proposalImpl->getB();
+    return this->b;
 }
 
 hops::VectorType &hops::ReversibleJumpProposal::proposeModel(RandomNumberGenerator &randomNumberGenerator) {
@@ -283,7 +287,8 @@ std::optional<double> hops::ReversibleJumpProposal::getStepSize() const {
     return this->proposalImpl->getStepSize();
 }
 
-hops::VectorType &hops::ReversibleJumpProposal::propose(RandomNumberGenerator &rng, const Eigen::VectorXd &activeIndices) {
+hops::VectorType &
+hops::ReversibleJumpProposal::propose(RandomNumberGenerator &rng, const Eigen::VectorXd &activeIndices) {
     return wrapProposal(proposalImpl->propose(rng, activeIndices));
 }
 

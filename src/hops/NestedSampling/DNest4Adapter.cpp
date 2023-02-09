@@ -1,9 +1,15 @@
 #include "DNest4Adapter.hpp"
 
 hops::DNest4Adapter::DNest4Adapter() {
-    priorProposer = DNest4EnvironmentSingleton::getInstance().getPriorProposer();
-    posteriorProposer = DNest4EnvironmentSingleton::getInstance().getPosteriorProposer();
-    model = DNest4EnvironmentSingleton::getInstance().getModel();
+    if(DNest4EnvironmentSingleton::getInstance().getPriorProposer()) {
+        priorProposer = DNest4EnvironmentSingleton::getInstance().getPriorProposer()->copyProposal();
+    }
+    if(DNest4EnvironmentSingleton::getInstance().getPosteriorProposer()) {
+        posteriorProposer = DNest4EnvironmentSingleton::getInstance().getPosteriorProposer()->copyProposal();
+    }
+    if(DNest4EnvironmentSingleton::getInstance().getModel()) {
+        model = DNest4EnvironmentSingleton::getInstance().getModel()->copyModel();
+    }
 
     std::random_device seedDevice;
     std::uniform_int_distribution<long> dist(std::numeric_limits<long>::min(),
@@ -15,7 +21,6 @@ hops::DNest4Adapter::DNest4Adapter() {
     proposal = state;
     stateLogAcceptanceProbability = 0;
     proposalLogAcceptanceProbability = 0;
-
 }
 
 hops::DNest4Adapter::DNest4Adapter(const DNest4Adapter &other) {

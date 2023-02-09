@@ -22,7 +22,9 @@ namespace hops {
     public:
         ReversibleJumpProposal(std::unique_ptr<Proposal> proposalImpl,
                                const Eigen::VectorXi &jumpIndices,
-                               const VectorType &parameterDefaultValues);
+                               const VectorType &parameterDefaultValues,
+                               const std::optional<Eigen::MatrixXd>& A = std::nullopt,
+                               const std::optional<Eigen::VectorXd>& b = std::nullopt);
 
         ReversibleJumpProposal(const ReversibleJumpProposal &other);
 
@@ -99,6 +101,9 @@ namespace hops {
         // Distributions used for proposals, do not have to be copied
         std::uniform_real_distribution<double> uniformRealDistribution;
         hops::UniformStepDistribution<double> stepDistribution;
+
+        Eigen::MatrixXd A;
+        Eigen::VectorXd b;
     };
 }
 
