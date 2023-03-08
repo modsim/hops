@@ -5,44 +5,32 @@ hops::DNest4EnvironmentSingleton &hops::DNest4EnvironmentSingleton::getInstance(
     return instance;
 }
 
-[[nodiscard]] std::unique_ptr<hops::Proposal> hops::DNest4EnvironmentSingleton::getPriorProposer() const {
-    if(!priorProposer) {
-        return nullptr;
-    }
-    return priorProposer->copyProposal();
-
-}
-
 [[nodiscard]] std::unique_ptr<hops::Model> hops::DNest4EnvironmentSingleton::getModel() const {
-    if(!model) {
+    if (!model) {
         return nullptr;
     }
     return model->copyModel();
 }
 
-[[nodiscard]] std::unique_ptr<hops::Proposal> hops::DNest4EnvironmentSingleton::getPosteriorProposer() const {
-    if(!posteriorProposer) {
+[[nodiscard]] std::unique_ptr<hops::Proposal> hops::DNest4EnvironmentSingleton::getProposal() const {
+    if (!proposal) {
         return nullptr;
     }
-    return posteriorProposer->copyProposal();
-}
-
-[[nodiscard]] const hops::VectorType &hops::DNest4EnvironmentSingleton::getStartingPoint() const {
-    return startingPoint;
-}
-
-void hops::DNest4EnvironmentSingleton::setPriorProposer(std::unique_ptr<hops::Proposal> newProposer) {
-    DNest4EnvironmentSingleton::priorProposer = std::move(newProposer);
+    return proposal->copyProposal();
 }
 
 void hops::DNest4EnvironmentSingleton::setModel(std::unique_ptr<hops::Model> newModel) {
     DNest4EnvironmentSingleton::model = std::move(newModel);
 }
 
-void hops::DNest4EnvironmentSingleton::setPosteriorProposer(std::unique_ptr<hops::Proposal> newPosteriorProposer) {
-    DNest4EnvironmentSingleton::posteriorProposer = std::move(newPosteriorProposer);
+void hops::DNest4EnvironmentSingleton::setProposal(std::unique_ptr<hops::Proposal> newProposal) {
+    DNest4EnvironmentSingleton::proposal = std::move(newProposal);
 }
 
-void hops::DNest4EnvironmentSingleton::setStartingPoint(const VectorType &newStartingPoint) {
-    DNest4EnvironmentSingleton::startingPoint = newStartingPoint;
+hops::VectorType hops::DNest4EnvironmentSingleton::getPriorSample(size_t i) {
+    return prior_samples.at(i);
+}
+
+void hops::DNest4EnvironmentSingleton::setPriorSamples(std::vector<VectorType> new_prior_samples) {
+    prior_samples = std::move(new_prior_samples);
 }

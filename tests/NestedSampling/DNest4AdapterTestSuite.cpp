@@ -24,19 +24,22 @@ BOOST_AUTO_TEST_SUITE(DNest4AdapterTestSuite)
             hops::VectorType b(2);
             b << 5, 5;
 
-            auto gaussian = std::make_unique<hops::Gaussian>(mean, covariance);
-            std::unique_ptr<hops::Proposal> priorProposer =
-                    std::make_unique<hops::CoordinateHitAndRunProposal<decltype(A), decltype(b)>>(A, b, mean);
+            std::vector<hops::VectorType> priorSamples;
+            priorSamples.reserve(16);
+            for(long i=0; i<16; ++i) {
+                priorSamples.emplace_back(mean);
+            }
 
-            std::unique_ptr<hops::Proposal> posteriorProposer =
+            auto gaussian = std::make_unique<hops::Gaussian>(mean, covariance);
+
+            std::unique_ptr<hops::Proposal> proposer =
                     std::make_unique<hops::CoordinateHitAndRunProposal<decltype(A), decltype(b),
                             hops::GaussianStepDistribution<double>>>(A, b, mean);
             posteriorProposer->setParameter(hops::ProposalParameter::STEP_SIZE, 0.5);
 
-            hops::DNest4EnvironmentSingleton::getInstance().setPriorProposer(std::move(priorProposer));
-            hops::DNest4EnvironmentSingleton::getInstance().setPosteriorProposer(std::move(posteriorProposer));
+            hops::DNest4EnvironmentSingleton::getInstance().setProposal(std::move(proposer));
             hops::DNest4EnvironmentSingleton::getInstance().setModel(std::move(gaussian));
-            hops::DNest4EnvironmentSingleton::getInstance().setStartingPoint(mean);
+            hops::DNest4EnvironmentSingleton::getInstance().setPriorSamples(priorSamples);
 
             DNest4::Options sampler_options(4, // num_particles
                                             10000, // new_level_interval

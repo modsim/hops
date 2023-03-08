@@ -25,17 +25,17 @@ namespace hops {
 
 
         /**
-         * @Brief generates a state from the prior for DNest4
+         * @Brief takes state i from prior samples
          * @param rng
          */
-        void from_prior(DNest4::RNG &);
+        void from_prior(size_t i);
 
         /**
-         * @ Metropolis-Hastings proposal for DNest4
+         * @Brief Metropolis-Hastings proposal for DNest4
          * @param rng
          * @return
          */
-        double perturb(DNest4::RNG &);
+        double perturb(DNest4::RNG &rng);
 
         void accept_perturbation();
 
@@ -58,18 +58,10 @@ namespace hops {
     private:
         void swap(DNest4Adapter &other) noexcept;
 
-        std::uniform_real_distribution<double> uniformRealDistribution;
-
-        VectorType state;
-        VectorType proposal;
-        double stateLogAcceptanceProbability = 0;
         double proposalLogAcceptanceProbability = 0;
 
-        std::unique_ptr<hops::Proposal> priorProposer;
-        std::unique_ptr<hops::Proposal> posteriorProposer;
+        std::unique_ptr<hops::Proposal> proposal;
         std::unique_ptr<hops::Model> model;
-
-        RandomNumberGenerator internal_rng;
     };
 }
 
