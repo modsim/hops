@@ -13,7 +13,6 @@ create_badges:
   script:
     - git config --global --add safe.directory '*'
     - commits=$(git rev-list --all --count)
-    - version=$(git describe --tags --abbrev=0)
     - python3 -m anybadge -l commits -v $commits -f commits.svg -c green
   artifacts:
     paths:
