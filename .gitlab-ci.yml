@@ -15,11 +15,9 @@ create_badges:
     - commits=$(git rev-list --all --count)
     - version=$(git describe --tags --abbrev=0)
     - python3 -m anybadge -l commits -v $commits -f commits.svg -c green
-    - python3 -m anybadge -l version -v $version -f version.svg -c blue
   artifacts:
     paths:
       - commits.svg
-      - version.svg
     when: always
     expire_in: 12 weeks
 
