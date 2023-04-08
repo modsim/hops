@@ -1,8 +1,8 @@
 # The HOPS library
 
-[![pipeline status](https://jugit.fz-juelich.de/IBG-1/ModSim/hops/badges/develop/pipeline.svg)](https://jugit.fz-juelich.de/IBG-1/ModSim/hops/-/commits/develop)
-[![coverage report](https://jugit.fz-juelich.de/IBG-1/ModSim/hops/badges/develop/coverage.svg)](https://jugit.fz-juelich.de/IBG-1/ModSim/hops/-/commits/develop)
-[![commits](https://jugit.fz-juelich.de/IBG-1/ModSim/hops/-/jobs/artifacts/develop/raw/commits.svg?job=create_badges)](https://jugit.fz-juelich.de/IBG-1/ModSim/hops/-/commits/develop)
+[![pipeline status](https://jugit.fz-juelich.de/IBG-1/ModSim/hops/badges/main/pipeline.svg)](https://jugit.fz-juelich.de/IBG-1/ModSim/hops/-/commits/main)
+[![coverage report](https://jugit.fz-juelich.de/IBG-1/ModSim/hops/badges/main/coverage.svg)](https://jugit.fz-juelich.de/IBG-1/ModSim/hops/-/commits/main)
+[![commits](https://jugit.fz-juelich.de/IBG-1/ModSim/hops/-/jobs/artifacts/main/raw/commits.svg?job=create_badges)](https://jugit.fz-juelich.de/IBG-1/ModSim/hops/-/commits/main)
 
 
 Welcome to the HOPS library, the Highly Optimized Polytope Sampling library - a powerful open-source C++17 library for efficient and scalable MCMC algorithms. HOPS provides a versatile framework for sampling convex-constrained spaces equipped with arbitrary target functions. With HOPS, you can achieve optimized and scalable performance in your MCMC algorithms, making it a valuable tool for various applications.
