@@ -93,12 +93,12 @@ Collaboration diagram for hops::ThompsonSampling&lt; MatrixType, VectorType, Gau
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr class="memitem:a3f552820658039137c222e2ae99999cf"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classhops_1_1ThompsonSampling.html#a3f552820658039137c222e2ae99999cf">ThompsonSamplgTargetType</a> = <a class="el" href="structhops_1_1internal_1_1ThompsonSamplingTarget.html">internal::ThompsonSamplingTarget</a>&lt; typename MatrixType::Scalar, VectorType &gt;</td></tr>
+<tr class="memitem:a3f552820658039137c222e2ae99999cf"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classhops_1_1ThompsonSampling.html#a3f552820658039137c222e2ae99999cf">ThompsonSamplgTargetType</a> = <a class="el" href="structhops_1_1internal_1_1ThompsonSamplingTarget.html">internal::ThompsonSamplingTarget</a>&lt; typename MatrixType::Scalar, <a class="el" href="namespacehops.html#af656c1adca85c58336d70b81938df367">VectorType</a> &gt;</td></tr>
 <tr class="separator:a3f552820658039137c222e2ae99999cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:afd1d7a314704ea972745110a2acc81ac"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classhops_1_1ThompsonSampling.html#afd1d7a314704ea972745110a2acc81ac">optimize</a> (const size_t numberOfPosteriorUpdates, const size_t numberOfSamplingRounds, const size_t numberOfRoundsForConvergence, GaussianProcessType &amp;initialGP, std::shared_ptr&lt; <a class="el" href="classhops_1_1ThompsonSampling.html#a3f552820658039137c222e2ae99999cf">ThompsonSamplgTargetType</a> &gt; targetFunction, const MatrixType &amp;inputSpaceGrid, <a class="el" href="namespacehops.html#a4837284c9fec620d40b219a6fdce794e">RandomNumberGenerator</a> randomNumberGenerator, size_t *numberOfPosteriorUpdatesNeeded=nullptr, double smoothingLength=0)</td></tr>
+<tr class="memitem:afd1d7a314704ea972745110a2acc81ac"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classhops_1_1ThompsonSampling.html#afd1d7a314704ea972745110a2acc81ac">optimize</a> (const size_t numberOfPosteriorUpdates, const size_t numberOfSamplingRounds, const size_t numberOfRoundsForConvergence, GaussianProcessType &amp;initialGP, std::shared_ptr&lt; <a class="el" href="classhops_1_1ThompsonSampling.html#a3f552820658039137c222e2ae99999cf">ThompsonSamplgTargetType</a> &gt; targetFunction, const <a class="el" href="namespacehops.html#a7ed561c27533fdf7f05b187035bd78a7">MatrixType</a> &amp;inputSpaceGrid, <a class="el" href="namespacehops.html#a4837284c9fec620d40b219a6fdce794e">RandomNumberGenerator</a> randomNumberGenerator, size_t *numberOfPosteriorUpdatesNeeded=nullptr, double smoothingLength=0)</td></tr>
 <tr class="separator:afd1d7a314704ea972745110a2acc81ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Typedef Documentation</h2>
@@ -111,7 +111,7 @@ Static Public Member Functions</h2></td></tr>
 template&lt;typename MatrixType , typename VectorType , typename GaussianProcessType &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="classhops_1_1ThompsonSampling.html">hops::ThompsonSampling</a>&lt; MatrixType, VectorType, GaussianProcessType &gt;::<a class="el" href="classhops_1_1ThompsonSampling.html#a3f552820658039137c222e2ae99999cf">ThompsonSamplgTargetType</a> =  <a class="el" href="structhops_1_1internal_1_1ThompsonSamplingTarget.html">internal::ThompsonSamplingTarget</a>&lt;typename MatrixType::Scalar, VectorType&gt;</td>
+          <td class="memname">using <a class="el" href="classhops_1_1ThompsonSampling.html">hops::ThompsonSampling</a>&lt; <a class="el" href="namespacehops.html#a7ed561c27533fdf7f05b187035bd78a7">MatrixType</a>, <a class="el" href="namespacehops.html#af656c1adca85c58336d70b81938df367">VectorType</a>, GaussianProcessType &gt;::<a class="el" href="classhops_1_1ThompsonSampling.html#a3f552820658039137c222e2ae99999cf">ThompsonSamplgTargetType</a> =  <a class="el" href="structhops_1_1internal_1_1ThompsonSamplingTarget.html">internal::ThompsonSamplingTarget</a>&lt;typename MatrixType::Scalar, <a class="el" href="namespacehops.html#af656c1adca85c58336d70b81938df367">VectorType</a>&gt;</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -131,7 +131,7 @@ template&lt;typename MatrixType , typename VectorType , typename GaussianProcess
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">static bool <a class="el" href="classhops_1_1ThompsonSampling.html">hops::ThompsonSampling</a>&lt; MatrixType, VectorType, GaussianProcessType &gt;::optimize </td>
+          <td class="memname">static bool <a class="el" href="classhops_1_1ThompsonSampling.html">hops::ThompsonSampling</a>&lt; <a class="el" href="namespacehops.html#a7ed561c27533fdf7f05b187035bd78a7">MatrixType</a>, <a class="el" href="namespacehops.html#af656c1adca85c58336d70b81938df367">VectorType</a>, GaussianProcessType &gt;::optimize </td>
           <td>(</td>
           <td class="paramtype">const size_t&#160;</td>
           <td class="paramname"><em>numberOfPosteriorUpdates</em>, </td>
@@ -163,7 +163,7 @@ template&lt;typename MatrixType , typename VectorType , typename GaussianProcess
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const MatrixType &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="namespacehops.html#a7ed561c27533fdf7f05b187035bd78a7">MatrixType</a> &amp;&#160;</td>
           <td class="paramname"><em>inputSpaceGrid</em>, </td>
         </tr>
         <tr>

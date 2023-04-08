@@ -1,15 +1,21 @@
 var searchData=
 [
-  ['chaindata_2ehpp_929',['ChainData.hpp',['../ChainData_8hpp.html',1,'']]],
-  ['chordstepdistributions_2ehpp_930',['ChordStepDistributions.hpp',['../ChordStepDistributions_8hpp.html',1,'']]],
-  ['cmakelists_2etxt_931',['CMakeLists.txt',['../CMakeLists_8txt.html',1,'']]],
-  ['coldnessattribute_2ehpp_932',['ColdnessAttribute.hpp',['../ColdnessAttribute_8hpp.html',1,'']]],
-  ['coordinatehitandrunproposal_2ehpp_933',['CoordinateHitAndRunProposal.hpp',['../CoordinateHitAndRunProposal_8hpp.html',1,'']]],
-  ['covariance_2ehpp_934',['Covariance.hpp',['../Covariance_8hpp.html',1,'']]],
-  ['csvreader_2ecpp_935',['CsvReader.cpp',['../CsvReader_8cpp.html',1,'']]],
-  ['csvreader_2ehpp_936',['CsvReader.hpp',['../CsvReader_8hpp.html',1,'']]],
-  ['csvwriter_2ecpp_937',['CsvWriter.cpp',['../CsvWriter_8cpp.html',1,'']]],
-  ['csvwriter_2ehpp_938',['CsvWriter.hpp',['../CsvWriter_8hpp.html',1,'']]],
-  ['csvwriterimpl_2ecpp_939',['CsvWriterImpl.cpp',['../CsvWriterImpl_8cpp.html',1,'']]],
-  ['csvwriterimpl_2ehpp_940',['CsvWriterImpl.hpp',['../CsvWriterImpl_8hpp.html',1,'']]]
+  ['chaindata_2ehpp_1531',['ChainData.hpp',['../ChainData_8hpp.html',1,'']]],
+  ['changelog_2emd_1532',['CHANGELOG.md',['../CHANGELOG_8md.html',1,'']]],
+  ['chordstepdistributions_2ehpp_1533',['ChordStepDistributions.hpp',['../ChordStepDistributions_8hpp.html',1,'']]],
+  ['cmakelists_2etxt_1534',['CMakeLists.txt',['../CMakeLists_8txt.html',1,'']]],
+  ['coldness_2ehpp_1535',['Coldness.hpp',['../Coldness_8hpp.html',1,'']]],
+  ['coordinatehitandrunproposal_2ehpp_1536',['CoordinateHitAndRunProposal.hpp',['../CoordinateHitAndRunProposal_8hpp.html',1,'']]],
+  ['covariance_2ehpp_1537',['Covariance.hpp',['../Covariance_8hpp.html',1,'']]],
+  ['create_5fattribute_5fstring_5finteger_2ecpp_1538',['create_attribute_string_integer.cpp',['../create__attribute__string__integer_8cpp.html',1,'']]],
+  ['create_5fdataset_5fdouble_2ecpp_1539',['create_dataset_double.cpp',['../create__dataset__double_8cpp.html',1,'']]],
+  ['create_5fdatatype_2ecpp_1540',['create_datatype.cpp',['../create__datatype_8cpp.html',1,'']]],
+  ['create_5fextensible_5fdataset_2ecpp_1541',['create_extensible_dataset.cpp',['../create__extensible__dataset_8cpp.html',1,'']]],
+  ['csmmalaproposal_2ehpp_1542',['CSmMALAProposal.hpp',['../CSmMALAProposal_8hpp.html',1,'']]],
+  ['csvreader_2ecpp_1543',['CsvReader.cpp',['../CsvReader_8cpp.html',1,'']]],
+  ['csvreader_2ehpp_1544',['CsvReader.hpp',['../CsvReader_8hpp.html',1,'']]],
+  ['csvwriter_2ecpp_1545',['CsvWriter.cpp',['../CsvWriter_8cpp.html',1,'']]],
+  ['csvwriter_2ehpp_1546',['CsvWriter.hpp',['../CsvWriter_8hpp.html',1,'']]],
+  ['csvwriterimpl_2ecpp_1547',['CsvWriterImpl.cpp',['../CsvWriterImpl_8cpp.html',1,'']]],
+  ['csvwriterimpl_2ehpp_1548',['CsvWriterImpl.hpp',['../CsvWriterImpl_8hpp.html',1,'']]]
 ];

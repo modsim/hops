@@ -1,11 +1,13 @@
 #ifdef HOPS_GUROBI_FOUND
 
-#define BOOST_TEST_MODULE LinearProgramGurobiImplTestSuite
 #define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE LinearProgramGurobiImplTestSuite
 
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 #include <Eigen/Core>
-#include <hops/hops.hpp>
+
+#include "hops/LinearProgram/LinearProgramGurobiImpl.hpp"
+#include "hops/LinearProgram/LinearProgramSolution.hpp"
 
 BOOST_AUTO_TEST_SUITE(LinearProgrammingGurobiImpl)
 

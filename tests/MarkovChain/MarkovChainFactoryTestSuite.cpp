@@ -1,26 +1,37 @@
-#define BOOST_TEST_MODULE MarkovChainFactoryTestSuite
 #define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE MarkovChainFactoryTestSuite
 
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 #include <Eigen/Core>
-#include <hops/hops.hpp>
+#include <Eigen/Dense>
+
+#include "hops/hops.hpp"
 
 namespace {
     class ModelMock {
     public:
-        using VectorType = Eigen::VectorXd;
-        using MatrixType = Eigen::MatrixXd;
-
-        [[maybe_unused]] static double computeNegativeLogLikelihood(const VectorType &) {
+        [[maybe_unused]] double computeNegativeLogLikelihood(const hops::VectorType &) {
             return 0.;
         }
 
-        [[maybe_unused]] static Eigen::VectorXd computeLogLikelihoodGradient(const VectorType &) {
-            return Eigen::VectorXd::Ones(2);
+        std::optional<hops::VectorType> computeLogLikelihoodGradient(const hops::VectorType &x) {
+            return std::nullopt;
         }
 
-        [[maybe_unused]] static Eigen::MatrixXd computeExpectedFisherInformation(const VectorType &) {
-            return Eigen::MatrixXd::Identity(2, 2);
+        std::optional<hops::MatrixType> computeExpectedFisherInformation(const hops::VectorType &type) {
+            return std::nullopt;
+        }
+
+        bool hasConstantExpectedFisherInformation() {
+            return false;
+        }
+
+        std::vector<std::string> getDimensionNames() const {
+            return {};
+        }
+
+        std::unique_ptr<hops::Model> copyModel() const {
+            return nullptr;
         }
     };
 }

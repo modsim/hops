@@ -1,3 +1,4 @@
-[submodule "include/hops/Third-party/HighFive"]
-	path = include/hops/Third-party/HighFive
-	url = https://github.com/BlueBrain/HighFive.git
+[submodule "extern/DNest4"]
+	path = src/hops/extern/DNest4
+  url = https://github.com/modsim/DNest4.git
+  branch = feature/#39-efficient-perturbation-without-model-copy

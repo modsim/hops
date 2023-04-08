@@ -1,5 +1,6 @@
 ########################################################################################################################
-# CMAKE Settings ########################################################################################################################
+# CMAKE Settings
+########################################################################################################################
 
 cmake_minimum_required(VERSION 3.14)
 set(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")
@@ -16,7 +17,8 @@ endif (UNIX)
 ########################################################################################################################
 if (CMAKE_GENERATOR MATCHES "Visual Studio")
     add_definitions(-D_USE_MATH_DEFINES)
-    add_compile_options("/Za")
+    add_compile_options(/Ze)
+    add_compile_options(/bigobj)
 endif ()
 
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
@@ -32,11 +34,11 @@ set(MKL_USE_interface lp64)
 # Set Options
 ########################################################################################################################
 
-option(HOPS_SBML_SUPPORT "Enables SBML support. Use -DHOPS_SBML_SUPPORT=ON to enable." OFF)
-option(HOPS_HDF5_SUPPORT "Enables HDF5 support with HighFive. Use -DHOPS_HDF5_SUPPORT=ON to enable." OFF)
+option(HOPS_DNEST4_SUPPORT "Enables Nested Sampling support with DNEST4. Use -DHOPS_DNEST4_SUPPORT=ON to enable." ON)
 option(HOPS_BENCHMARKS "Enables compilation of Benchmarks (Requires Celero). Use -DHOPS_BENCHMARKS=ON to enable." OFF)
 option(HOPS_DOCS "Enables generation of documentation. Use -DHOPS_DOCS=OFF to disable." ON)
 option(HOPS_BINARIES "Enables compilation of hops executables. Use -DHOPS_BINARIES=OFF to disable." ON)
+option(HOPS_EXAMPLES "Enables compilation of hops examples. Use -DHOPS_EXAMPLES=OFF to disable." ON)
 option(HOPS_TESTS "Enables compilation of unit tests. Use -DHOPS_TESTS=OFF to disable." ON)
 option(HOPS_NO_INSTALL "Disables installation. Use -DHOPS_NO_INSTALL=ON to disable installation." OFF)
 set(HOPS_LIBRARY_TYPE SHARED CACHE STRING "Type of library to build. Options are HEADER_ONLY, STATIC or SHARED")
@@ -84,13 +86,12 @@ else ()
 endif (NOT ${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 
 ########################################################################################################################
-# Third-Party Dependencies
+# System-Installed Third-Party Dependencies
 ########################################################################################################################
 
 find_package(Doxygen)
 find_package(Eigen3 REQUIRED)
 find_package(MKL)
-find_package(OpenMP)
 message(STATUS "FOUND MKL ? ${MKL_FOUND}")
 
 ########################################################################################################################
@@ -112,12 +113,13 @@ if (HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
     add_library(hops INTERFACE)
 
     target_compile_definitions(hops INTERFACE HOPS_HEADER_ONLY)
-    if (HOPS_HDF5_SUPPORT)
-        target_compile_definitions(hops INTERFACE HOPS_HDF5_SUPPORT)
-    endif (HOPS_HDF5_SUPPORT)
+
+    if (HOPS_DNEST4_SUPPORT)
+        target_compile_definitions(hops INTERFACE HOPS_DNEST4_SUPPORT)
+    endif (HOPS_DNEST4_SUPPORT)
 
     target_include_directories(hops INTERFACE ${EIGEN3_INCLUDE_DIR}
-            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
             $<INSTALL_INTERFACE:include>
             )
 else (HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
@@ -127,25 +129,16 @@ else (HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
     target_compile_definitions(hops ${SCOPE} HOPS_HDF5_SUPPORT)
 
     target_include_directories(hops PUBLIC ${EIGEN3_INCLUDE_DIR}
-            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
             $<INSTALL_INTERFACE:include>
             )
 endif (HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
 
-if (OpenMP_CXX_FOUND)
-    target_link_libraries(hops INTERFACE OpenMP::OpenMP_CXX)
-    target_link_libraries(hops ${SCOPE} OpenMP::OpenMP_CXX)
-    target_link_options(hops INTERFACE ${OpenMP_CXX_LIBRARY} ${OpenMP_CXX_FLAGS})
-    target_link_options(hops ${SCOPE} ${OpenMP_CXX_LIBRARY} ${OpenMP_CXX_FLAGS})
-else (OpenMP_CXX_FOUND)
-    message(WARNING "OPENMP not found.")
-endif (OpenMP_CXX_FOUND)
+add_subdirectory(src)
 
-
-add_subdirectory(include)
 
 ########################################################################################################################
-# MKL support for faster linear algebra
+# Linking libc++ and MKL support for faster linear algebra
 ########################################################################################################################
 
 if (MKL_INCLUDE_DIR)
@@ -155,7 +148,7 @@ if (MKL_LIBRARY_DIR)
     target_link_directories(hops ${SCOPE} ${MKL_LIBRARY_DIR})
 endif (MKL_LIBRARY_DIR)
 if (MKL_LIBRARIES)
-    target_link_libraries(hops ${SCOPE} ${MKL_LIBRARIES})
+    target_link_libraries(hops ${SCOPE} ${MKL_LIBRARIES} stdc++fs)
 endif (MKL_LIBRARIES)
 
 ########################################################################################################################
@@ -170,7 +163,7 @@ if (HOPS_DOCS)
         message(STATUS "Enabled Doxygen documentation. Use -DHOPS_DOCS=OFF to disable.")
         set(DOCUMENTATION_DIR "docs")
 
-        set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")
+        set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
         set(doxy_main_page "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
         set(doxyfile_in "${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in")
@@ -210,6 +203,17 @@ else ()
 endif ()
 
 ########################################################################################################################
+# HOPS_EXAMPLES
+########################################################################################################################
+
+if (HOPS_EXAMPLES)
+    message(STATUS "Enabled compilation of examples. Use -DHOPS_EXAMPLES=OFF to disable.")
+    add_subdirectory(examples)
+else ()
+    message(STATUS "Disabled compilation of examples. Use -DHOPS_EXAMPLES=ON to enable.")
+endif ()
+
+########################################################################################################################
 # HOPS_TESTS
 ########################################################################################################################
 
@@ -220,6 +224,7 @@ if (HOPS_TESTS)
 else ()
     message(STATUS "Disabled compilation of tests. Use -DHOPS_TESTS=ON to enable.")
 endif ()
+
 
 
 ########################################################################################################################
@@ -235,16 +240,17 @@ endif ()
 # Install
 ########################################################################################################################
 
-if(NOT HOPS_NO_INSTALL)
-    install(DIRECTORY include/ DESTINATION include/ FILES_MATCHING PATTERN "*.hpp")
-    install(DIRECTORY include/ DESTINATION include/ FILES_MATCHING PATTERN "*.cpp")
-    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/hops/hops.hpp DESTINATION include/hops)
+if (NOT HOPS_NO_INSTALL)
+    install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/ DESTINATION include/
+            FILES_MATCHING
+            PATTERN "*.hpp"
+            PATTERN "*.h")
 
-    if (HOPS_BINARIES)
-        install(TARGETS hops-sampler DESTINATION bin/)
-    endif ()
+    #    TODO reinclude when hops-sampler is fixed
+    #    if (HOPS_BINARIES)
+    #        install(TARGETS hops-sampler DESTINATION bin/)
+    #    endif ()
 
     install(TARGETS hops EXPORT hops-config LIBRARY DESTINATION "lib")
     install(EXPORT hops-config DESTINATION "lib")
-endif()
-
+endif (NOT HOPS_NO_INSTALL)

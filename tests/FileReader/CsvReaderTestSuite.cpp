@@ -1,10 +1,11 @@
-#define BOOST_TEST_MODULE CsvReaderTestSuite
 #define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE CsvReaderTestSuite
 
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 #include <Eigen/Core>
 #include <Eigen/Sparse>
-#include <hops/hops.hpp>
+
+#include "hops/hops.hpp"
 
 BOOST_AUTO_TEST_SUITE(CsvReader)
 
@@ -144,9 +145,7 @@ BOOST_AUTO_TEST_SUITE(CsvReader)
                 0, -1, 0, 0,
                 0, 0, -1, 0,
                 0, 0, 0, -1;
-
-        auto actualResult = hops::CsvReader::readMatrix<Eigen::MatrixXf>("../../resources/A_small.csv");
-
+auto actualResult = hops::CsvReader::readMatrix<Eigen::MatrixXf>("../../resources/A_small.csv");
         BOOST_CHECK(actualResult == expectedResult);
     }
 

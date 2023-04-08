@@ -88,9 +88,9 @@ $(function() {
 <div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> MatrixType, <span class="keyword">typename</span> VectorType&gt;</div>
 <div class="line"><a name="l00011"></a><span class="lineno"><a class="line" href="classhops_1_1DikinProposal.html">   11</a></span>&#160;    <span class="keyword">class </span><a class="code" href="classhops_1_1DikinProposal.html">DikinProposal</a> {</div>
 <div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;    <span class="keyword">public</span>:</div>
-<div class="line"><a name="l00013"></a><span class="lineno"><a class="line" href="classhops_1_1DikinProposal.html#a7d9683a52b616982c716cf90d353fa83">   13</a></span>&#160;        <span class="keyword">using</span> <a class="code" href="classhops_1_1DikinProposal.html#a7d9683a52b616982c716cf90d353fa83">StateType</a> = VectorType;</div>
+<div class="line"><a name="l00013"></a><span class="lineno"><a class="line" href="classhops_1_1DikinProposal.html#a7d9683a52b616982c716cf90d353fa83">   13</a></span>&#160;        <span class="keyword">using</span> <a class="code" href="classhops_1_1DikinProposal.html#a7d9683a52b616982c716cf90d353fa83">StateType</a> = <a class="code" href="namespacehops.html#af656c1adca85c58336d70b81938df367">VectorType</a>;</div>
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160; </div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;        <a class="code" href="classhops_1_1DikinProposal.html#a1408fd67f5bc1be372266afb6ffcc04c">DikinProposal</a>(MatrixType A, VectorType b, VectorType currentState);</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;        <a class="code" href="classhops_1_1DikinProposal.html#a1408fd67f5bc1be372266afb6ffcc04c">DikinProposal</a>(<a class="code" href="namespacehops.html#a7ed561c27533fdf7f05b187035bd78a7">MatrixType</a> A, <a class="code" href="namespacehops.html#af656c1adca85c58336d70b81938df367">VectorType</a> b, <a class="code" href="namespacehops.html#af656c1adca85c58336d70b81938df367">VectorType</a> currentState);</div>
 <div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160; </div>
 <div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;        <span class="keywordtype">void</span> <a class="code" href="classhops_1_1DikinProposal.html#a744a392091cd6e5618b86267348d29d2">propose</a>(<a class="code" href="classpcg__detail_1_1engine.html">RandomNumberGenerator</a> &amp;randomNumberGenerator);</div>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160; </div>
@@ -108,11 +108,11 @@ $(function() {
 <div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160; </div>
 <div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;        <span class="keywordtype">void</span> <a class="code" href="classhops_1_1DikinProposal.html#ad6cf74f2b32c8eea3b3efc9afd64db79">setStepSize</a>(<span class="keyword">typename</span> MatrixType::Scalar newStepSize);</div>
 <div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160; </div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;        std::string <a class="code" href="classhops_1_1DikinProposal.html#ae3ced6258d475fefe72dc9656a683bfa">getName</a>();</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;        <a class="code" href="hops_2Third-party_2HighFive_2src_2examples_2CMakeLists_8txt.html#a31cb2c9ef255d305673fbf751c6a34da">std::string</a> <a class="code" href="classhops_1_1DikinProposal.html#ae3ced6258d475fefe72dc9656a683bfa">getName</a>();</div>
 <div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160; </div>
 <div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    <span class="keyword">private</span>:</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;        MatrixType A;</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;        VectorType b;</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;        <a class="code" href="namespacehops.html#a7ed561c27533fdf7f05b187035bd78a7">MatrixType</a> A;</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;        <a class="code" href="namespacehops.html#af656c1adca85c58336d70b81938df367">VectorType</a> b;</div>
 <div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160; </div>
 <div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;        <a class="code" href="classhops_1_1DikinProposal.html#a7d9683a52b616982c716cf90d353fa83">StateType</a> state;</div>
 <div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;        <a class="code" href="classhops_1_1DikinProposal.html#a7d9683a52b616982c716cf90d353fa83">StateType</a> proposal;</div>
@@ -131,9 +131,9 @@ $(function() {
 <div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;    };</div>
 <div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160; </div>
 <div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> MatrixType, <span class="keyword">typename</span> VectorType&gt;</div>
-<div class="line"><a name="l00062"></a><span class="lineno"><a class="line" href="classhops_1_1DikinProposal.html#a1408fd67f5bc1be372266afb6ffcc04c">   62</a></span>&#160;    <a class="code" href="classhops_1_1DikinProposal.html#a1408fd67f5bc1be372266afb6ffcc04c">DikinProposal&lt;MatrixType, VectorType&gt;::DikinProposal</a>(MatrixType A,</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;                                                         VectorType b,</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;                                                         VectorType currentState) :</div>
+<div class="line"><a name="l00062"></a><span class="lineno"><a class="line" href="classhops_1_1DikinProposal.html#a1408fd67f5bc1be372266afb6ffcc04c">   62</a></span>&#160;    <a class="code" href="classhops_1_1DikinProposal.html#a1408fd67f5bc1be372266afb6ffcc04c">DikinProposal&lt;MatrixType, VectorType&gt;::DikinProposal</a>(<a class="code" href="namespacehops.html#a7ed561c27533fdf7f05b187035bd78a7">MatrixType</a> A,</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;                                                         <a class="code" href="namespacehops.html#af656c1adca85c58336d70b81938df367">VectorType</a> b,</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;                                                         <a class="code" href="namespacehops.html#af656c1adca85c58336d70b81938df367">VectorType</a> currentState) :</div>
 <div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;            A(std::move(A)),</div>
 <div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;            b(std::move(b)),</div>
 <div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;            dikinEllipsoidCalculator(this-&gt;A, this-&gt;b) {</div>
@@ -173,7 +173,7 @@ $(function() {
 <div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;        proposalCholeskyOfDikinEllipsoid = std::move(choleskyResult.second);</div>
 <div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160; </div>
 <div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;        proposalLogSqrtDeterminant = proposalCholeskyOfDikinEllipsoid.diagonal().array().log().sum();</div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;        VectorType stateDifference = state - proposal;</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;        <a class="code" href="namespacehops.html#af656c1adca85c58336d70b81938df367">VectorType</a> stateDifference = state - proposal;</div>
 <div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160; </div>
 <div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;        <span class="keywordflow">return</span> proposalLogSqrtDeterminant</div>
 <div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;               - stateLogSqrtDeterminant</div>
@@ -218,7 +218,7 @@ $(function() {
 <div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;    }</div>
 <div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160; </div>
 <div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> MatrixType, <span class="keyword">typename</span> VectorType&gt;</div>
-<div class="line"><a name="l00149"></a><span class="lineno"><a class="line" href="classhops_1_1DikinProposal.html#ae3ced6258d475fefe72dc9656a683bfa">  149</a></span>&#160;    std::string <a class="code" href="classhops_1_1DikinProposal.html#ae3ced6258d475fefe72dc9656a683bfa">DikinProposal&lt;MatrixType, VectorType&gt;::getName</a>() {</div>
+<div class="line"><a name="l00149"></a><span class="lineno"><a class="line" href="classhops_1_1DikinProposal.html#ae3ced6258d475fefe72dc9656a683bfa">  149</a></span>&#160;    <a class="code" href="hops_2Third-party_2HighFive_2src_2examples_2CMakeLists_8txt.html#a31cb2c9ef255d305673fbf751c6a34da">std::string</a> <a class="code" href="classhops_1_1DikinProposal.html#ae3ced6258d475fefe72dc9656a683bfa">DikinProposal&lt;MatrixType, VectorType&gt;::getName</a>() {</div>
 <div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;        <span class="keywordflow">return</span> <span class="stringliteral">&quot;Dikin Walk&quot;</span>;</div>
 <div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;    }</div>
 <div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;}</div>
@@ -226,6 +226,7 @@ $(function() {
 <div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;<span class="preprocessor">#endif //HOPS_DIKINPROPOSAL_HPP</span></div>
 </div><!-- fragment --></div><!-- contents -->
 <div class="ttc" id="aclasshops_1_1DikinProposal_html_ae3ced6258d475fefe72dc9656a683bfa"><div class="ttname"><a href="classhops_1_1DikinProposal.html#ae3ced6258d475fefe72dc9656a683bfa">hops::DikinProposal::getName</a></div><div class="ttdeci">std::string getName()</div><div class="ttdef"><b>Definition:</b> DikinProposal.hpp:149</div></div>
+<div class="ttc" id="anamespacehops_html_a7ed561c27533fdf7f05b187035bd78a7"><div class="ttname"><a href="namespacehops.html#a7ed561c27533fdf7f05b187035bd78a7">hops::MatrixType</a></div><div class="ttdeci">Eigen::MatrixXd MatrixType</div><div class="ttdef"><b>Definition:</b> MatrixType.hpp:7</div></div>
 <div class="ttc" id="aclasshops_1_1DikinProposal_html_ae854544f1c087486ff26fcad7a14e713"><div class="ttname"><a href="classhops_1_1DikinProposal.html#ae854544f1c087486ff26fcad7a14e713">hops::DikinProposal::getProposal</a></div><div class="ttdeci">StateType getProposal() const</div><div class="ttdef"><b>Definition:</b> DikinProposal.hpp:132</div></div>
 <div class="ttc" id="aclasspcg__detail_1_1engine_html"><div class="ttname"><a href="classpcg__detail_1_1engine.html">pcg_detail::engine</a></div><div class="ttdef"><b>Definition:</b> pcg_random.hpp:364</div></div>
 <div class="ttc" id="aclasshops_1_1DikinProposal_html_a744a392091cd6e5618b86267348d29d2"><div class="ttname"><a href="classhops_1_1DikinProposal.html#a744a392091cd6e5618b86267348d29d2">hops::DikinProposal::propose</a></div><div class="ttdeci">void propose(RandomNumberGenerator &amp;randomNumberGenerator)</div><div class="ttdef"><b>Definition:</b> DikinProposal.hpp:74</div></div>
@@ -235,6 +236,8 @@ $(function() {
 <div class="ttc" id="anamespacehops_html"><div class="ttname"><a href="namespacehops.html">hops</a></div><div class="ttdef"><b>Definition:</b> CsvReader.hpp:8</div></div>
 <div class="ttc" id="aclasshops_1_1DikinEllipsoidCalculator_html"><div class="ttname"><a href="classhops_1_1DikinEllipsoidCalculator.html">hops::DikinEllipsoidCalculator</a></div><div class="ttdef"><b>Definition:</b> DikinEllipsoidCalculator.hpp:11</div></div>
 <div class="ttc" id="aclasshops_1_1DikinProposal_html_a7d9683a52b616982c716cf90d353fa83"><div class="ttname"><a href="classhops_1_1DikinProposal.html#a7d9683a52b616982c716cf90d353fa83">hops::DikinProposal::StateType</a></div><div class="ttdeci">VectorType StateType</div><div class="ttdef"><b>Definition:</b> DikinProposal.hpp:13</div></div>
+<div class="ttc" id="ahops_2Third-party_2HighFive_2src_2examples_2CMakeLists_8txt_html_a31cb2c9ef255d305673fbf751c6a34da"><div class="ttname"><a href="hops_2Third-party_2HighFive_2src_2examples_2CMakeLists_8txt.html#a31cb2c9ef255d305673fbf751c6a34da">string</a></div><div class="ttdeci">NAME string(REPLACE &quot;.cpp&quot; &quot;_bin&quot; example_name ${example_filename}) if($</div><div class="ttdef"><b>Definition:</b> hops/Third-party/HighFive/src/examples/CMakeLists.txt:6</div></div>
+<div class="ttc" id="anamespacehops_html_af656c1adca85c58336d70b81938df367"><div class="ttname"><a href="namespacehops.html#af656c1adca85c58336d70b81938df367">hops::VectorType</a></div><div class="ttdeci">Eigen::VectorXd VectorType</div><div class="ttdef"><b>Definition:</b> VectorType.hpp:7</div></div>
 <div class="ttc" id="aclasshops_1_1DikinProposal_html_a1408fd67f5bc1be372266afb6ffcc04c"><div class="ttname"><a href="classhops_1_1DikinProposal.html#a1408fd67f5bc1be372266afb6ffcc04c">hops::DikinProposal::DikinProposal</a></div><div class="ttdeci">DikinProposal(MatrixType A, VectorType b, VectorType currentState)</div><div class="ttdoc">Constructs Gaussian Dikin proposal mechanism on polytope defined as Ax&lt;b.</div><div class="ttdef"><b>Definition:</b> DikinProposal.hpp:62</div></div>
 <div class="ttc" id="aclasshops_1_1DikinProposal_html_ad6cf74f2b32c8eea3b3efc9afd64db79"><div class="ttname"><a href="classhops_1_1DikinProposal.html#ad6cf74f2b32c8eea3b3efc9afd64db79">hops::DikinProposal::setStepSize</a></div><div class="ttdeci">void setStepSize(typename MatrixType::Scalar newStepSize)</div><div class="ttdef"><b>Definition:</b> DikinProposal.hpp:142</div></div>
 <div class="ttc" id="aDikinEllipsoidCalculator_8hpp_html"><div class="ttname"><a href="DikinEllipsoidCalculator_8hpp.html">DikinEllipsoidCalculator.hpp</a></div></div>

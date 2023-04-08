@@ -90,11 +90,11 @@ $(function() {
 <div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> Model&gt;</div>
 <div class="line"><a name="l00013"></a><span class="lineno"><a class="line" href="classhops_1_1Problem.html">   13</a></span>&#160;    <span class="keyword">class </span><a class="code" href="classhops_1_1Problem.html">Problem</a> {</div>
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;    <span class="keyword">public</span>:</div>
-<div class="line"><a name="l00015"></a><span class="lineno"><a class="line" href="classhops_1_1Problem.html#a958de1aa73ffab9f0c14ab50bbb0f2db">   15</a></span>&#160;        <span class="keyword">using</span> <a class="code" href="classhops_1_1Problem.html#a958de1aa73ffab9f0c14ab50bbb0f2db">ModelType</a> = Model;</div>
+<div class="line"><a name="l00015"></a><span class="lineno"><a class="line" href="classhops_1_1Problem.html#a958de1aa73ffab9f0c14ab50bbb0f2db">   15</a></span>&#160;        <span class="keyword">using</span> <a class="code" href="classhops_1_1Model.html">ModelType</a> = <a class="code" href="classhops_1_1Model.html">Model</a>;</div>
 <div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160; </div>
 <div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;        <span class="comment">//Problem() = default;</span></div>
 <div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160; </div>
-<div class="line"><a name="l00019"></a><span class="lineno"><a class="line" href="classhops_1_1Problem.html#a25e33cd483fc4993d1f9b3a2272c8c51">   19</a></span>&#160;        <a class="code" href="classhops_1_1Problem.html#a25e33cd483fc4993d1f9b3a2272c8c51">Problem</a>(<span class="keyword">const</span> Model&amp; model) :</div>
+<div class="line"><a name="l00019"></a><span class="lineno"><a class="line" href="classhops_1_1Problem.html#a25e33cd483fc4993d1f9b3a2272c8c51">   19</a></span>&#160;        <a class="code" href="classhops_1_1Problem.html#a25e33cd483fc4993d1f9b3a2272c8c51">Problem</a>(<span class="keyword">const</span> <a class="code" href="classhops_1_1Model.html">Model</a>&amp; model) :</div>
 <div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;                model(model) {</div>
 <div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;        }</div>
 <div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160; </div>
@@ -104,7 +104,7 @@ $(function() {
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;            dimension = A.cols();</div>
 <div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;        }</div>
 <div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160; </div>
-<div class="line"><a name="l00029"></a><span class="lineno"><a class="line" href="classhops_1_1Problem.html#aff413ec7bfeed93b97a3240da4df854a">   29</a></span>&#160;        <a class="code" href="classhops_1_1Problem.html#aff413ec7bfeed93b97a3240da4df854a">Problem</a>(<span class="keyword">const</span> Eigen::MatrixXd&amp; A, <span class="keyword">const</span> Eigen::VectorXd&amp; b, <span class="keyword">const</span> Model&amp; model) :</div>
+<div class="line"><a name="l00029"></a><span class="lineno"><a class="line" href="classhops_1_1Problem.html#aff413ec7bfeed93b97a3240da4df854a">   29</a></span>&#160;        <a class="code" href="classhops_1_1Problem.html#aff413ec7bfeed93b97a3240da4df854a">Problem</a>(<span class="keyword">const</span> Eigen::MatrixXd&amp; A, <span class="keyword">const</span> Eigen::VectorXd&amp; b, <span class="keyword">const</span> <a class="code" href="classhops_1_1Model.html">Model</a>&amp; model) :</div>
 <div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;                A(A),</div>
 <div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;                b(b),</div>
 <div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;                model(model) {</div>
@@ -132,7 +132,7 @@ $(function() {
 <div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;            <span class="keywordflow">return</span> this-&gt;b;</div>
 <div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;        }</div>
 <div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160; </div>
-<div class="line"><a name="l00057"></a><span class="lineno"><a class="line" href="classhops_1_1Problem.html#ab3ebd66385fd2d57798be91ad3e5f88a">   57</a></span>&#160;        <span class="keyword">const</span> Model&amp; <a class="code" href="classhops_1_1Problem.html#ab3ebd66385fd2d57798be91ad3e5f88a">getModel</a>()<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00057"></a><span class="lineno"><a class="line" href="classhops_1_1Problem.html#ab3ebd66385fd2d57798be91ad3e5f88a">   57</a></span>&#160;        <span class="keyword">const</span> <a class="code" href="classhops_1_1Model.html">Model</a>&amp; <a class="code" href="classhops_1_1Problem.html#ab3ebd66385fd2d57798be91ad3e5f88a">getModel</a>()<span class="keyword"> const </span>{</div>
 <div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;            <span class="keywordflow">return</span> this-&gt;model;</div>
 <div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;        }</div>
 <div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160; </div>
@@ -188,7 +188,7 @@ $(function() {
 <div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160; </div>
 <div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;        <span class="keywordtype">long</span> dimension;</div>
 <div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160; </div>
-<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;        Model model;</div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;        <a class="code" href="classhops_1_1Model.html">Model</a> model;</div>
 <div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160; </div>
 <div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;        <span class="keywordtype">bool</span> unround = <span class="keyword">false</span>;</div>
 <div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;        Eigen::MatrixXd unroundingTransformation;</div>
@@ -206,7 +206,6 @@ $(function() {
 <div class="ttc" id="aclasshops_1_1Problem_html_a1309e5373918b56bfd38dbbd94c8b840"><div class="ttname"><a href="classhops_1_1Problem.html#a1309e5373918b56bfd38dbbd94c8b840">hops::Problem::setB</a></div><div class="ttdeci">void setB(const Eigen::VectorXd &amp;b)</div><div class="ttdef"><b>Definition:</b> Problem.hpp:45</div></div>
 <div class="ttc" id="aclasshops_1_1Problem_html_a166aa3f13c83769e73642d6f50c82761"><div class="ttname"><a href="classhops_1_1Problem.html#a166aa3f13c83769e73642d6f50c82761">hops::Problem::Problem</a></div><div class="ttdeci">Problem(const Eigen::MatrixXd &amp;A, const Eigen::VectorXd &amp;b)</div><div class="ttdef"><b>Definition:</b> Problem.hpp:23</div></div>
 <div class="ttc" id="aclasshops_1_1RunBase_html"><div class="ttname"><a href="classhops_1_1RunBase.html">hops::RunBase</a></div><div class="ttdef"><b>Definition:</b> Problem.hpp:10</div></div>
-<div class="ttc" id="aclasshops_1_1Problem_html_a958de1aa73ffab9f0c14ab50bbb0f2db"><div class="ttname"><a href="classhops_1_1Problem.html#a958de1aa73ffab9f0c14ab50bbb0f2db">hops::Problem::ModelType</a></div><div class="ttdeci">Model ModelType</div><div class="ttdef"><b>Definition:</b> Problem.hpp:15</div></div>
 <div class="ttc" id="aclasshops_1_1Problem_html_a0f707284a3cf4290d0456680ef9e654a"><div class="ttname"><a href="classhops_1_1Problem.html#a0f707284a3cf4290d0456680ef9e654a">hops::Problem::getStartingPoint</a></div><div class="ttdeci">const Eigen::VectorXd &amp; getStartingPoint()</div><div class="ttdef"><b>Definition:</b> Problem.hpp:71</div></div>
 <div class="ttc" id="aclasshops_1_1Problem_html_aee20a1d063b23959e98a0fd227268988"><div class="ttname"><a href="classhops_1_1Problem.html#aee20a1d063b23959e98a0fd227268988">hops::Problem::setUnroundingShift</a></div><div class="ttdeci">void setUnroundingShift(const Eigen::MatrixXd &amp;unroundingShift)</div><div class="ttdef"><b>Definition:</b> Problem.hpp:89</div></div>
 <div class="ttc" id="aclasshops_1_1Problem_html"><div class="ttname"><a href="classhops_1_1Problem.html">hops::Problem</a></div><div class="ttdef"><b>Definition:</b> Problem.hpp:13</div></div>
@@ -221,6 +220,7 @@ $(function() {
 <div class="ttc" id="aclasshops_1_1Problem_html_a452bd8f4621ff50cca79fdf77ce96449"><div class="ttname"><a href="classhops_1_1Problem.html#a452bd8f4621ff50cca79fdf77ce96449">hops::Problem::getDimension</a></div><div class="ttdeci">long getDimension()</div><div class="ttdef"><b>Definition:</b> Problem.hpp:36</div></div>
 <div class="ttc" id="aclasshops_1_1Problem_html_acd96f0b99b27a6078a523c1a632077b0"><div class="ttname"><a href="classhops_1_1Problem.html#acd96f0b99b27a6078a523c1a632077b0">hops::Problem::isConsistentProblem</a></div><div class="ttdeci">bool isConsistentProblem()</div><div class="ttdef"><b>Definition:</b> Problem.hpp:103</div></div>
 <div class="ttc" id="aclasshops_1_1Problem_html_abf4004e4dfd1dd11fe870cdf3984a890"><div class="ttname"><a href="classhops_1_1Problem.html#abf4004e4dfd1dd11fe870cdf3984a890">hops::Problem::getUnroundingTransformation</a></div><div class="ttdeci">const Eigen::MatrixXd &amp; getUnroundingTransformation()</div><div class="ttdef"><b>Definition:</b> Problem.hpp:85</div></div>
+<div class="ttc" id="aclasshops_1_1Model_html"><div class="ttname"><a href="classhops_1_1Model.html">hops::Model</a></div><div class="ttdef"><b>Definition:</b> Model.hpp:12</div></div>
 <div class="ttc" id="aclasshops_1_1Problem_html_aff413ec7bfeed93b97a3240da4df854a"><div class="ttname"><a href="classhops_1_1Problem.html#aff413ec7bfeed93b97a3240da4df854a">hops::Problem::Problem</a></div><div class="ttdeci">Problem(const Eigen::MatrixXd &amp;A, const Eigen::VectorXd &amp;b, const Model &amp;model)</div><div class="ttdef"><b>Definition:</b> Problem.hpp:29</div></div>
 <div class="ttc" id="aclasshops_1_1Problem_html_aa749e5614f35c502a33ba66caa84be8b"><div class="ttname"><a href="classhops_1_1Problem.html#aa749e5614f35c502a33ba66caa84be8b">hops::Problem::getUnroundingShift</a></div><div class="ttdeci">const Eigen::VectorXd &amp; getUnroundingShift()</div><div class="ttdef"><b>Definition:</b> Problem.hpp:99</div></div>
 <!-- start footer part -->

@@ -1,5 +1,9 @@
 var searchData=
 [
-  ['zerokernel_769',['ZeroKernel',['../classhops_1_1ZeroKernel.html',1,'hops::ZeroKernel&lt; MatrixType &gt;'],['../classhops_1_1ZeroKernel.html#ab7c03fc20e5e7e481d2cb32acaa921bc',1,'hops::ZeroKernel::ZeroKernel()']]],
-  ['zerokernel_2ehpp_770',['ZeroKernel.hpp',['../ZeroKernel_8hpp.html',1,'']]]
+  ['xsh_5fmixin_1246',['xsh_mixin',['../structpcg__detail_1_1xsh__mixin.html',1,'pcg_detail']]],
+  ['xsh_5frr_5fmixin_1247',['xsh_rr_mixin',['../structpcg__detail_1_1xsh__rr__mixin.html',1,'pcg_detail']]],
+  ['xsh_5frs_5fmixin_1248',['xsh_rs_mixin',['../structpcg__detail_1_1xsh__rs__mixin.html',1,'pcg_detail']]],
+  ['xsl_5fmixin_1249',['xsl_mixin',['../structpcg__detail_1_1xsl__mixin.html',1,'pcg_detail']]],
+  ['xsl_5frr_5fmixin_1250',['xsl_rr_mixin',['../structpcg__detail_1_1xsl__rr__mixin.html',1,'pcg_detail']]],
+  ['xsl_5frr_5frr_5fmixin_1251',['xsl_rr_rr_mixin',['../structpcg__detail_1_1xsl__rr__rr__mixin.html',1,'pcg_detail']]]
 ];

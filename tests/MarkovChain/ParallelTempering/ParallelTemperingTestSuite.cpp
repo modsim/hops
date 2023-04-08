@@ -1,21 +1,20 @@
-#define BOOST_TEST_MODULE ParallelTemperingTestSuite
 #define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE ParallelTemperingTestSuite
 
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 #include <Eigen/Core>
-#include <hops/MarkovChain/ParallelTempering/ParallelTempering.hpp>
-#include <hops/MarkovChain/ParallelTempering/ColdnessAttribute.hpp>
+#include <random>
+
+#include "hops/MarkovChain/ParallelTempering/ParallelTempering.hpp"
+#include "hops/MarkovChain/ParallelTempering/Coldness.hpp"
+#include "hops/RandomNumberGenerator/RandomNumberGenerator.hpp"
 
 namespace {
-    class MarkovChainMock {
+    class ProposalMock  {
     public:
-        MarkovChainMock() {
+        ProposalMock() {
             state = Eigen::VectorXd::Ones(2);
         }
-
-        using StateType = Eigen::VectorXd;
-        using MatrixType = Eigen::VectorXd;
-        using VectorType = StateType;
 
         void draw(hops::RandomNumberGenerator &randomNumberGenerator) {
             for (long i = 0; i < state.rows(); ++i) {
@@ -23,20 +22,20 @@ namespace {
             }
         }
 
-        StateType getState() {
+        hops::VectorType getState() {
             return state;
         }
 
-        void setState(StateType newState) {
+        void setState(hops::VectorType newState) {
             state = std::move(newState);
         }
 
-        double getNegativeLogLikelihoodOfCurrentState() {
+        double getStateNegativeLogLikelihood() {
             return state(0);
         }
 
     private:
-        StateType state;
+        hops::VectorType state;
         std::uniform_real_distribution<double> uniformRealDistribution{0, 1000};
     };
 }
@@ -45,8 +44,8 @@ BOOST_AUTO_TEST_SUITE(ParallelTempering)
 
     BOOST_AUTO_TEST_CASE(assertCorrectNumberOfProcessesAreRun) {
         int expectedNumberOfProcesses = 3; // Defined in CMakeLists.txt
-        MarkovChainMock markovChainMock;
-        hops::ColdnessAttribute mockWithColdness(markovChainMock);
+        ProposalMock markovChainMock;
+        hops::Coldness mockWithColdness(markovChainMock);
         hops::ParallelTempering parallelTempering(mockWithColdness,
                                                   hops::RandomNumberGenerator(0),
                                                   0.00005);
@@ -58,8 +57,8 @@ BOOST_AUTO_TEST_SUITE(ParallelTempering)
     }
 
     BOOST_AUTO_TEST_CASE(shouldSetChainTemperaturesCorrectly) {
-        MarkovChainMock markovChainMock;
-        hops::ColdnessAttribute mockWithColdness(markovChainMock);
+        ProposalMock markovChainMock;
+        hops::Coldness mockWithColdness(markovChainMock);
         hops::ParallelTempering parallelTempering(mockWithColdness,
                                                   hops::RandomNumberGenerator(0),
                                                   0.00005);
@@ -73,8 +72,8 @@ BOOST_AUTO_TEST_SUITE(ParallelTempering)
     }
 
     BOOST_AUTO_TEST_CASE(shouldProposeExchance_RngStateRemainsInSync) {
-        MarkovChainMock markovChainMock;
-        hops::ColdnessAttribute mockWithColdness(markovChainMock);
+        ProposalMock markovChainMock;
+        hops::Coldness mockWithColdness(markovChainMock);
         hops::RandomNumberGenerator sharedRandomNumberGenerator(42);
         hops::RandomNumberGenerator checkPoint = sharedRandomNumberGenerator;
         hops::ParallelTempering parallelTempering(mockWithColdness,
@@ -103,8 +102,8 @@ BOOST_AUTO_TEST_SUITE(ParallelTempering)
     }
 
     BOOST_AUTO_TEST_CASE(processesAgreeOnExchangePair_test) {
-        MarkovChainMock markovChainMock;
-        hops::ColdnessAttribute mockWithColdness(markovChainMock);
+        ProposalMock markovChainMock;
+        hops::Coldness mockWithColdness(markovChainMock);
         hops::RandomNumberGenerator sharedRandomNumberGenerator(42);
         hops::ParallelTempering parallelTempering(mockWithColdness,
                                                   sharedRandomNumberGenerator,
@@ -140,8 +139,8 @@ BOOST_AUTO_TEST_SUITE(ParallelTempering)
     }
 
     BOOST_AUTO_TEST_CASE(processesAgreeOnExchangeProbability_test) {
-        MarkovChainMock markovChainMock;
-        hops::ColdnessAttribute mockWithColdness(markovChainMock);
+        ProposalMock markovChainMock;
+        hops::Coldness mockWithColdness(markovChainMock);
         hops::RandomNumberGenerator sharedRandomNumberGenerator(42);
         hops::ParallelTempering parallelTempering(mockWithColdness,
                                                   sharedRandomNumberGenerator,
@@ -181,8 +180,8 @@ BOOST_AUTO_TEST_SUITE(ParallelTempering)
     }
 
     BOOST_AUTO_TEST_CASE(processesCanExchangeState_test) {
-        MarkovChainMock markovChainMock;
-        hops::ColdnessAttribute<MarkovChainMock> markovChainMockWithColdnessAttribute(markovChainMock, 0.5);
+        ProposalMock markovChainMock;
+        hops::Coldness<ProposalMock> markovChainMockWithColdnessAttribute(markovChainMock, 0.5);
         hops::RandomNumberGenerator sharedRandomNumberGenerator(42);
         hops::ParallelTempering parallelTempering(markovChainMockWithColdnessAttribute,
                                                   sharedRandomNumberGenerator,
@@ -215,8 +214,8 @@ BOOST_AUTO_TEST_SUITE(ParallelTempering)
     }
 
     BOOST_AUTO_TEST_CASE(processesStayInSync_test) {
-        MarkovChainMock markovChainMock;
-        hops::ColdnessAttribute<MarkovChainMock> markovChainMockWithColdnessAttribute(markovChainMock, 0.5);
+        ProposalMock markovChainMock;
+        hops::Coldness<ProposalMock> markovChainMockWithColdnessAttribute(markovChainMock, 0.5);
         hops::RandomNumberGenerator sharedRandomNumberGenerator(42);
         hops::RandomNumberGenerator checkPoint = sharedRandomNumberGenerator;
 

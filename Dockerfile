@@ -1,44 +1,45 @@
-FROM ubuntu:20.04
-LABEL Maintainer="Johann Fredrik Jadebeck <johann.fredrik@jadebeck.dev>"
+FROM ubuntu:22.04
+LABEL maintainer="Johann Fredrik Jadebeck <j.jadebeck@juelich.de>"
 
 ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get clean -y
 RUN apt-get update -y
+
+# build tools
 RUN apt-get install -y apt-utils
 RUN apt-get install -y build-essential 
 RUN apt-get install -y software-properties-common 
+RUN apt-get install -y git
 RUN apt-get install -y cmake 
-RUN apt-get install -y libeigen3-dev
-RUN apt-get install -y libhdf5-dev
+RUN apt-get install -y clang
 RUN apt-get install -y doxygen 
-RUN apt-get install -y libsbml5-dev
-RUN apt-get install -y libmpich-dev
-#RUN apt-get install -y libbz2-dev
-#RUN apt-get install -y coinor-libclp-dev 
+RUN apt-get install -y clang-tidy 
+RUN apt-get install -y clang-format
+RUN apt-get install -y cppcheck
+RUN apt-get install -y python3-pip
+
+# hops dependencies
+RUN apt-get install -y libeigen3-dev 
+RUN apt-get install -y libhdf5-dev 
+RUN apt-get install -y libsbml5-dev 
+RUN apt-get install -y libmpich-dev 
+RUN apt-get install -y libbz2-dev
+RUN apt-get install -y coinor-libclp-dev 
 RUN apt-get install -y libboost-all-dev 
+RUN apt-get install -y libtbb-dev
+
+# convenience
+RUN apt-get install -y vim 
+RUN apt-get install -y ssh-client
+RUN apt-get install -y xsltproc
+
+
+# for creating bagdges
+RUN python3 -m pip install anybadge
+# for code quality
+RUN python3 -m pip install cppcheck-codequality
 
 RUN useradd -ms /bin/bash hops_user
 USER hops_user
 
-WORKDIR /home/hops_user
-
-ADD bin /home/hops_user/bin
-ADD benchmarks /home/hops_user/benchmarks
-ADD cmake /home/hops_user/cmake
-ADD docs /home/hops_user/docs
-ADD include /home/hops_user/include
-ADD resources /home/hops_user/resources
-ADD tests /home/hops_user/tests
-ADD CMakeLists.txt /home/hops_user/CMakeLists.txt
-
-RUN mkdir cmake-build-debug
-WORKDIR /home/hops_user/cmake-build-debug
-RUN cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu
-RUN make -j16
-RUN make test
-
-WORKDIR /home/hops_user/
-RUN mkdir cmake-build-release
-WORKDIR /home/hops_user/cmake-build-release
-RUN cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu
-RUN make -j16
-RUN make test
+CMD tail -f /dev/null

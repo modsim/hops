@@ -1,8 +1,8 @@
-#define BOOST_TEST_MODULE LinearProgramFactoryTestSuite
 #define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE LinearProgramFactoryTestSuite
 
-#include <boost/test/included/unit_test.hpp>
-#include <hops/hops.hpp>
+#include <boost/test/unit_test.hpp>
+#include "hops/hops.hpp"
 
 BOOST_AUTO_TEST_SUITE(LinearProgramFactory)
 

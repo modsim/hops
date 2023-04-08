@@ -1,9 +1,10 @@
+#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE ExpectecSquaredJumpDistanceTestSuite
 
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 #include <Eigen/Core>
-#include <Eigen/Sparse>
-#include <hops/hops.hpp>
+
+#include "hops/Statistics/ExpectedSquaredJumpDistance.hpp"
 
 BOOST_AUTO_TEST_SUITE(ExpectedSquaredJumpDistanceTestSuite)
     BOOST_AUTO_TEST_CASE(ComputeAllDraws) {
@@ -65,7 +66,8 @@ BOOST_AUTO_TEST_SUITE(ExpectedSquaredJumpDistanceTestSuite)
     }
 
     BOOST_AUTO_TEST_CASE(ComputeIncrementally) {
-        std::vector<double> expectedResult{1, 0};
+        std::vector<double> expectedResult1{1, 0};
+        std::vector<double> expectedResult2{2./3, 2./3};
         std::vector<double> chain1{0, 1};
         std::vector<double> chain2{0, 0};
 
@@ -85,11 +87,10 @@ BOOST_AUTO_TEST_SUITE(ExpectedSquaredJumpDistanceTestSuite)
             chains[1].push_back(draw);
         }
 
-        std::vector<double> esjds;
+        //std::vector<double> esjds;
+        auto[esjd, m] = hops::computeExpectedSquaredJumpDistanceIncrementally<Eigen::VectorXd, Eigen::MatrixXd>(chains, covariance);
         for (size_t i = 0; i < chains.size(); ++i) {
-            double esjd = hops::computeExpectedSquaredJumpDistance<Eigen::VectorXd, Eigen::MatrixXd>(chains[i], covariance);
-            esjds.push_back(esjd);
-            BOOST_CHECK_CLOSE(expectedResult[i], esjd, 0.01);
+            BOOST_CHECK_CLOSE(expectedResult1[i], esjd(i), 0.01);
         }
         
         chain1 = std::vector<double>({1, 2});
@@ -107,9 +108,9 @@ BOOST_AUTO_TEST_SUITE(ExpectedSquaredJumpDistanceTestSuite)
             chains[1].push_back(draw);
         }
 
+        std::tie(esjd, m) = hops::computeExpectedSquaredJumpDistanceIncrementally<Eigen::VectorXd, Eigen::MatrixXd>(chains, covariance, m);
         for (size_t i = 0; i < chains.size(); ++i) {
-            double esjd = hops::computeExpectedSquaredJumpDistance<Eigen::VectorXd, Eigen::MatrixXd>(chains[i], 2, esjds[i], 2, covariance);
-            BOOST_CHECK_CLOSE(2./3., esjd, 0.01);
+            BOOST_CHECK_CLOSE(expectedResult2[i], esjd(i), 0.01);
         }
     }
 
@@ -137,10 +138,9 @@ BOOST_AUTO_TEST_SUITE(ExpectedSquaredJumpDistanceTestSuite)
         chains.push_back(&chain1);
         chains.push_back(&chain2);
 
-        auto esjds = hops::computeExpectedSquaredJumpDistance<Eigen::VectorXd, Eigen::MatrixXd>(chains, covariance);
-
+        auto[esjd, m] = hops::computeExpectedSquaredJumpDistanceIncrementally<Eigen::VectorXd, Eigen::MatrixXd>(chains, covariance);
         for (size_t i = 0; i < chains.size(); ++i) {
-            BOOST_CHECK_CLOSE(expectedResult[i], esjds[i], 0.01);
+            BOOST_CHECK_CLOSE(expectedResult[i], esjd(i), 0.01);
         }
         
         for (auto& i : {1, 2}) {
@@ -150,9 +150,10 @@ BOOST_AUTO_TEST_SUITE(ExpectedSquaredJumpDistanceTestSuite)
             chain2.push_back(draw);
         }
 
-        esjds = hops::computeExpectedSquaredJumpDistance<Eigen::VectorXd, Eigen::MatrixXd>(chains, 2, esjds, 2, covariance);
+        std::tie(esjd, m) = hops::computeExpectedSquaredJumpDistanceIncrementally<Eigen::VectorXd, Eigen::MatrixXd>(chains, covariance);
         for (size_t i = 0; i < chains.size(); ++i) {
-            BOOST_CHECK_CLOSE(2./3., esjds[i], 0.01);
+            BOOST_CHECK_CLOSE(2./3., esjd[i], 0.01);
         }
     }
+
 BOOST_AUTO_TEST_SUITE_END()

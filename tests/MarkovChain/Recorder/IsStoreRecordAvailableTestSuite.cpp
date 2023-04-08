@@ -1,8 +1,9 @@
-#define BOOST_TEST_MODULE IsStoreRecordAvailableTestSuite
 #define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE IsStoreRecordAvailableTestSuite
 
-#include <boost/test/included/unit_test.hpp>
-#include <hops/MarkovChain/Recorder/IsStoreRecordAvailable.hpp>
+#include <boost/test/unit_test.hpp>
+
+#include "hops/MarkovChain/Recorder/IsStoreRecordAvailable.hpp"
 
 BOOST_AUTO_TEST_SUITE(IsStoreRecordAvailableTestSuite)
 

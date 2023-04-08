@@ -2,13 +2,16 @@
 #include <boost/program_options.hpp>
 #include "hops-sampler.hpp"
 
-#ifdef __cpp_lib_filesystem
 #include <filesystem>
 namespace fs = std::filesystem;
-#else
-#include <experimental/filesystem>
-namespace fs = std::experimental::filesystem;
-#endif
+
+//#ifdef __cpp_lib_filesystem
+//#include <filesystem>
+//namespace fs = std::filesystem;
+//#else
+//#include <experimental/filesystem>
+//namespace fs = std::experimental::filesystem;
+//#endif
 
 std::map<std::string, std::any> parseCommandLineOptions(int argc, char **argv);
 
@@ -50,7 +53,10 @@ std::map<std::string, std::any> parseCommandLineOptions(int argc, char **argv) {
              "seed for the random number generator. If not supplied it will be generated from std::random_device()")
             ("rounding,r",
              boost::program_options::value<bool>(),
-             "Flag, true to apply rounding and false otherwise (defaults to true).");
+             "Flag, true to apply rounding and false otherwise (defaults to true).")
+            ("batch-size,b",
+             boost::program_options::value<long>(),
+             "how many samples to do before storing");
 
     boost::program_options::variables_map commandLineOptions;
     boost::program_options::store(
@@ -94,7 +100,7 @@ std::map<std::string, std::any> parseCommandLineOptions(int argc, char **argv) {
         A = hops::CsvReader::readMatrix<decltype(A)>(Afile);
         b = hops::CsvReader::readVector<decltype(b)>(bfile);
         transformation = hops::CsvReader::readMatrix<decltype(transformation)>(transformFile);
-        shift = hops::CsvReader::readVector<decltype(shift)>(startFile);
+        shift = hops::CsvReader::readVector<decltype(shift)>(shiftFile);
         try {
             start = hops::CsvReader::readVector<decltype(start)>(startFile);
         } catch (...) {
@@ -159,57 +165,69 @@ std::map<std::string, std::any> parseCommandLineOptions(int argc, char **argv) {
         arguments["rounding"] = commandLineOptions["rounding"].as<bool>();
     }
 
+    if (commandLineOptions.count("batch-size")) {
+        arguments["batch-size"] = commandLineOptions["batch-size"].as<long>();
+    } else {
+        arguments["batch-size"] = commandLineOptions["number-of-samples"].as<long>();
+    }
+
     return arguments;
 }
 
 void runUniformSampling(std::map<std::string, std::any> arguments, const hops::FileWriter *fileWriter) {
     // Case: no rounding transformation is included in input and hops should not round
     if (!std::any_cast<bool>(arguments["rounding"])) {
-        auto states = sampleUniformly(
+        auto[randomNumberGenerator, markovChain] = setUpSampling(
                 std::any_cast<Eigen::MatrixXd>(arguments["A"]),
                 std::any_cast<Eigen::VectorXd>(arguments["b"]),
                 std::any_cast<Eigen::VectorXd>(arguments["start"]),
-                std::any_cast<long>(arguments["numberOfSamples"]),
-                std::any_cast<long>(arguments["thinning"]),
                 std::any_cast<int>(arguments["randomSeed"])
         );
+
+        auto[states, times] = sampleUniformBatch(
+                std::any_cast<long>(arguments["numberOfSamples"]),
+                std::any_cast<long>(arguments["thinning"]),
+                randomNumberGenerator,
+                markovChain.get()
+
+        );
         fileWriter->write("states", states);
+        fileWriter->write("times", times);
 
     }
         // Case: rounding trafo is included in input
     else if (arguments.find("transformation") != arguments.end()) {
-        auto states = sampleUniformly(
+        auto[randomNumberGenerator, markovChain, transformation] = setUpSampling(
                 std::any_cast<Eigen::MatrixXd>(arguments["A"]),
                 std::any_cast<Eigen::VectorXd>(arguments["b"]),
                 std::any_cast<Eigen::VectorXd>(arguments["start"]),
                 std::any_cast<Eigen::MatrixXd>(arguments["transformation"]),
                 std::any_cast<Eigen::VectorXd>(arguments["shift"]),
-                std::any_cast<long>(arguments["numberOfSamples"]),
-                std::any_cast<long>(arguments["thinning"]),
                 std::any_cast<int>(arguments["randomSeed"])
         );
-        fileWriter->write("states", states);
+
+        long numberOfSamples = std::any_cast<long>(arguments["numberOfSamples"]);
+        long batchSize = std::any_cast<long>(arguments["batch-size"]);
+
+        while (numberOfSamples > 0) {
+            auto[states, sample_times, transform_times] = sampleUniformBatch(
+                    batchSize,
+                    std::any_cast<long>(arguments["thinning"]),
+                    randomNumberGenerator,
+                    markovChain.get(),
+                    transformation.get());
+
+            fileWriter->write("states", states);
+            fileWriter->write("sample_times", sample_times);
+            fileWriter->write("transform_times", transform_times);
+            numberOfSamples = numberOfSamples - batchSize;
+            if (batchSize > numberOfSamples) {
+                batchSize = numberOfSamples;
+            }
+        }
     }
         // Case: no rounding trafo is included in input, but hops should approximate rounding
     else if (arguments.find("transformation") == arguments.end()) {
-        auto A = std::any_cast<Eigen::MatrixXd>(arguments["A"]);
-        auto b = std::any_cast<Eigen::VectorXd>(arguments["b"]);
-        auto transformation = hops::MaximumVolumeEllipsoid<double>::construct(A, b, 1e6).getRoundingTransformation();
-        // Transforms start into rounded space.
-        // Requires rounding transformation (the result of a cholesky decomposition) to be stored as lower diagonal L of LLT and not UUT
-        auto start = transformation.template triangularView<Eigen::Lower>().solve(
-                std::any_cast<Eigen::VectorXd>(arguments["start"]));
-
-        auto states = sampleUniformly(
-                decltype(A)(A * transformation),
-                b,
-                start,
-                transformation,
-                Eigen::VectorXd::Zero(A.cols()),
-                std::any_cast<long>(arguments["numberOfSamples"]),
-                std::any_cast<long>(arguments["thinning"]),
-                std::any_cast<int>(arguments["randomSeed"])
-        );
-        fileWriter->write("states", states);
+        throw std::runtime_error("use hopsy");
     }
 }

@@ -2,10 +2,10 @@
 #define HOPS_FIXTURES_HPP
 
 #include <celero/Celero.h>
-#include <hops/FileReader/CsvReader.hpp>
-#include <hops/MarkovChain/MarkovChainFactory.hpp>
-#include <hops/Model/MultivariateGaussianModel.hpp>
-#include <hops/Transformation/Transformation.hpp>
+#include "hops/FileReader/CsvReader.hpp"
+#include "hops/MarkovChain/MarkovChainFactory.hpp"
+#include "hops/Model/Gaussian.hpp"
+#include "hops/Transformation/Transformation.hpp"
 #include "PolytopeSpace.hpp"
 
 template<typename ModelFiles, typename Matrix, typename Vector>

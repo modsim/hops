@@ -85,33 +85,35 @@ $(function() {
 <div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> MatrixType, <span class="keyword">typename</span> VectorType&gt;</div>
 <div class="line"><a name="l00008"></a><span class="lineno"><a class="line" href="classhops_1_1UniformBallKernel.html">    8</a></span>&#160;    <span class="keyword">class </span><a class="code" href="classhops_1_1UniformBallKernel.html">UniformBallKernel</a> {</div>
 <div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;    <span class="keyword">public</span>:</div>
-<div class="line"><a name="l00010"></a><span class="lineno"><a class="line" href="classhops_1_1UniformBallKernel.html#af9eafb8333587111aae29959039311ea">   10</a></span>&#160;        <a class="code" href="classhops_1_1UniformBallKernel.html#af9eafb8333587111aae29959039311ea">UniformBallKernel</a> (<span class="keywordtype">double</span> length = 1) :</div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;                length(length) {</div>
+<div class="line"><a name="l00010"></a><span class="lineno"><a class="line" href="classhops_1_1UniformBallKernel.html#af9eafb8333587111aae29959039311ea">   10</a></span>&#160;        <a class="code" href="classhops_1_1UniformBallKernel.html#af9eafb8333587111aae29959039311ea">UniformBallKernel</a> (<span class="keywordtype">double</span> <a class="code" href="classhops_1_1UniformBallKernel.html#ac6da6ec730d00c8cb553a89a0afee31f">length</a> = 1) :</div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;                <a class="code" href="classhops_1_1UniformBallKernel.html#ac6da6ec730d00c8cb553a89a0afee31f">length</a>(<a class="code" href="classhops_1_1UniformBallKernel.html#ac6da6ec730d00c8cb553a89a0afee31f">length</a>) {</div>
 <div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;            <span class="comment">// </span></div>
 <div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;        }</div>
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160; </div>
-<div class="line"><a name="l00015"></a><span class="lineno"><a class="line" href="classhops_1_1UniformBallKernel.html#a09813234f80dba42b2a91a1dce7f2678">   15</a></span>&#160;        MatrixType <a class="code" href="classhops_1_1UniformBallKernel.html#a09813234f80dba42b2a91a1dce7f2678">operator()</a>(<span class="keyword">const</span> MatrixType&amp; x, <span class="keyword">const</span> MatrixType&amp; y) {</div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;            MatrixType covariance(x.rows(), y.rows());</div>
+<div class="line"><a name="l00015"></a><span class="lineno"><a class="line" href="classhops_1_1UniformBallKernel.html#a09813234f80dba42b2a91a1dce7f2678">   15</a></span>&#160;        <a class="code" href="namespacehops.html#a7ed561c27533fdf7f05b187035bd78a7">MatrixType</a> <a class="code" href="classhops_1_1UniformBallKernel.html#a09813234f80dba42b2a91a1dce7f2678">operator()</a>(<span class="keyword">const</span> <a class="code" href="namespacehops.html#a7ed561c27533fdf7f05b187035bd78a7">MatrixType</a>&amp; x, <span class="keyword">const</span> <a class="code" href="namespacehops.html#a7ed561c27533fdf7f05b187035bd78a7">MatrixType</a>&amp; y) {</div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;            <a class="code" href="namespacehops.html#a7ed561c27533fdf7f05b187035bd78a7">MatrixType</a> covariance(x.rows(), y.rows());</div>
 <div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;            <span class="keywordflow">for</span> (<span class="keywordtype">long</span> i = 0; i &lt; x.rows(); ++i) {</div>
 <div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;                <span class="keywordflow">for</span> (<span class="keywordtype">long</span> j = 0; j &lt; y.rows(); ++j) {</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;                    VectorType diff = (x.row(i) - y.row(j)).transpose();</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;                    <a class="code" href="namespacehops.html#af656c1adca85c58336d70b81938df367">VectorType</a> diff = (x.row(i) - y.row(j)).transpose();</div>
 <div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;                    <span class="keywordtype">double</span> distance = std::sqrt(diff.transpose() * diff);</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;                    covariance(i, j) = <span class="keyword">static_cast&lt;</span><span class="keywordtype">double</span><span class="keyword">&gt;</span>(distance &lt;= length);</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;                    covariance(i, j) = <span class="keyword">static_cast&lt;</span><span class="keywordtype">double</span><span class="keyword">&gt;</span>(distance &lt;= <a class="code" href="classhops_1_1UniformBallKernel.html#ac6da6ec730d00c8cb553a89a0afee31f">length</a>);</div>
 <div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;                }</div>
 <div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;            }</div>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;            <span class="keywordflow">return</span> covariance;</div>
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;        }</div>
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160; </div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;    <span class="keyword">private</span>:</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;        <span class="keywordtype">double</span> length;</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;    };</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;}</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160; </div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="preprocessor">#endif // HOPS_UNIFORMBALLKERNEL_HPP</span></div>
+<div class="line"><a name="l00027"></a><span class="lineno"><a class="line" href="classhops_1_1UniformBallKernel.html#ac6da6ec730d00c8cb553a89a0afee31f">   27</a></span>&#160;        <span class="keywordtype">double</span> <a class="code" href="classhops_1_1UniformBallKernel.html#ac6da6ec730d00c8cb553a89a0afee31f">length</a>;</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    };</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;}</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160; </div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="preprocessor">#endif // HOPS_UNIFORMBALLKERNEL_HPP</span></div>
 </div><!-- fragment --></div><!-- contents -->
+<div class="ttc" id="anamespacehops_html_a7ed561c27533fdf7f05b187035bd78a7"><div class="ttname"><a href="namespacehops.html#a7ed561c27533fdf7f05b187035bd78a7">hops::MatrixType</a></div><div class="ttdeci">Eigen::MatrixXd MatrixType</div><div class="ttdef"><b>Definition:</b> MatrixType.hpp:7</div></div>
 <div class="ttc" id="aclasshops_1_1UniformBallKernel_html_af9eafb8333587111aae29959039311ea"><div class="ttname"><a href="classhops_1_1UniformBallKernel.html#af9eafb8333587111aae29959039311ea">hops::UniformBallKernel::UniformBallKernel</a></div><div class="ttdeci">UniformBallKernel(double length=1)</div><div class="ttdef"><b>Definition:</b> UniformBallKernel.hpp:10</div></div>
 <div class="ttc" id="aclasshops_1_1UniformBallKernel_html_a09813234f80dba42b2a91a1dce7f2678"><div class="ttname"><a href="classhops_1_1UniformBallKernel.html#a09813234f80dba42b2a91a1dce7f2678">hops::UniformBallKernel::operator()</a></div><div class="ttdeci">MatrixType operator()(const MatrixType &amp;x, const MatrixType &amp;y)</div><div class="ttdef"><b>Definition:</b> UniformBallKernel.hpp:15</div></div>
+<div class="ttc" id="aclasshops_1_1UniformBallKernel_html_ac6da6ec730d00c8cb553a89a0afee31f"><div class="ttname"><a href="classhops_1_1UniformBallKernel.html#ac6da6ec730d00c8cb553a89a0afee31f">hops::UniformBallKernel::length</a></div><div class="ttdeci">double length</div><div class="ttdef"><b>Definition:</b> UniformBallKernel.hpp:27</div></div>
 <div class="ttc" id="anamespacehops_html"><div class="ttname"><a href="namespacehops.html">hops</a></div><div class="ttdef"><b>Definition:</b> CsvReader.hpp:8</div></div>
+<div class="ttc" id="anamespacehops_html_af656c1adca85c58336d70b81938df367"><div class="ttname"><a href="namespacehops.html#af656c1adca85c58336d70b81938df367">hops::VectorType</a></div><div class="ttdeci">Eigen::VectorXd VectorType</div><div class="ttdef"><b>Definition:</b> VectorType.hpp:7</div></div>
 <div class="ttc" id="aclasshops_1_1UniformBallKernel_html"><div class="ttname"><a href="classhops_1_1UniformBallKernel.html">hops::UniformBallKernel</a></div><div class="ttdef"><b>Definition:</b> UniformBallKernel.hpp:8</div></div>
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

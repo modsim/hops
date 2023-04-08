@@ -1,9 +1,10 @@
-#define BOOST_TEST_MODULE DikinEllipsoidCalculatorTestSuite
 #define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE DikinEllipsoidCalculatorTestSuite
 
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 #include <Eigen/Core>
-#include <hops/hops.hpp>
+
+#include "hops/MarkovChain/Proposal/DikinEllipsoidCalculator.hpp"
 
 BOOST_AUTO_TEST_SUITE(DikinEllipsoidCalculator)
 

@@ -1,15 +1,16 @@
-#define BOOST_TEST_MODULE ChordStepDistributionsTestSuite
 #define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE ChordStepDistributionsTestSuite
 
-#include <boost/test/included/unit_test.hpp>
-#include <hops/hops.hpp>
+#include <boost/test/unit_test.hpp>
+
+#include "hops/MarkovChain/Proposal/ChordStepDistributions.hpp"
 
 BOOST_AUTO_TEST_SUITE(ChordStepDistributionTestSuite)
 
     BOOST_AUTO_TEST_CASE(UniformStepDistributionDrawIsBounded) {
         hops::UniformStepDistribution<double> uniformStepDistribution;
         hops::RandomNumberGenerator randomNumberGenerator((std::random_device()()));
-        for (long i = 0; i < 100000; ++i) {
+        for (long i = 0; i < 100'000; ++i) {
             auto lowerLimit = static_cast<double>(-i);
             auto upperLimit = static_cast<double>(i + 1);
             double draw = uniformStepDistribution.draw(randomNumberGenerator, lowerLimit, upperLimit);
@@ -21,9 +22,39 @@ BOOST_AUTO_TEST_SUITE(ChordStepDistributionTestSuite)
     BOOST_AUTO_TEST_CASE(UniformStepDistributionInverseNormalizationIsCorrect) {
         hops::UniformStepDistribution<double> uniformStepDistribution;
         double actualInverseNormalization = uniformStepDistribution.computeInverseNormalizationConstant(1,
-                                                                                                          5,
-                                                                                                          9);
+                                                                                                        5,
+                                                                                                        9);
         BOOST_CHECK_EQUAL(actualInverseNormalization, 1);
+    }
+
+    BOOST_AUTO_TEST_CASE(UniformStepDistributionThrowsWhenUpperLimitIsInfinity) {
+        hops::UniformStepDistribution<double> uniformStepDistribution;
+        hops::RandomNumberGenerator randomNumberGenerator((std::random_device()()));
+
+        BOOST_CHECK_THROW(
+                uniformStepDistribution.draw(randomNumberGenerator, 0, std::numeric_limits<double>::infinity()),
+                std::invalid_argument
+        );
+    }
+
+    BOOST_AUTO_TEST_CASE(UniformStepDistributionThrowsWhenLowerLimitIsMinusInfinity) {
+        hops::UniformStepDistribution<double> uniformStepDistribution;
+        hops::RandomNumberGenerator randomNumberGenerator((std::random_device()()));
+
+        BOOST_CHECK_THROW(
+                uniformStepDistribution.draw(randomNumberGenerator, -std::numeric_limits<double>::infinity(), 10),
+                std::invalid_argument
+        );
+    }
+
+    BOOST_AUTO_TEST_CASE(UniformStepDistributionThrowsWhenLowerLimitIsLargerThanUpperLimit) {
+        hops::UniformStepDistribution<double> uniformStepDistribution;
+        hops::RandomNumberGenerator randomNumberGenerator((std::random_device()()));
+
+        BOOST_CHECK_THROW(
+                uniformStepDistribution.draw(randomNumberGenerator, 1, -1),
+                std::invalid_argument
+        );
     }
 
     BOOST_AUTO_TEST_CASE(GaussianStepDistributionDrawIsBounded) {
@@ -56,9 +87,36 @@ BOOST_AUTO_TEST_SUITE(ChordStepDistributionTestSuite)
     BOOST_AUTO_TEST_CASE(GaussianStepDistributionInverseNormilizationIsCorrect) {
         hops::GaussianStepDistribution<double> gaussianStepDistribution;
         double actualInverseNormalization = gaussianStepDistribution.computeInverseNormalizationConstant(.5,
-                                                                                                           -.5,
-                                                                                                           .9);
+                                                                                                         -.5,
+                                                                                                         .9);
         BOOST_CHECK_SMALL(actualInverseNormalization - 0.805414, 1e-3);
+    }
+
+
+    BOOST_AUTO_TEST_CASE(GaussianStepDistributionThrowsWhenLowerLimitIsLargerThanUpperLimit) {
+        hops::GaussianStepDistribution<double> gaussianStepDistribution;
+        hops::RandomNumberGenerator randomNumberGenerator((std::random_device()()));
+
+        BOOST_CHECK_THROW(
+                gaussianStepDistribution.draw(randomNumberGenerator, 1, -1),
+                std::invalid_argument
+        );
+
+
+        BOOST_CHECK_THROW(
+                gaussianStepDistribution.draw(randomNumberGenerator, 0, 1, -1),
+                std::invalid_argument
+        );
+
+        BOOST_CHECK_THROW(
+                gaussianStepDistribution.computeInverseNormalizationConstant(0, 1, -1),
+                std::invalid_argument
+        );
+
+        BOOST_CHECK_THROW(
+                gaussianStepDistribution.computeProbabilityDensity(0, 0, 1, -1),
+                std::invalid_argument
+        );
     }
 }
 
