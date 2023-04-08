@@ -1,6 +1,5 @@
 # The HOPS library
 
-[![version](https://jugit.fz-juelich.de/IBG-1/ModSim/hops-/jobs/artifacts/develop/raw/version.svg?job=create_badges)](https://jugit.fz-juelich.de/IBG-1/ModSim/hops/-/commits/develop)
 [![pipeline status](https://jugit.fz-juelich.de/IBG-1/ModSim/hops/badges/develop/pipeline.svg)](https://jugit.fz-juelich.de/IBG-1/ModSim/hops/-/commits/develop)
 [![coverage report](https://jugit.fz-juelich.de/IBG-1/ModSim/hops/badges/develop/coverage.svg)](https://jugit.fz-juelich.de/IBG-1/ModSim/hops/-/commits/develop)
 [![commits](https://jugit.fz-juelich.de/IBG-1/ModSim/hops/-/jobs/artifacts/develop/raw/commits.svg?job=create_badges)](https://jugit.fz-juelich.de/IBG-1/ModSim/hops/-/commits/develop)
