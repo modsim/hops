@@ -2,15 +2,16 @@
 #include <boost/program_options.hpp>
 #include "hops-sampler.hpp"
 
-#ifdef __cpp_lib_filesystem
 #include <filesystem>
 namespace fs = std::filesystem;
-#else
 
-#include <experimental/filesystem>
-
-namespace fs = std::experimental::filesystem;
-#endif
+//#ifdef __cpp_lib_filesystem
+//#include <filesystem>
+//namespace fs = std::filesystem;
+//#else
+//#include <experimental/filesystem>
+//namespace fs = std::experimental::filesystem;
+//#endif
 
 std::map<std::string, std::any> parseCommandLineOptions(int argc, char **argv);
 

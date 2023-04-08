@@ -138,7 +138,7 @@ add_subdirectory(src)
 
 
 ########################################################################################################################
-# MKL support for faster linear algebra
+# Linking libc++ and MKL support for faster linear algebra
 ########################################################################################################################
 
 if (MKL_INCLUDE_DIR)
@@ -148,7 +148,7 @@ if (MKL_LIBRARY_DIR)
     target_link_directories(hops ${SCOPE} ${MKL_LIBRARY_DIR})
 endif (MKL_LIBRARY_DIR)
 if (MKL_LIBRARIES)
-    target_link_libraries(hops ${SCOPE} ${MKL_LIBRARIES})
+    target_link_libraries(hops ${SCOPE} ${MKL_LIBRARIES} stdc++fs)
 endif (MKL_LIBRARIES)
 
 ########################################################################################################################
@@ -224,6 +224,7 @@ if (HOPS_TESTS)
 else ()
     message(STATUS "Disabled compilation of tests. Use -DHOPS_TESTS=ON to enable.")
 endif ()
+
 
 
 ########################################################################################################################

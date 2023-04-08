@@ -145,9 +145,7 @@ BOOST_AUTO_TEST_SUITE(CsvReader)
                 0, -1, 0, 0,
                 0, 0, -1, 0,
                 0, 0, 0, -1;
-
-        auto actualResult = hops::CsvReader::readMatrix<Eigen::MatrixXf>("../../resources/A_small.csv");
-
+auto actualResult = hops::CsvReader::readMatrix<Eigen::MatrixXf>("../../resources/A_small.csv");
         BOOST_CHECK(actualResult == expectedResult);
     }
 

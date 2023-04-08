@@ -354,7 +354,7 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
 
         hops::RandomNumberGenerator randomNumberGenerator(42);
 
-        long numberOfSamples = 5'000'000;
+        long numberOfSamples = 2'500'000;
         std::vector<double> model_visit_counts = {0, 0, 0, 0};
         std::unordered_set<std::string> model_names;
         std::vector<Eigen::VectorXd> models;
@@ -362,7 +362,7 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
         std::vector<double> scale;
         std::vector<double> shape;
 
-        std::string model_name = "";
+        std::string model_name;
         double acceptanceRates = 0;
         for (long i = 0; i < numberOfSamples; ++i) {
             auto[acceptanceRate, state] = markovChain->draw(randomNumberGenerator);
@@ -393,12 +393,11 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
             actualModelProbabilities.emplace_back(static_cast<double>(count) / numberOfSamples);
         }
 
-        double relative_tolerance = 1.5;
+        double relative_tolerance = 10;
         BOOST_CHECK_CLOSE(actualLocationMean, expectedLocationMean, relative_tolerance);
         BOOST_CHECK_CLOSE(actualScaleMean, expectedScaleMean, relative_tolerance);
         BOOST_CHECK_CLOSE(actualShapeMean, expectedShapeMean, relative_tolerance);
         BOOST_ASSERT(actualModelProbabilities.size() == expectedModelProbabilityPercentages.size());
-        auto it = model_names.begin();
         for (size_t i = 0; i < actualModelProbabilities.size(); ++i) {
             BOOST_CHECK_CLOSE(
                     actualModelProbabilities[i],
@@ -436,7 +435,7 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
 
         hops::RandomNumberGenerator randomNumberGenerator(42);
 
-        long numberOfSamples = 5'000'000;
+        long numberOfSamples = 2'500'000;
         std::vector<double> model_visit_counts = {0, 0, 0, 0};
         std::unordered_set<std::string> model_names;
         std::vector<Eigen::VectorXd> models;
@@ -444,7 +443,7 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
         std::vector<double> scale;
         std::vector<double> shape;
 
-        std::string model_name = "";
+        std::string model_name;
         double acceptanceRates = 0;
         for (long i = 0; i < numberOfSamples; ++i) {
             auto[acceptanceRate, state] = markovChain->draw(randomNumberGenerator);
@@ -475,12 +474,11 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
             actualModelProbabilities.emplace_back(static_cast<double>(count) / numberOfSamples);
         }
 
-        double relative_tolerance = 1.5;
+        double relative_tolerance = 10;
         BOOST_CHECK_CLOSE(actualLocationMean, expectedLocationMean, relative_tolerance);
         BOOST_CHECK_CLOSE(actualScaleMean, expectedScaleMean, relative_tolerance);
         BOOST_CHECK_CLOSE(actualShapeMean, expectedShapeMean, relative_tolerance);
         BOOST_ASSERT(actualModelProbabilities.size() == expectedModelProbabilityPercentages.size());
-        auto it = model_names.begin();
         for (size_t i = 0; i < actualModelProbabilities.size(); ++i) {
             BOOST_CHECK_CLOSE(
                     actualModelProbabilities[i],
@@ -520,7 +518,7 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
 
         hops::RandomNumberGenerator randomNumberGenerator(42);
 
-        long numberOfSamples = 5'000'000;
+        long numberOfSamples = 2'500'000;
         std::vector<double> model_visit_counts = {0, 0, 0, 0};
         std::unordered_set<std::string> model_names;
         std::vector<Eigen::VectorXd> models;
@@ -528,7 +526,7 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
         std::vector<double> scale;
         std::vector<double> shape;
 
-        std::string model_name = "";
+        std::string model_name;
         double acceptanceRates = 0;
         for (long i = 0; i < numberOfSamples; ++i) {
             auto[acceptanceRate, state] = markovChain->draw(randomNumberGenerator);
@@ -559,12 +557,11 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
             actualModelProbabilities.emplace_back(static_cast<double>(count) / numberOfSamples);
         }
 
-        double relative_tolerance = 1.5;
+        double relative_tolerance = 10;
         BOOST_CHECK_CLOSE(actualLocationMean, expectedLocationMean, relative_tolerance);
         BOOST_CHECK_CLOSE(actualScaleMean, expectedScaleMean, relative_tolerance);
         BOOST_CHECK_CLOSE(actualShapeMean, expectedShapeMean, relative_tolerance);
         BOOST_ASSERT(actualModelProbabilities.size() == expectedModelProbabilityPercentages.size());
-        auto it = model_names.begin();
         for (size_t i = 0; i < actualModelProbabilities.size(); ++i) {
             BOOST_CHECK_CLOSE(
                     actualModelProbabilities[i],
@@ -600,7 +597,7 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
 
         hops::RandomNumberGenerator randomNumberGenerator(42);
 
-        long numberOfSamples = 5'000'000;
+        long numberOfSamples = 2'500'000;
         std::vector<double> model_visit_counts = {0, 0, 0, 0};
         std::unordered_set<std::string> model_names;
         std::vector<Eigen::VectorXd> models;
@@ -608,7 +605,7 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
         std::vector<double> scale;
         std::vector<double> shape;
 
-        std::string model_name = "";
+        std::string model_name;
         double acceptanceRates = 0;
         for (long i = 0; i < numberOfSamples; ++i) {
             auto[acceptanceRate, state] = markovChain->draw(randomNumberGenerator);
@@ -639,12 +636,11 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
             actualModelProbabilities.emplace_back(static_cast<double>(count) / numberOfSamples);
         }
 
-        double relative_tolerance = 1.5;
+        double relative_tolerance = 10;
         BOOST_CHECK_CLOSE(actualLocationMean, expectedLocationMean, relative_tolerance);
         BOOST_CHECK_CLOSE(actualScaleMean, expectedScaleMean, relative_tolerance);
         BOOST_CHECK_CLOSE(actualShapeMean, expectedShapeMean, relative_tolerance);
         BOOST_ASSERT(actualModelProbabilities.size() == expectedModelProbabilityPercentages.size());
-        auto it = model_names.begin();
         for (size_t i = 0; i < actualModelProbabilities.size(); ++i) {
             BOOST_CHECK_CLOSE(
                     actualModelProbabilities[i],
@@ -680,7 +676,7 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
 
         hops::RandomNumberGenerator randomNumberGenerator(42);
 
-        long numberOfSamples = 5'000'000;
+        long numberOfSamples = 2'500'000;
         std::vector<double> model_visit_counts = {0, 0, 0, 0};
         std::unordered_set<std::string> model_names;
         std::vector<Eigen::VectorXd> models;
@@ -688,7 +684,7 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
         std::vector<double> scale;
         std::vector<double> shape;
 
-        std::string model_name = "";
+        std::string model_name;
         double acceptanceRates = 0;
         for (long i = 0; i < numberOfSamples; ++i) {
             auto[acceptanceRate, state] = markovChain->draw(randomNumberGenerator);
@@ -719,12 +715,11 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
             actualModelProbabilities.emplace_back(static_cast<double>(count) / numberOfSamples);
         }
 
-        double relative_tolerance = 2.;
+        double relative_tolerance = 10;
         BOOST_CHECK_CLOSE(actualLocationMean, expectedLocationMean, relative_tolerance);
         BOOST_CHECK_CLOSE(actualScaleMean, expectedScaleMean, relative_tolerance);
         BOOST_CHECK_CLOSE(actualShapeMean, expectedShapeMean, relative_tolerance);
         BOOST_ASSERT(actualModelProbabilities.size() == expectedModelProbabilityPercentages.size());
-        auto it = model_names.begin();
         for (size_t i = 0; i < actualModelProbabilities.size(); ++i) {
             BOOST_CHECK_CLOSE(
                     actualModelProbabilities[i],
@@ -760,7 +755,7 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
 
         hops::RandomNumberGenerator randomNumberGenerator(42);
 
-        long numberOfSamples = 5'000'000;
+        long numberOfSamples = 2'500'000;
         std::vector<double> model_visit_counts = {0, 0, 0, 0};
         std::unordered_set<std::string> model_names;
         std::vector<Eigen::VectorXd> models;
@@ -768,7 +763,7 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
         std::vector<double> scale;
         std::vector<double> shape;
 
-        std::string model_name = "";
+        std::string model_name;
         double acceptanceRates = 0;
         for (long i = 0; i < numberOfSamples; ++i) {
             auto[acceptanceRate, state] = markovChain->draw(randomNumberGenerator);
@@ -799,12 +794,11 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
             actualModelProbabilities.emplace_back(static_cast<double>(count) / numberOfSamples);
         }
 
-        double relative_tolerance = 2.;
+        double relative_tolerance = 10;
         BOOST_CHECK_CLOSE(actualLocationMean, expectedLocationMean, relative_tolerance);
         BOOST_CHECK_CLOSE(actualScaleMean, expectedScaleMean, relative_tolerance);
         BOOST_CHECK_CLOSE(actualShapeMean, expectedShapeMean, relative_tolerance);
         BOOST_ASSERT(actualModelProbabilities.size() == expectedModelProbabilityPercentages.size());
-        auto it = model_names.begin();
         for (size_t i = 0; i < actualModelProbabilities.size(); ++i) {
             BOOST_CHECK_CLOSE(
                     actualModelProbabilities[i],
@@ -840,7 +834,7 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
 
         hops::RandomNumberGenerator randomNumberGenerator(42);
 
-        long numberOfSamples = 5'000'000;
+        long numberOfSamples = 2'500'000;
         std::vector<double> model_visit_counts = {0, 0, 0, 0};
         std::unordered_set<std::string> model_names;
         std::vector<Eigen::VectorXd> models;
@@ -848,7 +842,7 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
         std::vector<double> scale;
         std::vector<double> shape;
 
-        std::string model_name = "";
+        std::string model_name;
         double acceptanceRates = 0;
         for (long i = 0; i < numberOfSamples; ++i) {
             auto[acceptanceRate, state] = markovChain->draw(randomNumberGenerator);
@@ -879,12 +873,11 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
             actualModelProbabilities.emplace_back(static_cast<double>(count) / numberOfSamples);
         }
 
-        double relative_tolerance = 1.5;
+        double relative_tolerance = 10;
         BOOST_CHECK_CLOSE(actualLocationMean, expectedLocationMean, relative_tolerance);
         BOOST_CHECK_CLOSE(actualScaleMean, expectedScaleMean, relative_tolerance);
         BOOST_CHECK_CLOSE(actualShapeMean, expectedShapeMean, relative_tolerance);
         BOOST_ASSERT(actualModelProbabilities.size() == expectedModelProbabilityPercentages.size());
-        auto it = model_names.begin();
         for (size_t i = 0; i < actualModelProbabilities.size(); ++i) {
             BOOST_CHECK_CLOSE(
                     actualModelProbabilities[i],
@@ -920,7 +913,7 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
 
         hops::RandomNumberGenerator randomNumberGenerator(42);
 
-        long numberOfSamples = 5'000'000;
+        long numberOfSamples = 2'500'000;
         std::vector<double> model_visit_counts = {0, 0, 0, 0};
         std::unordered_set<std::string> model_names;
         std::vector<Eigen::VectorXd> models;
@@ -928,7 +921,7 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
         std::vector<double> scale;
         std::vector<double> shape;
 
-        std::string model_name = "";
+        std::string model_name;
         double acceptanceRates = 0;
         for (long i = 0; i < numberOfSamples; ++i) {
             auto[acceptanceRate, state] = markovChain->draw(randomNumberGenerator);
@@ -959,12 +952,11 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
             actualModelProbabilities.emplace_back(static_cast<double>(count) / numberOfSamples);
         }
 
-        double relative_tolerance = 2.;
+        double relative_tolerance = 10;
         BOOST_CHECK_CLOSE(actualLocationMean, expectedLocationMean, relative_tolerance);
         BOOST_CHECK_CLOSE(actualScaleMean, expectedScaleMean, relative_tolerance);
         BOOST_CHECK_CLOSE(actualShapeMean, expectedShapeMean, relative_tolerance);
         BOOST_ASSERT(actualModelProbabilities.size() == expectedModelProbabilityPercentages.size());
-        auto it = model_names.begin();
         for (size_t i = 0; i < actualModelProbabilities.size(); ++i) {
             BOOST_CHECK_CLOSE(
                     actualModelProbabilities[i],

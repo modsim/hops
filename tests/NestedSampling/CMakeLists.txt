@@ -17,7 +17,7 @@ if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
 		target_link_libraries (${TEST_NAME} ${Boost_LIBRARIES} hops)
 		add_test(NAME ${TEST_NAME}
 			WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-			COMMAND ${TEST_NAME} --log_format=JUNIT --log_sink=${PROJECT_BINARY_DIR}/test/reports/${TEST_NAME}.xml --log_level=all --report_level=detailed)
+			COMMAND ${TEST_NAME} --log_format=JUNIT --log_sink=${PROJECT_BINARY_DIR}/test/reports/${TEST_NAME}.xml)
 	endforeach (TEST_SOURCE)
 
 endif (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")

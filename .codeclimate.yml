@@ -1,0 +1,23 @@
+version: "2"
+exclude_patterns:
+  - "cmake-build-*"
+plugins:
+  cppcheck:
+    enabled: true
+    config:
+      check: all
+      project: cmake-build-debug/compile_commands.json
+      language: c++
+      stds:
+        - c++14
+      platform: unix64
+      defines:
+        - "DEBUG=1"
+        - "__cplusplus"
+      undefines:
+        - "DEBUG"
+      includes:
+        - src
+        - test
+      inconclusive: false
+      inline-suppr: true
