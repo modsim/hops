@@ -41,12 +41,15 @@ option(HOPS_BINARIES "Enables compilation of hops executables. Use -DHOPS_BINARI
 option(HOPS_EXAMPLES "Enables compilation of hops examples. Use -DHOPS_EXAMPLES=OFF to disable." ON)
 option(HOPS_TESTS "Enables compilation of unit tests. Use -DHOPS_TESTS=OFF to disable." ON)
 option(HOPS_NO_INSTALL "Disables installation. Use -DHOPS_NO_INSTALL=ON to disable installation." OFF)
+option(HOPS_BUILD_NATIVE "Enable this option for maximum performance. Disable it when linking to third-party software that also uses Eigen3 but is not compiled with -march=native" ON)
 set(HOPS_LIBRARY_TYPE SHARED CACHE STRING "Type of library to build. Options are HEADER_ONLY, STATIC or SHARED")
 set_property(CACHE HOPS_LIBRARY_TYPE PROPERTY STRINGS HEADER_ONLY STATIC SHARED)
 
 ########################################################################################################################
 # C++-Compiler Settings
 ########################################################################################################################
+
+include(CheckCXXCompilerFlag)
 
 set(CMAKE_C_FLAGS "${CMAKE_FLAGS} ${MPI_FLAGS}")
 set(CMAKE_CXX_STANDARD 17)
@@ -56,16 +59,25 @@ if (CMAKE_COMPILER_IS_GNUCXX)
     set(CMAKE_CXX_FLAGS_DEBUG "-g")
 endif ()
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${MPI_EXE_LINKER_FLAGS}")
-include(CheckCXXCompilerFlag)
-CHECK_CXX_COMPILER_FLAG("-march=native" COMPILER_SUPPORTS_MARCH_NATIVE)
-if (COMPILER_SUPPORTS_MARCH_NATIVE)
-    message(STATUS "Adding compiler flag march=native")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
-else ()
-    message(WARNING "compiler does not support flag -march=native")
-endif ()
+
+
+if(HOPS_BUILD_NATIVE)
+	message(STATUS "Building natively using -march=native")
+	CHECK_CXX_COMPILER_FLAG("-march=native" COMPILER_SUPPORTS_MARCH_NATIVE)
+	if (COMPILER_SUPPORTS_MARCH_NATIVE)
+	    message(STATUS "Adding compiler flag march=native")
+	    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
+	else (COMPILER_SUPPORTS_MARCH_NATIVE)
+	    message(WARNING "compiler does not support flag -march=native")
+	endif (COMPILER_SUPPORTS_MARCH_NATIVE)
+else(HOPS_BUILD_NATIVE)
+	message(STATUS "NOT building natively using -march=native")
+endif(HOPS_BUILD_NATIVE)
+
+
+
 CHECK_CXX_COMPILER_FLAG("-O3" COMPILER_SUPPORTS_O3)
-if (COMPILER_SUPPORTS_MARCH_NATIVE)
+if (COMPILER_SUPPORTS_O3)
     message(STATUS "Adding compiler flag -O3")
     set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 else ()
