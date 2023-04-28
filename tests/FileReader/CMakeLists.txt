@@ -2,7 +2,7 @@ set(TEST_SOURCES CsvReaderTestSuite.cpp)
 
 find_package(SBML)
 
-if (${SBML_FOUND})
+if (${SBML_FOUND} AND HOPS_SBML_SUPPORT)
     set(TEST_SOURCES ${TEST_SOURCES} SbmlReaderTestSuite.cpp)
 endif ()
 

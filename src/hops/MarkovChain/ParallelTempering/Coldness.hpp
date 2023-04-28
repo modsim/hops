@@ -1,10 +1,12 @@
 #ifndef HOPS_COLDNESS_HPP
 #define HOPS_COLDNESS_HPP
 
+#include <optional>
 #include <utility>
 
 #include <hops/Utility/MatrixType.hpp>
 #include <hops/Utility/VectorType.hpp>
+
 
 
 namespace hops {

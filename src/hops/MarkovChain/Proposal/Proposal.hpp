@@ -3,6 +3,9 @@
 
 #include <algorithm>
 #include <any>
+#include <optional>
+#include <utility>
+#include <memory>
 
 #include <hops/RandomNumberGenerator/RandomNumberGenerator.hpp>
 #include <hops/Utility/MatrixType.hpp>

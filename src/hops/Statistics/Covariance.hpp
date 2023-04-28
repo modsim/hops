@@ -5,6 +5,7 @@
 #include <limits>
 #include <tuple>
 #include <vector>
+#include <stddef.h>
 
 namespace hops {
     // intermediate results needed to compute the covariance incrementally are:
