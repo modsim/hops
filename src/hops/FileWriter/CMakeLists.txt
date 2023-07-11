@@ -11,8 +11,3 @@ if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
             FileWriterType.hpp
             )
 endif (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
-
-if (NOT WIN32)
-    target_link_libraries(hops INTERFACE stdc++fs)
-    target_link_libraries(hops ${SCOPE} stdc++fs)
-endif ()
