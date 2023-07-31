@@ -1,6 +1,7 @@
 #include <cmath>
 
 #include "BinarySearchAcceptanceRateTuner.hpp"
+#include <vector>
 
 namespace {
     enum class Case {

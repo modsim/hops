@@ -9,9 +9,10 @@
 #include "hops/Utility/VectorType.hpp"
 
 #include <cmath>
+#include <chrono>
 #include <limits>
 #include <memory>
-#include <chrono>
+#include <unordered_map>
 
 namespace hops {
     template<typename GaussianProcessType, typename ThompsonSamplgTargetType>
