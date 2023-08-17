@@ -267,7 +267,8 @@ namespace hops {
 
     template<typename InternalMatrixType, typename InternalVectorType>
     bool TruncatedGaussianProposal<InternalMatrixType, InternalVectorType>::hasNegativeLogLikelihood() const {
-        return true;
+        // This proposal does know the model and could compute the likelihood but it does NOT do it for efficiency
+        return false;
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
