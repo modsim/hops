@@ -113,7 +113,7 @@ namespace hops {
          * @details This function is only useful, if the underlying proposal implementation has access to the model.
          * If the proposal implementation does not have access, it returns 0.
          */
-        [[nodiscard]] virtual double getStateNegativeLogLikelihood() const {
+        [[nodiscard]] virtual double getStateNegativeLogLikelihood() {
             return 0.;
         };
 
@@ -122,7 +122,7 @@ namespace hops {
          * @details This function is only useful, if the underlying proposal implementation has access to the model.
          * If the proposal implementation does not have access, it returns 0.
          */
-        [[nodiscard]] virtual double getProposalNegativeLogLikelihood() const {
+        [[nodiscard]] virtual double getProposalNegativeLogLikelihood() {
             return 0.;
         };
 

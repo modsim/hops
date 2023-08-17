@@ -44,6 +44,10 @@ namespace hops {
 
         [[nodiscard]] VectorType getProposal() const override;
 
+        [[nodiscard]] double getStateNegativeLogLikelihood() override;
+
+        [[nodiscard]] double getProposalNegativeLogLikelihood() override;
+
         void setDimensionNames(const std::vector<std::string> &names) override;
 
         [[nodiscard]] std::vector<std::string> getDimensionNames() const override;
@@ -286,6 +290,14 @@ namespace hops {
     void TruncatedGaussianProposal<InternalMatrixType, InternalVectorType>::setDimensionNames(
             const std::vector<std::string> &names) {
         dimensionNames = names;
+    }
+    template<typename InternalMatrixType, typename InternalVectorType>
+    double TruncatedGaussianProposal<InternalMatrixType, InternalVectorType>::getStateNegativeLogLikelihood() {
+        return const_cast<decltype(this)>(this)->computeNegativeLogLikelihood(state);
+    }
+    template<typename InternalMatrixType, typename InternalVectorType>
+    double TruncatedGaussianProposal<InternalMatrixType, InternalVectorType>::getProposalNegativeLogLikelihood() {
+        return const_cast<decltype(this)>(this)->computeNegativeLogLikelihood(state);
     }
 }
 
