@@ -91,9 +91,9 @@ namespace hops {
 
         [[nodiscard]] std::string getProposalName() const override;
 
-        [[nodiscard]] double getStateNegativeLogLikelihood() const override;
+        [[nodiscard]] double getStateNegativeLogLikelihood() override;
 
-        [[nodiscard]] double getProposalNegativeLogLikelihood() const override;
+        [[nodiscard]] double getProposalNegativeLogLikelihood() override;
 
         [[nodiscard]] bool hasNegativeLogLikelihood() const override;
 
@@ -310,7 +310,7 @@ namespace hops {
     }
 
     template<typename ModelType, typename InternalMatrixType>
-    double BilliardMALAProposal<ModelType, InternalMatrixType>::getStateNegativeLogLikelihood() const {
+    double BilliardMALAProposal<ModelType, InternalMatrixType>::getStateNegativeLogLikelihood() {
         return stateNegativeLogLikelihood;
     }
 
@@ -430,7 +430,7 @@ namespace hops {
     }
 
     template<typename ModelType, typename InternalMatrixType>
-    double BilliardMALAProposal<ModelType, InternalMatrixType>::getProposalNegativeLogLikelihood() const {
+    double BilliardMALAProposal<ModelType, InternalMatrixType>::getProposalNegativeLogLikelihood() {
         return proposalNegativeLogLikelihood;
     }
 

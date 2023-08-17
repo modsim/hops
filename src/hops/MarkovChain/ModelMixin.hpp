@@ -51,9 +51,9 @@ namespace hops {
 
         [[nodiscard]] std::optional<double> getStepSize() const override;
 
-        [[nodiscard]] double getStateNegativeLogLikelihood() const override;
+        [[nodiscard]] double getStateNegativeLogLikelihood() override;
 
-        [[nodiscard]] double getProposalNegativeLogLikelihood() const override;
+        [[nodiscard]] double getProposalNegativeLogLikelihood() override;
 
         [[nodiscard]] bool hasNegativeLogLikelihood() const override;
 
@@ -182,12 +182,12 @@ namespace hops {
     }
 
     template<typename ProposalType, typename ModelType>
-    double ModelMixin<ProposalType, ModelType>::getStateNegativeLogLikelihood() const {
+    double ModelMixin<ProposalType, ModelType>::getStateNegativeLogLikelihood() {
         return stateNegativeLogLikelihood;
     }
 
     template<typename ProposalType, typename ModelType>
-    double ModelMixin<ProposalType, ModelType>::getProposalNegativeLogLikelihood() const {
+    double ModelMixin<ProposalType, ModelType>::getProposalNegativeLogLikelihood() {
         return proposalNegativeLogLikelihood;
     }
 

@@ -104,11 +104,11 @@ namespace hops {
             return proposalImpl.getStepSize();
         }
 
-        double getStateNegativeLogLikelihood() const override {
+        double getStateNegativeLogLikelihood() override {
             return proposalImpl.getStateNegativeLogLikelihood();
         }
 
-        double getProposalNegativeLogLikelihood() const override {
+        double getProposalNegativeLogLikelihood() override {
             return proposalImpl.getProposalNegativeLogLikelihood();
         }
 
