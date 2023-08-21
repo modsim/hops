@@ -1,5 +1,6 @@
 set(TEST_SOURCES
         BilliardMALATestSuite.cpp
+        BilliardWalkTestSuite.cpp
         ChordStepDistributionsTestSuite.cpp
         CSmMALATestSuite.cpp
         CoordinateHitAndRunTestSuite.cpp
