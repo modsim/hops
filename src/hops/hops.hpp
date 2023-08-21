@@ -23,6 +23,7 @@
 #include "MarkovChain/Proposal/BallWalkProposal.hpp"
 #include "MarkovChain/Proposal/BilliardAdaptiveMetropolisProposal.hpp"
 #include "MarkovChain/Proposal/BilliardMALAProposal.hpp"
+#include "MarkovChain/Proposal/BilliardWalkProposal.hpp"
 #include "MarkovChain/Proposal/ChordStepDistributions.hpp"
 #include "MarkovChain/Proposal/CoordinateHitAndRunProposal.hpp"
 #include "MarkovChain/Proposal/CSmMALAProposal.hpp"

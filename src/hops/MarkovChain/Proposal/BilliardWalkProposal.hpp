@@ -10,6 +10,7 @@
 #include "hops/Utility/StringUtility.hpp"
 #include "hops/Utility/VectorType.hpp"
 
+#include "ChordStepDistributions.hpp"
 #include "Proposal.hpp"
 #include "Reflector.hpp"
 
@@ -97,6 +98,10 @@ namespace hops {
         bool reflectionSuccessful;
         long numberOfReflections;
 
+        VectorType updateDirection;
+        double step = 0;
+        UniformStepDistribution<VectorType::Scalar> chordStepDistribution;
+
         std::vector<std::string> dimensionNames;
 
         std::normal_distribution<double> normalDistribution{0., 1.};
@@ -118,6 +123,7 @@ namespace hops {
         BilliardWalkProposal::setStepSize(newStepSize);
 
         proposal = state;
+        updateDirection = state;
 
         this->dimensionNames = hops::createDefaultDimensionNames(this->state.rows());
     }
@@ -126,8 +132,13 @@ namespace hops {
     template<typename InternalMatrixType>
     VectorType &BilliardWalkProposal<InternalMatrixType>::propose(RandomNumberGenerator &rng) {
         for (long i = 0; i < proposal.rows(); ++i) {
-            proposal(i) = normalDistribution(rng);
+            updateDirection(i) = normalDistribution(rng);
         }
+        updateDirection.normalize();
+        step = -this->stepSize * std::log(this->chordStepDistribution.draw(rng, 0, 1));
+        proposal = state + step*updateDirection;
+
+
         std::tuple<bool, long, VectorType> reflectionResult = Reflector::reflectIntoPolytope(Adense,
                                                                                              b,
                                                                                              state,
@@ -151,7 +162,6 @@ namespace hops {
         if (((b - A * newState).array() < 0).any()) {
             throw std::invalid_argument("Starting point outside polytope always gives constant Markov chain.");
         }
-
         state = newState;
     }
 
@@ -177,8 +187,9 @@ namespace hops {
 
     template<typename InternalMatrixType>
     double BilliardWalkProposal<InternalMatrixType>::computeLogAcceptanceProbability() {
-        if (not this->reflectionSuccessful) {
-            proposal = state;
+        bool isProposalInteriorPoint = ((A * proposal - b).array() < 0).all();
+        if (not isProposalInteriorPoint || not this->reflectionSuccessful) {
+            return -std::numeric_limits<double>::infinity();
         }
         return 0;
     }
@@ -265,7 +276,6 @@ namespace hops {
     void BilliardWalkProposal<InternalMatrixType>::setDimensionNames(const std::vector<std::string> &names) {
         dimensionNames = names;
     }
-
 
     template<typename InternalMatrixType>
     std::vector<std::string>
