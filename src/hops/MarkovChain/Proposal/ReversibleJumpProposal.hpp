@@ -72,7 +72,8 @@ namespace hops {
 
         [[nodiscard]] const VectorType &getB() const override;
 
-        [[nodiscard]] const std::unique_ptr<Proposal> &getProposalImpl() const;
+        // This methods gives access to change the underlying proposal mechanism
+        [[nodiscard]] std::unique_ptr<Proposal> &getProposalImpl();
 
         void setProposalImpl(std::unique_ptr<Proposal> proposalImpl);
 
