@@ -315,3 +315,76 @@ std::vector<std::string> hops::ReversibleJumpProposal::getDimensionNames() const
     names.insert(names.end(), dimensionNames.begin(), dimensionNames.end());
     return names;
 }
+const std::unique_ptr<hops::Proposal> &hops::ReversibleJumpProposal::getProposalImpl() const {
+    return proposalImpl;
+}
+void hops::ReversibleJumpProposal::setProposalImpl(std::unique_ptr<Proposal> proposalImpl) {
+    ReversibleJumpProposal::proposalImpl = std::move(proposalImpl);
+}
+double hops::ReversibleJumpProposal::getModelJumpProbability() const {
+    return modelJumpProbability;
+}
+void hops::ReversibleJumpProposal::setModelJumpProbability(double modelJumpProbability) {
+    ReversibleJumpProposal::modelJumpProbability = modelJumpProbability;
+}
+double hops::ReversibleJumpProposal::getActivationProbability() const {
+    return activationProbability;
+}
+void hops::ReversibleJumpProposal::setActivationProbability(double activationProbability) {
+    ReversibleJumpProposal::activationProbability = activationProbability;
+}
+double hops::ReversibleJumpProposal::getDeactivationProbability() const {
+    return deactivationProbability;
+}
+void hops::ReversibleJumpProposal::setDeactivationProbability(double deactivationProbability) {
+    ReversibleJumpProposal::deactivationProbability = deactivationProbability;
+}
+const hops::VectorType &hops::ReversibleJumpProposal::getBackwardDistances() const {
+    return backwardDistances;
+}
+void hops::ReversibleJumpProposal::setBackwardDistances(const hops::VectorType &backwardDistances) {
+    ReversibleJumpProposal::backwardDistances = backwardDistances;
+}
+const hops::VectorType &hops::ReversibleJumpProposal::getForwardDistances() const {
+    return forwardDistances;
+}
+void hops::ReversibleJumpProposal::setForwardDistances(const hops::VectorType &forwardDistances) {
+    ReversibleJumpProposal::forwardDistances = forwardDistances;
+}
+const Eigen::VectorXi &hops::ReversibleJumpProposal::getJumpIndices() const {
+    return jumpIndices;
+}
+void hops::ReversibleJumpProposal::setJumpIndices(const Eigen::VectorXi &jumpIndices) {
+    ReversibleJumpProposal::jumpIndices = jumpIndices;
+}
+const hops::VectorType &hops::ReversibleJumpProposal::getDefaultValues() const {
+    return defaultValues;
+}
+void hops::ReversibleJumpProposal::setDefaultValues(const hops::VectorType &defaultValues) {
+    ReversibleJumpProposal::defaultValues = defaultValues;
+}
+const hops::VectorType &hops::ReversibleJumpProposal::getActivationState() const {
+    return activationState;
+}
+void hops::ReversibleJumpProposal::setActivationState(const hops::VectorType &activationState) {
+    ReversibleJumpProposal::activationState = activationState;
+}
+const hops::VectorType &hops::ReversibleJumpProposal::getActivationProposal() const {
+    return activationProposal;
+}
+void hops::ReversibleJumpProposal::setActivationProposal(const hops::VectorType &activationProposal) {
+    ReversibleJumpProposal::activationProposal = activationProposal;
+}
+double hops::ReversibleJumpProposal::getLogAcceptanceChanceModelJump() const {
+    return logAcceptanceChanceModelJump;
+}
+void hops::ReversibleJumpProposal::setLogAcceptanceChanceModelJump(double logAcceptanceChanceModelJump) {
+    ReversibleJumpProposal::logAcceptanceChanceModelJump = logAcceptanceChanceModelJump;
+}
+bool hops::ReversibleJumpProposal::isLastProposalJumpedModel() const {
+    return lastProposalJumpedModel;
+}
+void hops::ReversibleJumpProposal::setLastProposalJumpedModel(bool lastProposalJumpedModel) {
+    ReversibleJumpProposal::lastProposalJumpedModel = lastProposalJumpedModel;
+}
+
