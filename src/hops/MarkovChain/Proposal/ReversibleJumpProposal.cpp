@@ -316,7 +316,7 @@ std::vector<std::string> hops::ReversibleJumpProposal::getDimensionNames() const
     return names;
 }
 
-std::unique_ptr<hops::Proposal> &hops::ReversibleJumpProposal::getProposalImpl() {
+const std::unique_ptr<hops::Proposal> &hops::ReversibleJumpProposal::getProposalImpl() const {
     return proposalImpl;
 }
 void hops::ReversibleJumpProposal::setProposalImpl(std::unique_ptr<Proposal> proposalImpl) {
