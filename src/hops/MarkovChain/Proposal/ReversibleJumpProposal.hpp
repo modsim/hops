@@ -1,18 +1,18 @@
 #ifndef HOPS_REVERSIBLEJUMPPROPOSAL_HPP
 #define HOPS_REVERSIBLEJUMPPROPOSAL_HPP
 
-#include <bitset>
 #include <Eigen/Core>
+#include <bitset>
 #include <memory>
+#include <random>
 #include <string>
 #include <utility>
-#include <random>
 #include <vector>
 
 #include "hops/Utility/VectorType.hpp"
 
-#include "Proposal.hpp"
 #include "ChordStepDistributions.hpp"
+#include "Proposal.hpp"
 
 namespace hops {
     /**
@@ -23,8 +23,8 @@ namespace hops {
         ReversibleJumpProposal(std::unique_ptr<Proposal> proposalImpl,
                                const Eigen::VectorXi &jumpIndices,
                                const VectorType &parameterDefaultValues,
-                               const std::optional<Eigen::MatrixXd>& A = std::nullopt,
-                               const std::optional<Eigen::VectorXd>& b = std::nullopt);
+                               const std::optional<Eigen::MatrixXd> &A = std::nullopt,
+                               const std::optional<Eigen::VectorXd> &b = std::nullopt);
 
         ReversibleJumpProposal(const ReversibleJumpProposal &other);
 
@@ -72,6 +72,55 @@ namespace hops {
 
         [[nodiscard]] const VectorType &getB() const override;
 
+        // This methods gives access to change the underlying proposal mechanism
+        [[nodiscard]] const std::unique_ptr<Proposal> &getProposalImpl() const;
+
+        void setProposalImpl(std::unique_ptr<Proposal> proposalImpl);
+
+        [[nodiscard]] double getModelJumpProbability() const;
+
+        void setModelJumpProbability(double modelJumpProbability);
+
+        [[nodiscard]] double getActivationProbability() const;
+
+        void setActivationProbability(double activationProbability);
+
+        [[nodiscard]] double getDeactivationProbability() const;
+
+        void setDeactivationProbability(double deactivationProbability);
+
+        [[nodiscard]] const VectorType &getBackwardDistances() const;
+
+        void setBackwardDistances(const VectorType &backwardDistances);
+
+        [[nodiscard]] const VectorType &getForwardDistances() const;
+
+        void setForwardDistances(const VectorType &forwardDistances);
+
+        [[nodiscard]] const Eigen::VectorXi &getJumpIndices() const;
+
+        void setJumpIndices(const Eigen::VectorXi &jumpIndices);
+
+        [[nodiscard]] const VectorType &getDefaultValues() const;
+
+        void setDefaultValues(const VectorType &defaultValues);
+
+        [[nodiscard]] const VectorType &getActivationState() const;
+
+        void setActivationState(const VectorType &activationState);
+
+        [[nodiscard]] const VectorType &getActivationProposal() const;
+
+        void setActivationProposal(const VectorType &activationProposal);
+
+        [[nodiscard]] double getLogAcceptanceChanceModelJump() const;
+
+        void setLogAcceptanceChanceModelJump(double logAcceptanceChanceModelJump);
+
+        [[nodiscard]] bool isLastProposalJumpedModel() const;
+
+        void setLastProposalJumpedModel(bool lastProposalJumpedModel);
+
     private:
         VectorType &proposeModel(RandomNumberGenerator &randomNumberGenerator);
 
@@ -105,6 +154,6 @@ namespace hops {
         Eigen::MatrixXd A;
         Eigen::VectorXd b;
     };
-}
+}// namespace hops
 
 #endif //HOPS_REVERSIBLEJUMPPROPOSAL_HPP

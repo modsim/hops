@@ -12,10 +12,10 @@ set(TEST_SOURCES
         TrunatedGaussianProposalTestSuite.cpp
         )
 
-if (CMAKE_BUILD_TYPE EQUAL "RELEASE")
+if (CMAKE_BUILD_TYPE STREQUAL "Release")
     # Only run in release, because it is a slow test. Numerically there should be no difference for this test-case.
     set(TEST_SOURCES ${TEST_SOURCES} ReversibleJumpProposalTestSuite.cpp)
-endif (CMAKE_BUILD_TYPE EQUAL "RELEASE")
+endif (CMAKE_BUILD_TYPE EQUAL "Release")
 
 foreach (TEST_SOURCE ${TEST_SOURCES})
     get_filename_component(TEST_NAME ${TEST_SOURCE} NAME_WE)

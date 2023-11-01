@@ -183,7 +183,6 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
                 "deactivation_probability"};
 
         auto actualParameterNames = RJMCMCProposal.getParameterNames();
-        std::cout << actualParameterNames.size() << std::endl;
         BOOST_CHECK_EQUAL(actualParameterNames.size(), expectedParameterNames.size());
         for (long i = 0; i < actualParameterNames.size(); ++i) {
             BOOST_CHECK_EQUAL(actualParameterNames[i], expectedParameterNames[i]);
