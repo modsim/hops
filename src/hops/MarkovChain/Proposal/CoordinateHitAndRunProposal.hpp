@@ -142,17 +142,16 @@ namespace hops {
 
         proposal(coordinateToUpdate) += step;
 
-        shouldRecomputeSlacks = false;
         return proposal;
     }
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
     VectorType &CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::propose(
             RandomNumberGenerator &rng, const Eigen::VectorXd &activeIndices) {
+        this->shouldRecomputeSlacks = true;
         if (activeIndices.sum() <= 0) {
             // No active subspaces
             detailedBalance = 0;
-            shouldRecomputeSlacks = true;
             return state;
         }
 
@@ -194,7 +193,6 @@ namespace hops {
         }
 
 
-        shouldRecomputeSlacks = true;
         return proposal;
     }
 
