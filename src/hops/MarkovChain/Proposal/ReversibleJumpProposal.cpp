@@ -77,6 +77,8 @@ hops::ReversibleJumpProposal::ReversibleJumpProposal(const ReversibleJumpProposa
     this->logAcceptanceChanceModelJump = other.logAcceptanceChanceModelJump;
     this->backwardDistances = other.backwardDistances;
     this->forwardDistances = other.forwardDistances;
+    this->A = other.A;
+    this->b = other.b;
 }
 
 hops::ReversibleJumpProposal::ReversibleJumpProposal(ReversibleJumpProposal &&other) noexcept {
@@ -90,6 +92,8 @@ hops::ReversibleJumpProposal::ReversibleJumpProposal(ReversibleJumpProposal &&ot
     this->logAcceptanceChanceModelJump = other.logAcceptanceChanceModelJump;
     this->backwardDistances = other.backwardDistances;
     this->forwardDistances = other.forwardDistances;
+    this->A = other.A;
+    this->b = other.b;
 }
 
 hops::ReversibleJumpProposal &hops::ReversibleJumpProposal::operator=(const ReversibleJumpProposal &other) {
@@ -103,6 +107,8 @@ hops::ReversibleJumpProposal &hops::ReversibleJumpProposal::operator=(const Reve
     this->logAcceptanceChanceModelJump = other.logAcceptanceChanceModelJump;
     this->backwardDistances = other.backwardDistances;
     this->forwardDistances = other.forwardDistances;
+    this->A = other.A;
+    this->b = other.b;
     return *this;
 }
 
@@ -117,6 +123,8 @@ hops::ReversibleJumpProposal &hops::ReversibleJumpProposal::operator=(Reversible
     this->logAcceptanceChanceModelJump = other.logAcceptanceChanceModelJump;
     this->backwardDistances = other.backwardDistances;
     this->forwardDistances = other.forwardDistances;
+    this->A = other.A;
+    this->b = other.b;
     return *this;
 }
 
