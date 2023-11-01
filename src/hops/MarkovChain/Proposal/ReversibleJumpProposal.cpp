@@ -127,14 +127,7 @@ hops::VectorType &hops::ReversibleJumpProposal::propose(RandomNumberGenerator &r
     } else {
         lastProposalJumpedModel = false;
         this->activationProposal = this->activationState;
-        std::cout << std::endl << "proposalImpl name is " << proposalImpl->getProposalName() << std::endl;
-        std::cout << std::endl << "call propose(rng, activation state) " << proposalImpl->getProposalName() << std::endl;
-        proposalImpl->propose(rng, activationState);
-        std::cout << std::endl << "call again with wrap proposal " << proposalImpl->getProposalName() << std::endl;
-        wrapProposal(proposalImpl->propose(rng, activationState));
-        std::cout << std::endl << "call again with wrap proposal ad store" << proposalImpl->getProposalName() << std::endl;
         proposal = wrapProposal(proposalImpl->propose(rng, activationState));
-        std::cout << std::endl << "proposal is " << proposal.transpose() << std::endl;
     }
     return proposal;
 }

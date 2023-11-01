@@ -156,4 +156,4 @@ namespace hops {
     };
 }// namespace hops
 
-#endif//HOPS_REVERSIBLEJUMPPROPOSAL_HPP
+#endif //HOPS_REVERSIBLEJUMPPROPOSAL_HPP

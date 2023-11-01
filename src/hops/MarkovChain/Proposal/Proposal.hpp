@@ -30,7 +30,7 @@ namespace hops {
          * the new state.
          * @param activeIndices vector should contain true active parameters and 0 for inactive parameters.
          */
-        virtual VectorType &propose(RandomNumberGenerator &rng, const Eigen::VectorXd &activSubspace) {
+        virtual VectorType &propose(RandomNumberGenerator &rng, const VectorType &activSubspace) {
             throw std::runtime_error("Proposal::Propose with rng and activeIndices not implemented");
         };
 
