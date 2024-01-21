@@ -1,6 +1,7 @@
 #ifndef HOPS_LINEARTRANSFORMATION_HPP
 #define HOPS_LINEARTRANSFORMATION_HPP
 
+#include <Eigen/SVD>
 #include <memory>
 #include <utility>
 
@@ -35,7 +36,8 @@ namespace hops {
             } else if (matrix.isUpperTriangular()) {
                 return matrix.template triangularView<Eigen::Upper>().solve(vector - shift);
             } else {
-                return matrix.inverse() * (vector - shift);
+                VectorType rhs = vector-shift;
+                return matrix.bdcSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(rhs);
             }
         }
 
