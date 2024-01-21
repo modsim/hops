@@ -31,9 +31,9 @@ namespace hops {
         }
 
         VectorType revert(const VectorType &vector) const override {
-            if (matrix.isLowerTriangular()) {
+            if (matrix.cols() == matrix.rows() && matrix.isLowerTriangular()) {
                 return matrix.template triangularView<Eigen::Lower>().solve(vector - shift);
-            } else if (matrix.isUpperTriangular()) {
+            } else if (matrix.cols() == matrix.rows() && matrix.isUpperTriangular()) {
                 return matrix.template triangularView<Eigen::Upper>().solve(vector - shift);
             } else {
                 VectorType rhs = vector-shift;
