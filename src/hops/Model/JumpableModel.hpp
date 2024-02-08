@@ -2,6 +2,7 @@
 #define HOPS_JUMPABLEMODEL_HPP
 
 #include "Model.hpp"
+#include <iostream>
 
 namespace hops {
 
@@ -31,6 +32,25 @@ namespace hops {
     public:
         JumpableModel(std::unique_ptr<Model> modelImpl) : modelImpl(std::move(modelImpl)) {}
 
+        JumpableModel(const JumpableModel<std::unique_ptr<Model>> &other) {
+            this->modelImpl = other.modelImpl->copyModel();
+        }
+
+        JumpableModel(JumpableModel<std::unique_ptr<Model>> &&other) {
+            this->modelImpl = std::move(other.modelImpl);
+        }
+
+        JumpableModel<std::unique_ptr<Model>>& operator=(const JumpableModel<std::unique_ptr<Model>> &other) {
+            this->modelImpl = other.modelImpl->copyModel();
+            return *this;
+        }
+
+        JumpableModel<std::unique_ptr<Model>>& operator=(JumpableModel<std::unique_ptr<Model>> &&other) {
+            this->modelImpl = other.modelImpl->copyModel();
+            this->modelImpl = std::move(other.modelImpl);
+            return *this;
+        }
+
         double computeNegativeLogLikelihood(const VectorType &x) override;
 
         [[nodiscard]] std::vector<std::string> getDimensionNames() const override;
@@ -53,17 +73,9 @@ namespace hops {
         return modelImpl.computeNegativeLogLikelihood(x.bottomRows(x.rows() / 2));
     }
 
-    double JumpableModel<std::unique_ptr<Model>>::computeNegativeLogLikelihood(const VectorType &x) {
-        return modelImpl->computeNegativeLogLikelihood(x.bottomRows(x.rows() / 2));
-    }
-
     template<typename ModelImpl>
     std::vector<std::string> JumpableModel<ModelImpl>::getDimensionNames() const {
         return modelImpl.getDimensionNames();
-    }
-
-    std::vector<std::string> JumpableModel<std::unique_ptr<Model>>::getDimensionNames() const {
-        return modelImpl->getDimensionNames();
     }
 
     template<typename ModelImpl>
@@ -71,17 +83,10 @@ namespace hops {
         return std::make_unique<JumpableModel<ModelImpl>>(*this);
     }
 
-    std::unique_ptr<Model> JumpableModel<std::unique_ptr<Model>>::copyModel() const {
-        return std::make_unique<JumpableModel<std::unique_ptr<Model>>>(std::move(modelImpl->copyModel()));
-    }
 
     template<typename ModelImpl>
     std::optional<VectorType> JumpableModel<ModelImpl>::computeLogLikelihoodGradient(const VectorType &x) {
         return modelImpl.computeLogLikelihoodGradient(x.bottomRows(x.rows() / 2));
-    }
-
-    std::optional<VectorType> JumpableModel<std::unique_ptr<Model>>::computeLogLikelihoodGradient(const VectorType &x) {
-        return modelImpl->computeLogLikelihoodGradient(x.bottomRows(x.rows() / 2));
     }
 
     template<typename ModelImpl>
@@ -89,17 +94,9 @@ namespace hops {
         return modelImpl.computeExpectedFisherInformation(x.bottomRows(x.rows() / 2));
     }
 
-    std::optional<MatrixType> JumpableModel<std::unique_ptr<Model>>::computeExpectedFisherInformation(const VectorType &x) {
-        return modelImpl->computeExpectedFisherInformation(x.bottomRows(x.rows() / 2));
-    }
-
     template<typename ModelImpl>
     bool JumpableModel<ModelImpl>::hasConstantExpectedFisherInformation() {
         return modelImpl.hasConstantExpectedFisherInformation();
-    }
-
-    bool JumpableModel<std::unique_ptr<Model>>::hasConstantExpectedFisherInformation() {
-        return modelImpl->hasConstantExpectedFisherInformation();
     }
 
     template<typename ModelImpl>

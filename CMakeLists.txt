@@ -41,7 +41,7 @@ option(HOPS_BINARIES "Enables compilation of hops executables. Use -DHOPS_BINARI
 option(HOPS_EXAMPLES "Enables compilation of hops examples. Use -DHOPS_EXAMPLES=OFF to disable." ON)
 option(HOPS_TESTS "Enables compilation of unit tests. Use -DHOPS_TESTS=OFF to disable." ON)
 option(HOPS_NO_INSTALL "Disables installation. Use -DHOPS_NO_INSTALL=ON to disable installation." OFF)
-option(HOPS_BUILD_NATIVE "Enable this option for maximum performance. Disable it when linking to third-party software that also uses Eigen3 but is not compiled with -march=native" ON)
+option(HOPS_BUILD_NATIVE "Enable this option for maximum performance. Disable it when linking to third-party software that also uses Eigen3 but is not compiled with -march=native" OFF)
 set(HOPS_LIBRARY_TYPE SHARED CACHE STRING "Type of library to build. Options are HEADER_ONLY, STATIC or SHARED")
 set_property(CACHE HOPS_LIBRARY_TYPE PROPERTY STRINGS HEADER_ONLY STATIC SHARED)
 
