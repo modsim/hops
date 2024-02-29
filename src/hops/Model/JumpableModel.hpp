@@ -12,9 +12,9 @@ namespace hops {
 
         double computeNegativeLogLikelihood(const VectorType &x) override;
 
-        std::vector<std::string> getDimensionNames() const override;
+        [[nodiscard]] std::vector<std::string> getDimensionNames() const override;
 
-        std::unique_ptr<Model> copyModel() const override;
+        [[nodiscard]] std::unique_ptr<Model> copyModel() const override;
 
         std::optional<VectorType> computeLogLikelihoodGradient(const VectorType &x) override;
 
@@ -25,6 +25,47 @@ namespace hops {
     private:
         ModelImpl modelImpl;
     };
+
+    template<>
+    class JumpableModel<std::unique_ptr<Model>> : public Model {
+    public:
+        JumpableModel(std::unique_ptr<Model> modelImpl) : modelImpl(std::move(modelImpl)) {}
+
+        JumpableModel(const JumpableModel<std::unique_ptr<Model>> &other) {
+            this->modelImpl = other.modelImpl->copyModel();
+        }
+
+        JumpableModel(JumpableModel<std::unique_ptr<Model>> &&other) {
+            this->modelImpl = std::move(other.modelImpl);
+        }
+
+        JumpableModel<std::unique_ptr<Model>>& operator=(const JumpableModel<std::unique_ptr<Model>> &other) {
+            this->modelImpl = other.modelImpl->copyModel();
+            return *this;
+        }
+
+        JumpableModel<std::unique_ptr<Model>>& operator=(JumpableModel<std::unique_ptr<Model>> &&other) {
+            this->modelImpl = other.modelImpl->copyModel();
+            this->modelImpl = std::move(other.modelImpl);
+            return *this;
+        }
+
+        double computeNegativeLogLikelihood(const VectorType &x) override;
+
+        [[nodiscard]] std::vector<std::string> getDimensionNames() const override;
+
+        [[nodiscard]] std::unique_ptr<Model> copyModel() const override;
+
+        std::optional<VectorType> computeLogLikelihoodGradient(const VectorType &x) override;
+
+        std::optional<MatrixType> computeExpectedFisherInformation(const VectorType &type) override;
+
+        bool hasConstantExpectedFisherInformation() override;
+
+    private:
+        std::unique_ptr<Model> modelImpl;
+    };
+
 
     template<typename ModelImpl>
     double JumpableModel<ModelImpl>::computeNegativeLogLikelihood(const VectorType &x) {
@@ -40,6 +81,7 @@ namespace hops {
     std::unique_ptr<Model> JumpableModel<ModelImpl>::copyModel() const {
         return std::make_unique<JumpableModel<ModelImpl>>(*this);
     }
+
 
     template<typename ModelImpl>
     std::optional<VectorType> JumpableModel<ModelImpl>::computeLogLikelihoodGradient(const VectorType &x) {

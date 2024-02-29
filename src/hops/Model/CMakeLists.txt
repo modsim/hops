@@ -4,6 +4,7 @@ if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
             DegenerateGaussian.cpp
             Gaussian.hpp
             Gaussian.cpp
+            JumpableModel.cpp
             JumpableModel.hpp
             Model.hpp
             Mixture.hpp
