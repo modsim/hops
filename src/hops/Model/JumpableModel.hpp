@@ -2,7 +2,6 @@
 #define HOPS_JUMPABLEMODEL_HPP
 
 #include "Model.hpp"
-#include <iostream>
 
 namespace hops {
 
