@@ -264,7 +264,7 @@ namespace hops {
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    VectorType &DikinProposal<InternalMatrixType, InternalVectorType>::propose(RandomNumberGenerator &rng,
+    VectorType &DikinProposal<InternalMatrixType, InternalVectorType>::propose(RandomNumberGenerator &,
                                                                                const Eigen::VectorXd &) {
         throw std::runtime_error("Propose with rng and activeIndices not implemented");
     }

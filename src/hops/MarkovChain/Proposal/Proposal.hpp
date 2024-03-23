@@ -26,11 +26,13 @@ namespace hops {
 
         /**
          * @Brief Proposes new state on a subspace and returns it. The returned state can be stored, transformed or use in conjunction with
-         * a metropolis-hastings filter, reversible jump mcmc and other techniques
+         * a metropolis-hastings filter, reversible jump mcmcgand other techniques
          * the new state.
          * @param activeIndices vector should contain true active parameters and 0 for inactive parameters.
          */
         virtual VectorType &propose(RandomNumberGenerator &rng, const VectorType &activSubspace) {
+            (void) rng;
+            (void) activSubspace;
             throw std::runtime_error("Proposal::Propose with rng and activeIndices not implemented");
         };
 

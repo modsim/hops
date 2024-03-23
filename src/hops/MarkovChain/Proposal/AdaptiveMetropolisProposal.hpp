@@ -389,7 +389,7 @@ namespace hops {
     }
 
     template<typename InternalMatrixType>
-    VectorType &AdaptiveMetropolisProposal<InternalMatrixType>::propose(RandomNumberGenerator &rng,
+    VectorType &AdaptiveMetropolisProposal<InternalMatrixType>::propose(RandomNumberGenerator &,
                                                                         const Eigen::VectorXd &) {
         throw std::runtime_error("Propose with rng and activeIndices not implemented");
     }

@@ -218,8 +218,8 @@ namespace hops {
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
-    VectorType &GaussianProposal<InternalMatrixType, InternalVectorType>::propose(RandomNumberGenerator &rng,
-                                                                                  const Eigen::VectorXd &activeIndices) {
+    VectorType &GaussianProposal<InternalMatrixType, InternalVectorType>::propose(RandomNumberGenerator &,
+                                                                                  const Eigen::VectorXd &) {
         throw std::runtime_error("Propose with rng and activeIndices not implemented");
     }
 
