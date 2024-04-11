@@ -52,38 +52,53 @@ namespace hops {
         }
 
         /**
-         * @ Brief Implementation derived from using chain rule on log(sum(...)).
+         * @brief Implementation by using the logsumexp trick and the chain rule.
          * @param x
          * @return
          */
         [[nodiscard]] std::optional<VectorType>
         computeLogLikelihoodGradient(const VectorType &x) override {
-            std::vector<double> weightedLikelihoods;
+            std::vector<double> negLogLikelihoods;
+            for (const auto &component: components) {
+                negLogLikelihoods.push_back(component->computeNegativeLogLikelihood(x));
+            }
+            auto minNegLogLikeIt = std::min_element(negLogLikelihoods.begin(), negLogLikelihoods.end());
 
-            std::transform(components.begin(),
-                           components.end(),
+            std::vector<double> weightedLikelihoods;
+            std::transform(negLogLikelihoods.begin(),
+                           negLogLikelihoods.end(),
                            weights.begin(),
                            std::back_inserter(weightedLikelihoods),
-                           [&x](const std::shared_ptr<Model> &model, double weight) {
-                               return weight * std::exp(-model->computeNegativeLogLikelihood(x));
+                           [&x, &minNegLogLikeIt](double negLogLikelihood, double weight) {
+                               return weight * std::exp(*minNegLogLikeIt - negLogLikelihood);
                            }
             );
 
             double denominator = std::accumulate(weightedLikelihoods.begin(), weightedLikelihoods.end(), 0.);
 
-            return std::transform_reduce(components.begin(),
-                               components.end(),
-                               weightedLikelihoods.begin(),
-                               VectorType(VectorType::Zero(x.rows())),
-                               std::plus<>(),
-                               [&x](const std::shared_ptr<Model> &model, double weightedLikelihood) {
-                                   auto gradient = model->computeLogLikelihoodGradient(x);
-                                   if (gradient) {
-                                       return VectorType(weightedLikelihood * gradient.value());
-                                   }
-                                   return VectorType(VectorType::Zero(x.rows()));
-                               }
-            ) / denominator;
+            std::vector<VectorType> logLikelihoodGradients;
+            for (const auto &model: components) {
+                auto gradient = model->computeLogLikelihoodGradient(x);
+                if (gradient) {
+                    logLikelihoodGradients.emplace_back(gradient.value());
+                } else {
+                    logLikelihoodGradients.emplace_back(VectorType::Zero(x.rows()));
+                }
+            }
+            const auto &maxLogLikelihoodGradient = logLikelihoodGradients[std::distance(negLogLikelihoods.begin(),
+                                                                                        minNegLogLikeIt)];
+
+            return maxLogLikelihoodGradient + std::transform_reduce(logLikelihoodGradients.begin(),
+                                                                    logLikelihoodGradients.end(),
+                                                                    weightedLikelihoods.begin(),
+                                                                    VectorType(VectorType::Zero(x.rows())),
+                                                                    std::plus<>(),
+                                                                    [&](const VectorType &logLikelihoodGradient,
+                                                                        double weightedLikelihood) {
+                                                                        return weightedLikelihood *
+                                                                               (logLikelihoodGradient -
+                                                                                maxLogLikelihoodGradient);
+                                                                    }) / denominator;
         }
 
         [[nodiscard]] std::optional<MatrixType>
@@ -91,11 +106,11 @@ namespace hops {
             return std::nullopt;
         }
 
-        [[nodiscard]] const std::vector<std::shared_ptr<Model>>& getComponents() const {
+        [[nodiscard]] const std::vector<std::shared_ptr<Model>> &getComponents() const {
             return components;
         }
 
-        [[nodiscard]] const std::vector<double>& getWeights() const {
+        [[nodiscard]] const std::vector<double> &getWeights() const {
             return weights;
         }
 

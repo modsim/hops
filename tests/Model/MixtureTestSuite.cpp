@@ -124,6 +124,33 @@ BOOST_AUTO_TEST_SUITE(Mixture)
         }
     }
 
+    BOOST_AUTO_TEST_CASE(CalculateLogLikelihoodGradientForGaussianMixtureAtLowDensityPoint) {
+        unsigned d = 2;
+        Eigen::VectorXd expectedLogLikelihoodGradient(d);
+        expectedLogLikelihoodGradient << -32., -50.;
+
+        Eigen::VectorXd mean(d);
+        Eigen::MatrixXd covariance = 2 * Eigen::MatrixXd::Identity(d, d);
+        mean << -2., 0.;
+        auto model1 = std::make_shared<hops::Gaussian>(mean, covariance);
+        mean << 2., 0.;
+        covariance << 5., 0.,
+                        0., 0.2;
+        auto model2 = std::make_shared<hops::Gaussian>(mean, covariance);
+
+        hops::Mixture mixture(std::vector<std::shared_ptr<hops::Model>>{model1, model2}, {0.5, 0.5});
+
+        Eigen::VectorXd evaluationPoint(d);
+        evaluationPoint << 62., 100.;
+        auto actualLogLikelihoodGradient = mixture.computeLogLikelihoodGradient(evaluationPoint);
+        if(actualLogLikelihoodGradient) {
+            BOOST_CHECK_SMALL((actualLogLikelihoodGradient.value() - expectedLogLikelihoodGradient).squaredNorm(), 1.e-7);
+        }
+        else {
+            BOOST_FAIL("Expected Gradient to be present");
+        }
+    }
+
 
     BOOST_AUTO_TEST_CASE(checkExpectedFisherInformationReturnsEmpty) {
         auto model1 = std::make_shared<ModelMock>();
