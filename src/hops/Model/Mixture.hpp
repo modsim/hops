@@ -24,17 +24,31 @@ namespace hops {
             }
         }
 
+        /**
+         * @brief Implementation using the logsumexp trick.
+         * @param x evaluation point
+         * @return log density value
+         */
         [[nodiscard]] MatrixType::Scalar computeNegativeLogLikelihood(const VectorType &x) override {
-            double likelihood = std::transform_reduce(components.begin(),
-                                                      components.end(),
-                                                      weights.begin(),
-                                                      double(0.),
-                                                      std::plus<>(),
-                                                      [&x](const std::shared_ptr<Model> &model, double weight) {
-                                                          return static_cast<double>(weight * std::exp(
-                                                                  -model->computeNegativeLogLikelihood(x)));
-                                                      });
-            return -std::log(likelihood);
+            std::vector<double> negLogLikelihoods;
+            for (const auto &component: components) {
+                negLogLikelihoods.push_back(component->computeNegativeLogLikelihood(x));
+            }
+
+            auto minNegLogLikeIt = std::min_element(negLogLikelihoods.begin(), negLogLikelihoods.end());
+            double likelihoodMinusMax = std::transform_reduce(components.begin(),
+                                                              components.end(),
+                                                              weights.begin(),
+                                                              double(0.),
+                                                              std::plus<>(),
+                                                              [&](const std::shared_ptr<Model> &model, double weight) {
+                                                                  return static_cast<double>(weight *
+                                                                                             std::exp(*minNegLogLikeIt
+                                                                                                      -
+                                                                                                      model->computeNegativeLogLikelihood(
+                                                                                                              x)));
+                                                              });
+            return *minNegLogLikeIt - std::log(likelihoodMinusMax);
         }
 
         /**
