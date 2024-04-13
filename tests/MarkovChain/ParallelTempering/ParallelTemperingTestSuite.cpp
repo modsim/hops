@@ -5,7 +5,7 @@
 #include <Eigen/Core>
 #include <random>
 
-#include "hops/MarkovChain/ParallelTempering/ParallelTempering.hpp"
+#include "hops/MarkovChain/ParallelTempering/_ParallelTemperingMPI.hpp"
 #include "hops/MarkovChain/ParallelTempering/Coldness.hpp"
 #include "hops/RandomNumberGenerator/RandomNumberGenerator.hpp"
 

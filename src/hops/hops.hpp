@@ -17,7 +17,7 @@
 #include "MarkovChain/Draw/NoOpDrawAdapter.hpp"
 
 #include "MarkovChain/ParallelTempering/Coldness.hpp"
-#include "MarkovChain/ParallelTempering/ParallelTempering.hpp"
+#include "hops/MarkovChain/ParallelTempering/_ParallelTemperingMPI.hpp"
 
 #include "MarkovChain/Proposal/AdaptiveMetropolisProposal.hpp"
 #include "MarkovChain/Proposal/BallWalkProposal.hpp"

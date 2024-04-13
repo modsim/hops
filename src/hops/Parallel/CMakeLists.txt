@@ -1,3 +1,5 @@
+target_sources(hops PRIVATE BoostInterprocessFinalizer.hpp)
+
 find_package(MPI)
 
 if (MPI_FOUND)

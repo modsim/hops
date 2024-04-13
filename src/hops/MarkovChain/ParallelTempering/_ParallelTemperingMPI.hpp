@@ -1,5 +1,5 @@
-#ifndef HOPS_PARALLELTEMPERING_HPP
-#define HOPS_PARALLELTEMPERING_HPP
+#ifndef HOPS__PARALLELTEMPERINGMPI_HPP
+#define HOPS__PARALLELTEMPERINGMPI_HPP
 
 #ifdef HOPS_MPI_SUPPORTED
 
@@ -151,24 +151,24 @@ namespace hops {
      * @tparam MarkovChainImpl A class that has the ColdnessAttribute and its Recorders mixed in.
      */
     template<typename MarkovChainImpl>
-    class ParallelTempering : public MarkovChainImpl {
+    class _ParallelTemperingMPI : public MarkovChainImpl {
     public:
-        ParallelTempering(const MarkovChainImpl &markovChainImpl // NOLINT(cppcoreguidelines-pro-type-member-init)
+        _ParallelTemperingMPI(const MarkovChainImpl &markovChainImpl // NOLINT(cppcoreguidelines-pro-type-member-init)
                           ) : MarkovChainImpl(markovChainImpl) {
             throw std::runtime_error("MPI not supported on current platform");
         }
-        ParallelTempering(const MarkovChainImpl &markovChainImpl, // NOLINT(cppcoreguidelines-pro-type-member-init)
+        _ParallelTemperingMPI(const MarkovChainImpl &markovChainImpl, // NOLINT(cppcoreguidelines-pro-type-member-init)
                           RandomNumberGenerator synchronizedRandomNumberGenerator) : MarkovChainImpl(markovChainImpl) {
             throw std::runtime_error("MPI not supported on current platform");
         }
 
-        ParallelTempering(const MarkovChainImpl &markovChainImpl, // NOLINT(cppcoreguidelines-pro-type-member-init)
+        _ParallelTemperingMPI(const MarkovChainImpl &markovChainImpl, // NOLINT(cppcoreguidelines-pro-type-member-init)
                             RandomNumberGenerator,
-                          double) : MarkovChainImpl(markovChainImpl) {
+                              double) : MarkovChainImpl(markovChainImpl) {
             throw std::runtime_error("MPI not supported on current platform");
         }
     };
 }
 #endif //HOPS_MPI_SUPPORTED
 
-#endif //HOPS_PARALLELTEMPERING_HPP
+#endif //HOPS__PARALLELTEMPERINGMPI_HPP

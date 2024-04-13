@@ -230,7 +230,7 @@ namespace hops {
     template<typename InternalMatrixType, typename InternalVectorType>
     std::any
     TruncatedGaussianProposal<InternalMatrixType, InternalVectorType>::getParameter(
-            const ProposalParameter &parameter) const {
+            const ProposalParameter &) const {
         throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
     }
 

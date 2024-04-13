@@ -37,7 +37,7 @@ struct TestTarget {
         count = std::vector<unsigned>(2, 0);
     };
 
-	std::tuple<double, double> operator()(const Eigen::VectorXd& x, const std::vector<hops::RandomNumberGenerator*>& rng) {
+	std::tuple<double, double> operator()(const Eigen::VectorXd& x, const std::vector<hops::RandomNumberGenerator*>&) {
         auto value = values[x(0)][count[x(0)]];
         auto error = errors[x(0)][count[x(0)]];
 

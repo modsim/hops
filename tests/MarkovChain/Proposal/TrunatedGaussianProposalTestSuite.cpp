@@ -74,7 +74,6 @@ BOOST_AUTO_TEST_SUITE(TruncatedGaussianProposal)
         auto model = hops::Gaussian(interiorPoint, Eigen::MatrixXd::Identity(cols, cols));
 
 
-        long max_reflections = 10;
         hops::TruncatedGaussianProposal proposer(A,
                                                  b,
                                                  interiorPoint,

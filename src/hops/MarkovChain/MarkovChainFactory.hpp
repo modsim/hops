@@ -9,7 +9,7 @@
 #include "hops/MarkovChain/Draw/NoOpDrawAdapter.hpp"
 #include "hops/MarkovChain/Draw/MetropolisHastingsFilter.hpp"
 #include "hops/MarkovChain/ParallelTempering/Coldness.hpp"
-#include "hops/MarkovChain/ParallelTempering/ParallelTempering.hpp"
+#include "hops/MarkovChain/ParallelTempering/_ParallelTemperingMPI.hpp"
 #include "hops/MarkovChain/Proposal/AdaptiveMetropolisProposal.hpp"
 #include "hops/MarkovChain/Proposal/BallWalkProposal.hpp"
 #include "hops/MarkovChain/Proposal/BilliardAdaptiveMetropolisProposal.hpp"
@@ -641,7 +641,7 @@ namespace hops {
             case MarkovChainType::AdaptiveMetropolis : {
                 return wrapMarkovChainImpl(
                         MarkovChainAdapter(
-                                ParallelTempering(
+                                _ParallelTemperingMPI(
                                         MetropolisHastingsFilter(
                                                 ModelMixin(
                                                         AdaptiveMetropolisProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>>(
@@ -657,7 +657,7 @@ namespace hops {
             case MarkovChainType::BallWalk : {
                 return wrapMarkovChainImpl(
                         MarkovChainAdapter(
-                                ParallelTempering(
+                                _ParallelTemperingMPI(
                                         MetropolisHastingsFilter(
                                                 ModelMixin(
                                                         BallWalkProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
@@ -674,7 +674,7 @@ namespace hops {
             case MarkovChainType::CoordinateHitAndRun : {
                 return wrapMarkovChainImpl(
                         MarkovChainAdapter(
-                                ParallelTempering(
+                                _ParallelTemperingMPI(
                                         MetropolisHastingsFilter(
                                                 ModelMixin(
                                                         CoordinateHitAndRunProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
@@ -692,7 +692,7 @@ namespace hops {
             case MarkovChainType::CSmMALA: {
                 return wrapMarkovChainImpl(
                         MarkovChainAdapter(
-                                ParallelTempering(
+                                _ParallelTemperingMPI(
                                         MetropolisHastingsFilter(
                                                 CSmMALAProposal(inequalityLhs,
                                                                 inequalityRhs,
@@ -708,7 +708,7 @@ namespace hops {
             case MarkovChainType::DikinWalk : {
                 return wrapMarkovChainImpl(
                         MarkovChainAdapter(
-                                ParallelTempering(
+                                _ParallelTemperingMPI(
                                         MetropolisHastingsFilter(
                                                 ModelMixin(
                                                         DikinProposal(inequalityLhs, inequalityRhs, startingPoint),
@@ -723,7 +723,7 @@ namespace hops {
             case MarkovChainType::Gaussian : {
                 return wrapMarkovChainImpl(
                         MarkovChainAdapter(
-                                ParallelTempering(
+                                _ParallelTemperingMPI(
                                         MetropolisHastingsFilter(
                                                 ModelMixin(
                                                         GaussianProposal<
@@ -741,7 +741,7 @@ namespace hops {
             case MarkovChainType::HitAndRun: {
                 return wrapMarkovChainImpl(
                         MarkovChainAdapter(
-                                ParallelTempering(
+                                _ParallelTemperingMPI(
                                         MetropolisHastingsFilter(
                                                 ModelMixin(
                                                         HitAndRunProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
@@ -960,7 +960,7 @@ namespace hops {
             case MarkovChainType::BallWalk : {
                 return wrapMarkovChainImpl(
                         MarkovChainAdapter(
-                                ParallelTempering(
+                                _ParallelTemperingMPI(
                                         MetropolisHastingsFilter(
                                                 ModelMixin(
                                                         StateTransformation(
@@ -983,7 +983,7 @@ namespace hops {
             case MarkovChainType::CoordinateHitAndRun : {
                 return wrapMarkovChainImpl(
                         MarkovChainAdapter(
-                                ParallelTempering(
+                                _ParallelTemperingMPI(
                                         MetropolisHastingsFilter(
                                                 ModelMixin(
                                                         StateTransformation(
@@ -1007,7 +1007,7 @@ namespace hops {
             case MarkovChainType::Gaussian : {
                 return wrapMarkovChainImpl(
                         MarkovChainAdapter(
-                                ParallelTempering(
+                                _ParallelTemperingMPI(
                                         MetropolisHastingsFilter(
                                                 ModelMixin(
                                                         StateTransformation(
@@ -1032,7 +1032,7 @@ namespace hops {
             case MarkovChainType::HitAndRun: {
                 return wrapMarkovChainImpl(
                         MarkovChainAdapter(
-                                ParallelTempering(
+                                _ParallelTemperingMPI(
                                         MetropolisHastingsFilter(
                                                 ModelMixin(
                                                         StateTransformation(

@@ -6,7 +6,8 @@
 #include "hops/Model/Model.hpp"
 #include "hops/Utility/VectorType.hpp"
 
-namespace hops {
+
+    createProposal
     /**
      * @details Implementation detail Proposal Factory is an abstract factory, see
      * https://refactoring.guru/design-patterns/abstract-factory/cpp/example

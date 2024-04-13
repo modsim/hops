@@ -1,3 +1,6 @@
+add_subdirectory(Mixins)
+add_subdirectory(ParallelTemperingImplementations)
+
 if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
     target_sources(hops PRIVATE
             AdaptiveMetropolisProposal.hpp
@@ -15,7 +18,7 @@ if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
             IsGetStepSizeAvailable.hpp
             IsSetStepSizeAvailable.hpp
             Proposal.hpp
-            ProposalFactory.hpp
+            ProposalBuilder.hpp
             ProposalParameter.hpp
             ReversibleJumpProposal.hpp
             ReversibleJumpProposal.cpp
