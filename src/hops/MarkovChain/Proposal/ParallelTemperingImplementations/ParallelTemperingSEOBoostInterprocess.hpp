@@ -7,13 +7,14 @@
 #include "hops/Utility/VectorType.hpp"
 #include "hops/RandomNumberGenerator/RandomNumberGenerator.hpp"
 
+
 namespace hops {
     class Proposal;
     class ParallelTemperingSEOBoostInterprocess: ParallelTempering {
     public:
-        ParallelTemperingSEOBoostInterprocess(RandomNumberGenerator syncRng, int numChains, int chainIndex, const char *sharedMemoryName);
+        ParallelTemperingSEOBoostInterprocess(RandomNumberGenerator syncRng, int numChains, int chainIndex, const char *sharedMemoryNameSpace);
 
-        VectorType proposeStateExchange(RandomNumberGenerator &rng, Proposal *proposal) override;
+        VectorType proposeStateExchange(Proposal *proposal) override;
 
         double computeAcceptanceProbability() override;
 
@@ -26,9 +27,9 @@ namespace hops {
         RandomNumberGenerator syncRng;
         int numberOfChains;
         const int chainIndex;
-        const char* sharedMemoryName;
         double otherColdness=0;
         double otherNegativeLogLikelihood=0;
+        const char* sharedMemoryNameSpace;
 
     private:
         std::uniform_int_distribution<int> uniformIntDistribution;

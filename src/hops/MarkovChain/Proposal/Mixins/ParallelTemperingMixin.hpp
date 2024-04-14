@@ -26,7 +26,9 @@ namespace hops {
         VectorType &propose(RandomNumberGenerator &rng) override {
             proposalStepsCounter = (proposalStepsCounter + 1) % proposalStepsPerCommunication;
             if (this->lastProposalWasParallelTemperingExchange()) {
-                proposal = parallelTemperingImpl.proposeStateExchange(rng, &proposalImpl);
+                proposal = parallelTemperingImpl.proposeStateExchange(&proposalImpl);
+                rng();
+                std::cout << "proposed state exchange " << proposal.transpose() << std::endl;
                 return proposal;
             } else {
                 proposal = proposalImpl.propose(rng);

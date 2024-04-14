@@ -15,7 +15,7 @@ namespace hops {
          * @param state
          * @return proposal for state exchange
          */
-        virtual VectorType proposeStateExchange(RandomNumberGenerator &rng, Proposal*) = 0;
+        virtual VectorType proposeStateExchange(Proposal*) = 0;
 
         virtual double computeAcceptanceProbability() = 0;
 

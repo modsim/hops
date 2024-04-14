@@ -19,6 +19,7 @@ std::vector<hops::VectorType> sample_chain(std::shared_ptr<hops::MarkovChain> ch
     samples.reserve(n_samples);
     for (long i = 0; i < n_samples; ++i) {
         auto [_, sample] = chain->draw(rng);
+        std::cout << "sample is " << sample.transpose();
         samples.emplace_back(sample);
     }
     return samples;
@@ -41,8 +42,8 @@ int main() {
 
 //    std::vector<std::thread> samplers;
     std::vector<std::future<std::vector<hops::VectorType>>> samplers;
-    size_t n_chains = 1;
-    size_t n_communicating_chains = 1;
+    size_t n_chains = 3;
+    size_t n_communicating_chains = 3;
     long n_samples = 10000;
     std::vector<std::vector<hops::VectorType>> all_samples;
 
@@ -58,49 +59,23 @@ int main() {
         hops::ParallelTemperingMixin<decltype(mprop), decltype(parallelTemperingImpl)> parallelTemperedProp(mprop,
                                                                                                             parallelTemperingImpl);
         hops::MetropolisHastingsFilter<decltype(parallelTemperedProp)> mh(parallelTemperedProp);
-//        hops::MetropolisHastingsFilter<decltype(mprop)> mh(mprop);
         auto mc = std::make_shared<hops::MarkovChainAdapter<decltype(mh)>>(mh);
         hops::RandomNumberGenerator rng(42 + i);
         std::vector<hops::VectorType> samples;
 //        all_samples.push_back(samples);
 //        std::thread sampler(sample_chain, mc, std::ref(samples), n_samples, std::ref(rng));
-        auto sampler = std::async(sample_chain, mc, n_samples, std::ref(rng));
-        samplers.push_back(std::move(sampler));
+//        auto sampler = std::async(sample_chain, mc, n_samples, std::ref(rng));
+//        samplers.push_back(std::move(sampler));
     }
 
-    for (auto &t: samplers) {
-        hops::VectorType mean = hops::VectorType::Zero(mean1.rows());
-        auto res = t.get();
-        for (size_t i = 0; i < res.size(); ++i) {
-            mean += res[i];
-        }
-        mean /= n_samples;
-        std::cout << "mean " << mean.transpose() << std::endl;
-    }
-
-//    for (auto &s: all_samples) {
-//        for (size_t i = 0; i > s.size(); ++i) {
-//            mean += s[i];
+//    for (auto &t: samplers) {
+//        hops::VectorType mean = hops::VectorType::Zero(mean1.rows());
+//        auto res = t.get();
+//        for (size_t i = 0; i < res.size(); ++i) {
+//            mean += res[i];
 //        }
 //        mean /= n_samples;
 //        std::cout << "mean " << mean.transpose() << std::endl;
 //    }
 
-//    long startEpoch = std::chrono::duration_cast<std::chrono::milliseconds>(
-//            std::chrono::high_resolution_clock::now().time_since_epoch()
-//    ).count();
-//
-//    markovChain->draw(randomNumberGenerator, numberOfSamples, thinning);
-//
-//    long endEpoch = std::chrono::duration_cast<std::chrono::milliseconds>(
-//            std::chrono::high_resolution_clock::now().time_since_epoch()
-//    ).count();
-//    std::cout << "Sampling took " << static_cast<double>(endEpoch - startEpoch) / 1000
-//              << " seconds, that's "
-//              << static_cast<double>(endEpoch - startEpoch) / static_cast<double>(numberOfSamples * thinning * 1000)
-//              << " s per sample"
-//              << std::endl;
-//
-//    auto fileWriter = hops::FileWriterFactory::createFileWriter("parallelTemperingDemo", hops::FileWriterType::CSV);
-//    markovChain->writeHistory(fileWriter.get());
 }

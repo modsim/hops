@@ -126,7 +126,6 @@ BOOST_AUTO_TEST_SUITE(ParallelTemperingSEOBoostInterprocessTestSuite)
         }
     }
 
-
 //    BOOST_AUTO_TEST_CASE(processesAgreeOnExchangeProbability_test) {
 //        ProposalMock markovChainMock;
 //        hops::Coldness mockWithColdness(markovChainMock);
