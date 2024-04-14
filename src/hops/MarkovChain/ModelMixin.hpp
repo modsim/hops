@@ -19,8 +19,8 @@ namespace hops {
     class ModelMixin : public Proposal, public ModelType {
     public:
         ModelMixin(const ProposalType &proposal, const ModelType &model) :
-                proposal(proposal),
-                ModelType(model) {
+                ModelType(model),
+                proposal(proposal) {
             if (proposal.hasNegativeLogLikelihood()) {
                 throw std::invalid_argument("Can't mix in model with ProposalType that already has likelihood.");
             }

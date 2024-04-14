@@ -1,13 +1,10 @@
 #ifndef HOPS_PARALLELTEMPERING_HPP
 #define HOPS_PARALLELTEMPERING_HPP
 
+#include "hops/RandomNumberGenerator/RandomNumberGenerator.hpp"
+#include "hops/Utility/VectorType.hpp"
+
 namespace hops {
-    class Proposal;
-
-    class RandomNumberGenerator;
-
-    class VectorType;
-
     class Proposal;
 
     class ParallelTempering {

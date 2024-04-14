@@ -10,15 +10,18 @@ namespace hops {
 
     class ProposalBuilder {
     public:
-        template <typename ProposalImpl, typename ...args>
-        std::unique_ptr<Proposal> build();
+        template<typename ProposalImpl, typename ...args>
+        std::unique_ptr<Proposal> build() {
+            return nullptr;
+        }
 
     private:
         std::unique_ptr<Transformation> transformation = nullptr;
-        std::unique_ptr<Model> Model = nullptr;
+        std::unique_ptr<Model> model = nullptr;
         std::optional<double> coldness = std::nullopt;
-        std::unique_ptr<ParallelTempering> parallelTemperingImpl= nullptr;
-        bool isReversibleJump= false;
+        std::unique_ptr<ParallelTempering> parallelTemperingImpl = nullptr;
+        std::unique_ptr<Proposal> externalProposal = nullptr;
+        bool isReversibleJump = false;
     };
 
 

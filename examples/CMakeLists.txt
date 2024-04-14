@@ -1,6 +1,7 @@
 set(BIN_SOURCES
         SamplingGaussianTarget.cpp
         SamplingGaussianSignificanceTarget.cpp
+        SharedMemoryParallelTempering.cpp
         TruncatedGaussianDemo.cpp
 )
 

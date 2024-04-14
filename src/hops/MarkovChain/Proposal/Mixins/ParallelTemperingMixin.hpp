@@ -3,23 +3,24 @@
 
 #include <memory>
 
+#include "hops/RandomNumberGenerator/RandomNumberGenerator.hpp"
 #include "hops/Utility/VectorType.hpp"
 
 namespace hops {
     class Proposal;
-    class RandomNumberGenerator;
 
     template<typename ProposalImpl, typename ParallelTemperingImpl>
     class ParallelTemperingMixin : public ProposalImpl {
     public:
         ParallelTemperingMixin(const ProposalImpl &proposalImpl,
-                               const ParallelTemperingImpl &parallelTemperingImpl,
-                               int proposalStepsPerCommunication = 10,
-                               int proposalStepsCounter = 0) :
+                               const ParallelTemperingImpl &parallelTemperingImpl):
+//                               int proposalStepsPerCommunication = 10,
+//                               int proposalStepsCounter = 0) :
                 proposalImpl(proposalImpl),
-                parallelTemperingImpl(parallelTemperingImpl),
-                proposalStepsPerCommunication(proposalStepsPerCommunication),
-                proposalStepsCounter(proposalStepsCounter) {}
+                parallelTemperingImpl(parallelTemperingImpl) {
+            proposalStepsPerCommunication = 10;
+            proposalStepsCounter = 0;
+        }
 
         VectorType &propose(RandomNumberGenerator &rng) override {
             proposalStepsCounter = (proposalStepsCounter + 1) % proposalStepsPerCommunication;
@@ -27,7 +28,8 @@ namespace hops {
                 proposal = parallelTemperingImpl.proposeStateExchange(rng, &proposalImpl);
                 return proposal;
             } else {
-                return proposalImpl.propose(rng);
+                proposal = proposalImpl.propose(rng);
+                return proposal;
             }
         }
 
@@ -55,12 +57,8 @@ namespace hops {
 //            return proposalImpl.getState();
 //        }
 
-        [[nodiscard]] VectorType &getProposal() const override {
-            if (this->lastProposalWasParallelTemperingExchange()) {
-                return parallelTemperingImpl.getProposal();
-            } else {
-                return proposalImpl.getProposal();
-            }
+        [[nodiscard]] VectorType getProposal() const override {
+            return proposal;
         }
 
 //        void setDimensionNames(const std::vector<std::string> &names) override {
@@ -108,7 +106,7 @@ namespace hops {
 
 
     private:
-        bool lastProposalWasParallelTemperingExchange() {
+        [[nodiscard]] bool lastProposalWasParallelTemperingExchange() const {
             return proposalStepsCounter == 0;
         }
 

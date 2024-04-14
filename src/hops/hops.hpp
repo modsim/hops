@@ -32,13 +32,19 @@
 #include "MarkovChain/Proposal/GaussianProposal.hpp"
 #include "MarkovChain/Proposal/HitAndRunProposal.hpp"
 #include "MarkovChain/Proposal/IsSetStepSizeAvailable.hpp"
-#include "MarkovChain/Proposal/ProposalFactory.hpp"
 #include "MarkovChain/Proposal/Proposal.hpp"
+#include "MarkovChain/Proposal/ProposalBuilder.hpp"
 #include "MarkovChain/Proposal/ProposalParameter.hpp"
 #include "MarkovChain/Proposal/Reflector.hpp"
 #include "MarkovChain/Proposal/ReversibleJumpProposal.hpp"
 #include "MarkovChain/Proposal/TruncatedGaussianProposal.hpp"
 #include "MarkovChain/Proposal/TruncatedNormalDistribution.hpp"
+
+#include "MarkovChain/Proposal/Mixins/ParallelTemperingMixin.hpp"
+
+#include "MarkovChain/Proposal/ParallelTemperingImplementations/ParallelTempering.hpp"
+#include "MarkovChain/Proposal/ParallelTemperingImplementations/ParallelTemperingBoost.hpp"
+
 
 #include "MarkovChain/Recorder/AcceptanceRateRecorder.hpp"
 #include "MarkovChain/Recorder/IsAddMessageAvailabe.hpp"

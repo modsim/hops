@@ -4,7 +4,6 @@
 #include <boost/interprocess/mapped_region.hpp>
 
 #include "hops/MarkovChain/Proposal/Proposal.hpp"
-#include "hops/Utility/VectorType.hpp"
 
 
 hops::ParallelTemperingBoost::ParallelTemperingBoost(int numChains, int chainIndex, const char *sharedMemoryName)
