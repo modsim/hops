@@ -19,6 +19,8 @@ namespace hops {
 
         virtual double computeAcceptanceProbability() = 0;
 
+        virtual std::string getName() const = 0;
+
         virtual ~ParallelTempering() = default;
     };
 }

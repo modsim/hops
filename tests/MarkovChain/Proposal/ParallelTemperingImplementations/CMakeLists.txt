@@ -1,17 +1,5 @@
-add_subdirectory(ParallelTemperingImplementations)
-
 set(TEST_SOURCES
-        BilliardMALATestSuite.cpp
-        BilliardWalkTestSuite.cpp
-        ChordStepDistributionsTestSuite.cpp
-        CSmMALATestSuite.cpp
-        CoordinateHitAndRunTestSuite.cpp
-        DikinEllipsoidCalculatorTestSuite.cpp
-        DikinTestSuite.cpp
-        HitAndRunTestSuite.cpp
-        IsSetStepSizeAvailableTestSuite.cpp
-        ReflectorTestSuite.cpp
-        TrunatedGaussianProposalTestSuite.cpp
+        ParallelTemperingSEOBoostInterprocessTestSuite.cpp
         )
 
 if (CMAKE_BUILD_TYPE STREQUAL "Release")

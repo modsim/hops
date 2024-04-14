@@ -43,7 +43,7 @@
 #include "MarkovChain/Proposal/Mixins/ParallelTemperingMixin.hpp"
 
 #include "MarkovChain/Proposal/ParallelTemperingImplementations/ParallelTempering.hpp"
-#include "MarkovChain/Proposal/ParallelTemperingImplementations/ParallelTemperingBoost.hpp"
+#include "MarkovChain/Proposal/ParallelTemperingImplementations/ParallelTemperingSEOBoostInterprocess.hpp"
 
 
 #include "MarkovChain/Recorder/AcceptanceRateRecorder.hpp"
