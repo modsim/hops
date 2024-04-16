@@ -14,11 +14,11 @@ namespace {
             return 0.;
         }
 
-        std::optional<hops::VectorType> computeLogLikelihoodGradient(const hops::VectorType &x) {
+        std::optional<hops::VectorType> computeLogLikelihoodGradient(const hops::VectorType &) {
             return std::nullopt;
         }
 
-        std::optional<hops::MatrixType> computeExpectedFisherInformation(const hops::VectorType &type) {
+        std::optional<hops::MatrixType> computeExpectedFisherInformation(const hops::VectorType &) {
             return std::nullopt;
         }
 
