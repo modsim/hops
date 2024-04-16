@@ -28,7 +28,6 @@ namespace hops {
             if (this->lastProposalWasParallelTemperingExchange()) {
                 proposal = parallelTemperingImpl.proposeStateExchange(&proposalImpl);
                 rng();
-                std::cout << "proposed state exchange " << proposal.transpose() << std::endl;
                 return proposal;
             } else {
                 proposal = proposalImpl.propose(rng);

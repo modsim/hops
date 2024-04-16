@@ -12,7 +12,11 @@ namespace hops {
     class Proposal;
     class ParallelTemperingSEOBoostInterprocess: ParallelTempering {
     public:
-        ParallelTemperingSEOBoostInterprocess(RandomNumberGenerator syncRng, int numChains, int chainIndex, const char *sharedMemoryNameSpace);
+        ParallelTemperingSEOBoostInterprocess(RandomNumberGenerator syncRng,
+                                              int numChains,
+                                              int chainIndex,
+                                              const char *sharedMemoryNameSpace,
+                                              long numDims);
 
         VectorType proposeStateExchange(Proposal *proposal) override;
 
@@ -23,6 +27,8 @@ namespace hops {
         int findPartnerForSwap();
 
         ~ParallelTemperingSEOBoostInterprocess() override;
+
+        [[nodiscard]] std::string getSharedMemoryName(int index) const;
 
         RandomNumberGenerator syncRng;
         int numberOfChains;
