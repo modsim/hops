@@ -7,6 +7,32 @@
 
 #include "hops/MarkovChain/Proposal/Proposal.hpp"
 
+void barrier_wait(int count, const char *sharedMemoryName, int chainIndex) {
+    std::cout << "chain index waiting " << chainIndex << std::endl;
+    boost::interprocess::managed_shared_memory sharedMemory{boost::interprocess::open_only, sharedMemoryName};
+    auto [mutex, _mutex_size] = sharedMemory.find<boost::interprocess::interprocess_mutex>("mtx");
+    auto [condition, _condition_size] = sharedMemory.find<boost::interprocess::interprocess_condition>("cnd");
+    auto *should_wait = sharedMemory.find_or_construct<bool>("should_wait")(false);
+    if (mutex == nullptr || condition == nullptr) {
+        throw std::runtime_error(
+                "mutex or condition is null. Something has gone horribly wrong. Did the main process die?");
+    }
+    if (--count == 0) {
+        *should_wait = true;
+        std::cout << "chain index notifying all " << chainIndex << std::endl;
+        condition->notify_all();
+        std::cout << "chain index done " << chainIndex << std::endl;
+        return;
+    }
+    std::cout << "chain index waiting " << chainIndex << std::endl;
+    {
+        boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> lock{*mutex};
+        while (should_wait) {
+            condition->wait(lock);
+        }
+    }
+    std::cout << "chain index done " << chainIndex << std::endl;
+}
 
 hops::ParallelTemperingSEOBoostInterprocess::ParallelTemperingSEOBoostInterprocess(hops::RandomNumberGenerator syncRng,
                                                                                    int numChains,
@@ -18,77 +44,37 @@ hops::ParallelTemperingSEOBoostInterprocess::ParallelTemperingSEOBoostInterproce
         chainIndex(chainIndex),
         sharedMemoryNameSpace(sharedMemoryNameSpace) {
 
-    size_t memorySize = static_cast<std::size_t>(numDims * sizeof(hops::VectorType::Scalar)) +
-                        2 * sizeof(boost::interprocess::interprocess_condition);
-    memorySize = std::max(memorySize, size_t(512));
-
-    std::string name = this->getSharedMemoryName(chainIndex);
-    std::cout << "create shared memory with " << name << std::endl;
-
-    boost::interprocess::shared_memory_object::remove(name.c_str());
-    boost::interprocess::managed_shared_memory ourMemory{
-            boost::interprocess::open_or_create,
-            name.c_str(),
-            memorySize};
-
     if (chainIndex == 0) {
-        ourMemory.construct<boost::interprocess::interprocess_condition>("barrier")();
+        size_t memorySize = 40024; // TODO  compute real memory footprint
+//        memorySize = std::max(memorySize, size_t(512));
+        std::cout << "create shared memory called '" << sharedMemoryNameSpace << "'" << std::endl;
+        boost::interprocess::managed_shared_memory sharedMemory{
+                boost::interprocess::open_or_create,
+                this->sharedMemoryNameSpace,
+                memorySize};
+        std::cout << "create con" << std::endl;
+        sharedMemory.find_or_construct<boost::interprocess::interprocess_condition>("cnd")();
+        std::cout << "create mutex" << std::endl;
+        sharedMemory.construct<boost::interprocess::interprocess_mutex>("mtx")();
+        std::cout << "done initializing" << std::endl;
     }
 }
 
 hops::ParallelTemperingSEOBoostInterprocess::~ParallelTemperingSEOBoostInterprocess() {
-    std::string name = this->getSharedMemoryName(chainIndex);
-//    boost::interprocess::managed_shared_memory ourMemory{
-//            boost::interprocess::open_only,
-//            name.c_str()
-//    };
-//    boost::interprocess::interprocess_condition *interprocess_condition =
-//            ourMemory.find<boost::interprocess::interprocess_condition>("barrier").first;
-//    boost::interprocess::interprocess_mutex *mtx =
-//            ourMemory.find_or_construct<boost::interprocess::interprocess_mutex>("mtx")();
-//    boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> lock{*mtx};
-//    interprocess_condition->notify_all();
-//    std::cout << chainIndex << " is waiting" << std::endl;
-//    interprocess_condition->wait(lock);
-//    std::cout << chainIndex << " waited" << std::endl;
-//    interprocess_condition->notify_all();
-    std::cout << "remove " << name << std::endl;
-//    boost::interprocess::shared_memory_object::remove(name.c_str());
+    std::cout << "wait before destruction" << std::endl;
+    barrier_wait(this->numberOfChains, this->sharedMemoryNameSpace, this->chainIndex);
+    if (chainIndex == 0) {
+        std::cout << "remove " << sharedMemoryNameSpace << std::endl;
+        boost::interprocess::shared_memory_object::remove(sharedMemoryNameSpace);
+    }
 }
 
 hops::VectorType
 hops::ParallelTemperingSEOBoostInterprocess::proposeStateExchange(hops::Proposal *proposal) {
     int partnerIndex = this->findPartnerForSwap();
-
-    std::string mainName = this->getSharedMemoryName(0);
-    std::string ourName = this->getSharedMemoryName(chainIndex);
-    std::string partnerName = this->getSharedMemoryName(partnerIndex);
-
-    boost::interprocess::managed_shared_memory mainMemory{
-            boost::interprocess::open_only,
-            ourName.c_str()
-    };
-
-    boost::interprocess::managed_shared_memory ourMemory{boost::interprocess::open_only,ourName.c_str() };
-
-    boost::interprocess::interprocess_condition *interprocess_condition =
-            ourMemory.find<boost::interprocess::interprocess_condition>("barrier").first;
-
-
-    boost::interprocess::managed_shared_memory partnerMemory{boost::interprocess::open_only, ourName.c_str()};
-
-
-
-    boost::interprocess::interprocess_mutex *mtx =
-            mainMemory.find_or_construct<boost::interprocess::interprocess_mutex>("mtx")();
-    boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> lock{*mtx};
-    interprocess_condition->notify_all();
-    std::cout << chainIndex << " is waiting" << std::endl;
-    interprocess_condition->wait(lock);
-    std::cout << chainIndex << " waited" << std::endl;
-    interprocess_condition->notify_all();
-
-    std::cout << chainIndex << " proposing" << std::endl;
+    std::cout << "try to propoose state" << std::endl;
+    barrier_wait(numberOfChains, sharedMemoryNameSpace, chainIndex);
+    std::cout << chainIndex << " wants to swap with " << partnerIndex << std::endl;
     VectorType state = proposal->getState();
     return state;
 }
@@ -138,10 +124,6 @@ int hops::ParallelTemperingSEOBoostInterprocess::findPartnerForSwap() {
         }
         return partnerIndex;
     }
-}
-
-std::string hops::ParallelTemperingSEOBoostInterprocess::getSharedMemoryName(int index) const {
-    return std::string(sharedMemoryNameSpace) + std::to_string(index);
 }
 
 

@@ -28,8 +28,6 @@ namespace hops {
 
         ~ParallelTemperingSEOBoostInterprocess() override;
 
-        [[nodiscard]] std::string getSharedMemoryName(int index) const;
-
         RandomNumberGenerator syncRng;
         int numberOfChains;
         const int chainIndex;
