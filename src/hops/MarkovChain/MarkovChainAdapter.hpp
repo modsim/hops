@@ -33,7 +33,7 @@ namespace hops {
         }
 
         /**
-         * @brief gets proposal parameter. Throws exception if proposal has no parameter parameterName.
+         * @brief gets m_proposal parameter. Throws exception if m_proposal has no parameter parameterName.
          * @details Implementations should list possible parameterNames in the exception message.
          */
         [[nodiscard]] std::any getParameter(const ProposalParameter &parameter) const override {

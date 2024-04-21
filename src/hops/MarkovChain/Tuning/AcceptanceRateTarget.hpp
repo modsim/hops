@@ -21,10 +21,10 @@
 
 namespace hops {
     struct AcceptanceRateTarget : public TuningTarget {
-        std::vector<std::shared_ptr<MarkovChain>> markovChains;
-        unsigned long numberOfTestSamples;
-        double acceptanceRateTargetValue;
-        unsigned long order;
+        std::vector<std::shared_ptr<MarkovChain>> m_markovChains;
+        unsigned long m_numberOfTestSamples;
+        double m_acceptanceRateTargetValue;
+        unsigned long m_order;
 
         AcceptanceRateTarget(std::vector<std::shared_ptr<MarkovChain>> markovChains,
                                           unsigned long numberOfTestSamples,

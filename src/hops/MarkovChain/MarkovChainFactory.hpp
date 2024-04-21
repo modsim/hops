@@ -34,7 +34,7 @@ namespace hops {
     public:
 
         /**
-         * @brief Creates a Markov chain for uniform sampling of convex polytopes using an arbitrary proposal class.
+         * @brief Creates a Markov chain for uniform sampling of convex polytopes using an arbitrary m_proposal class.
          * @tparam MatrixType
          * @tparam VectorType
          * @tparam Proposal

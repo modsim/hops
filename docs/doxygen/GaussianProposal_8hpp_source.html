@@ -107,7 +107,7 @@ $(function() {
 <div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;        <span class="keyword">typename</span> MatrixType::Scalar <a class="code" href="classhops_1_1GaussianProposal.html#aa932228f5398757e1c5db0f5b943810d">getStepSize</a>() <span class="keyword">const</span>;</div>
 <div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160; </div>
 <div class="line"><a name="l00038"></a><span class="lineno"><a class="line" href="classhops_1_1GaussianProposal.html#a75a290df7ae7d288a3fe0aa3da137130">   38</a></span>&#160;        [[nodiscard]] <span class="keyword">typename</span> MatrixType::Scalar <a class="code" href="classhops_1_1GaussianProposal.html#a75a290df7ae7d288a3fe0aa3da137130">computeLogAcceptanceProbability</a>() {</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;            <span class="keywordtype">bool</span> isProposalInteriorPoint = ((b - A * proposal).array() &gt;= 0).all();</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;            <span class="keywordtype">bool</span> isProposalInteriorPoint = ((b - A * m_proposal).array() &gt;= 0).all();</div>
 <div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;            <span class="keywordflow">if</span> (!isProposalInteriorPoint) {</div>
 <div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;                <span class="keywordflow">return</span> -std::numeric_limits&lt;typename MatrixType::Scalar&gt;::infinity();</div>
 <div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;            }</div>
@@ -120,7 +120,7 @@ $(function() {
 <div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;        <a class="code" href="namespacehops.html#a7ed561c27533fdf7f05b187035bd78a7">MatrixType</a> A;</div>
 <div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;        <a class="code" href="namespacehops.html#af656c1adca85c58336d70b81938df367">VectorType</a> b;</div>
 <div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;        <a class="code" href="classhops_1_1GaussianProposal.html#a8672716e9ec82f999138c7aae897cb95">StateType</a> state;</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;        <a class="code" href="classhops_1_1GaussianProposal.html#a8672716e9ec82f999138c7aae897cb95">StateType</a> proposal;</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;        <a class="code" href="classhops_1_1GaussianProposal.html#a8672716e9ec82f999138c7aae897cb95">StateType</a> m_proposal;</div>
 <div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160; </div>
 <div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;        <span class="keyword">typename</span> MatrixType::Scalar stepSize;</div>
 <div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160; </div>
@@ -135,7 +135,7 @@ $(function() {
 <div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;            A(std::move(A_)),</div>
 <div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;            b(std::move(b_)),</div>
 <div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;            state(std::move(currentState_)),</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;            proposal(this-&gt;state),</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;            m_proposal(this-&gt;state),</div>
 <div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;            stepSize(stepSize_) {</div>
 <div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;        normal = std::normal_distribution&lt;typename MatrixType::Scalar&gt;(0, stepSize);</div>
 <div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    }</div>
@@ -143,17 +143,17 @@ $(function() {
 <div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> MatrixType, <span class="keyword">typename</span> VectorType&gt;</div>
 <div class="line"><a name="l00073"></a><span class="lineno"><a class="line" href="classhops_1_1GaussianProposal.html#a75a728438a242b517c9fc44f576309b2">   73</a></span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classhops_1_1GaussianProposal.html#a75a728438a242b517c9fc44f576309b2">GaussianProposal&lt;MatrixType, VectorType&gt;::propose</a>(</div>
 <div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;            <a class="code" href="classpcg__detail_1_1engine.html">RandomNumberGenerator</a> &amp;randomNumberGenerator) {</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;        <span class="keywordflow">for</span> (<span class="keywordtype">long</span> i = 0; i &lt; proposal.rows(); ++i) {</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;            proposal(i) = normal(randomNumberGenerator);</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;        <span class="keywordflow">for</span> (<span class="keywordtype">long</span> i = 0; i &lt; m_proposal.rows(); ++i) {</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;            m_proposal(i) = normal(randomNumberGenerator);</div>
 <div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;        }</div>
 <div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160; </div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;        proposal.noalias() += state;</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;        m_proposal.noalias() += state;</div>
 <div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    }</div>
 <div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160; </div>
 <div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> MatrixType, <span class="keyword">typename</span> VectorType&gt;</div>
 <div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    <span class="keywordtype">void</span></div>
 <div class="line"><a name="l00084"></a><span class="lineno"><a class="line" href="classhops_1_1GaussianProposal.html#a2e6c87ca3e2f653d4e5e292d91a724ff">   84</a></span>&#160;    <a class="code" href="classhops_1_1GaussianProposal.html#a2e6c87ca3e2f653d4e5e292d91a724ff">GaussianProposal&lt;MatrixType, VectorType&gt;::acceptProposal</a>() {</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;        state.swap(proposal);</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;        state.swap(m_proposal);</div>
 <div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    }</div>
 <div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160; </div>
 <div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> MatrixType, <span class="keyword">typename</span> VectorType&gt;</div>
@@ -165,7 +165,7 @@ $(function() {
 <div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> MatrixType, <span class="keyword">typename</span> VectorType&gt;</div>
 <div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;    <span class="keyword">typename</span> <a class="code" href="classhops_1_1GaussianProposal.html#a8672716e9ec82f999138c7aae897cb95">GaussianProposal&lt;MatrixType, VectorType&gt;::StateType</a></div>
 <div class="line"><a name="l00096"></a><span class="lineno"><a class="line" href="classhops_1_1GaussianProposal.html#ad5a16d35300983495f23a6509fc750fc">   96</a></span>&#160;    <a class="code" href="classhops_1_1GaussianProposal.html#ad5a16d35300983495f23a6509fc750fc">GaussianProposal&lt;MatrixType, VectorType&gt;::getProposal</a>()<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;        <span class="keywordflow">return</span> proposal;</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;        <span class="keywordflow">return</span> m_proposal;</div>
 <div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;    }</div>
 <div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160; </div>
 <div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> MatrixType, <span class="keyword">typename</span> VectorType&gt;</div>
@@ -195,7 +195,7 @@ $(function() {
 <div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;<span class="preprocessor">#endif //HOPS_GAUSSIANPROPOSAL_HPP</span></div>
 </div><!-- fragment --></div><!-- contents -->
 <div class="ttc" id="aclasshops_1_1GaussianProposal_html_aa932228f5398757e1c5db0f5b943810d"><div class="ttname"><a href="classhops_1_1GaussianProposal.html#aa932228f5398757e1c5db0f5b943810d">hops::GaussianProposal::getStepSize</a></div><div class="ttdeci">MatrixType::Scalar getStepSize() const</div><div class="ttdef"><b>Definition:</b> GaussianProposal.hpp:114</div></div>
-<div class="ttc" id="aclasshops_1_1GaussianProposal_html_afeed02eac65ac2ae0af04aff362456fb"><div class="ttname"><a href="classhops_1_1GaussianProposal.html#afeed02eac65ac2ae0af04aff362456fb">hops::GaussianProposal::GaussianProposal</a></div><div class="ttdeci">GaussianProposal(MatrixType A, VectorType b, StateType currentState, typename MatrixType::Scalar stepSize=1)</div><div class="ttdoc">Constructs classical Gaussian random walk proposal mechanism on polytope defined as Ax&lt;b.</div><div class="ttdef"><b>Definition:</b> GaussianProposal.hpp:60</div></div>
+<div class="ttc" id="aclasshops_1_1GaussianProposal_html_afeed02eac65ac2ae0af04aff362456fb"><div class="ttname"><a href="classhops_1_1GaussianProposal.html#afeed02eac65ac2ae0af04aff362456fb">hops::GaussianProposal::GaussianProposal</a></div><div class="ttdeci">GaussianProposal(MatrixType A, VectorType b, StateType currentState, typename MatrixType::Scalar stepSize=1)</div><div class="ttdoc">Constructs classical Gaussian random walk m_proposal mechanism on polytope defined as Ax&lt;b.</div><div class="ttdef"><b>Definition:</b> GaussianProposal.hpp:60</div></div>
 <div class="ttc" id="anamespacehops_html_a7ed561c27533fdf7f05b187035bd78a7"><div class="ttname"><a href="namespacehops.html#a7ed561c27533fdf7f05b187035bd78a7">hops::MatrixType</a></div><div class="ttdeci">Eigen::MatrixXd MatrixType</div><div class="ttdef"><b>Definition:</b> MatrixType.hpp:7</div></div>
 <div class="ttc" id="aclasspcg__detail_1_1engine_html"><div class="ttname"><a href="classpcg__detail_1_1engine.html">pcg_detail::engine</a></div><div class="ttdef"><b>Definition:</b> pcg_random.hpp:364</div></div>
 <div class="ttc" id="aclasshops_1_1GaussianProposal_html_a75a728438a242b517c9fc44f576309b2"><div class="ttname"><a href="classhops_1_1GaussianProposal.html#a75a728438a242b517c9fc44f576309b2">hops::GaussianProposal::propose</a></div><div class="ttdeci">void propose(RandomNumberGenerator &amp;randomNumberGenerator)</div><div class="ttdef"><b>Definition:</b> GaussianProposal.hpp:73</div></div>

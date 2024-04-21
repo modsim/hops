@@ -20,7 +20,7 @@ namespace hops {
     public:
 
         /**
-         * @brief Constructs Coordinate Hit and Run proposal mechanism on polytope defined as Ax<b.
+         * @brief Constructs Coordinate Hit and Run m_proposal mechanism on polytope defined as Ax<b.
          * @param A
          * @param b
          * @param currentState
@@ -230,7 +230,7 @@ namespace hops {
     template<typename InternalMatrixType, typename InternalVectorType>
     std::any
     TruncatedGaussianProposal<InternalMatrixType, InternalVectorType>::getParameter(
-            const ProposalParameter &parameter) const {
+            const ProposalParameter &) const {
         throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
     }
 

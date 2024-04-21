@@ -18,14 +18,14 @@ namespace hops {
     class AdaptiveMetropolisProposal : public Proposal {
     public:
         /**
-         * @brief Constructs the Adaptive Metropolis proposal mechanism (Haario et al. 2001) on polytope defined as Ax<b.
+         * @brief Constructs the Adaptive Metropolis m_proposal mechanism (Haario et al. 2001) on polytope defined as Ax<b.
          * @param A
          * @param b
          * @param currentState
          * @param eps               Scaling factor of the maximum volume ellipsoid, which is added to the covariance to preserve
          *                          (numerical) irreducibility.
          * @param warmUp            Number of warm up samples during which the maximum volume ellipsoid is used as covariance of 
-         *                          the proposal distribution. After the warm up, the adaptive covariance is used.
+         *                          the m_proposal distribution. After the warm up, the adaptive covariance is used.
          */
         AdaptiveMetropolisProposal(InternalMatrixType A,
                                    VectorType b,
@@ -248,7 +248,7 @@ namespace hops {
 
         double alpha = 0;
 
-        // before warm up we have a symmetrical proposal distribution, so we do the next bit only after warm up
+        // before warm up we have a symmetrical m_proposal distribution, so we do the next bit only after warm up
         if (t > warmUp) {
             alpha = stateLogSqrtDeterminant
                     - proposalLogSqrtDeterminant

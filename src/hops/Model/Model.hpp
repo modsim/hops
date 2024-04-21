@@ -32,7 +32,7 @@ namespace hops {
         /**
          * @Brief Whether the fisher information is constant as a function of the parameters. This is not generally
          * the case but it is the case for important distributions, such as the gaussian distribution.
-         * @details If the expected fisher information is constant, some proposal classes can be sped up considerably.
+         * @details If the expected fisher information is constant, some m_proposal classes can be sped up considerably.
          */
         [[nodiscard]] virtual bool hasConstantExpectedFisherInformation() {
             return false;

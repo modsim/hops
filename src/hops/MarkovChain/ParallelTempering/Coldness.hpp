@@ -23,47 +23,47 @@ namespace hops {
         }
 
         [[nodiscard]] MatrixType::Scalar computeNegativeLogLikelihood(const VectorType &state) {
-            return coldness == 0 ? 0. : coldness * ModelType::computeNegativeLogLikelihood(state);
+            return m_coldness == 0 ? 0. : m_coldness * ModelType::computeNegativeLogLikelihood(state);
         }
 
         [[nodiscard]] std::optional<VectorType> computeLogLikelihoodGradient(const VectorType &state) {
-            if (coldness != 0) {
+            if (m_coldness != 0) {
                 auto gradient = ModelType::computeLogLikelihoodGradient(state);
                 if (gradient) {
-                    return coldness * gradient.value();
+                    return m_coldness * gradient.value();
                 }
             }
             return std::nullopt;
         }
 
         [[nodiscard]] std::optional<MatrixType> computeExpectedFisherInformation(const VectorType &state) {
-            if (coldness != 0) {
+            if (m_coldness != 0) {
                 auto fisherInformation = ModelType::computeExpectedFisherInformation(state);
                 if (fisherInformation) {
                     // Scales quadratically with coldness, because FI is
                     // Jacobian^T * measurementMatrix^-1 * Jacobian
-                    return coldness * coldness * fisherInformation.value();
+                    return m_coldness * m_coldness * fisherInformation.value();
                 }
             }
             return std::nullopt;
         }
 
         [[nodiscard]] double getColdness() const {
-            return coldness;
+            return m_coldness;
         }
 
         void setColdness(double newColdness) {
             if (newColdness > 1) {
-                coldness = 1;
+                m_coldness = 1;
             } else if (newColdness < 0) {
-                coldness = 0;
+                m_coldness = 0;
             } else {
-                coldness = newColdness;
+                m_coldness = newColdness;
             }
         }
 
     private:
-        double coldness = 1;
+        double m_coldness = 1;
     };
 }
 

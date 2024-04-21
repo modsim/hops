@@ -104,11 +104,11 @@ Collaboration diagram for hops::ReversibleJumpProposal&lt; MarkovChainImpl, Mode
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a04d262d7298bf0dcbe26b39628c773ac"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classhops_1_1ReversibleJumpProposal.html#a04d262d7298bf0dcbe26b39628c773ac">ReversibleJumpProposal</a> (const MarkovChainImpl &amp;markovChainImpl, const <a class="el" href="classhops_1_1Model.html">Model</a> &amp;model, Eigen::VectorXi jumpIndices, const typename MarkovChainImpl::StateType parameterDefaultValues)</td></tr>
+<tr class="memitem:a04d262d7298bf0dcbe26b39628c773ac"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classhops_1_1ReversibleJumpProposal.html#a04d262d7298bf0dcbe26b39628c773ac">ReversibleJumpProposal</a> (const MarkovChainImpl &amp;markovChainImpl, const <a class="el" href="classhops_1_1Model.html">Model</a> &amp;model, Eigen::VectorXi m_jumpIndices, const typename MarkovChainImpl::StateType parameterDefaultValues)</td></tr>
 <tr class="separator:a04d262d7298bf0dcbe26b39628c773ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a402639b52ca8b1b10837b3b56d069c06"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classhops_1_1ReversibleJumpProposal.html#a402639b52ca8b1b10837b3b56d069c06">draw</a> (<a class="el" href="namespacehops.html#a4837284c9fec620d40b219a6fdce794e">RandomNumberGenerator</a> &amp;randomNumberGenerator)</td></tr>
 <tr class="separator:a402639b52ca8b1b10837b3b56d069c06"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ade70998e89e21cfdbd971be801140092"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classhops_1_1ReversibleJumpProposal.html#ade70998e89e21cfdbd971be801140092">drawInModelSpace</a> (<a class="el" href="namespacehops.html#a4837284c9fec620d40b219a6fdce794e">RandomNumberGenerator</a> &amp;randomNumberGenerator, std::vector&lt; int &gt; &amp;parameterActivationStates, typename MarkovChainImpl::StateType defaultValues)</td></tr>
+<tr class="memitem:ade70998e89e21cfdbd971be801140092"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classhops_1_1ReversibleJumpProposal.html#ade70998e89e21cfdbd971be801140092">drawInModelSpace</a> (<a class="el" href="namespacehops.html#a4837284c9fec620d40b219a6fdce794e">RandomNumberGenerator</a> &amp;randomNumberGenerator, std::vector&lt; int &gt; &amp;parameterActivationStates, typename MarkovChainImpl::StateType m_defaultValues)</td></tr>
 <tr class="separator:ade70998e89e21cfdbd971be801140092"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6131d9ee2a7ead00a785634aa6cbc2a8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classhops_1_1ReversibleJumpProposal.html#a6131d9ee2a7ead00a785634aa6cbc2a8">drawInParameterSpace</a> (<a class="el" href="namespacehops.html#a4837284c9fec620d40b219a6fdce794e">RandomNumberGenerator</a> &amp;randomNumberGenerator)</td></tr>
 <tr class="separator:a6131d9ee2a7ead00a785634aa6cbc2a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -159,7 +159,7 @@ template&lt;typename MarkovChainImpl , typename Model &gt; </div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">Eigen::VectorXi&#160;</td>
-          <td class="paramname"><em>jumpIndices</em>, </td>
+          <td class="paramname"><em>m_jumpIndices</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -265,7 +265,7 @@ template&lt;typename MarkovChainImpl , typename Model &gt; </div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">typename MarkovChainImpl::StateType&#160;</td>
-          <td class="paramname"><em>defaultValues</em>&#160;</td>
+          <td class="paramname"><em>m_defaultValues</em>&#160;</td>
         </tr>
         <tr>
           <td></td>

@@ -72,7 +72,7 @@ namespace hops {
 
         [[nodiscard]] const VectorType &getB() const override;
 
-        // This methods gives access to change the underlying proposal mechanism
+        // This methods gives access to change the underlying m_proposal mechanism
         [[nodiscard]] const std::unique_ptr<Proposal> &getProposalImpl() const;
 
         void setProposalImpl(std::unique_ptr<Proposal> proposalImpl);
@@ -127,32 +127,32 @@ namespace hops {
         VectorType &wrapProposal(const VectorType &parameterProposal);
 
 
-        std::unique_ptr<Proposal> proposalImpl;
+        std::unique_ptr<Proposal> m_proposalImpl;
 
         // RJMCMC parameters, standard values from https://doi.org/10.1093/bioinformatics/btz500
-        VectorType::Scalar modelJumpProbability = 0.5;
-        VectorType::Scalar activationProbability = 0.1;
-        VectorType::Scalar deactivationProbability = 0.1;
+        VectorType::Scalar m_modelJumpProbability = 0.5;
+        VectorType::Scalar m_activiationProbability = 0.1;
+        VectorType::Scalar m_deativationProbability = 0.1;
 
-        VectorType backwardDistances;
-        VectorType forwardDistances;
+        VectorType m_backwardDistances;
+        VectorType m_forwarDistances;
 
-        Eigen::VectorXi jumpIndices;
-        VectorType defaultValues;
+        Eigen::VectorXi m_jumpIndices;
+        VectorType m_defaultValues;
         // VectorType is used instead of VectorXi or some other type because it avoids many casts.
-        VectorType activationState;
-        VectorType activationProposal;
-        VectorType proposal;
+        VectorType m_activationState;
+        VectorType m_activationProposal;
+        VectorType m_proposal;
 
-        double logAcceptanceChanceModelJump;
-        bool lastProposalJumpedModel;
+        double m_logAcceptanceChanceModelJump;
+        bool m_lastProposalJumpedModel;
 
         // Distributions used for proposals, do not have to be copied
         std::uniform_real_distribution<double> uniformRealDistribution;
         hops::UniformStepDistribution<double> stepDistribution;
 
-        Eigen::MatrixXd A;
-        Eigen::VectorXd b;
+        Eigen::MatrixXd m_A;
+        Eigen::VectorXd m_b;
     };
 }// namespace hops
 

@@ -19,7 +19,7 @@ namespace hops {
     class DikinProposal : public Proposal {
     public:
         /**
-         * @brief Constructs Gaussian Dikin proposal mechanism on polytope defined as Ax<b.
+         * @brief Constructs Gaussian Dikin m_proposal mechanism on polytope defined as Ax<b.
          * @param A
          * @param b
          * @param currentState

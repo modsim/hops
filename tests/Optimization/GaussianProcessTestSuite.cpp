@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_SUITE(GaussianProcessTestSuite)
         Eigen::VectorXd sample = gp.sample(xPrime, randomNumberGenerator);
 
         auto posteriorMean = gp.getPosteriorMean();
-        auto posteriorCovariance = gp.getPosteriorCovariance().diagonal();
+//        auto posteriorCovariance = gp.getPosteriorCovariance().diagonal();
 
         std::vector<double> expectedPosteriorMean{0.0465881, 0.0625124, 0.0830364, 0.109189, 0.142131, 0.183145,
                                                   0.23361, 0.294964, 0.368654, 0.456073, 0.558474, 0.676885, 0.812002,
@@ -92,10 +92,6 @@ BOOST_AUTO_TEST_SUITE(GaussianProcessTestSuite)
         for (size_t i = 0; i < N; ++i) {
             BOOST_CHECK_SMALL(posteriorMean(i) - expectedPosteriorMean[i], 1.e-5);
         }
-
-//        for (size_t i = 0; i < N; ++i) {
-//            BOOST_CHECK_SMALL(posteriorCovariance(i) - expectedPosteriorCovarianceDiagonal[i], 1.e-5);
-//        }
 
         for (size_t i = 0; i < N; ++i) {
             BOOST_CHECK_SMALL(sample[i] - expectedSample[i], 1.e-5);

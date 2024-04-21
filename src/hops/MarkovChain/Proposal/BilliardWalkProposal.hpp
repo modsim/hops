@@ -24,7 +24,7 @@ namespace hops {
     class BilliardWalkProposal : public Proposal {
     public:
         /**
-         * @brief Constructs proposal mechanism on polytope defined as Ax<b.
+         * @brief Constructs m_proposal mechanism on polytope defined as Ax<b.
          * @details See 10.4230/LIPIcs.SoCG.2021.21 for more informatio on this algorithm
          * @param A
          * @param b

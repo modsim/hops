@@ -93,15 +93,15 @@ Collaboration diagram for hops::MarkovChainFactory:</div>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
 <tr class="memitem:a88a996ec861381838409389336467fa9"><td class="memTemplParams" colspan="2">template&lt;typename MatrixType , typename VectorType , typename Proposal &gt; </td></tr>
-<tr class="memitem:a88a996ec861381838409389336467fa9"><td class="memTemplItemLeft" align="right" valign="top">static std::unique_ptr&lt; <a class="el" href="namespacehops.html#ad700fa062be2105559fd5823a4581bec">MarkovChain</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classhops_1_1MarkovChainFactory.html#a88a996ec861381838409389336467fa9">createMarkovChain</a> (Proposal proposal)</td></tr>
-<tr class="memdesc:a88a996ec861381838409389336467fa9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a Markov chain for uniform sampling of convex polytopes using an arbitrary proposal class.  <a href="classhops_1_1MarkovChainFactory.html#a88a996ec861381838409389336467fa9">More...</a><br /></td></tr>
+<tr class="memitem:a88a996ec861381838409389336467fa9"><td class="memTemplItemLeft" align="right" valign="top">static std::unique_ptr&lt; <a class="el" href="namespacehops.html#ad700fa062be2105559fd5823a4581bec">MarkovChain</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classhops_1_1MarkovChainFactory.html#a88a996ec861381838409389336467fa9">createMarkovChain</a> (Proposal m_proposal)</td></tr>
+<tr class="memdesc:a88a996ec861381838409389336467fa9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a Markov chain for uniform sampling of convex polytopes using an arbitrary m_proposal class.  <a href="classhops_1_1MarkovChainFactory.html#a88a996ec861381838409389336467fa9">More...</a><br /></td></tr>
 <tr class="separator:a88a996ec861381838409389336467fa9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4d494dc1d95afd82b9447bb71ed913d3"><td class="memTemplParams" colspan="2">template&lt;typename MatrixType , typename VectorType &gt; </td></tr>
 <tr class="memitem:a4d494dc1d95afd82b9447bb71ed913d3"><td class="memTemplItemLeft" align="right" valign="top">static std::unique_ptr&lt; <a class="el" href="namespacehops.html#ad700fa062be2105559fd5823a4581bec">MarkovChain</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classhops_1_1MarkovChainFactory.html#a4d494dc1d95afd82b9447bb71ed913d3">createMarkovChain</a> (<a class="el" href="namespacehops.html#a190439e0b88a2a32fe29ae38b6780038">MarkovChainType</a> type, <a class="el" href="namespacehops.html#a7ed561c27533fdf7f05b187035bd78a7">MatrixType</a> inequalityLhs, <a class="el" href="namespacehops.html#af656c1adca85c58336d70b81938df367">VectorType</a> inequalityRhs, <a class="el" href="namespacehops.html#af656c1adca85c58336d70b81938df367">VectorType</a> startingPoint)</td></tr>
 <tr class="memdesc:a4d494dc1d95afd82b9447bb71ed913d3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a Markov chain for uniform sampling of convex polytopes.  <a href="classhops_1_1MarkovChainFactory.html#a4d494dc1d95afd82b9447bb71ed913d3">More...</a><br /></td></tr>
 <tr class="separator:a4d494dc1d95afd82b9447bb71ed913d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5eca858d67410b6cd78fa467710192ba"><td class="memTemplParams" colspan="2">template&lt;typename MatrixType , typename VectorType , typename Proposal &gt; </td></tr>
-<tr class="memitem:a5eca858d67410b6cd78fa467710192ba"><td class="memTemplItemLeft" align="right" valign="top">static std::unique_ptr&lt; <a class="el" href="namespacehops.html#ad700fa062be2105559fd5823a4581bec">MarkovChain</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classhops_1_1MarkovChainFactory.html#a5eca858d67410b6cd78fa467710192ba">createMarkovChain</a> (Proposal proposal, <a class="el" href="namespacehops.html#a7ed561c27533fdf7f05b187035bd78a7">MatrixType</a> unroundingTransformation, <a class="el" href="namespacehops.html#af656c1adca85c58336d70b81938df367">VectorType</a> unroundingShift)</td></tr>
+<tr class="memitem:a5eca858d67410b6cd78fa467710192ba"><td class="memTemplItemLeft" align="right" valign="top">static std::unique_ptr&lt; <a class="el" href="namespacehops.html#ad700fa062be2105559fd5823a4581bec">MarkovChain</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classhops_1_1MarkovChainFactory.html#a5eca858d67410b6cd78fa467710192ba">createMarkovChain</a> (Proposal m_proposal, <a class="el" href="namespacehops.html#a7ed561c27533fdf7f05b187035bd78a7">MatrixType</a> unroundingTransformation, <a class="el" href="namespacehops.html#af656c1adca85c58336d70b81938df367">VectorType</a> unroundingShift)</td></tr>
 <tr class="memdesc:a5eca858d67410b6cd78fa467710192ba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a Markov chain for uniform sampling of rounded convex polytopes.  <a href="classhops_1_1MarkovChainFactory.html#a5eca858d67410b6cd78fa467710192ba">More...</a><br /></td></tr>
 <tr class="separator:a5eca858d67410b6cd78fa467710192ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aee0d3a2b22963c08ecd48cfc3b7b8cef"><td class="memTemplParams" colspan="2">template&lt;typename MatrixType , typename VectorType &gt; </td></tr>
@@ -109,7 +109,7 @@ Static Public Member Functions</h2></td></tr>
 <tr class="memdesc:aee0d3a2b22963c08ecd48cfc3b7b8cef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a Markov chain for uniform sampling of rounded convex polytopes.  <a href="classhops_1_1MarkovChainFactory.html#aee0d3a2b22963c08ecd48cfc3b7b8cef">More...</a><br /></td></tr>
 <tr class="separator:aee0d3a2b22963c08ecd48cfc3b7b8cef"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abf393aef6d259a3742eabef7acd333f7"><td class="memTemplParams" colspan="2">template&lt;typename MatrixType , typename VectorType , typename Proposal &gt; </td></tr>
-<tr class="memitem:abf393aef6d259a3742eabef7acd333f7"><td class="memTemplItemLeft" align="right" valign="top">static std::unique_ptr&lt; <a class="el" href="namespacehops.html#ad700fa062be2105559fd5823a4581bec">MarkovChain</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classhops_1_1MarkovChainFactory.html#abf393aef6d259a3742eabef7acd333f7">createMarkovChain</a> (Proposal proposal, std::shared_ptr&lt; <a class="el" href="classhops_1_1Model.html">Model</a> &gt; model)</td></tr>
+<tr class="memitem:abf393aef6d259a3742eabef7acd333f7"><td class="memTemplItemLeft" align="right" valign="top">static std::unique_ptr&lt; <a class="el" href="namespacehops.html#ad700fa062be2105559fd5823a4581bec">MarkovChain</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classhops_1_1MarkovChainFactory.html#abf393aef6d259a3742eabef7acd333f7">createMarkovChain</a> (Proposal m_proposal, std::shared_ptr&lt; <a class="el" href="classhops_1_1Model.html">Model</a> &gt; model)</td></tr>
 <tr class="memdesc:abf393aef6d259a3742eabef7acd333f7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a Markov chain for sampling the likelihood of a with the domain of a convex polytope.  <a href="classhops_1_1MarkovChainFactory.html#abf393aef6d259a3742eabef7acd333f7">More...</a><br /></td></tr>
 <tr class="separator:abf393aef6d259a3742eabef7acd333f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aba85834b53334656cc82ae040274c53c"><td class="memTemplParams" colspan="2">template&lt;typename MatrixType , typename VectorType &gt; </td></tr>
@@ -121,7 +121,7 @@ Static Public Member Functions</h2></td></tr>
 <tr class="memdesc:ae197390990720dca0def58c963f3775a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a Markov chain for sampling the likelihood of a model with the domain of a convex polytope with parallel tempering.  <a href="classhops_1_1MarkovChainFactory.html#ae197390990720dca0def58c963f3775a">More...</a><br /></td></tr>
 <tr class="separator:ae197390990720dca0def58c963f3775a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a337f6584a16337efac63100d040fef6b"><td class="memTemplParams" colspan="2">template&lt;typename MatrixType , typename VectorType , typename Proposal &gt; </td></tr>
-<tr class="memitem:a337f6584a16337efac63100d040fef6b"><td class="memTemplItemLeft" align="right" valign="top">static std::unique_ptr&lt; <a class="el" href="namespacehops.html#ad700fa062be2105559fd5823a4581bec">MarkovChain</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classhops_1_1MarkovChainFactory.html#a337f6584a16337efac63100d040fef6b">createMarkovChain</a> (Proposal proposal, <a class="el" href="namespacehops.html#a7ed561c27533fdf7f05b187035bd78a7">MatrixType</a> unroundingTransformation, <a class="el" href="namespacehops.html#af656c1adca85c58336d70b81938df367">VectorType</a> unroundingShift, std::shared_ptr&lt; <a class="el" href="classhops_1_1Model.html">Model</a> &gt; model)</td></tr>
+<tr class="memitem:a337f6584a16337efac63100d040fef6b"><td class="memTemplItemLeft" align="right" valign="top">static std::unique_ptr&lt; <a class="el" href="namespacehops.html#ad700fa062be2105559fd5823a4581bec">MarkovChain</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classhops_1_1MarkovChainFactory.html#a337f6584a16337efac63100d040fef6b">createMarkovChain</a> (Proposal m_proposal, <a class="el" href="namespacehops.html#a7ed561c27533fdf7f05b187035bd78a7">MatrixType</a> unroundingTransformation, <a class="el" href="namespacehops.html#af656c1adca85c58336d70b81938df367">VectorType</a> unroundingShift, std::shared_ptr&lt; <a class="el" href="classhops_1_1Model.html">Model</a> &gt; model)</td></tr>
 <tr class="memdesc:a337f6584a16337efac63100d040fef6b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a Markov chain for sampling the likelihood of a model with the domain of a rounded convex polytope.  <a href="classhops_1_1MarkovChainFactory.html#a337f6584a16337efac63100d040fef6b">More...</a><br /></td></tr>
 <tr class="separator:a337f6584a16337efac63100d040fef6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a549ddc2422668ba7014d17c899ab6189"><td class="memTemplParams" colspan="2">template&lt;typename MatrixType , typename VectorType &gt; </td></tr>
@@ -469,7 +469,7 @@ template&lt;typename MatrixType , typename VectorType , typename Proposal &gt; <
           <td class="memname">static std::unique_ptr&lt;<a class="el" href="namespacehops.html#ad700fa062be2105559fd5823a4581bec">MarkovChain</a>&gt; hops::MarkovChainFactory::createMarkovChain </td>
           <td>(</td>
           <td class="paramtype">Proposal&#160;</td>
-          <td class="paramname"><em>proposal</em></td><td>)</td>
+          <td class="paramname"><em>m_proposal</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -480,7 +480,7 @@ template&lt;typename MatrixType , typename VectorType , typename Proposal &gt; <
 </table>
 </div><div class="memdoc">
 
-<p>Creates a Markov chain for uniform sampling of convex polytopes using an arbitrary proposal class. </p>
+<p>Creates a Markov chain for uniform sampling of convex polytopes using an arbitrary m_proposal class. </p>
 <dl class="tparams"><dt>Template Parameters</dt><dd>
   <table class="tparams">
     <tr><td class="paramname">MatrixType</td><td></td></tr>
@@ -491,7 +491,7 @@ template&lt;typename MatrixType , typename VectorType , typename Proposal &gt; <
 </dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">proposal</td><td></td></tr>
+    <tr><td class="paramname">m_proposal</td><td></td></tr>
   </table>
   </dd>
 </dl>
@@ -514,7 +514,7 @@ template&lt;typename MatrixType , typename VectorType , typename Proposal &gt; <
           <td class="memname">static std::unique_ptr&lt;<a class="el" href="namespacehops.html#ad700fa062be2105559fd5823a4581bec">MarkovChain</a>&gt; hops::MarkovChainFactory::createMarkovChain </td>
           <td>(</td>
           <td class="paramtype">Proposal&#160;</td>
-          <td class="paramname"><em>proposal</em>, </td>
+          <td class="paramname"><em>m_proposal</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -552,7 +552,7 @@ template&lt;typename MatrixType , typename VectorType , typename Proposal &gt; <
 </dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">proposal</td><td></td></tr>
+    <tr><td class="paramname">m_proposal</td><td></td></tr>
     <tr><td class="paramname">unroundingTransformation</td><td></td></tr>
     <tr><td class="paramname">unroundingShift</td><td></td></tr>
   </table>
@@ -577,7 +577,7 @@ template&lt;typename MatrixType , typename VectorType , typename Proposal &gt; <
           <td class="memname">static std::unique_ptr&lt;<a class="el" href="namespacehops.html#ad700fa062be2105559fd5823a4581bec">MarkovChain</a>&gt; hops::MarkovChainFactory::createMarkovChain </td>
           <td>(</td>
           <td class="paramtype">Proposal&#160;</td>
-          <td class="paramname"><em>proposal</em>, </td>
+          <td class="paramname"><em>m_proposal</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -622,7 +622,7 @@ template&lt;typename MatrixType , typename VectorType , typename Proposal &gt; <
 </dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">proposal</td><td></td></tr>
+    <tr><td class="paramname">m_proposal</td><td></td></tr>
     <tr><td class="paramname">unroundingTransformation</td><td></td></tr>
     <tr><td class="paramname">unroundingShift</td><td></td></tr>
     <tr><td class="paramname">model</td><td></td></tr>
@@ -648,7 +648,7 @@ template&lt;typename MatrixType , typename VectorType , typename Proposal &gt; <
           <td class="memname">static std::unique_ptr&lt;<a class="el" href="namespacehops.html#ad700fa062be2105559fd5823a4581bec">MarkovChain</a>&gt; hops::MarkovChainFactory::createMarkovChain </td>
           <td>(</td>
           <td class="paramtype">Proposal&#160;</td>
-          <td class="paramname"><em>proposal</em>, </td>
+          <td class="paramname"><em>m_proposal</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -681,7 +681,7 @@ template&lt;typename MatrixType , typename VectorType , typename Proposal &gt; <
 </dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">proposal</td><td></td></tr>
+    <tr><td class="paramname">m_proposal</td><td></td></tr>
     <tr><td class="paramname">model</td><td></td></tr>
   </table>
   </dd>

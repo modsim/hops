@@ -53,7 +53,7 @@ namespace hops {
         [[nodiscard]] std::unique_ptr<Proposal> copyProposal() const override;
 
     private:
-        long maxReflections;
+        long m_maxReflections;
     };
 
     template<typename InternalMatrixType>
@@ -61,7 +61,7 @@ namespace hops {
             const AdaptiveMetropolisProposal<InternalMatrixType> &adaptiveMetropolisProposal,
             long maxReflections) :
             AdaptiveMetropolisProposal<InternalMatrixType>(adaptiveMetropolisProposal),
-            maxReflections(maxReflections) {}
+                                   m_maxReflections(maxReflections) {}
 
     template<typename InternalMatrixType>
     BilliardAdaptiveMetropolisProposal<InternalMatrixType>::BilliardAdaptiveMetropolisProposal(
@@ -77,7 +77,7 @@ namespace hops {
                                                                                  eps,
                                                                                  warmUp,
                                                                                  t),
-                                  maxReflections(maxReflections) {}
+                                   m_maxReflections(maxReflections) {}
 
     template<typename InternalMatrixType>
     BilliardAdaptiveMetropolisProposal<InternalMatrixType>::BilliardAdaptiveMetropolisProposal(InternalMatrixType A,
@@ -95,7 +95,7 @@ namespace hops {
                                                              eps,
                                                              warmUp,
                                                              t),
-              maxReflections(maxReflections) {}
+          m_maxReflections(maxReflections) {}
 
     template<typename InternalMatrixType>
     VectorType &BilliardAdaptiveMetropolisProposal<InternalMatrixType>::propose(
@@ -106,7 +106,7 @@ namespace hops {
 
 
         const auto &reflectionResult = Reflector::reflectIntoPolytope(this->A, this->b, state, proposal,
-                                                                      maxReflections);
+                                                                      m_maxReflections);
         proposal = std::get<2>(reflectionResult);
         return proposal;
     }
@@ -123,7 +123,7 @@ namespace hops {
     std::any BilliardAdaptiveMetropolisProposal<InternalMatrixType>::getParameter(
             const ProposalParameter &parameter) const {
         if (parameter == ProposalParameter::MAX_REFLECTIONS) {
-            return std::any(this->maxReflections);
+            return std::any(this->m_maxReflections);
         }
         return AdaptiveMetropolisProposal<InternalMatrixType>::getParameter(parameter);
     }
@@ -143,7 +143,7 @@ namespace hops {
             const ProposalParameter &parameter,
             const std::any &value) {
         if (parameter == ProposalParameter::MAX_REFLECTIONS) {
-            maxReflections = std::any_cast<long>(value);
+            m_maxReflections = std::any_cast<long>(value);
         } else {
             AdaptiveMetropolisProposal<InternalMatrixType>::setParameter(parameter, value);
         }

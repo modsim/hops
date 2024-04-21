@@ -44,7 +44,6 @@ Python interface is available at https://github.com/modsim/hopsy.
 
 | Option Name               | Default   | Description                                                                                               |
 | ------------------------- | --------- | --------------------------------------------------------------------------------------------------------- |
-| HOPS\_HDF5\_SUPPORT       |       OFF | Enables HDF5 support with HighFive. Use -DHOPS\_BENCHMARKS=ON to enable.                                  |
 | HOPS\_BENCHMARKS          |       OFF | Enables compilation of Benchmarks (Requires Celero). Use -DHOPS\_BENCHMARKS=ON to enable.                 |
 | HOPS\_DOCS                |        ON | Enables generation of documentation. Use -DHOPS\_DOCS=OFF to disable.                                     |
 | HOPS\_BINARIES            |        ON | Enables compilation of hops executables. Use -DHOPS\_EXAMPLES=OFF to disable.                             |

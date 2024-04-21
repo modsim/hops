@@ -19,7 +19,7 @@ namespace hops {
     class CoordinateHitAndRunProposal : public Proposal {
     public:
         /**
-         * @brief Constructs Coordinate Hit and Run proposal mechanism on polytope defined as Ax<b.
+         * @brief Constructs Coordinate Hit and Run m_proposal mechanism on polytope defined as Ax<b.
          * @param A
          * @param b
          * @param currentState
@@ -364,7 +364,7 @@ namespace hops {
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
     bool
     CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::isSymmetric() const {
-        // As soon as there is a step size the polytope borders and normalization will make the proposal asymmetric.
+        // As soon as there is a step size the polytope borders and normalization will make the m_proposal asymmetric.
         if (getStepSize()) {
             return false;
         }

@@ -42,35 +42,35 @@ namespace {
 
         [[nodiscard]] std::string getProposalName() const override { return "ProposalMock"; };
 
-        void setParameter(const hops::ProposalParameter &parameter, const std::any &value) override {
+        void setParameter(const hops::ProposalParameter &, const std::any &value) override {
             stepSize = std::any_cast<double>(value);
         }
 
         void setState(const Eigen::VectorXd &) override {};
 
-        void setDimensionNames(const std::vector<std::string> &names) override { }
+        void setDimensionNames(const std::vector<std::string> &) override { }
 
-        std::vector<std::string> getDimensionNames() const override {
-            return std::vector<std::string>();
+        [[nodiscard]] std::vector<std::string> getDimensionNames() const override {
+            return {};
         }
 
-        std::any getParameter(const hops::ProposalParameter &parameter) const override {
+        [[nodiscard]] std::any getParameter(const hops::ProposalParameter &) const override {
             return stepSize;
         }
 
-        long getNumberOfStepsTaken() const {
+        [[nodiscard]] long getNumberOfStepsTaken() const {
             return numberOfStepsTaken;
         }
 
-        hops::VectorType getProposal() const override {
-            return hops::VectorType();
+        [[nodiscard]] hops::VectorType getProposal() const override {
+            return {};
         }
 
         [[nodiscard]] std::vector<std::string> getParameterNames() const override {
-            return std::vector<std::string>();
+            return {};
         }
 
-        std::string getParameterType(const hops::ProposalParameter &parameter) const override {
+        [[nodiscard]] std::string getParameterType(const hops::ProposalParameter &) const override {
             return "double";
         }
 
@@ -78,11 +78,11 @@ namespace {
             return std::make_unique<ProposalMock>(*this);
         }
 
-        const hops::MatrixType &getA() const override {
+        [[nodiscard]] const hops::MatrixType &getA() const override {
             throw std::runtime_error("Should not be called");
         }
 
-        const hops::VectorType &getB() const override {
+        [[nodiscard]] const hops::VectorType &getB() const override {
             throw std::runtime_error("Should not be called");
         }
 
@@ -141,7 +141,7 @@ BOOST_AUTO_TEST_SUITE(ExpectedSquaredJumpDistanceTuner)
 
         std::vector<std::shared_ptr<hops::MarkovChain>> mcs{markovChain};
         std::vector<hops::RandomNumberGenerator *> generators{&generator};
-        bool isTuned = hops::ExpectedSquaredJumpDistanceTuner::tune(
+        hops::ExpectedSquaredJumpDistanceTuner::tune(
                 optimalParameter,
                 optimalValue,
                 mcs,
@@ -158,8 +158,6 @@ BOOST_AUTO_TEST_SUITE(ExpectedSquaredJumpDistanceTuner)
         }
 
         Eigen::MatrixXd sqrtCovariance = Eigen::MatrixXd::Identity(1, 1);
-        double expectedSquaredJumpDistance = hops::computeExpectedSquaredJumpDistance<Eigen::VectorXd, Eigen::MatrixXd>(
-                states, sqrtCovariance, 1);
 
         BOOST_CHECK_EQUAL(optimalParameter(0), 1);
     }

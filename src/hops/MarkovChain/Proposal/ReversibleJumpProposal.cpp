@@ -27,155 +27,154 @@ hops::ReversibleJumpProposal::ReversibleJumpProposal(std::unique_ptr<Proposal> p
                                                      const Eigen::VectorXi &jumpIndices,
                                                      const VectorType &parameterDefaultValues,
                                                      const std::optional<Eigen::MatrixXd> &A,
-                                                     const std::optional<Eigen::VectorXd> &b) :
-        proposalImpl(std::move(proposalImpl)),
-        jumpIndices(jumpIndices),
-        defaultValues(parameterDefaultValues) {
+                                                     const std::optional<Eigen::VectorXd> &b) : m_proposalImpl(std::move(proposalImpl)),
+                                                                                                m_jumpIndices(jumpIndices),
+                                                                                                m_defaultValues(parameterDefaultValues) {
 
-    if (this->jumpIndices.rows() != this->defaultValues.rows()) {
+    if (this->m_jumpIndices.rows() != this->m_defaultValues.rows()) {
         throw std::runtime_error("dimension missmatch in input");
     }
-    if (!this->proposalImpl) {
-        throw std::runtime_error("proposal mechanism is nullptr.");
+    if (!this->m_proposalImpl) {
+        throw std::runtime_error("m_proposal mechanism is nullptr.");
     }
 
-    this->A = A.has_value() ? A.value() : this->proposalImpl->getA();
-    this->b = b.has_value() ? b.value() : this->proposalImpl->getB();
+    this->m_A = A.has_value() ? A.value() : this->m_proposalImpl->getA();
+    this->m_b = b.has_value() ? b.value() : this->m_proposalImpl->getB();
 
-    VectorType parameterState = this->proposalImpl->getState();
-    this->activationState = Eigen::VectorXd::Ones(parameterState.rows());
+    VectorType parameterState = this->m_proposalImpl->getState();
+    this->m_activationState = Eigen::VectorXd::Ones(parameterState.rows());
     // precomputes backward & forwards distances. Works because we use uniform jumping distribution.
-    this->backwardDistances = VectorType::Zero(this->jumpIndices.rows());
-    this->forwardDistances = VectorType::Zero(this->jumpIndices.rows());
-    for (long i = 0; i < this->jumpIndices.rows(); ++i) {
-        parameterState(this->jumpIndices(i)) = this->defaultValues(i);
+    this->m_backwardDistances = VectorType::Zero(this->m_jumpIndices.rows());
+    this->m_forwarDistances = VectorType::Zero(this->m_jumpIndices.rows());
+    for (long i = 0; i < this->m_jumpIndices.rows(); ++i) {
+        parameterState(this->m_jumpIndices(i)) = this->m_defaultValues(i);
         // Starts with all optional parameters deactivated, which is the simplest model
-        this->activationState(jumpIndices(i)) = 0.;
-        auto[b, f] = distanceInCoordinateDirection(this->A,
-                                                   this->b,
-                                                   this->defaultValues(i),
-                                                   this->jumpIndices(i));
-        this->backwardDistances(i) = b;
-        this->forwardDistances(i) = f;
+        this->m_activationState(jumpIndices(i)) = 0.;
+        auto[backwards, forwards] = distanceInCoordinateDirection(this->m_A,
+                                                   this->m_b,
+                                                   this->m_defaultValues(i),
+                                                   this->m_jumpIndices(i));
+        this->m_backwardDistances(i) = backwards;
+        this->m_forwarDistances(i) = forwards;
     }
-    this->activationProposal = activationState;
+    this->m_activationProposal = m_activationState;
 
-    this->proposalImpl->setState(parameterState);
-    this->logAcceptanceChanceModelJump = 0;
-    this->proposal = VectorType::Zero(activationProposal.rows() + parameterState.rows());
-    this->lastProposalJumpedModel = false;
+    this->m_proposalImpl->setState(parameterState);
+    this->m_logAcceptanceChanceModelJump = 0;
+    this->m_proposal = VectorType::Zero(m_activationProposal.rows() + parameterState.rows());
+    this->m_lastProposalJumpedModel = false;
 }
 
 hops::ReversibleJumpProposal::ReversibleJumpProposal(const ReversibleJumpProposal &other) {
-    this->proposalImpl = other.proposalImpl->copyProposal();
-    this->jumpIndices = other.jumpIndices;
-    this->defaultValues = other.defaultValues;
-    this->activationState = other.activationState;
-    this->activationProposal = other.activationProposal;
-    this->proposal = other.proposal;
-    this->lastProposalJumpedModel = other.lastProposalJumpedModel;
-    this->logAcceptanceChanceModelJump = other.logAcceptanceChanceModelJump;
-    this->backwardDistances = other.backwardDistances;
-    this->forwardDistances = other.forwardDistances;
-    this->A = other.A;
-    this->b = other.b;
+    this->m_proposalImpl = other.m_proposalImpl->copyProposal();
+    this->m_jumpIndices = other.m_jumpIndices;
+    this->m_defaultValues = other.m_defaultValues;
+    this->m_activationState = other.m_activationState;
+    this->m_activationProposal = other.m_activationProposal;
+    this->m_proposal = other.m_proposal;
+    this->m_lastProposalJumpedModel = other.m_lastProposalJumpedModel;
+    this->m_logAcceptanceChanceModelJump = other.m_logAcceptanceChanceModelJump;
+    this->m_backwardDistances = other.m_backwardDistances;
+    this->m_forwarDistances = other.m_forwarDistances;
+    this->m_A = other.m_A;
+    this->m_b = other.m_b;
 }
 
 hops::ReversibleJumpProposal::ReversibleJumpProposal(ReversibleJumpProposal &&other) noexcept {
-    this->proposalImpl = std::move(other.proposalImpl);
-    this->jumpIndices = other.jumpIndices;
-    this->defaultValues = other.defaultValues;
-    this->activationState = other.activationState;
-    this->activationProposal = other.activationProposal;
-    this->proposal = other.proposal;
-    this->lastProposalJumpedModel = other.lastProposalJumpedModel;
-    this->logAcceptanceChanceModelJump = other.logAcceptanceChanceModelJump;
-    this->backwardDistances = other.backwardDistances;
-    this->forwardDistances = other.forwardDistances;
-    this->A = other.A;
-    this->b = other.b;
+    this->m_proposalImpl = std::move(other.m_proposalImpl);
+    this->m_jumpIndices = other.m_jumpIndices;
+    this->m_defaultValues = other.m_defaultValues;
+    this->m_activationState = other.m_activationState;
+    this->m_activationProposal = other.m_activationProposal;
+    this->m_proposal = other.m_proposal;
+    this->m_lastProposalJumpedModel = other.m_lastProposalJumpedModel;
+    this->m_logAcceptanceChanceModelJump = other.m_logAcceptanceChanceModelJump;
+    this->m_backwardDistances = other.m_backwardDistances;
+    this->m_forwarDistances = other.m_forwarDistances;
+    this->m_A = other.m_A;
+    this->m_b = other.m_b;
 }
 
 hops::ReversibleJumpProposal &hops::ReversibleJumpProposal::operator=(const ReversibleJumpProposal &other) {
-    this->proposalImpl = other.proposalImpl->copyProposal();
-    this->jumpIndices = other.jumpIndices;
-    this->defaultValues = other.defaultValues;
-    this->activationState = other.activationState;
-    this->activationProposal = other.activationProposal;
-    this->proposal = other.proposal;
-    this->lastProposalJumpedModel = other.lastProposalJumpedModel;
-    this->logAcceptanceChanceModelJump = other.logAcceptanceChanceModelJump;
-    this->backwardDistances = other.backwardDistances;
-    this->forwardDistances = other.forwardDistances;
-    this->A = other.A;
-    this->b = other.b;
+    this->m_proposalImpl = other.m_proposalImpl->copyProposal();
+    this->m_jumpIndices = other.m_jumpIndices;
+    this->m_defaultValues = other.m_defaultValues;
+    this->m_activationState = other.m_activationState;
+    this->m_activationProposal = other.m_activationProposal;
+    this->m_proposal = other.m_proposal;
+    this->m_lastProposalJumpedModel = other.m_lastProposalJumpedModel;
+    this->m_logAcceptanceChanceModelJump = other.m_logAcceptanceChanceModelJump;
+    this->m_backwardDistances = other.m_backwardDistances;
+    this->m_forwarDistances = other.m_forwarDistances;
+    this->m_A = other.m_A;
+    this->m_b = other.m_b;
     return *this;
 }
 
 hops::ReversibleJumpProposal &hops::ReversibleJumpProposal::operator=(ReversibleJumpProposal &&other) noexcept {
-    this->proposalImpl = std::move(other.proposalImpl);
-    this->jumpIndices = other.jumpIndices;
-    this->defaultValues = other.defaultValues;
-    this->activationState = other.activationState;
-    this->activationProposal = other.activationProposal;
-    this->proposal = other.proposal;
-    this->lastProposalJumpedModel = other.lastProposalJumpedModel;
-    this->logAcceptanceChanceModelJump = other.logAcceptanceChanceModelJump;
-    this->backwardDistances = other.backwardDistances;
-    this->forwardDistances = other.forwardDistances;
-    this->A = other.A;
-    this->b = other.b;
+    this->m_proposalImpl = std::move(other.m_proposalImpl);
+    this->m_jumpIndices = other.m_jumpIndices;
+    this->m_defaultValues = other.m_defaultValues;
+    this->m_activationState = other.m_activationState;
+    this->m_activationProposal = other.m_activationProposal;
+    this->m_proposal = other.m_proposal;
+    this->m_lastProposalJumpedModel = other.m_lastProposalJumpedModel;
+    this->m_logAcceptanceChanceModelJump = other.m_logAcceptanceChanceModelJump;
+    this->m_backwardDistances = other.m_backwardDistances;
+    this->m_forwarDistances = other.m_forwarDistances;
+    this->m_A = other.m_A;
+    this->m_b = other.m_b;
     return *this;
 }
 
 hops::VectorType &hops::ReversibleJumpProposal::propose(RandomNumberGenerator &rng) {
-    if (uniformRealDistribution(rng) < modelJumpProbability) {
-        lastProposalJumpedModel = true;
-        proposal = proposeModel(rng);
+    if (uniformRealDistribution(rng) < m_modelJumpProbability) {
+        m_lastProposalJumpedModel = true;
+        m_proposal = proposeModel(rng);
     } else {
-        lastProposalJumpedModel = false;
-        this->activationProposal = this->activationState;
-        proposal = wrapProposal(proposalImpl->propose(rng, activationState));
+        m_lastProposalJumpedModel = false;
+        this->m_activationProposal = this->m_activationState;
+        m_proposal = wrapProposal(m_proposalImpl->propose(rng, m_activationState));
     }
-    return proposal;
+    return m_proposal;
 }
 
 double hops::ReversibleJumpProposal::computeLogAcceptanceProbability() {
-    if (lastProposalJumpedModel) {
-        return this->logAcceptanceChanceModelJump;
+    if (m_lastProposalJumpedModel) {
+        return this->m_logAcceptanceChanceModelJump;
     }
-    return proposalImpl->computeLogAcceptanceProbability();
+    return m_proposalImpl->computeLogAcceptanceProbability();
 }
 
 hops::VectorType &hops::ReversibleJumpProposal::acceptProposal() {
-    activationState = activationProposal;
-    return wrapProposal(proposalImpl->acceptProposal());
+    m_activationState = m_activationProposal;
+    return wrapProposal(m_proposalImpl->acceptProposal());
 }
 
 void hops::ReversibleJumpProposal::setState(const VectorType &state) {
-    this->activationState = state.topRows(activationState.rows());
-    proposalImpl->setState(state.bottomRows(state.rows() - this->activationState.rows()));
+    this->m_activationState = state.topRows(m_activationState.rows());
+    m_proposalImpl->setState(state.bottomRows(state.rows() - this->m_activationState.rows()));
 }
 
 void hops::ReversibleJumpProposal::setProposal(const VectorType &newProposal) {
-    proposal = newProposal;
-    activationProposal = newProposal.topRows(this->activationProposal.rows());
-    proposalImpl->setProposal(proposal.bottomRows(proposal.rows() - this->activationProposal.rows()));
+    m_proposal = newProposal;
+    m_activationProposal = newProposal.topRows(this->m_activationProposal.rows());
+    m_proposalImpl->setProposal(m_proposal.bottomRows(m_proposal.rows() - this->m_activationProposal.rows()));
 }
 
 hops::VectorType hops::ReversibleJumpProposal::getState() const {
-    VectorType parameterState = proposalImpl->getState();
-    VectorType state(activationState.rows() + parameterState.rows());
-    state << activationState, parameterState;
+    VectorType parameterState = m_proposalImpl->getState();
+    VectorType state(m_activationState.rows() + parameterState.rows());
+    state << m_activationState, parameterState;
     return state;
 }
 
 hops::VectorType hops::ReversibleJumpProposal::getProposal() const {
-    return proposal;
+    return m_proposal;
 }
 
 std::vector<std::string> hops::ReversibleJumpProposal::getParameterNames() const {
-    std::vector<std::string> parameterNames = proposalImpl->getParameterNames();
+    std::vector<std::string> parameterNames = m_proposalImpl->getParameterNames();
     parameterNames.emplace_back(
             ProposalParameterName[static_cast<int>(ProposalParameter::MODEL_JUMP_PROBABILITY)]);
     parameterNames.emplace_back(
@@ -188,13 +187,13 @@ std::vector<std::string> hops::ReversibleJumpProposal::getParameterNames() const
 std::any hops::ReversibleJumpProposal::getParameter(const ProposalParameter &parameter) const {
     switch (parameter) {
         case ProposalParameter::MODEL_JUMP_PROBABILITY:
-            return modelJumpProbability;
+            return m_modelJumpProbability;
         case ProposalParameter::ACTIVATION_PROBABILITY:
-            return activationProbability;
+            return m_activiationProbability;
         case ProposalParameter::DEACTIVATION_PROBABILITY:
-            return deactivationProbability;
+            return m_deativationProbability;
         default:
-            return proposalImpl->getParameter(parameter);
+            return m_proposalImpl->getParameter(parameter);
     }
 }
 
@@ -204,7 +203,7 @@ std::string hops::ReversibleJumpProposal::getParameterType(const ProposalParamet
         parameter == ProposalParameter::DEACTIVATION_PROBABILITY) {
         return "double";
     } else {
-        return proposalImpl->getParameterType(parameter);
+        return m_proposalImpl->getParameterType(parameter);
     }
 }
 
@@ -216,7 +215,7 @@ void hops::ReversibleJumpProposal::setParameter(const ProposalParameter &paramet
                         ProposalParameterName[static_cast<int>(ProposalParameter::MODEL_JUMP_PROBABILITY)]) +
                                             " can not be set to 1 or larger.");
             }
-            modelJumpProbability = std::any_cast<double>(value);
+            m_modelJumpProbability = std::any_cast<double>(value);
             break;
         case ProposalParameter::ACTIVATION_PROBABILITY:
             if (std::any_cast<double>(value) >= 1.) {
@@ -224,7 +223,7 @@ void hops::ReversibleJumpProposal::setParameter(const ProposalParameter &paramet
                         ProposalParameterName[static_cast<int>(ProposalParameter::ACTIVATION_PROBABILITY)]) +
                                             " can not be set to 1 or larger.");
             }
-            activationProbability = std::any_cast<double>(value);
+            m_activiationProbability = std::any_cast<double>(value);
             break;
         case ProposalParameter::DEACTIVATION_PROBABILITY:
             if (std::any_cast<double>(value) >= 1.) {
@@ -232,15 +231,15 @@ void hops::ReversibleJumpProposal::setParameter(const ProposalParameter &paramet
                         ProposalParameterName[static_cast<int>(ProposalParameter::DEACTIVATION_PROBABILITY)]) +
                                             " can not be set to 1 or larger.");
             }
-            deactivationProbability = std::any_cast<double>(value);
+            m_deativationProbability = std::any_cast<double>(value);
             break;
         default:
-            proposalImpl->setParameter(parameter, value);
+            m_proposalImpl->setParameter(parameter, value);
     }
 }
 
 std::string hops::ReversibleJumpProposal::getProposalName() const {
-    return "RJMCMC(" + proposalImpl->getProposalName() + ")";
+    return "RJMCMC(" + m_proposalImpl->getProposalName() + ")";
 }
 
 std::unique_ptr<hops::Proposal> hops::ReversibleJumpProposal::copyProposal() const {
@@ -248,76 +247,76 @@ std::unique_ptr<hops::Proposal> hops::ReversibleJumpProposal::copyProposal() con
 }
 
 const hops::MatrixType &hops::ReversibleJumpProposal::getA() const {
-    return this->A;
+    return this->m_A;
 }
 
 const hops::VectorType &hops::ReversibleJumpProposal::getB() const {
-    return this->b;
+    return this->m_b;
 }
 
 hops::VectorType &hops::ReversibleJumpProposal::proposeModel(RandomNumberGenerator &randomNumberGenerator) {
-    VectorType parameterProposal = proposalImpl->getState();
-    this->activationProposal = this->activationState;
-    this->logAcceptanceChanceModelJump = 0;
+    VectorType parameterProposal = m_proposalImpl->getState();
+    this->m_activationProposal = this->m_activationState;
+    this->m_logAcceptanceChanceModelJump = 0;
 
-    for (long i = 0; i < jumpIndices.rows(); ++i) {
-        long jumpIndex = this->jumpIndices(i);
-        bool isActive = this->activationState(jumpIndex) != 0;
-        auto jumpProbability = isActive ? this->deactivationProbability
-                                        : this->activationProbability;
+    for (long i = 0; i < m_jumpIndices.rows(); ++i) {
+        long jumpIndex = this->m_jumpIndices(i);
+        bool isActive = this->m_activationState(jumpIndex) != 0;
+        auto jumpProbability = isActive ? this->m_deativationProbability
+                                        : this->m_activiationProbability;
 
         if (uniformRealDistribution(randomNumberGenerator) < jumpProbability) {
-            this->activationProposal(jumpIndex) = !isActive;
+            this->m_activationProposal(jumpIndex) = !isActive;
         } else {
-            this->activationProposal(jumpIndex) = isActive;
+            this->m_activationProposal(jumpIndex) = isActive;
         }
 
-        if (!this->activationProposal(jumpIndex) && this->activationState(jumpIndex)) {
+        if (!this->m_activationProposal(jumpIndex) && this->m_activationState(jumpIndex)) {
             // deactivate
-            logAcceptanceChanceModelJump += std::log(activationProbability);
-            logAcceptanceChanceModelJump -= std::log(deactivationProbability);
-            parameterProposal(jumpIndex) = defaultValues(i);
-        } else if (this->activationProposal(jumpIndex) && !this->activationState(jumpIndex)) {
+            m_logAcceptanceChanceModelJump += std::log(m_activiationProbability);
+            m_logAcceptanceChanceModelJump -= std::log(m_deativationProbability);
+            parameterProposal(jumpIndex) = m_defaultValues(i);
+        } else if (this->m_activationProposal(jumpIndex) && !this->m_activationState(jumpIndex)) {
             // activate
-            logAcceptanceChanceModelJump -= std::log(activationProbability);
-            logAcceptanceChanceModelJump += std::log(deactivationProbability);
-            parameterProposal(jumpIndex) = defaultValues(i) + stepDistribution.draw(randomNumberGenerator,
-                                                                                    backwardDistances(i),
-                                                                                    forwardDistances(i));
+            m_logAcceptanceChanceModelJump -= std::log(m_activiationProbability);
+            m_logAcceptanceChanceModelJump += std::log(m_deativationProbability);
+            parameterProposal(jumpIndex) = m_defaultValues(i) + stepDistribution.draw(randomNumberGenerator,
+                                                                                    m_backwardDistances(i),
+                                                                                    m_forwarDistances(i));
         }
     }
 
-    proposalImpl->setProposal(parameterProposal);
-    this->logAcceptanceChanceModelJump += proposalImpl->getStateNegativeLogLikelihood()
-                                          - proposalImpl->getProposalNegativeLogLikelihood();
+    m_proposalImpl->setProposal(parameterProposal);
+    this->m_logAcceptanceChanceModelJump += m_proposalImpl->getStateNegativeLogLikelihood()
+                                          - m_proposalImpl->getProposalNegativeLogLikelihood();
 
     return wrapProposal(parameterProposal);
 }
 
 std::optional<double> hops::ReversibleJumpProposal::getStepSize() const {
-    return this->proposalImpl->getStepSize();
+    return this->m_proposalImpl->getStepSize();
 }
 
 hops::VectorType &
 hops::ReversibleJumpProposal::propose(RandomNumberGenerator &rng, const Eigen::VectorXd &activeIndices) {
-    return wrapProposal(proposalImpl->propose(rng, activeIndices));
+    return wrapProposal(m_proposalImpl->propose(rng, activeIndices));
 }
 
 hops::VectorType &hops::ReversibleJumpProposal::wrapProposal(const VectorType &parameterProposal) {
-    proposal.setZero();
-    proposal << this->activationProposal, parameterProposal;
-    return proposal;
+    m_proposal.setZero();
+    m_proposal << this->m_activationProposal, parameterProposal;
+    return m_proposal;
 }
 
 void hops::ReversibleJumpProposal::setDimensionNames(const std::vector<std::string> &names) {
-    proposalImpl->setDimensionNames(names);
+    m_proposalImpl->setDimensionNames(names);
 }
 
 std::vector<std::string> hops::ReversibleJumpProposal::getDimensionNames() const {
     // Vector is constructed on demand, because it typically is not used repeatedly.
-    std::vector<std::string> dimensionNames = proposalImpl->getDimensionNames();
+    std::vector<std::string> dimensionNames = m_proposalImpl->getDimensionNames();
     std::vector<std::string> names;
-    for (long i = 0; i < this->activationState.rows(); ++i) {
+    for (long i = 0; i < this->m_activationState.rows(); ++i) {
         names.emplace_back(dimensionNames[i] + "_activation");
     }
     names.insert(names.end(), dimensionNames.begin(), dimensionNames.end());
@@ -325,75 +324,75 @@ std::vector<std::string> hops::ReversibleJumpProposal::getDimensionNames() const
 }
 
 const std::unique_ptr<hops::Proposal> &hops::ReversibleJumpProposal::getProposalImpl() const {
-    return proposalImpl;
+    return m_proposalImpl;
 }
 void hops::ReversibleJumpProposal::setProposalImpl(std::unique_ptr<Proposal> proposalImpl) {
-    ReversibleJumpProposal::proposalImpl = std::move(proposalImpl);
+    ReversibleJumpProposal::m_proposalImpl = std::move(proposalImpl);
 }
 double hops::ReversibleJumpProposal::getModelJumpProbability() const {
-    return modelJumpProbability;
+    return m_modelJumpProbability;
 }
 void hops::ReversibleJumpProposal::setModelJumpProbability(double modelJumpProbability) {
-    ReversibleJumpProposal::modelJumpProbability = modelJumpProbability;
+    ReversibleJumpProposal::m_modelJumpProbability = modelJumpProbability;
 }
 double hops::ReversibleJumpProposal::getActivationProbability() const {
-    return activationProbability;
+    return m_activiationProbability;
 }
 void hops::ReversibleJumpProposal::setActivationProbability(double activationProbability) {
-    ReversibleJumpProposal::activationProbability = activationProbability;
+    ReversibleJumpProposal::m_activiationProbability = activationProbability;
 }
 double hops::ReversibleJumpProposal::getDeactivationProbability() const {
-    return deactivationProbability;
+    return m_deativationProbability;
 }
 void hops::ReversibleJumpProposal::setDeactivationProbability(double deactivationProbability) {
-    ReversibleJumpProposal::deactivationProbability = deactivationProbability;
+    ReversibleJumpProposal::m_deativationProbability = deactivationProbability;
 }
 const hops::VectorType &hops::ReversibleJumpProposal::getBackwardDistances() const {
-    return backwardDistances;
+    return m_backwardDistances;
 }
 void hops::ReversibleJumpProposal::setBackwardDistances(const hops::VectorType &backwardDistances) {
-    ReversibleJumpProposal::backwardDistances = backwardDistances;
+    ReversibleJumpProposal::m_backwardDistances = backwardDistances;
 }
 const hops::VectorType &hops::ReversibleJumpProposal::getForwardDistances() const {
-    return forwardDistances;
+    return m_forwarDistances;
 }
 void hops::ReversibleJumpProposal::setForwardDistances(const hops::VectorType &forwardDistances) {
-    ReversibleJumpProposal::forwardDistances = forwardDistances;
+    ReversibleJumpProposal::m_forwarDistances = forwardDistances;
 }
 const Eigen::VectorXi &hops::ReversibleJumpProposal::getJumpIndices() const {
-    return jumpIndices;
+    return m_jumpIndices;
 }
 void hops::ReversibleJumpProposal::setJumpIndices(const Eigen::VectorXi &jumpIndices) {
-    ReversibleJumpProposal::jumpIndices = jumpIndices;
+    ReversibleJumpProposal::m_jumpIndices = jumpIndices;
 }
 const hops::VectorType &hops::ReversibleJumpProposal::getDefaultValues() const {
-    return defaultValues;
+    return m_defaultValues;
 }
 void hops::ReversibleJumpProposal::setDefaultValues(const hops::VectorType &defaultValues) {
-    ReversibleJumpProposal::defaultValues = defaultValues;
+    ReversibleJumpProposal::m_defaultValues = defaultValues;
 }
 const hops::VectorType &hops::ReversibleJumpProposal::getActivationState() const {
-    return activationState;
+    return m_activationState;
 }
 void hops::ReversibleJumpProposal::setActivationState(const hops::VectorType &activationState) {
-    ReversibleJumpProposal::activationState = activationState;
+    ReversibleJumpProposal::m_activationState = activationState;
 }
 const hops::VectorType &hops::ReversibleJumpProposal::getActivationProposal() const {
-    return activationProposal;
+    return m_activationProposal;
 }
 void hops::ReversibleJumpProposal::setActivationProposal(const hops::VectorType &activationProposal) {
-    ReversibleJumpProposal::activationProposal = activationProposal;
+    ReversibleJumpProposal::m_activationProposal = activationProposal;
 }
 double hops::ReversibleJumpProposal::getLogAcceptanceChanceModelJump() const {
-    return logAcceptanceChanceModelJump;
+    return m_logAcceptanceChanceModelJump;
 }
 void hops::ReversibleJumpProposal::setLogAcceptanceChanceModelJump(double logAcceptanceChanceModelJump) {
-    ReversibleJumpProposal::logAcceptanceChanceModelJump = logAcceptanceChanceModelJump;
+    ReversibleJumpProposal::m_logAcceptanceChanceModelJump = logAcceptanceChanceModelJump;
 }
 bool hops::ReversibleJumpProposal::isLastProposalJumpedModel() const {
-    return lastProposalJumpedModel;
+    return m_lastProposalJumpedModel;
 }
 void hops::ReversibleJumpProposal::setLastProposalJumpedModel(bool lastProposalJumpedModel) {
-    ReversibleJumpProposal::lastProposalJumpedModel = lastProposalJumpedModel;
+    ReversibleJumpProposal::m_lastProposalJumpedModel = lastProposalJumpedModel;
 }
 

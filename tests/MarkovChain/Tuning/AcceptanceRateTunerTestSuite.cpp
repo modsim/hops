@@ -35,13 +35,13 @@ namespace {
 
         [[nodiscard]] std::string getProposalName() const override { return "ProposalMock"; };
 
-        void setDimensionNames(const std::vector<std::string> &names) override { }
+        void setDimensionNames(const std::vector<std::string> &) override { }
 
-        std::vector<std::string> getDimensionNames() const override {
-            return std::vector<std::string>();
+        [[nodiscard]] std::vector<std::string> getDimensionNames() const override {
+            return {};
         }
 
-        void setParameter(const hops::ProposalParameter &parameter, const std::any &value) override {
+        void setParameter(const hops::ProposalParameter &, const std::any &value) override {
             stepSize = std::any_cast<double>(value);
         }
 
@@ -51,27 +51,27 @@ namespace {
 
         void setState(const hops::VectorType &) override {}
 
-        hops::VectorType getProposal() const override { return hops::VectorType(); }
+        [[nodiscard]] hops::VectorType getProposal() const override { return {}; }
 
-        std::vector<std::string> getParameterNames() const override { return std::vector<std::string>(); }
+        [[nodiscard]] std::vector<std::string> getParameterNames() const override { return {}; }
 
-        std::any getParameter(const hops::ProposalParameter &parameter) const override {
-            return std::any();
+        [[nodiscard]] std::any getParameter(const hops::ProposalParameter &) const override {
+            return {};
         }
 
-        std::string getParameterType(const hops::ProposalParameter &parameter) const override {
-            return std::string();
+        [[nodiscard]] std::string getParameterType(const hops::ProposalParameter &) const override {
+            return {};
         }
 
-        std::unique_ptr<Proposal> copyProposal() const override {
+        [[nodiscard]] std::unique_ptr<Proposal> copyProposal() const override {
             return std::make_unique<ProposalMock>(*this);
         }
 
-        const hops::MatrixType &getA() const override {
+        [[nodiscard]] const hops::MatrixType &getA() const override {
             throw std::runtime_error("Should not be called");
         }
 
-        const hops::VectorType &getB() const override {
+        [[nodiscard]] const hops::VectorType &getB() const override {
             throw std::runtime_error("Should not be called");
         }
 

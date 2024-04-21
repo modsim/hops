@@ -364,8 +364,8 @@ namespace hops {
         }
 
         void setKernelSigma(double sigma) {
-            double oldSigma = kernel.sigma;
-            kernel.sigma = sigma;
+            double oldSigma = kernel.m_sigma;
+            kernel.m_sigma = sigma;
             observedCovariance -= MatrixType(observedValueErrors.asDiagonal());
             observedCovariance.array() *= (sigma / oldSigma);
             observedCovariance += MatrixType(observedValueErrors.asDiagonal());

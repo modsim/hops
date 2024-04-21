@@ -115,7 +115,7 @@ $(function() {
 <div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;        <a class="code" href="namespacehops.html#af656c1adca85c58336d70b81938df367">VectorType</a> b;</div>
 <div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160; </div>
 <div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;        <a class="code" href="classhops_1_1DikinProposal.html#a7d9683a52b616982c716cf90d353fa83">StateType</a> state;</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;        <a class="code" href="classhops_1_1DikinProposal.html#a7d9683a52b616982c716cf90d353fa83">StateType</a> proposal;</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;        <a class="code" href="classhops_1_1DikinProposal.html#a7d9683a52b616982c716cf90d353fa83">StateType</a> m_proposal;</div>
 <div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;        <span class="keyword">typename</span> MatrixType::Scalar stateLogSqrtDeterminant = 0;</div>
 <div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;        <span class="keyword">typename</span> MatrixType::Scalar proposalLogSqrtDeterminant = 0;</div>
 <div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;        Eigen::Matrix&lt;typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic&gt; stateCholeskyOfDikinEllipsoid;</div>
@@ -139,21 +139,21 @@ $(function() {
 <div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;            dikinEllipsoidCalculator(this-&gt;A, this-&gt;b) {</div>
 <div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;        <a class="code" href="classhops_1_1DikinProposal.html#ad6cf74f2b32c8eea3b3efc9afd64db79">setStepSize</a>(1.);</div>
 <div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;        <a class="code" href="classhops_1_1DikinProposal.html#ab67dc04ed859acef1f1705ab3bc77f78">setState</a>(std::move(currentState));</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;        proposal = state;</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;        m_proposal = state;</div>
 <div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    }</div>
 <div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160; </div>
 <div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> MatrixType, <span class="keyword">typename</span> VectorType&gt;</div>
 <div class="line"><a name="l00074"></a><span class="lineno"><a class="line" href="classhops_1_1DikinProposal.html#a744a392091cd6e5618b86267348d29d2">   74</a></span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classhops_1_1DikinProposal.html#a744a392091cd6e5618b86267348d29d2">DikinProposal&lt;MatrixType, VectorType&gt;::propose</a>(<a class="code" href="classpcg__detail_1_1engine.html">RandomNumberGenerator</a> &amp;randomNumberGenerator) {</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;        <span class="keywordflow">for</span> (<span class="keywordtype">long</span> i = 0; i &lt; proposal.rows(); ++i) {</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;            proposal(i) = normalDistribution(randomNumberGenerator);</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;        <span class="keywordflow">for</span> (<span class="keywordtype">long</span> i = 0; i &lt; m_proposal.rows(); ++i) {</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;            m_proposal(i) = normalDistribution(randomNumberGenerator);</div>
 <div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;        }</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;        proposal = state + covarianceFactor *</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;                           stateCholeskyOfDikinEllipsoid.template triangularView&lt;Eigen::Lower&gt;().solve(proposal);</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;        m_proposal = state + covarianceFactor *</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;                           stateCholeskyOfDikinEllipsoid.template triangularView&lt;Eigen::Lower&gt;().solve(m_proposal);</div>
 <div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    }</div>
 <div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160; </div>
 <div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> MatrixType, <span class="keyword">typename</span> VectorType&gt;</div>
 <div class="line"><a name="l00083"></a><span class="lineno"><a class="line" href="classhops_1_1DikinProposal.html#a910dd8bff870bf73796ce04a2fe3be4e">   83</a></span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classhops_1_1DikinProposal.html#a910dd8bff870bf73796ce04a2fe3be4e">DikinProposal&lt;MatrixType, VectorType&gt;::acceptProposal</a>() {</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;        state.swap(proposal);</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;        state.swap(m_proposal);</div>
 <div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;        stateCholeskyOfDikinEllipsoid = std::move(proposalCholeskyOfDikinEllipsoid);</div>
 <div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;        stateLogSqrtDeterminant = proposalLogSqrtDeterminant;</div>
 <div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    }</div>
@@ -161,19 +161,19 @@ $(function() {
 <div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> MatrixType, <span class="keyword">typename</span> VectorType&gt;</div>
 <div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;    <span class="keyword">typename</span> MatrixType::Scalar</div>
 <div class="line"><a name="l00091"></a><span class="lineno"><a class="line" href="classhops_1_1DikinProposal.html#af5f909b4f71cc36edce930341a11848a">   91</a></span>&#160;    <a class="code" href="classhops_1_1DikinProposal.html#af5f909b4f71cc36edce930341a11848a">DikinProposal&lt;MatrixType, VectorType&gt;::computeLogAcceptanceProbability</a>() {</div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;        <span class="keywordtype">bool</span> isProposalInteriorPoint = ((A * proposal - b).array() &lt; -boundaryCushion).all();</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;        <span class="keywordtype">bool</span> isProposalInteriorPoint = ((A * m_proposal - b).array() &lt; -boundaryCushion).all();</div>
 <div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;        <span class="keywordflow">if</span> (!isProposalInteriorPoint) {</div>
 <div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;            <span class="keywordflow">return</span> -std::numeric_limits&lt;typename MatrixType::Scalar&gt;::infinity();</div>
 <div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;        }</div>
 <div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160; </div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;        <span class="keyword">auto</span> choleskyResult = dikinEllipsoidCalculator.computeCholeskyFactorOfDikinEllipsoid(proposal);</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;        <span class="keyword">auto</span> choleskyResult = dikinEllipsoidCalculator.computeCholeskyFactorOfDikinEllipsoid(m_proposal);</div>
 <div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;        <span class="keywordflow">if</span> (!choleskyResult.first) {</div>
 <div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;            <span class="keywordflow">return</span> -std::numeric_limits&lt;typename MatrixType::Scalar&gt;::infinity();</div>
 <div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;        }</div>
 <div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;        proposalCholeskyOfDikinEllipsoid = std::move(choleskyResult.second);</div>
 <div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160; </div>
 <div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;        proposalLogSqrtDeterminant = proposalCholeskyOfDikinEllipsoid.diagonal().array().log().sum();</div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;        <a class="code" href="namespacehops.html#af656c1adca85c58336d70b81938df367">VectorType</a> stateDifference = state - proposal;</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;        <a class="code" href="namespacehops.html#af656c1adca85c58336d70b81938df367">VectorType</a> stateDifference = state - m_proposal;</div>
 <div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160; </div>
 <div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;        <span class="keywordflow">return</span> proposalLogSqrtDeterminant</div>
 <div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;               - stateLogSqrtDeterminant</div>
@@ -202,7 +202,7 @@ $(function() {
 <div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> MatrixType, <span class="keyword">typename</span> VectorType&gt;</div>
 <div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;    <span class="keyword">typename</span> <a class="code" href="classhops_1_1DikinProposal.html#a7d9683a52b616982c716cf90d353fa83">DikinProposal&lt;MatrixType, VectorType&gt;::StateType</a></div>
 <div class="line"><a name="l00132"></a><span class="lineno"><a class="line" href="classhops_1_1DikinProposal.html#ae854544f1c087486ff26fcad7a14e713">  132</a></span>&#160;    <a class="code" href="classhops_1_1DikinProposal.html#ae854544f1c087486ff26fcad7a14e713">DikinProposal&lt;MatrixType, VectorType&gt;::getProposal</a>()<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;        <span class="keywordflow">return</span> proposal;</div>
+<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;        <span class="keywordflow">return</span> m_proposal;</div>
 <div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;    }</div>
 <div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160; </div>
 <div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> MatrixType, <span class="keyword">typename</span> VectorType&gt;</div>
@@ -238,7 +238,7 @@ $(function() {
 <div class="ttc" id="aclasshops_1_1DikinProposal_html_a7d9683a52b616982c716cf90d353fa83"><div class="ttname"><a href="classhops_1_1DikinProposal.html#a7d9683a52b616982c716cf90d353fa83">hops::DikinProposal::StateType</a></div><div class="ttdeci">VectorType StateType</div><div class="ttdef"><b>Definition:</b> DikinProposal.hpp:13</div></div>
 <div class="ttc" id="ahops_2Third-party_2HighFive_2src_2examples_2CMakeLists_8txt_html_a31cb2c9ef255d305673fbf751c6a34da"><div class="ttname"><a href="hops_2Third-party_2HighFive_2src_2examples_2CMakeLists_8txt.html#a31cb2c9ef255d305673fbf751c6a34da">string</a></div><div class="ttdeci">NAME string(REPLACE &quot;.cpp&quot; &quot;_bin&quot; example_name ${example_filename}) if($</div><div class="ttdef"><b>Definition:</b> hops/Third-party/HighFive/src/examples/CMakeLists.txt:6</div></div>
 <div class="ttc" id="anamespacehops_html_af656c1adca85c58336d70b81938df367"><div class="ttname"><a href="namespacehops.html#af656c1adca85c58336d70b81938df367">hops::VectorType</a></div><div class="ttdeci">Eigen::VectorXd VectorType</div><div class="ttdef"><b>Definition:</b> VectorType.hpp:7</div></div>
-<div class="ttc" id="aclasshops_1_1DikinProposal_html_a1408fd67f5bc1be372266afb6ffcc04c"><div class="ttname"><a href="classhops_1_1DikinProposal.html#a1408fd67f5bc1be372266afb6ffcc04c">hops::DikinProposal::DikinProposal</a></div><div class="ttdeci">DikinProposal(MatrixType A, VectorType b, VectorType currentState)</div><div class="ttdoc">Constructs Gaussian Dikin proposal mechanism on polytope defined as Ax&lt;b.</div><div class="ttdef"><b>Definition:</b> DikinProposal.hpp:62</div></div>
+<div class="ttc" id="aclasshops_1_1DikinProposal_html_a1408fd67f5bc1be372266afb6ffcc04c"><div class="ttname"><a href="classhops_1_1DikinProposal.html#a1408fd67f5bc1be372266afb6ffcc04c">hops::DikinProposal::DikinProposal</a></div><div class="ttdeci">DikinProposal(MatrixType A, VectorType b, VectorType currentState)</div><div class="ttdoc">Constructs Gaussian Dikin m_proposal mechanism on polytope defined as Ax&lt;b.</div><div class="ttdef"><b>Definition:</b> DikinProposal.hpp:62</div></div>
 <div class="ttc" id="aclasshops_1_1DikinProposal_html_ad6cf74f2b32c8eea3b3efc9afd64db79"><div class="ttname"><a href="classhops_1_1DikinProposal.html#ad6cf74f2b32c8eea3b3efc9afd64db79">hops::DikinProposal::setStepSize</a></div><div class="ttdeci">void setStepSize(typename MatrixType::Scalar newStepSize)</div><div class="ttdef"><b>Definition:</b> DikinProposal.hpp:142</div></div>
 <div class="ttc" id="aDikinEllipsoidCalculator_8hpp_html"><div class="ttname"><a href="DikinEllipsoidCalculator_8hpp.html">DikinEllipsoidCalculator.hpp</a></div></div>
 <div class="ttc" id="aclasshops_1_1DikinProposal_html_a522d8559e307ddfe8e3a6f9f1872f834"><div class="ttname"><a href="classhops_1_1DikinProposal.html#a522d8559e307ddfe8e3a6f9f1872f834">hops::DikinProposal::getStepSize</a></div><div class="ttdeci">MatrixType::Scalar getStepSize() const</div><div class="ttdef"><b>Definition:</b> DikinProposal.hpp:137</div></div>

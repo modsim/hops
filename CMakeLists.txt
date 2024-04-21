@@ -37,10 +37,13 @@ set(MKL_USE_interface lp64)
 option(HOPS_DNEST4_SUPPORT "Enables Nested Sampling support with DNEST4. Use -DHOPS_DNEST4_SUPPORT=ON to enable." ON)
 option(HOPS_BENCHMARKS "Enables compilation of Benchmarks (Requires Celero). Use -DHOPS_BENCHMARKS=ON to enable." OFF)
 option(HOPS_DOCS "Enables generation of documentation. Use -DHOPS_DOCS=OFF to disable." ON)
+option(HOPS_IO "Enables module for writing and reading csv. Not always required when using HOPS as a librarly. Default is OFF." OFF)
 option(HOPS_BINARIES "Enables compilation of hops executables. Use -DHOPS_BINARIES=OFF to disable." ON)
 option(HOPS_EXAMPLES "Enables compilation of hops examples. Use -DHOPS_EXAMPLES=OFF to disable." ON)
 option(HOPS_TESTS "Enables compilation of unit tests. Use -DHOPS_TESTS=OFF to disable." ON)
 option(HOPS_GUROBI "Enables use of gurobi, if available. Use -DHOPS_GUROBI=OFF to disable." ON)
+option(HOPS_LP "Enables module for linear programming, if dependencies are available." ON)
+option(HOPS_MPI "Enables module for linear programming, if dependencies are available." OFF)
 option(HOPS_NO_INSTALL "Disables installation. Use -DHOPS_NO_INSTALL=ON to disable installation." OFF)
 option(HOPS_BUILD_NATIVE "Enable this option for maximum performance. Disable it when linking to third-party software that also uses Eigen3 but is not compiled with -march=native" OFF)
 set(HOPS_LIBRARY_TYPE SHARED CACHE STRING "Type of library to build. Options are HEADER_ONLY, STATIC or SHARED")
@@ -56,25 +59,29 @@ set(CMAKE_C_FLAGS "${CMAKE_FLAGS} ${MPI_FLAGS}")
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MPI_CXX_FLAGS}")
 if (CMAKE_COMPILER_IS_GNUCXX)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra -Wall")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unknown-warning -Wno-pragmas -Wall -Wextra -Werror --pedantic-errors -Wno-deprecated-copy -Wno-expansion-to-defined")
     set(CMAKE_CXX_FLAGS_DEBUG "-g")
+elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unknown-warning-option -Wall  -Wextra -Werror --pedantic-errors -Wno-deprecated -Wno-gnu-zero-variadic-macro-arguments")
+elseif (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4;/WX")
 endif ()
+
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${MPI_EXE_LINKER_FLAGS}")
 
 
-if(HOPS_BUILD_NATIVE)
-	message(STATUS "Building natively using -march=native")
-	CHECK_CXX_COMPILER_FLAG("-march=native" COMPILER_SUPPORTS_MARCH_NATIVE)
-	if (COMPILER_SUPPORTS_MARCH_NATIVE)
-	    message(STATUS "Adding compiler flag march=native")
-	    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
-	else (COMPILER_SUPPORTS_MARCH_NATIVE)
-	    message(WARNING "compiler does not support flag -march=native")
-	endif (COMPILER_SUPPORTS_MARCH_NATIVE)
-else(HOPS_BUILD_NATIVE)
-	message(STATUS "NOT building natively using -march=native")
-endif(HOPS_BUILD_NATIVE)
-
+if (HOPS_BUILD_NATIVE)
+    message(STATUS "Building natively using -march=native")
+    CHECK_CXX_COMPILER_FLAG("-march=native" COMPILER_SUPPORTS_MARCH_NATIVE)
+    if (COMPILER_SUPPORTS_MARCH_NATIVE)
+        message(STATUS "Adding compiler flag march=native")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
+    else (COMPILER_SUPPORTS_MARCH_NATIVE)
+        message(WARNING "compiler does not support flag -march=native")
+    endif (COMPILER_SUPPORTS_MARCH_NATIVE)
+else (HOPS_BUILD_NATIVE)
+    message(STATUS "NOT building natively using -march=native")
+endif (HOPS_BUILD_NATIVE)
 
 
 CHECK_CXX_COMPILER_FLAG("-O3" COMPILER_SUPPORTS_O3)
@@ -134,7 +141,7 @@ if (HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
     target_include_directories(hops INTERFACE ${EIGEN3_INCLUDE_DIR}
             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
             $<INSTALL_INTERFACE:include>
-            )
+    )
 else (HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
     message(STATUS "Set to ${HOPS_LIBRARY_TYPE} library installation")
     set(SCOPE PRIVATE)
@@ -144,7 +151,7 @@ else (HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
     target_include_directories(hops PUBLIC ${EIGEN3_INCLUDE_DIR}
             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
             $<INSTALL_INTERFACE:include>
-            )
+    )
 endif (HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
 
 add_subdirectory(src)
@@ -187,7 +194,7 @@ if (HOPS_DOCS)
                 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
                 COMMENT "Generating API docs with Doxygen"
                 VERBATIM
-                )
+        )
     endif ()
 else ()
     message(STATUS "Disabled Doxygen generation. Use -DHOPS_DOCS=ON to enable.")
@@ -237,7 +244,6 @@ if (HOPS_TESTS)
 else ()
     message(STATUS "Disabled compilation of tests. Use -DHOPS_TESTS=ON to enable.")
 endif ()
-
 
 
 ########################################################################################################################

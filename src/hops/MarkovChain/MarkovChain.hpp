@@ -28,7 +28,7 @@ namespace hops {
         virtual double getStateNegativeLogLikelihood() = 0;
 
         /**
-         * @brief gets proposal parameter. Throws exception if proposal has no parameter parameterName.
+         * @brief gets m_proposal parameter. Throws exception if m_proposal has no parameter parameterName.
          * @details Implementations should list possible parameterNames in the exception message.
          */
         [[nodiscard]] virtual std::any getParameter(const ProposalParameter &parameter) const = 0;

@@ -3,8 +3,8 @@
 
 #include <cmath>
 
-#include "hops/MarkovChain/Proposal/Proposal.hpp"
 #include "hops/MarkovChain/Draw/IsCalculateLogAcceptanceProbabilityAvailable.hpp"
+#include "hops/MarkovChain/Proposal/Proposal.hpp"
 #include "hops/RandomNumberGenerator/RandomNumberGenerator.hpp"
 #include "hops/Utility/VectorType.hpp"
 
@@ -18,9 +18,8 @@ namespace hops {
     template<typename ProposalType, typename ModelType>
     class ModelMixin : public Proposal, public ModelType {
     public:
-        ModelMixin(const ProposalType &proposal, const ModelType &model) :
-                proposal(proposal),
-                ModelType(model) {
+        ModelMixin(const ProposalType &proposal, const ModelType &model) : ModelType(model),
+                                                                           proposal(proposal) {
             if (proposal.hasNegativeLogLikelihood()) {
                 throw std::invalid_argument("Can't mix in model with ProposalType that already has likelihood.");
             }
@@ -28,7 +27,7 @@ namespace hops {
             stateNegativeLogLikelihood = ModelType::computeNegativeLogLikelihood(this->proposal.getState());
             std::vector<std::string> modelDimensionNames = ModelType::getDimensionNames();
             if (!modelDimensionNames.empty()) {
-                // If the model does provide dimension names, update the proposal dimension names
+                // If the model does provide dimension names, update the m_proposal dimension names
                 this->proposal.setDimensionNames(modelDimensionNames);
             }
         }
@@ -210,6 +209,6 @@ namespace hops {
     void ModelMixin<ProposalType, ModelType>::setDimensionNames(const std::vector<std::string> &names) {
         proposal.setDimensionNames(names);
     }
-}
+}// namespace hops
 
-#endif //HOPS_MODELMIXIN_HPP
+#endif//HOPS_MODELMIXIN_HPP

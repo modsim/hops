@@ -25,8 +25,8 @@ namespace hops {
         void write(const std::string &description, const Eigen::VectorXd &vector) const override;
 
     private:
-        std::string path;
-        int outputPrecision;
+        std::string m_path;
+        int m_outputPrecision;
     };
 }
 

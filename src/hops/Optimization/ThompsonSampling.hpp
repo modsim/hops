@@ -113,7 +113,7 @@ namespace hops {
 
                 //double newKernelSigma = 2*(data.getObservedValues().array() + data.getObservedValueErrors().array().sqrt()).maxCoeff();
                 //double newKernelSigma = data.getObservedValues().array().maxCoeff();
-                //newKernelSigma = ( newKernelSigma == 0 ? initialGP.getKernel().sigma : newKernelSigma );
+                //newKernelSigma = ( newKernelSigma == 0 ? initialGP.getKernel().m_sigma : newKernelSigma );
                 //gp.setKernelSigma(newKernelSigma);
 
                 // check maximum of posterior mean and increment counter, if the index didnt change

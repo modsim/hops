@@ -18,11 +18,11 @@ namespace hops {
     public:
 
         /**
-         * @brief Constructs classical Gaussian random walk proposal mechanism on polytope defined as Ax<b.
+         * @brief Constructs classical Gaussian random walk m_proposal mechanism on polytope defined as Ax<b.
          * @param A
          * @param b
          * @param currentState
-         * @param stepSize         The standard deviation of the isotropic Gaussian proposal distribution
+         * @param stepSize         The standard deviation of the isotropic Gaussian m_proposal distribution
          */
         GaussianProposal(InternalMatrixType A, InternalVectorType b, VectorType currentState, double stepSize = 1);
 

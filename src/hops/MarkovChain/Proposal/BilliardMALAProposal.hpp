@@ -28,7 +28,7 @@ namespace hops {
     class BilliardMALAProposal : public Proposal, public ModelType {
     public:
         /**
-         * @brief Constructs proposal mechanism on polytope defined as Ax<b.
+         * @brief Constructs m_proposal mechanism on polytope defined as Ax<b.
          * @param A
          * @param b
          * @param currentState
@@ -42,7 +42,7 @@ namespace hops {
 
 
         /**
-         * @brief Constructs proposal mechanism on polytope defined as Ax<b.
+         * @brief Constructs m_proposal mechanism on polytope defined as Ax<b.
          * @param A
          * @param b
          * @param currentState
@@ -178,7 +178,7 @@ namespace hops {
         proposalLogSqrtDeterminant = stateLogSqrtDeterminant;
 
         if (!ModelType::getDimensionNames().empty()) {
-            assert(ModelType::getDimensionNames().size() == this->state.rows());
+            assert(ModelType::getDimensionNames().size() == static_cast<std::size_t>(this->state.rows()));
             this->dimensionNames = ModelType::getDimensionNames();
         } else {
             this->dimensionNames = hops::createDefaultDimensionNames(this->state.rows());

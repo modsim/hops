@@ -94,15 +94,15 @@ Collaboration diagram for hops::GaussianStepDistribution&lt; RealType &gt;:</div
 Public Member Functions</h2></td></tr>
 <tr class="memitem:aa087422b6ce11adfbaa3ac12aa5aa593"><td class="memItemLeft" align="right" valign="top">RealType&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classhops_1_1GaussianStepDistribution.html#aa087422b6ce11adfbaa3ac12aa5aa593">draw</a> (<a class="el" href="namespacehops.html#a4837284c9fec620d40b219a6fdce794e">RandomNumberGenerator</a> &amp;randomNumberGenerator, RealType lowerLimit, RealType upperLimit)</td></tr>
 <tr class="separator:aa087422b6ce11adfbaa3ac12aa5aa593"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af5f41f578747cc1db4ac920558bd31b2"><td class="memItemLeft" align="right" valign="top">RealType&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classhops_1_1GaussianStepDistribution.html#af5f41f578747cc1db4ac920558bd31b2">draw</a> (<a class="el" href="namespacehops.html#a4837284c9fec620d40b219a6fdce794e">RandomNumberGenerator</a> &amp;randomNumberGenerator, double sigma, RealType lowerLimit, RealType upperLimit)</td></tr>
+<tr class="memitem:af5f41f578747cc1db4ac920558bd31b2"><td class="memItemLeft" align="right" valign="top">RealType&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classhops_1_1GaussianStepDistribution.html#af5f41f578747cc1db4ac920558bd31b2">draw</a> (<a class="el" href="namespacehops.html#a4837284c9fec620d40b219a6fdce794e">RandomNumberGenerator</a> &amp;randomNumberGenerator, double m_sigma, RealType lowerLimit, RealType upperLimit)</td></tr>
 <tr class="separator:af5f41f578747cc1db4ac920558bd31b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a966180ef6ddb27f77b13d17a3554486f"><td class="memItemLeft" align="right" valign="top">RealType&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classhops_1_1GaussianStepDistribution.html#a966180ef6ddb27f77b13d17a3554486f">getStepSize</a> () const</td></tr>
 <tr class="separator:a966180ef6ddb27f77b13d17a3554486f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0e831b25292c4ce96e937cb651f5a381"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classhops_1_1GaussianStepDistribution.html#a0e831b25292c4ce96e937cb651f5a381">setStepSize</a> (RealType newStepSize)</td></tr>
 <tr class="separator:a0e831b25292c4ce96e937cb651f5a381"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aee7c8e904e56d92b562b1861b0603834"><td class="memItemLeft" align="right" valign="top">RealType&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classhops_1_1GaussianStepDistribution.html#aee7c8e904e56d92b562b1861b0603834">computeInverseNormalizationConstant</a> (RealType sigma, RealType lowerBound, RealType upperBound)</td></tr>
+<tr class="memitem:aee7c8e904e56d92b562b1861b0603834"><td class="memItemLeft" align="right" valign="top">RealType&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classhops_1_1GaussianStepDistribution.html#aee7c8e904e56d92b562b1861b0603834">computeInverseNormalizationConstant</a> (RealType m_sigma, RealType m_lowerBound, RealType m_upperBound)</td></tr>
 <tr class="separator:aee7c8e904e56d92b562b1861b0603834"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7515c45d29beee0296c81ee4610898b0"><td class="memItemLeft" align="right" valign="top">RealType&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classhops_1_1GaussianStepDistribution.html#a7515c45d29beee0296c81ee4610898b0">computeProbabilityDensity</a> (RealType x, RealType sigma, RealType lowerBound, RealType upperBound)</td></tr>
+<tr class="memitem:a7515c45d29beee0296c81ee4610898b0"><td class="memItemLeft" align="right" valign="top">RealType&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classhops_1_1GaussianStepDistribution.html#a7515c45d29beee0296c81ee4610898b0">computeProbabilityDensity</a> (RealType x, RealType m_sigma, RealType m_lowerBound, RealType m_upperBound)</td></tr>
 <tr class="separator:a7515c45d29beee0296c81ee4610898b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Function Documentation</h2>
@@ -121,19 +121,19 @@ template&lt;typename RealType  = double&gt; </div>
           <td class="memname">RealType <a class="el" href="classhops_1_1GaussianStepDistribution.html">hops::GaussianStepDistribution</a>&lt; RealType &gt;::computeInverseNormalizationConstant </td>
           <td>(</td>
           <td class="paramtype">RealType&#160;</td>
-          <td class="paramname"><em>sigma</em>, </td>
+          <td class="paramname"><em>m_sigma</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">RealType&#160;</td>
-          <td class="paramname"><em>lowerBound</em>, </td>
+          <td class="paramname"><em>m_lowerBound</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">RealType&#160;</td>
-          <td class="paramname"><em>upperBound</em>&#160;</td>
+          <td class="paramname"><em>m_upperBound</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -171,19 +171,19 @@ template&lt;typename RealType  = double&gt; </div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">RealType&#160;</td>
-          <td class="paramname"><em>sigma</em>, </td>
+          <td class="paramname"><em>m_sigma</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">RealType&#160;</td>
-          <td class="paramname"><em>lowerBound</em>, </td>
+          <td class="paramname"><em>m_lowerBound</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">RealType&#160;</td>
-          <td class="paramname"><em>upperBound</em>&#160;</td>
+          <td class="paramname"><em>m_upperBound</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -221,7 +221,7 @@ template&lt;typename RealType  = double&gt; </div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>sigma</em>, </td>
+          <td class="paramname"><em>m_sigma</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>

@@ -43,12 +43,12 @@ namespace {
         }
 
         [[nodiscard]] std::optional<hops::VectorType>
-        computeLogLikelihoodGradient(const hops::VectorType &x) override {
+        computeLogLikelihoodGradient(const hops::VectorType &) override {
             return hops::VectorType::Ones(1);
         }
 
         [[nodiscard]] std::optional<hops::MatrixType>
-        computeExpectedFisherInformation(const hops::VectorType &type) override {
+        computeExpectedFisherInformation(const hops::VectorType &) override {
             return hops::MatrixType::Identity(1, 1);
         }
 

@@ -16,11 +16,11 @@ namespace hops {
     class BallWalkProposal : public Proposal {
     public:
         /**
-         * @brief Constructs BallWalk proposal mechanism on polytope defined as Ax<b.
+         * @brief Constructs BallWalk m_proposal mechanism on polytope defined as Ax<b.
          * @param A
          * @param b
          * @param currentState
-         * @param stepSize The radius of the ball from which the proposal move is drawn
+         * @param stepSize The radius of the ball from which the m_proposal move is drawn
          */
         BallWalkProposal(InternalMatrixType A, InternalVectorType b, VectorType currentState, double stepSize = 1);
 
@@ -100,14 +100,14 @@ namespace hops {
     template<typename InternalMatrixType, typename InternalVectorType>
     VectorType &BallWalkProposal<InternalMatrixType, InternalVectorType>::propose(
             RandomNumberGenerator &randomNumberGenerator) {
-        // Creates proposal on Ballsurface
+        // Creates m_proposal on Ballsurface
         for (long i = 0; i < proposal.rows(); ++i) {
             proposal(i) = normal(randomNumberGenerator);
         }
         proposal.normalize();
-        // Scales proposal to radius of Ball
+        // Scales m_proposal to radius of Ball
         proposal.noalias() = stepSize * proposal;
-        // Scales proposal into Ball
+        // Scales m_proposal into Ball
         proposal.noalias() = std::pow(uniform(randomNumberGenerator), 1. / proposal.rows()) * proposal;
         proposal.noalias() += state;
 

@@ -67,11 +67,10 @@ namespace hops {
         bool isSymmetric() const override;
 
     private:
-        VectorType state;
-        VectorType proposal;
-
         InternalMatrixType A;
         InternalVectorType b;
+        VectorType state;
+        VectorType proposal;
         InternalVectorType slacks;
         InternalVectorType inverseDistances;
 
@@ -353,7 +352,7 @@ namespace hops {
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
     bool
     HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::isSymmetric() const {
-        // As soon as there is a step size the polytope borders and normalization will make the proposal asymmetric.
+        // As soon as there is a step size the polytope borders and normalization will make the m_proposal asymmetric.
         if (getStepSize()) {
             return false;
         }

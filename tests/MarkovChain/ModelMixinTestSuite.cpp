@@ -12,15 +12,13 @@
 
 namespace {
     class ModelMock : public hops::Model {
+    private:
+        double internal_state =0;
+
     public:
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "readability-convert-member-functions-to-static"
-
         [[nodiscard]] double computeNegativeLogLikelihood(const Eigen::VectorXd &state) override {
-            return state(0);
+            return state(0)+internal_state;
         }
-
-#pragma clang diagnostic pop
 
         [[nodiscard]] std::vector<std::string> getDimensionNames() const override {
             return std::vector<std::string>{"correct name"};

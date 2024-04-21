@@ -37,25 +37,25 @@ namespace hops {
         };
 
         /**
-         * @Brief Calculates detailed balance using internal proposal. Saves one copy operation compared to
-         computeLogAcceptanceProbability(const VectorType& proposal).
-         * @detailed Potentially changes internal state, because quantities related to the proposal might have to be evaluated in order to calculate the correct probability.
+         * @Brief Calculates detailed balance using internal m_proposal. Saves one copy operation compared to
+         computeLogAcceptanceProbability(const VectorType& m_proposal).
+         * @detailed Potentially changes internal state, because quantities related to the m_proposal might have to be evaluated in order to calculate the correct probability.
          */
         [[nodiscard]] virtual double computeLogAcceptanceProbability() = 0;
 
         /**
-         * @Brief Accepts latest proposal as new state and then returns new state.
-         * @Detailed Might use optimizations with internal data to speed up accepting proposal. Therefore,
+         * @Brief Accepts latest m_proposal as new state and then returns new state.
+         * @Detailed Might use optimizations with internal data to speed up accepting m_proposal. Therefore,
          * it has no input data, because all data is moved internally. The internal data manipulations happen
          * inside of computeLogAcceptanceProbability.
-         * WARNING: Potentially destroys internal representation of proposal statistics
+         * WARNING: Potentially destroys internal representation of m_proposal statistics
          */
         virtual VectorType &acceptProposal() = 0;
 
         /**
-         * @Brief Sets new state to start from. Useful for resuming sampling. DO NOT use it to accept a proposal, as it is computationally heavier than acceptProposal!
-         * @Detailed setState can not do internal optimizations when using it to set the proposal. Therefore, never use
-         * it to set an accepted proposal. Use acceptProposal() instead.
+         * @Brief Sets new state to start from. Useful for resuming sampling. DO NOT use it to accept a m_proposal, as it is computationally heavier than acceptProposal!
+         * @Detailed setState can not do internal optimizations when using it to set the m_proposal. Therefore, never use
+         * it to set an accepted m_proposal. Use acceptProposal() instead.
          */
         virtual void setState(const VectorType &state) = 0;
 
@@ -81,7 +81,7 @@ namespace hops {
         [[nodiscard]] virtual std::vector<std::string> getDimensionNames() const = 0;
 
         /**
-         * @brief returns names of parameters of the underlying proposal implementation.
+         * @brief returns names of parameters of the underlying m_proposal implementation.
          * @return
          */
         [[nodiscard]] virtual std::vector<std::string> getParameterNames() const = 0;
@@ -106,14 +106,14 @@ namespace hops {
         virtual void setParameter(const ProposalParameter &parameter, const std::any &value) = 0;
 
         /**
-         * @Brief Returns name of proposal class.
+         * @Brief Returns name of m_proposal class.
          */
         [[nodiscard]] virtual std::string getProposalName() const = 0;
 
         /**
          * @brief Returns the negative log likelihood value associated with the current state.
-         * @details This function is only useful, if the underlying proposal implementation has access to the model.
-         * If the proposal implementation does not have access, it returns 0.
+         * @details This function is only useful, if the underlying m_proposal implementation has access to the model.
+         * If the m_proposal implementation does not have access, it returns 0.
          */
         [[nodiscard]] virtual double getStateNegativeLogLikelihood() {
             return 0.;
@@ -121,8 +121,8 @@ namespace hops {
 
         /**
          * @brief Returns the negative log likelihood value associated with the currently proposed state.
-         * @details This function is only useful, if the underlying proposal implementation has access to the model.
-         * If the proposal implementation does not have access, it returns 0.
+         * @details This function is only useful, if the underlying m_proposal implementation has access to the model.
+         * If the m_proposal implementation does not have access, it returns 0.
          */
         [[nodiscard]] virtual double getProposalNegativeLogLikelihood() {
             return 0.;
@@ -133,7 +133,7 @@ namespace hops {
         };
 
         /**
-         * @Brief returns whether proposal is symmetric or not.
+         * @Brief returns whether m_proposal is symmetric or not.
          */
         [[nodiscard]] virtual bool isSymmetric() const {
             return false;

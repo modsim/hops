@@ -16,7 +16,7 @@ namespace hops {
         ~ProposalFactory() = default;
 
         /**
-         * @brief Creates model and likelihood unaware proposal.
+         * @brief Creates model and likelihood unaware m_proposal.
          * @param inequalityLhs
          * @param inequalityRhs
          * @param startingPoint
@@ -27,7 +27,7 @@ namespace hops {
                                                          VectorType startingPoint) = 0;
 
         /**
-         * @brief Creates model and likelihood unaware proposal.
+         * @brief Creates model and likelihood unaware m_proposal.
          * @param inequalityLhs
          * @param inequalityRhs
          * @param startingPoint
@@ -38,9 +38,9 @@ namespace hops {
                                                          VectorType startingPoint) = 0;
 
         /**
-         * @brief Creates model aware proposal. These proposals might use any of the functions
+         * @brief Creates model aware m_proposal. These proposals might use any of the functions
          * of the model interface.
-         * @param model the factory transfers ownership of the model to the proposal. This is enforced by
+         * @param model the factory transfers ownership of the model to the m_proposal. This is enforced by
          * passing the model as unique_ptr.
          * @param inequalityLhs
          * @param inequalityRhs
@@ -53,9 +53,9 @@ namespace hops {
                                                          VectorType startingPoint) = 0;
 
         /**
-         * @brief Creates model aware proposal. These proposals might use any of the functions
+         * @brief Creates model aware m_proposal. These proposals might use any of the functions
          * of the model interface.
-         * @param model the factory transfers ownership of the model to the proposal. This is enforced by
+         * @param model the factory transfers ownership of the model to the m_proposal. This is enforced by
          * passing the model as unique_ptr.
          * @param inequalityLhs
          * @param inequalityRhs

@@ -13,26 +13,25 @@ namespace hops {
     class TruncatedNormalDistribution {
     public:
         struct param_type {
-            RealType sigma;
-            RealType lowerBound = -std::numeric_limits<RealType>::infinity();
-            RealType upperBound = std::numeric_limits<RealType>::infinity();
-            RealType phiLower;
-            RealType phiUpper;
+            RealType m_sigma;
+            RealType m_lowerBound = -std::numeric_limits<RealType>::infinity();
+            RealType m_upperBound = std::numeric_limits<RealType>::infinity();
+            RealType m_phiLower;
+            RealType m_phiUpper;
 
             void setPhi() {
-                if (lowerBound != -std::numeric_limits<RealType>::infinity())
-                    phiLower = Phi(lowerBound / sigma);
+                if (m_lowerBound != -std::numeric_limits<RealType>::infinity())
+                    m_phiLower = Phi(m_lowerBound / m_sigma);
                 else
-                    phiLower = 0;
+                    m_phiLower = 0;
 
-                if (upperBound != std::numeric_limits<RealType>::infinity())
-                    phiUpper = Phi(upperBound / sigma);
+                if (m_upperBound != std::numeric_limits<RealType>::infinity())
+                    m_phiUpper = Phi(m_upperBound / m_sigma);
                 else
-                    phiUpper = 1;
+                    m_phiUpper = 1;
             }
 
-            param_type(RealType sigma, RealType lowerBound, RealType upperBound) :
-                    sigma(sigma), lowerBound(lowerBound), upperBound(upperBound) {
+            param_type(RealType sigma, RealType lowerBound, RealType upperBound) : m_sigma(sigma), m_lowerBound(lowerBound), m_upperBound(upperBound) {
                 setPhi();
             }
         };
@@ -44,7 +43,7 @@ namespace hops {
         }
 
         RealType inverseNormalization(const param_type &params) {
-            return params.phiUpper - params.phiLower;
+            return params.m_phiUpper - params.m_phiLower;
         }
 
         RealType probabilityDensity(RealType x, RealType sigma, RealType lowerBound, RealType upperBound){
@@ -54,9 +53,9 @@ namespace hops {
 
     private:
         RealType inverseCumulativeDensityFunction(RealType x, const param_type &params) const {
-            x *= params.phiUpper - params.phiLower;
-            x += params.phiLower;
-            return inv_Phi(x) * params.sigma;
+            x *= params.m_phiUpper - params.m_phiLower;
+            x += params.m_phiLower;
+            return inv_Phi(x) * params.m_sigma;
         }
 
         std::uniform_real_distribution<> uniformRealDistribution{0, 1};
