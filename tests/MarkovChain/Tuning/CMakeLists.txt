@@ -1,3 +1,4 @@
+if (HOPS_TUNING)
 set(TEST_SOURCES
         AcceptanceRateTunerTestSuite.cpp
         BinarySearchAcceptanceRateTunerTestSuite.cpp
@@ -13,3 +14,4 @@ foreach (TEST_SOURCE ${TEST_SOURCES})
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
             COMMAND ${TEST_NAME} --log_format=JUNIT --log_sink=${PROJECT_BINARY_DIR}/tests/reports/${TEST_NAME}.xml)
 endforeach (TEST_SOURCE)
+endif (HOPS_TUNING)

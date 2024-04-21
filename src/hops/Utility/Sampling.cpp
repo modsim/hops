@@ -32,7 +32,7 @@ bool hops::Sampling::tuneChain(hops::RandomNumberGenerator &randomNumberGenerato
             1);
 
 
-    hops::MatrixType data;
+    hops::MatrixType data = MatrixType::Zero(markovChain->getState().rows(), 6);
     double deltaAcceptanceRate = 1;
     hops::VectorType stepSize(1);
     double measuredAcceptanceRate = -1;
@@ -65,7 +65,8 @@ bool hops::Sampling::tuneChain(hops::RandomNumberGenerator &randomNumberGenerato
         stream << "tuning iter: " << tuningIteration << " " << hops::markovChainTypeToShortString(chainType) << " s: "
                << stepSize(0) << " alpha: "
                << measuredAcceptanceRate
-               << " (delta: " << deltaAcceptanceRate << ")" << " u: " << upperLimitStepSize << " l: "
+               << " (delta: " << deltaAcceptanceRate << ")"
+               << " u: " << upperLimitStepSize << " l: "
                << lowerLimitStepSize << std::endl;
 
         fileWriter->write("tuning_debug_info", std::vector<std::string>{stream.str()});

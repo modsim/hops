@@ -7,10 +7,17 @@ if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
             LogSqrtDeterminant.hpp
             KahanSum.cpp
             MatrixType.hpp
-            Sampling.hpp
-            Sampling.cpp
             StringUtility.hpp
             StringUtility.cpp
             VectorType.hpp
-            )
+    )
 endif (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
+
+if (HOPS_TUNING)
+    if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
+        target_sources(hops PRIVATE
+                Sampling.hpp
+                Sampling.cpp
+        )
+    endif (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
+endif (HOPS_TUNING)

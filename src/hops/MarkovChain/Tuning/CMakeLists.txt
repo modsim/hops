@@ -1,4 +1,4 @@
-if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
+if (HOPS_TUNING)
     target_sources(hops PRIVATE
             AcceptanceRateTarget.hpp
             AcceptanceRateTarget.cpp
@@ -11,5 +11,5 @@ if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
             ExpectedSquaredJumpDistanceTuner.cpp
             ThompsonSamplingTuner.hpp
             ThompsonSamplingTuner.cpp
-            )
-endif (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
+    )
+endif (HOPS_TUNING)
