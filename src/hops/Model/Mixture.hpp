@@ -69,7 +69,7 @@ namespace hops {
                            negLogLikelihoods.end(),
                            weights.begin(),
                            std::back_inserter(weightedLikelihoods),
-                           [&x, &minNegLogLikeIt](double negLogLikelihood, double weight) {
+                           [&minNegLogLikeIt](double negLogLikelihood, double weight) {
                                return weight * std::exp(*minNegLogLikeIt - negLogLikelihood);
                            }
             );

@@ -5,7 +5,7 @@ std::optional<hops::MatrixType> hops::JumpableModel<std::unique_ptr<hops::Model>
 }
 
 std::unique_ptr<hops::Model> hops::JumpableModel<std::unique_ptr<hops::Model>>::copyModel() const {
-    return std::make_unique<JumpableModel<std::unique_ptr<Model>>>(std::move(modelImpl->copyModel()));
+    return std::make_unique<JumpableModel<std::unique_ptr<Model>>>(modelImpl->copyModel());
 }
 
 std::optional<hops::VectorType> hops::JumpableModel<std::unique_ptr<hops::Model>>::computeLogLikelihoodGradient(const VectorType &x) {
