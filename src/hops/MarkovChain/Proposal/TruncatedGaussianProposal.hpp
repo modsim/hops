@@ -99,6 +99,7 @@ namespace hops {
         MatrixType whitenedA;
         VectorType whitenedB;
         InternalVectorType slacks;
+        double coldness = 1;
     };
 
     template<typename InternalMatrixType, typename InternalVectorType>
@@ -224,21 +225,25 @@ namespace hops {
     template<typename InternalMatrixType, typename InternalVectorType>
     std::vector<std::string>
     TruncatedGaussianProposal<InternalMatrixType, InternalVectorType>::getParameterNames() const {
-        return {};
+        return {"coldness"};
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
     std::any
     TruncatedGaussianProposal<InternalMatrixType, InternalVectorType>::getParameter(
-            const ProposalParameter &) const {
-        throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
+            const ProposalParameter &parameter) const {
+        if (parameter == ProposalParameter::COLDNESS) {
+            return coldness;
+        } else {
+            throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
+        }
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
     std::string
     TruncatedGaussianProposal<InternalMatrixType, InternalVectorType>::getParameterType(
             const ProposalParameter &parameter) const {
-        if (parameter == ProposalParameter::STEP_SIZE) {
+        if (parameter == ProposalParameter::COLDNESS) {
             return "double";
         } else {
             throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
@@ -247,8 +252,12 @@ namespace hops {
 
     template<typename InternalMatrixType, typename InternalVectorType>
     void TruncatedGaussianProposal<InternalMatrixType, InternalVectorType>::setParameter(
-            const ProposalParameter &, const std::any &) {
-        throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
+            const ProposalParameter &parameter, const std::any &value) {
+        if (parameter == ProposalParameter::COLDNESS) {
+            coldness = std::any_cast<double>(value);
+        } else {
+            throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
+        }
     }
 
     template<typename InternalMatrixType, typename InternalVectorType>
