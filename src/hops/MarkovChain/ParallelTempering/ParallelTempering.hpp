@@ -38,7 +38,7 @@ namespace hops {
             int chainIndex;
             MPI_Comm_rank(communicator, &chainIndex);
             int largestChainIndex = numberOfChains == 1 ? 1 : numberOfChains - 1;
-            MarkovChainImpl::setColdness(1. - static_cast<double>(chainIndex) / largestChainIndex);
+            this->setColdness(1. - static_cast<double>(chainIndex) / largestChainIndex);
         }
 
         double draw(RandomNumberGenerator &randomNumberGenerator) {
@@ -76,9 +76,17 @@ namespace hops {
             return false;
         }
 
+        double getColdness() {
+            static_cast<double>(this->getParameter(ProposalParameter::COLDNESS));
+        }
+
+        void setColdness(double value) {
+            this->setParameter(ProposalParameter::COLDNESS, value);
+        }
+
         double computeExchangeAcceptanceProbability(int otherChainRank) {
             double coldness = this->getColdness();
-            double coldNegativeLogLikelihood = this->getStateNegativeLogLikelihood() / coldness;
+            double coldNegativeLogLikelihood = this->getStateNegativeLogLikelihood();
             double thisChainProperties[] = {
                     coldness,
                     coldNegativeLogLikelihood
@@ -154,16 +162,17 @@ namespace hops {
     class ParallelTempering : public MarkovChainImpl {
     public:
         ParallelTempering(const MarkovChainImpl &markovChainImpl // NOLINT(cppcoreguidelines-pro-type-member-init)
-                          ) : MarkovChainImpl(markovChainImpl) {
+        ) : MarkovChainImpl(markovChainImpl) {
             throw std::runtime_error("MPI not supported on current platform");
         }
+
         ParallelTempering(const MarkovChainImpl &markovChainImpl, // NOLINT(cppcoreguidelines-pro-type-member-init)
                           RandomNumberGenerator synchronizedRandomNumberGenerator) : MarkovChainImpl(markovChainImpl) {
             throw std::runtime_error("MPI not supported on current platform");
         }
 
         ParallelTempering(const MarkovChainImpl &markovChainImpl, // NOLINT(cppcoreguidelines-pro-type-member-init)
-                            RandomNumberGenerator,
+                          RandomNumberGenerator,
                           double) : MarkovChainImpl(markovChainImpl) {
             throw std::runtime_error("MPI not supported on current platform");
         }

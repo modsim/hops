@@ -6,7 +6,6 @@
 #include <random>
 
 #include "hops/MarkovChain/ParallelTempering/ParallelTempering.hpp"
-#include "hops/MarkovChain/ParallelTempering/Coldness.hpp"
 #include "hops/RandomNumberGenerator/RandomNumberGenerator.hpp"
 
 namespace {
@@ -45,8 +44,7 @@ BOOST_AUTO_TEST_SUITE(ParallelTempering)
     BOOST_AUTO_TEST_CASE(assertCorrectNumberOfProcessesAreRun) {
         int expectedNumberOfProcesses = 3; // Defined in CMakeLists.txt
         ProposalMock markovChainMock;
-        hops::Coldness mockWithColdness(markovChainMock);
-        hops::ParallelTempering parallelTempering(mockWithColdness,
+        hops::ParallelTempering parallelTempering(markovChainMock,
                                                   hops::RandomNumberGenerator(0),
                                                   0.00005);
         MPI_Comm TEST_COMMUNICATOR;
@@ -58,8 +56,7 @@ BOOST_AUTO_TEST_SUITE(ParallelTempering)
 
     BOOST_AUTO_TEST_CASE(shouldSetChainTemperaturesCorrectly) {
         ProposalMock markovChainMock;
-        hops::Coldness mockWithColdness(markovChainMock);
-        hops::ParallelTempering parallelTempering(mockWithColdness,
+        hops::ParallelTempering parallelTempering(markovChainMock,
                                                   hops::RandomNumberGenerator(0),
                                                   0.00005);
         MPI_Comm TEST_COMMUNICATOR;
@@ -73,10 +70,9 @@ BOOST_AUTO_TEST_SUITE(ParallelTempering)
 
     BOOST_AUTO_TEST_CASE(shouldProposeExchance_RngStateRemainsInSync) {
         ProposalMock markovChainMock;
-        hops::Coldness mockWithColdness(markovChainMock);
         hops::RandomNumberGenerator sharedRandomNumberGenerator(42);
         hops::RandomNumberGenerator checkPoint = sharedRandomNumberGenerator;
-        hops::ParallelTempering parallelTempering(mockWithColdness,
+        hops::ParallelTempering parallelTempering(markovChainMock,
                                                   sharedRandomNumberGenerator,
                                                   1);
         MPI_Comm TEST_COMMUNICATOR;
@@ -103,9 +99,8 @@ BOOST_AUTO_TEST_SUITE(ParallelTempering)
 
     BOOST_AUTO_TEST_CASE(processesAgreeOnExchangePair_test) {
         ProposalMock markovChainMock;
-        hops::Coldness mockWithColdness(markovChainMock);
         hops::RandomNumberGenerator sharedRandomNumberGenerator(42);
-        hops::ParallelTempering parallelTempering(mockWithColdness,
+        hops::ParallelTempering parallelTempering(markovChainMock,
                                                   sharedRandomNumberGenerator,
                                                   0.05);
 
@@ -140,9 +135,8 @@ BOOST_AUTO_TEST_SUITE(ParallelTempering)
 
     BOOST_AUTO_TEST_CASE(processesAgreeOnExchangeProbability_test) {
         ProposalMock markovChainMock;
-        hops::Coldness mockWithColdness(markovChainMock);
         hops::RandomNumberGenerator sharedRandomNumberGenerator(42);
-        hops::ParallelTempering parallelTempering(mockWithColdness,
+        hops::ParallelTempering parallelTempering(markovChainMock,
                                                   sharedRandomNumberGenerator,
                                                   0.5);
 
@@ -181,9 +175,8 @@ BOOST_AUTO_TEST_SUITE(ParallelTempering)
 
     BOOST_AUTO_TEST_CASE(processesCanExchangeState_test) {
         ProposalMock markovChainMock;
-        hops::Coldness<ProposalMock> markovChainMockWithColdnessAttribute(markovChainMock, 0.5);
         hops::RandomNumberGenerator sharedRandomNumberGenerator(42);
-        hops::ParallelTempering parallelTempering(markovChainMockWithColdnessAttribute,
+        hops::ParallelTempering parallelTempering(markovChainMock,
                                                   sharedRandomNumberGenerator,
                                                   0.5);
 
@@ -215,11 +208,10 @@ BOOST_AUTO_TEST_SUITE(ParallelTempering)
 
     BOOST_AUTO_TEST_CASE(processesStayInSync_test) {
         ProposalMock markovChainMock;
-        hops::Coldness<ProposalMock> markovChainMockWithColdnessAttribute(markovChainMock, 0.5);
         hops::RandomNumberGenerator sharedRandomNumberGenerator(42);
         hops::RandomNumberGenerator checkPoint = sharedRandomNumberGenerator;
 
-        hops::ParallelTempering parallelTempering(markovChainMockWithColdnessAttribute,
+        hops::ParallelTempering parallelTempering(markovChainMock,
                                                   sharedRandomNumberGenerator,
                                                   0.5);
 

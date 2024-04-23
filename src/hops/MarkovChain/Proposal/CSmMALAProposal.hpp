@@ -111,6 +111,7 @@ namespace hops {
         MatrixType proposalMetric;
 
         double stepSize = 1;
+        double coldness = 1;
         double fisherWeight = .5;
         double fisherScale = 1.;
         double geometricFactor = 0;
@@ -266,6 +267,7 @@ namespace hops {
             proposalMetric += (1 - fisherWeight) * dikinEllipsoid;
 
         }
+        proposalMetric = coldness*coldness*proposalMetric;
         proposalSolver = Eigen::LLT<MatrixType>(proposalMetric);
         if (proposalSolver.info() != Eigen::Success) {
             // state is not valid, because metric is not positive definite.
@@ -283,8 +285,8 @@ namespace hops {
                 static_cast<double>((driftedState - proposal).transpose() * stateMetric * (driftedState - proposal)) -
                 static_cast<double>((state - driftedProposal).transpose() * proposalMetric * (state - driftedProposal));
 
-        return -proposalNegativeLogLikelihood
-               + stateNegativeLogLikelihood
+        return coldness*(-proposalNegativeLogLikelihood
+               + stateNegativeLogLikelihood)
                + proposalLogSqrtDeterminant
                - stateLogSqrtDeterminant
                + geometricFactor * normDifference;
@@ -325,16 +327,17 @@ namespace hops {
 
     template<typename ModelType, typename InternalMatrixType>
     std::vector<std::string> CSmMALAProposal<ModelType, InternalMatrixType>::getParameterNames() const {
-        return {"step_size", "fisher_weight"};
+        return {"step_size", "fisher_weight", "coldness"};
     }
 
     template<typename ModelType, typename InternalMatrixType>
     std::any CSmMALAProposal<ModelType, InternalMatrixType>::getParameter(const ProposalParameter &parameter) const {
         if (parameter == ProposalParameter::STEP_SIZE) {
             return std::any(this->stepSize);
-        }
-        if (parameter == ProposalParameter::FISHER_WEIGHT) {
+        } else if (parameter == ProposalParameter::FISHER_WEIGHT) {
             return std::any(this->fisherWeight);
+        } else if (parameter == ProposalParameter::COLDNESS) {
+            return std::any(this->coldness);
         }
         throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
     }
@@ -345,6 +348,8 @@ namespace hops {
         if (parameter == ProposalParameter::STEP_SIZE) {
             return "double";
         } else if (parameter == ProposalParameter::FISHER_WEIGHT) {
+            return "double";
+        } else if (parameter == ProposalParameter::COLDNESS) {
             return "double";
         } else {
             throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
@@ -360,6 +365,8 @@ namespace hops {
             fisherWeight = std::any_cast<double>(value);
             // internal changes of setStepSize are a function of the value of fisherWeight, therefore recalculate here.
             setStepSize((this->stepSize));
+        } else if (parameter == ProposalParameter::COLDNESS) {
+            coldness = std::any_cast<double>(value);
         } else {
             throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
         }

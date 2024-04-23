@@ -177,14 +177,16 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
                 defaultValues);
 
         std::vector<std::string> expectedParameterNames = {
+                "coldness",
                 "step_size",
                 "model_jump_probability",
                 "activation_probability",
-                "deactivation_probability"};
+                "deactivation_probability",
+        };
 
         auto actualParameterNames = RJMCMCProposal.getParameterNames();
         BOOST_CHECK_EQUAL(actualParameterNames.size(), expectedParameterNames.size());
-        for (long i = 0; i < actualParameterNames.size(); ++i) {
+        for (size_t i = 0; i < actualParameterNames.size(); ++i) {
             BOOST_CHECK_EQUAL(actualParameterNames[i], expectedParameterNames[i]);
         }
     }
@@ -214,7 +216,7 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
 
         auto actualDimensionNames = RJMCMCProposal.getDimensionNames();
         BOOST_CHECK(actualDimensionNames.size() == expectedDimensionNames.size());
-        for (long i = 0; i < actualDimensionNames.size(); ++i) {
+        for (size_t i = 0; i < actualDimensionNames.size(); ++i) {
             BOOST_CHECK_EQUAL(actualDimensionNames[i], expectedDimensionNames[i]);
         }
 
@@ -229,7 +231,7 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
         RJMCMCProposal.setDimensionNames({"location_2", "scale_2", "shape_2"});
         actualDimensionNames = RJMCMCProposal.getDimensionNames();
         BOOST_CHECK_EQUAL(actualDimensionNames.size(), expectedDimensionNames.size());
-        for (long i = 0; i < actualDimensionNames.size(); ++i) {
+        for (size_t i = 0; i < actualDimensionNames.size(); ++i) {
             BOOST_CHECK_EQUAL(actualDimensionNames[i], expectedDimensionNames[i]);
         }
     }

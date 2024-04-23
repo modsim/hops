@@ -4,14 +4,14 @@
 #include <Eigen/Eigenvalues>
 #include <random>
 #include <optional>
+#include <random>
 #include <utility>
 
 #include "hops/Model/Model.hpp"
-#include "hops/MarkovChain/ParallelTempering/Coldness.hpp"
 #include "hops/Transformation/Transformation.hpp"
 #include "hops/Utility/DefaultDimensionNames.hpp"
-#include "hops/Utility/MatrixType.hpp"
 #include "hops/Utility/LogSqrtDeterminant.hpp"
+#include "hops/Utility/MatrixType.hpp"
 #include "hops/Utility/StringUtility.hpp"
 #include "hops/Utility/VectorType.hpp"
 
@@ -101,9 +101,9 @@ namespace hops {
 
         [[nodiscard]] double computeLogAcceptanceProbability() override;
 
-        const MatrixType &getA() const override;
+        [[nodiscard]] const MatrixType &getA() const override;
 
-        const VectorType &getB() const override;
+        [[nodiscard]] const VectorType &getB() const override;
 
         [[nodiscard]] std::unique_ptr<Model> getModel() const;
 
@@ -143,6 +143,7 @@ namespace hops {
         std::normal_distribution<double> normalDistribution{0., 1.};
 
         long maxNumberOfReflections;
+        double coldness=1;
     };
 
     template<typename ModelType, typename InternalMatrixType>
@@ -172,6 +173,7 @@ namespace hops {
 
         proposal = state;
         unreflectedProposal = state;
+        driftedProposal = driftedState;
         proposalNegativeLogLikelihood = stateNegativeLogLikelihood;
         proposalMetric = stateMetric;
         proposalSolver = stateSolver;
@@ -210,6 +212,7 @@ namespace hops {
 
     template<typename ModelType, typename InternalMatrixType>
     VectorType &BilliardMALAProposal<ModelType, InternalMatrixType>::propose(RandomNumberGenerator &rng) {
+        std::cout << "proposing using codlness " << coldness << std::endl;
         for (long i = 0; i < proposal.rows(); ++i) {
             proposal(i) = normalDistribution(rng);
         }
@@ -327,7 +330,7 @@ namespace hops {
             std::optional<decltype(proposalMetric)> optionalFisherInformation = ModelType::computeExpectedFisherInformation(
                     proposal);
             if (optionalFisherInformation) {
-                proposalMetric = optionalFisherInformation.value();
+                proposalMetric = coldness*coldness*optionalFisherInformation.value();
             } else {
                 proposalMetric = MatrixType::Identity(state.rows(), state.rows());
             }
@@ -352,8 +355,8 @@ namespace hops {
                                     (driftedState - unreflectedProposal)) -
                 static_cast<double>((state - driftedProposal).transpose() * proposalMetric * (state - driftedProposal));
 
-        return -proposalNegativeLogLikelihood
-               + stateNegativeLogLikelihood
+        return coldness * (-proposalNegativeLogLikelihood
+               + stateNegativeLogLikelihood)
                + proposalLogSqrtDeterminant
                - stateLogSqrtDeterminant
                + geometricFactor * normDifference;
@@ -363,7 +366,7 @@ namespace hops {
     VectorType BilliardMALAProposal<ModelType, InternalMatrixType>::computeGradient(VectorType x) {
         std::optional<Eigen::VectorXd> gradient = ModelType::computeLogLikelihoodGradient(x);
         if (gradient) {
-            return gradient.value();
+            return coldness*gradient.value();
         }
         return VectorType::Zero(x.rows());
     }
@@ -390,7 +393,7 @@ namespace hops {
 
     template<typename ModelType, typename InternalMatrixType>
     std::vector<std::string> BilliardMALAProposal<ModelType, InternalMatrixType>::getParameterNames() const {
-        return {"step_size", "max_reflections"};
+        return {"step_size", "max_reflections", "coldness"};
     }
 
     template<typename ModelType, typename InternalMatrixType>
@@ -399,8 +402,11 @@ namespace hops {
         if (parameter == ProposalParameter::STEP_SIZE) {
             return std::any(this->stepSize);
         }
-        if (parameter == ProposalParameter::MAX_REFLECTIONS) {
+        else if (parameter == ProposalParameter::MAX_REFLECTIONS) {
             return std::any(this->maxNumberOfReflections);
+        }
+        else if (parameter == ProposalParameter::COLDNESS) {
+            return std::any(this->coldness);
         }
         throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
     }
@@ -412,6 +418,8 @@ namespace hops {
             return "double";
         } else if (parameter == ProposalParameter::MAX_REFLECTIONS) {
             return "long";
+        } else if (parameter == ProposalParameter::COLDNESS) {
+            return "double";
         } else {
             throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
         }
@@ -424,6 +432,8 @@ namespace hops {
             setStepSize(std::any_cast<double>(value));
         } else if (parameter == ProposalParameter::MAX_REFLECTIONS) {
             maxNumberOfReflections = std::any_cast<long>(value);
+        } else if (parameter == ProposalParameter::COLDNESS) {
+            coldness = std::any_cast<double>(value);
         } else {
             throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
         }
@@ -471,6 +481,6 @@ namespace hops {
     BilliardMALAProposal<ModelType, InternalMatrixType>::getDimensionNames() const {
         return dimensionNames;
     }
-}
+}// namespace hops
 
-#endif //HOPS_BILLIARDMALA_HPP
+#endif//HOPS_BILLIARDMALA_HPP

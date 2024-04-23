@@ -32,6 +32,22 @@ namespace hops {
             }
         }
 
+        ModelMixin(const ProposalType &proposal, const ModelType &model, double coldness) :
+                proposal(proposal),
+                ModelType(model),
+                coldness(coldness) {
+            if (proposal.hasNegativeLogLikelihood()) {
+                throw std::invalid_argument("Can't mix in model with ProposalType that already has likelihood.");
+            }
+            proposalNegativeLogLikelihood = 0;
+            stateNegativeLogLikelihood = ModelType::computeNegativeLogLikelihood(this->proposal.getState());
+            std::vector<std::string> modelDimensionNames = ModelType::getDimensionNames();
+            if (!modelDimensionNames.empty()) {
+                // If the model does provide dimension names, update the proposal dimension names
+                this->proposal.setDimensionNames(modelDimensionNames);
+            }
+        }
+
         VectorType &propose(RandomNumberGenerator &rng) override;
 
         VectorType &propose(RandomNumberGenerator &rng, const Eigen::VectorXd &activeIndices) override;
@@ -80,6 +96,7 @@ namespace hops {
 
     private:
         ProposalType proposal;
+        double coldness = 1.;
         double proposalNegativeLogLikelihood;
         double stateNegativeLogLikelihood;
     };
@@ -101,7 +118,7 @@ namespace hops {
 
         if (std::isfinite(acceptanceProbability)) {
             proposalNegativeLogLikelihood = ModelType::computeNegativeLogLikelihood(proposal.getProposal());
-            acceptanceProbability += stateNegativeLogLikelihood - proposalNegativeLogLikelihood;
+            acceptanceProbability += coldness * (stateNegativeLogLikelihood - proposalNegativeLogLikelihood);
         }
 
         return acceptanceProbability;
@@ -137,22 +154,36 @@ namespace hops {
 
     template<typename ProposalType, typename ModelType>
     std::vector<std::string> ModelMixin<ProposalType, ModelType>::getParameterNames() const {
-        return proposal.getParameterNames();
+        std::vector<std::string> parameterNames = {"coldness"};
+        std::vector<std::string> proposalParameterNames =  proposal.getParameterNames();
+        parameterNames.insert(parameterNames.end(), proposalParameterNames.begin(), proposalParameterNames.end());
+        return parameterNames;
     }
 
     template<typename ProposalType, typename ModelType>
     std::any ModelMixin<ProposalType, ModelType>::getParameter(const ProposalParameter &parameter) const {
+        if (parameter == ProposalParameter::COLDNESS) {
+            return std::any(this->coldness);
+        }
         return proposal.getParameter(parameter);
     }
 
     template<typename ProposalType, typename ModelType>
     std::string ModelMixin<ProposalType, ModelType>::getParameterType(const ProposalParameter &parameter) const {
+        if (parameter == ProposalParameter::COLDNESS) {
+            return "double";
+        }
         return proposal.getParameterType(parameter);
     }
 
     template<typename ProposalType, typename ModelType>
     void ModelMixin<ProposalType, ModelType>::setParameter(const ProposalParameter &parameter, const std::any &value) {
-        return proposal.setParameter(parameter, value);
+        if (parameter == ProposalParameter::COLDNESS) {
+            coldness = std::any_cast<double>(value);
+        }
+        else {
+            proposal.setParameter(parameter, value);
+        }
     }
 
     template<typename ProposalType, typename ModelType>
