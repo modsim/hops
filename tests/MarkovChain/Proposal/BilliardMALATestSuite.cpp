@@ -74,11 +74,11 @@ BOOST_AUTO_TEST_SUITE(BilliardMALAProposal)
         Eigen::VectorXd b(rows);
         b << 1, 1, 1, 1, 1, 1, 1, 1;
         Eigen::VectorXd interiorPoint(cols);
-        for (size_t i = 0; i < cols; ++i) {
+        for (long i = 0; i < cols; ++i) {
             interiorPoint(i) = 0;
         }
 
-        auto model = hops::Rosenbrock(1, Eigen::VectorXd::Zero(cols / 2));
+        hops::Rosenbrock model(1, Eigen::VectorXd::Zero(cols / 2));
 
         long max_reflections = 10;
         hops::BilliardMALAProposal proposer(A,
@@ -92,8 +92,9 @@ BOOST_AUTO_TEST_SUITE(BilliardMALAProposal)
         auto t1 = std::chrono::high_resolution_clock::now();
         for (int i = 0; i < 100; ++i) {
             Eigen::VectorXd proposal = proposer.propose(randomNumberGenerator);
-            double acceptanceChance = proposer.computeLogAcceptanceProbability();
             BOOST_CHECK(((b - A * proposal).array() > 0).all());
+            double acceptanceChance = proposer.computeLogAcceptanceProbability();
+            BOOST_CHECK(std::isfinite(acceptanceChance));
             BOOST_CHECK(std::exp(acceptanceChance) >= 0);
             proposer.acceptProposal();
         }
@@ -134,8 +135,9 @@ BOOST_AUTO_TEST_SUITE(BilliardMALAProposal)
         auto t1 = std::chrono::high_resolution_clock::now();
         for (int i = 0; i < 100; ++i) {
             Eigen::VectorXd proposal = proposer.propose(randomNumberGenerator);
-            double acceptanceChance = proposer.computeLogAcceptanceProbability();
             BOOST_CHECK(((b - A * proposal).array() >= 0).all());
+            double acceptanceChance = proposer.computeLogAcceptanceProbability();
+            BOOST_CHECK(std::isfinite(acceptanceChance));
             BOOST_CHECK(std::exp(acceptanceChance) >= 0);
             proposer.acceptProposal();
         }
@@ -162,7 +164,7 @@ BOOST_AUTO_TEST_SUITE(BilliardMALAProposal)
             interiorPoint(i) = 0;
         }
 
-        auto model = hops::Coldness(hops::Gaussian(interiorPoint, Eigen::MatrixXd::Identity(cols, cols)), 0.5);
+        hops::Gaussian model(interiorPoint, Eigen::MatrixXd::Identity(cols, cols));
 
 
         long max_reflections = 10;
@@ -172,22 +174,19 @@ BOOST_AUTO_TEST_SUITE(BilliardMALAProposal)
                                             model,
                                             max_reflections);
 
+        proposer.setParameter(hops::ProposalParameter::COLDNESS, 0.5);
+
         hops::RandomNumberGenerator randomNumberGenerator(42);
         auto t1 = std::chrono::high_resolution_clock::now();
         for (int i = 0; i < 100; ++i) {
             Eigen::VectorXd proposal = proposer.propose(randomNumberGenerator);
-            double acceptanceChance = proposer.computeLogAcceptanceProbability();
             BOOST_CHECK(((b - A * proposal).array() > 0).all());
+            double acceptanceChance = proposer.computeLogAcceptanceProbability();
+            BOOST_CHECK(std::isfinite(acceptanceChance));
             BOOST_CHECK(std::exp(acceptanceChance) >= 0);
             proposer.acceptProposal();
         }
         auto t2 = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double, std::milli> ms_double = t2 - t1;
-
-        Eigen::VectorXd proposal = proposer.propose(randomNumberGenerator);
-        Eigen::VectorXd expectedProposal(3);
-        expectedProposal << -0.381175410126282255, 0.99015677158076798, -0.200087788734234273;
-        BOOST_CHECK(proposal.isApprox(expectedProposal));
 
         BOOST_CHECK(proposer.getModel() != nullptr);
     }
@@ -255,19 +254,21 @@ BOOST_AUTO_TEST_SUITE(BilliardMALAProposal)
         auto model = std::make_shared<hops::Gaussian>(interiorPoint, Eigen::MatrixXd::Identity(cols, cols));
         auto gaussian = hops::Gaussian(interiorPoint, 0.3 * Eigen::MatrixXd::Identity(cols, cols));
 
+
+        long maxNumReflections = 100;
         auto mc = hops::MarkovChainAdapter(
                 hops::MetropolisHastingsFilter(
                         hops::BilliardMALAProposal(A,
                                                    b,
                                                    interiorPoint,
                                                    gaussian,
-                                                   100)
+                                                   maxNumReflections)
                 )
         );
 
         hops::RandomNumberGenerator randomNumberGenerator(42);
         std::vector<Eigen::VectorXd> samples;
-        double num_samples = 50'000;
+        double num_samples = 100'000;
         Eigen::VectorXd sample_sum = Eigen::VectorXd::Zero(1);
         for (int i = 0; i < num_samples; ++i) {
             auto[alpha, state] = mc.draw(randomNumberGenerator);

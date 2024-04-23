@@ -6,7 +6,6 @@ if (HOPS_MPI)
 
         if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
             target_sources(hops PRIVATE
-                    Coldness.hpp
                     ParallelTempering.hpp
             )
         endif (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")

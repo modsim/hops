@@ -26,7 +26,7 @@ build-debug:
   script:
     - mkdir cmake-build-debug 
     - cd cmake-build-debug 
-    - CXX=clang++ CC=clang cmake .. -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu -DCMAKE_BUILD_TYPE=Debug -DHOPS_BENCHMARKS=OFF 
+    - CXX=clang++ CC=clang cmake .. -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu -DCMAKE_BUILD_TYPE=Debug -DHOPS_BENCHMARKS=OFF -DHOPS_MPI=ON
     - make -j 16 
   artifacts:
     paths:
@@ -38,7 +38,7 @@ build-release:
   script:
     - mkdir cmake-build-release 
     - cd cmake-build-release 
-    - CXX=clang++ CC=clang cmake .. -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu -DCMAKE_BUILD_TYPE=Release -DHOPS_BENCHMARKS=OFF 
+    - CXX=clang++ CC=clang cmake .. -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu -DCMAKE_BUILD_TYPE=Release -DHOPS_BENCHMARKS=OFF -DHOPS_MPI=ON
     - make -j 16 
   artifacts:
     paths:

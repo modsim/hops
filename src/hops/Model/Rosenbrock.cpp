@@ -1,4 +1,5 @@
 #include "Rosenbrock.hpp"
+#include<iostream>
 
 hops::Rosenbrock::Rosenbrock(double scaleParameter,
                              VectorType shiftParameter) :
@@ -69,8 +70,7 @@ std::optional<hops::MatrixType> hops::Rosenbrock::computeExpectedFisherInformati
     MatrixType expPositive = (regularization * hessian).exp();
     MatrixType expNegative = (-regularization * hessian).exp();
     hessian = (expPositive + expNegative) * hessian * (expPositive - expNegative).inverse();
-    return
-            hessian;
+    return hessian;
 }
 
 std::unique_ptr<hops::Model> hops::Rosenbrock::copyModel() const {
