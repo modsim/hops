@@ -435,7 +435,7 @@ namespace hops {
         } else if (parameter == ProposalParameter::COLDNESS) {
             coldness = std::any_cast<double>(value);
         } else {
-            throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
+            throw std::invalid_argument("Can't set parameter which doesn't exist in " + this->getProposalName());
         }
     }
 

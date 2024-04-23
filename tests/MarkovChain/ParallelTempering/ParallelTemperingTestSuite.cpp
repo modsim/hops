@@ -6,6 +6,7 @@
 #include <random>
 
 #include "hops/MarkovChain/ParallelTempering/ParallelTempering.hpp"
+#include "hops/MarkovChain/Proposal/ProposalParameter.hpp"
 #include "hops/RandomNumberGenerator/RandomNumberGenerator.hpp"
 
 namespace {
@@ -33,9 +34,31 @@ namespace {
             return state(0);
         }
 
+
+        [[nodiscard]] std::any getParameter(const hops::ProposalParameter &parameter) {
+            if(parameter == hops::ProposalParameter::COLDNESS) {
+                return std::any(this->coldness);
+            }
+            throw std::invalid_argument("Can't get parameter which doesn't exist");
+        }
+
+        /**
+         * @brief sets parameter with value. Throws exception if any contains incompatible type for parameter.
+         * @details Implementations should list possible parameterNames in the exception message.
+         */
+        virtual void setParameter(const ProposalParameter &parameter, const std::any &value) {
+            if (parameter == ProposalParameter::COLDNESS) {
+                coldness = std::any_cast<double>(value);
+            } else {
+            throw std::invalid_argument("Can't set parameter which doesn't exist");
+            }
+        }
+
+
     private:
         hops::VectorType state;
         std::uniform_real_distribution<double> uniformRealDistribution{0, 1000};
+        double coldness = 1;
     };
 }
 
