@@ -26,7 +26,7 @@ bool hops::AcceptanceRateTuner::tune(
         std::vector<std::shared_ptr<hops::MarkovChain>> &markovChains,
         const std::vector<RandomNumberGenerator*> &randomNumberGenerators,
         hops::AcceptanceRateTuner::param_type &parameters) {
-    Eigen::MatrixXd data = MatrixType::Zero(1, 6);
+    Eigen::MatrixXd data;
     return tune(stepSize, deltaAcceptanceRate, markovChains, randomNumberGenerators, parameters, data);
 }
 
