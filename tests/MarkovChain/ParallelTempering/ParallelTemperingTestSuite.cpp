@@ -46,11 +46,11 @@ namespace {
          * @brief sets parameter with value. Throws exception if any contains incompatible type for parameter.
          * @details Implementations should list possible parameterNames in the exception message.
          */
-        virtual void setParameter(const ProposalParameter &parameter, const std::any &value) {
-            if (parameter == ProposalParameter::COLDNESS) {
+        virtual void setParameter(const hops::ProposalParameter &parameter, const std::any &value) {
+            if (parameter == hops::ProposalParameter::COLDNESS) {
                 coldness = std::any_cast<double>(value);
             } else {
-            throw std::invalid_argument("Can't set parameter which doesn't exist");
+                throw std::invalid_argument("Can't set parameter which doesn't exist");
             }
         }
 
