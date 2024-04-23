@@ -212,7 +212,6 @@ namespace hops {
 
     template<typename ModelType, typename InternalMatrixType>
     VectorType &BilliardMALAProposal<ModelType, InternalMatrixType>::propose(RandomNumberGenerator &rng) {
-        std::cout << "proposing using codlness " << coldness << std::endl;
         for (long i = 0; i < proposal.rows(); ++i) {
             proposal(i) = normalDistribution(rng);
         }
