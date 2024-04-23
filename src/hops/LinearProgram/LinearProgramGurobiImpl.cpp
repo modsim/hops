@@ -2,8 +2,8 @@
 
 #include <Eigen/Core>
 
-#include "LinearProgramGurobiImpl.hpp"
 #include "GurobiEnvironmentSingleton.hpp"
+#include "LinearProgramGurobiImpl.hpp"
 
 namespace {
     std::vector<GRBVar> addVariablesToModel(GRBModel *model, size_t numberOfVariables) {
@@ -14,8 +14,7 @@ namespace {
                     +GRB_INFINITY,
                     0,
                     GRB_CONTINUOUS,
-                    "x_" + std::to_string(i))
-            );
+                    "x_" + std::to_string(i)));
         }
         return variables;
     }
@@ -26,12 +25,14 @@ namespace {
                               const std::vector<GRBVar> &variables) {
         for (long i = 0; i < inequalityA.rows(); ++i) {
             GRBLinExpr expression;
-            double coefficients[inequalityA.cols()];
+            const long n_coefficients = inequalityA.cols();
+            double *coefficients = new double[n_coefficients];
             for (long j = 0; j < inequalityA.cols(); ++j) {
                 coefficients[j] = inequalityA.coeff(i, j);
             }
             expression.addTerms(coefficients, &variables[0], inequalityA.cols());
             model->addConstr(expression, GRB_LESS_EQUAL, inequalityB(i), "row_" + std::to_string(i));
+            delete[] coefficients;
         }
     }
 
@@ -61,19 +62,17 @@ namespace {
             }
         }
     }
-}
+}// namespace
 
-hops::LinearProgramGurobiImpl::LinearProgramGurobiImpl(const Eigen::MatrixXd &A, const Eigen::VectorXd &b) :
-        LinearProgram(A, b),
-        model(std::make_unique<GRBModel>(GRBModel(GurobiEnvironmentSingleton::getInstance().getGurobiEnvironment()))) {
+hops::LinearProgramGurobiImpl::LinearProgramGurobiImpl(const Eigen::MatrixXd &A, const Eigen::VectorXd &b) : LinearProgram(A, b),
+                                                                                                             model(std::make_unique<GRBModel>(GRBModel(GurobiEnvironmentSingleton::getInstance().getGurobiEnvironment()))) {
     variables = addVariablesToModel(model.get(), A.cols());
     addLinearConstraints(A, b, model.get(), variables);
     model->update();
 }
 
-hops::LinearProgramGurobiImpl::LinearProgramGurobiImpl(const hops::LinearProgramGurobiImpl &other) :
-        LinearProgram(other.A, other.b),
-        variables(other.variables) {
+hops::LinearProgramGurobiImpl::LinearProgramGurobiImpl(const hops::LinearProgramGurobiImpl &other) : LinearProgram(other.A, other.b),
+                                                                                                     variables(other.variables) {
     model = std::make_unique<GRBModel>(*other.model);
 }
 
@@ -121,8 +120,7 @@ hops::LinearProgramSolution hops::LinearProgramGurobiImpl::solve(const Eigen::Ve
                                          Eigen::VectorXd(),
                                          LinearProgramStatus::UNDEFINED);
         }
-    }
-    catch (const GRBException &e) {
+    } catch (const GRBException &e) {
         throw std::runtime_error("Gurobi encountered an exception: " + e.getMessage());
     }
     throw std::runtime_error("Exception: Gurobi failed to provide problem status or exception.");
@@ -136,11 +134,13 @@ hops::LinearProgramGurobiImpl::removeRedundantConstraints(double tolerance) {
         model->remove(constraintToTestForRedundancy);
         model->update();
         GRBLinExpr constraintLHS;
-        double coefficients[A.cols()];
+        const long n_coefficients = A.cols();
+        double *coefficients = new double[n_coefficients];
         for (long j = 0; j < A.cols(); ++j) {
             coefficients[j] = A.coeff(i, j);
         }
         constraintLHS.addTerms(coefficients, &variables[0], A.cols());
+        delete[] coefficients;
         try {
             auto temporaryConstraint = model->addConstr(constraintLHS, GRB_LESS_EQUAL, b(i) + 10);
             model->update();
@@ -154,8 +154,7 @@ hops::LinearProgramGurobiImpl::removeRedundantConstraints(double tolerance) {
             } else {
                 constraintsToRemove.emplace_back(i);
             }
-        }
-        catch (GRBException &e) {
+        } catch (GRBException &e) {
             std::cerr << "error code " << e.getErrorCode() << ": " << e.getMessage() << std::endl;
         }
     }
@@ -240,4 +239,4 @@ hops::LinearProgramGurobiImpl::addBoxConstraintsToUnconstrainedDimensions(double
     return std::make_tuple(A, b);
 }
 
-#endif //HOPS_GUROBI_FOUND
+#endif//HOPS_GUROBI_FOUND

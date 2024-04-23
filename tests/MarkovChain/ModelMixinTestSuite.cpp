@@ -39,8 +39,8 @@ namespace {
             return proposal;
         }
 
-        void setProposal(hops::VectorType newProposal) {
-            ProposalMock::proposal = std::move(newProposal);
+        void setProposal(const hops::VectorType &newProposal) override {
+            ProposalMock::proposal = newProposal;
         }
 
         hops::VectorType &acceptProposal() override {

@@ -8,7 +8,6 @@
 #include "hops/MarkovChain/MarkovChainAdapter.hpp"
 #include "hops/MarkovChain/Draw/NoOpDrawAdapter.hpp"
 #include "hops/MarkovChain/Draw/MetropolisHastingsFilter.hpp"
-#include "hops/MarkovChain/ParallelTempering/Coldness.hpp"
 #include "hops/MarkovChain/ParallelTempering/ParallelTempering.hpp"
 #include "hops/MarkovChain/Proposal/AdaptiveMetropolisProposal.hpp"
 #include "hops/MarkovChain/Proposal/BallWalkProposal.hpp"
@@ -451,7 +450,7 @@ namespace hops {
                         MetropolisHastingsFilter(
                                 ModelMixin(
                                         proposal,
-                                        Coldness(model)
+                                        model
                                 )
                         )
                 )
@@ -482,7 +481,7 @@ namespace hops {
                                                                 Eigen::Dynamic>>(inequalityLhs,
                                                                                  inequalityRhs,
                                                                                  startingPoint),
-                                                Coldness(model)
+                                                model
                                         )
                                 )
                         )
@@ -498,7 +497,7 @@ namespace hops {
                                                         inequalityLhs,
                                                         inequalityRhs,
                                                         startingPoint),
-                                                Coldness(model)
+                                                model
                                         )
                                 )
                         )
@@ -522,7 +521,7 @@ namespace hops {
                                                                 startingPoint),
                                                         maxNumberOfReflections
                                                 ),
-                                                Coldness(model)
+                                                model
                                         )
                                 )
                         )
@@ -538,7 +537,7 @@ namespace hops {
                                                 inequalityLhs,
                                                 inequalityRhs,
                                                 startingPoint,
-                                                Coldness(model),
+                                                model,
                                                 maxNumberOfReflections
                                         )
                                 )
@@ -556,7 +555,7 @@ namespace hops {
                                                         inequalityLhs,
                                                         inequalityRhs,
                                                         startingPoint),
-                                                Coldness(model)
+                                                model
                                         )
                                 )
                         )
@@ -570,7 +569,7 @@ namespace hops {
                                                 inequalityLhs,
                                                 inequalityRhs,
                                                 startingPoint,
-                                                Coldness(model)
+                                                model
                                         )
                                 )
                         )
@@ -582,7 +581,7 @@ namespace hops {
                                 MetropolisHastingsFilter(
                                         ModelMixin(
                                                 DikinProposal(inequalityLhs, inequalityRhs, startingPoint),
-                                                Coldness(model)
+                                                model
                                         )
                                 )
                         )
@@ -597,7 +596,7 @@ namespace hops {
                                                         Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
                                                         decltype(inequalityRhs)
                                                 >(inequalityLhs, inequalityRhs, startingPoint),
-                                                Coldness(model)
+                                                model
                                         )
                                 )
                         )
@@ -612,7 +611,7 @@ namespace hops {
                                                         decltype(inequalityRhs),
                                                         GaussianStepDistribution<typename decltype(inequalityRhs)::Scalar>>(
                                                         inequalityLhs, inequalityRhs, startingPoint),
-                                                Coldness(model)
+                                                model
                                         )
                                 )
                         )
@@ -646,7 +645,7 @@ namespace hops {
                                                 ModelMixin(
                                                         AdaptiveMetropolisProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>>(
                                                                 inequalityLhs, inequalityRhs, startingPoint),
-                                                        Coldness(model)
+                                                        model
                                                 )
                                         ),
                                         synchronizedRandomNumberGenerator
@@ -663,7 +662,7 @@ namespace hops {
                                                         BallWalkProposal<Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
                                                                 decltype(inequalityRhs)>(
                                                                 inequalityLhs, inequalityRhs, startingPoint),
-                                                        Coldness(model)
+                                                        model
                                                 )
                                         ),
                                         synchronizedRandomNumberGenerator
@@ -681,7 +680,7 @@ namespace hops {
                                                                 decltype(inequalityRhs),
                                                                 GaussianStepDistribution<typename decltype(inequalityRhs)::Scalar>>(
                                                                 inequalityLhs, inequalityRhs, startingPoint),
-                                                        Coldness(model)
+                                                        model
                                                 )
                                         ),
                                         synchronizedRandomNumberGenerator
@@ -697,7 +696,7 @@ namespace hops {
                                                 CSmMALAProposal(inequalityLhs,
                                                                 inequalityRhs,
                                                                 startingPoint,
-                                                                Coldness(model)
+                                                                model
                                                 )
                                         ),
                                         synchronizedRandomNumberGenerator
@@ -712,7 +711,7 @@ namespace hops {
                                         MetropolisHastingsFilter(
                                                 ModelMixin(
                                                         DikinProposal(inequalityLhs, inequalityRhs, startingPoint),
-                                                        Coldness(model)
+                                                        model
                                                 )
                                         ),
                                         synchronizedRandomNumberGenerator
@@ -730,7 +729,7 @@ namespace hops {
                                                                 Eigen::Matrix<typename MatrixType::Scalar, Eigen::Dynamic, Eigen::Dynamic>,
                                                                 decltype(inequalityRhs)
                                                         >(inequalityLhs, inequalityRhs, startingPoint),
-                                                        Coldness(model)
+                                                        model
                                                 )
                                         ),
                                         synchronizedRandomNumberGenerator
@@ -748,7 +747,7 @@ namespace hops {
                                                                 decltype(inequalityRhs),
                                                                 GaussianStepDistribution<typename decltype(inequalityRhs)::Scalar>>(
                                                                 inequalityLhs, inequalityRhs, startingPoint),
-                                                        Coldness(model)
+                                                        model
                                                 )
                                         ),
                                         synchronizedRandomNumberGenerator
@@ -816,7 +815,7 @@ namespace hops {
                                                         LinearTransformation(unroundingTransformation,
                                                                              unroundingShift)
                                                 ),
-                                                Coldness(model)
+                                                model
                                         )
                                 )
                         )
@@ -862,7 +861,7 @@ namespace hops {
                                                         ), LinearTransformation(unroundingTransformation,
                                                                                 unroundingShift)
                                                 ),
-                                                Coldness(model)
+                                                model
                                         )
                                 )
                         )
@@ -972,7 +971,7 @@ namespace hops {
                                                                 LinearTransformation(unroundingTransformation,
                                                                                      unroundingShift)
                                                         ),
-                                                        Coldness(model)
+                                                        model
                                                 )
                                         ),
                                         synchronizedRandomNumberGenerator
@@ -996,7 +995,7 @@ namespace hops {
                                                                 LinearTransformation(unroundingTransformation,
                                                                                      unroundingShift)
                                                         ),
-                                                        Coldness(model)
+                                                        model
                                                 )
                                         ),
                                         synchronizedRandomNumberGenerator
@@ -1021,7 +1020,7 @@ namespace hops {
                                                                 LinearTransformation(unroundingTransformation,
                                                                                      unroundingShift)
                                                         ),
-                                                        Coldness(model)
+                                                        model
                                                 )
                                         ),
                                         synchronizedRandomNumberGenerator
@@ -1045,7 +1044,7 @@ namespace hops {
                                                                 LinearTransformation(unroundingTransformation,
                                                                                      unroundingShift)
                                                         ),
-                                                        Coldness(model)
+                                                        model
                                                 )
                                         ),
                                         synchronizedRandomNumberGenerator

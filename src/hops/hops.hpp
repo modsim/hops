@@ -16,7 +16,6 @@
 #include "MarkovChain/Draw/MetropolisHastingsFilter.hpp"
 #include "MarkovChain/Draw/NoOpDrawAdapter.hpp"
 
-#include "MarkovChain/ParallelTempering/Coldness.hpp"
 #include "MarkovChain/ParallelTempering/ParallelTempering.hpp"
 
 #include "MarkovChain/Proposal/AdaptiveMetropolisProposal.hpp"
