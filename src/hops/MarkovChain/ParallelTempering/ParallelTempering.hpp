@@ -77,7 +77,7 @@ namespace hops {
         }
 
         double getColdness() {
-            return static_cast<double>(this->getParameter(ProposalParameter::COLDNESS));
+            return std::any_cast<double>(this->getParameter(ProposalParameter::COLDNESS));
         }
 
         void setColdness(double value) {
