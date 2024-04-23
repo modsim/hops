@@ -33,8 +33,8 @@ namespace hops {
         }
 
         ModelMixin(const ProposalType &proposal, const ModelType &model, double coldness) :
-                proposal(proposal),
                 ModelType(model),
+                proposal(proposal),
                 coldness(coldness) {
             if (proposal.hasNegativeLogLikelihood()) {
                 throw std::invalid_argument("Can't mix in model with ProposalType that already has likelihood.");
