@@ -44,7 +44,7 @@ option(HOPS_EXAMPLES "Enables compilation of hops examples. Use -DHOPS_EXAMPLES=
 option(HOPS_TESTS "Enables compilation of unit tests. Use -DHOPS_TESTS=OFF to disable." ON)
 option(HOPS_GUROBI "Enables use of gurobi, if available. Use -DHOPS_GUROBI=ON to enable." OFF)
 option(HOPS_LP "Enables module for linear programming, if dependencies are available." ON)
-option(HOPS_MPI "Enables module for linear programming, if dependencies are available." OFF)
+option(HOPS_MPI "Enables module for using MPI, if a MPI implementation is available." ON)
 option(HOPS_NO_INSTALL "Disables installation. Use -DHOPS_NO_INSTALL=ON to disable installation." OFF)
 option(HOPS_BUILD_NATIVE "Enable this option for maximum performance. Disable it when linking to third-party software that also uses Eigen3 but is not compiled with -march=native" OFF)
 set(HOPS_LIBRARY_TYPE SHARED CACHE STRING "Type of library to build. Options are HEADER_ONLY, STATIC or SHARED")

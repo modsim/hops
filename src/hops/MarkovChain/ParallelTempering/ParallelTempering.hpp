@@ -77,11 +77,11 @@ namespace hops {
         }
 
         double getColdness() {
-            return std::any_cast<double>(this->getParameter(ProposalParameter::COLDNESS));
+            return std::any_cast<double>(MarkovChainImpl::getParameter(ProposalParameter::COLDNESS));
         }
 
         void setColdness(double value) {
-            this->setParameter(ProposalParameter::COLDNESS, value);
+            MarkovChainImpl::setParameter(ProposalParameter::COLDNESS, value);
         }
 
         double computeExchangeAcceptanceProbability(int otherChainRank) {
