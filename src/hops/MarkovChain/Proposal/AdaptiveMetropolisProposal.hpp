@@ -105,6 +105,8 @@ namespace hops {
         MatrixType proposalCholeskyOfCovariance;
         MatrixType choleskyOfMaximumVolumeEllipsoid;
 
+        std::optional<VectorType> activeIndices = std::nullopt;
+
         double stateLogSqrtDeterminant;
         double proposalLogSqrtDeterminant;
 
@@ -211,6 +213,7 @@ namespace hops {
     template<typename InternalMatrixType>
     VectorType &AdaptiveMetropolisProposal<InternalMatrixType>::propose(
             RandomNumberGenerator &randomNumberGenerator) {
+        this->activeIndices = std::nullopt;
         stateMean = (t * stateMean + state) / (t + 1);
 
         for (long i = 0; i < proposal.rows(); ++i) {
@@ -236,28 +239,62 @@ namespace hops {
         }
 
         proposalCovariance = updateCovariance(stateCovariance, stateMean, proposal);
-        Eigen::LLT<decltype(proposalCovariance)> solver(
-                proposalCovariance);
-        if (solver.info() != Eigen::Success) {
-            return -std::numeric_limits<double>::infinity();
-        }
-        proposalCholeskyOfCovariance = solver.matrixL();
-
-        proposalLogSqrtDeterminant = proposalCholeskyOfCovariance.diagonal().array().log().sum();
-        VectorType stateDifference = proposal - state;
 
         double alpha = 0;
 
         // before warm up we have a symmetrical m_proposal distribution, so we do the next bit only after warm up
         if (t > warmUp) {
+            VectorType stateDifference = proposal - state;
+            if(this->activeIndices.has_value()) {
+                // resize state and covariance difference to live on subspace
+                long numRows = covarianceDifference.rows();
+                long numCols = covarianceDifference.cols();
+                for(long i=this->activeIndices.value().rows()-1; i>=0; --i) {
+                    if(this->activeIndices.value()(i)==0) {
+                        // strip stateDifference & covarianceDifference
+                        long colToRemove = i;
+
+                        numCols--;
+                        stateCovariance.block(0, colToRemove, numRows, numCols - colToRemove) =
+                                stateCovariance.rightCols(numCols - colToRemove);
+                        stateCovariance.conservativeResize(numRows, numCols);
+                        proposalCovariance.block(0, colToRemove, numRows, numCols - colToRemove) =
+                                proposalCovariance.rightCols(numCols - colToRemove);
+                        proposalCovariance.conservativeResize(numRows, numCols);
+
+                        long rowToRemove = i;
+                        numRows--;
+                        stateCovariance.block(rowToRemove, 0, numRows-rowToRemove, numCols) =
+                                stateCovariance.bottomRows(numCols - rowToRemove);
+                        stateCovariance.conservativeResize(numRows, numCols);
+                        proposalCovariance.block(rowToRemove, 0, numRows-rowToRemove, numCols) =
+                                proposalCovariance.bottomRows(numCols - rowToRemove);
+                        proposalCovariance.conservativeResize(numRows, numCols);
+
+                        stateDifference.segment(rowToRemove, numRows - rowToRemove) = stateDifference.tail(numRows - rowToRemove);
+                        stateDifference.conservativeResize(numRows);
+
+                        Eigen::LLT<decltype(proposalCovariance)> solver(stateCovariance);
+                        if (solver.info() != Eigen::Success) {
+                            return -std::numeric_limits<double>::infinity();
+                        }
+                        stateCovariance = solver.matrixL();
+                        stateLogSqrtDeterminant = stateCholeskyOfCovariance.diagonal().array().log().sum();
+                    }
+                }
+            }
+
+            Eigen::LLT<decltype(proposalCovariance)> solver(proposalCovariance);
+            if (solver.info() != Eigen::Success) {
+                return -std::numeric_limits<double>::infinity();
+            }
+            proposalCholeskyOfCovariance = solver.matrixL();
+            proposalLogSqrtDeterminant = proposalCholeskyOfCovariance.diagonal().array().log().sum();
+
+            Eigen::MatrixXd covarianceDifference = proposalCholeskyOfCovariance-stateCholeskyOfCovariance;
             alpha = stateLogSqrtDeterminant
                     - proposalLogSqrtDeterminant
-                    - 0.5 * (
-                    proposalCholeskyOfCovariance.template triangularView<Eigen::Lower>().solve(
-                            stateDifference).squaredNorm()
-                    - stateCholeskyOfCovariance.template triangularView<Eigen::Lower>().solve(
-                            stateDifference).squaredNorm()
-            );
+                    - 0.5 * covarianceDifference.template triangularView<Eigen::Lower>().solve(stateDifference).squaredNorm();
         }
 
         return alpha;
@@ -389,9 +426,33 @@ namespace hops {
     }
 
     template<typename InternalMatrixType>
+<<<<<<< Updated upstream
     VectorType &AdaptiveMetropolisProposal<InternalMatrixType>::propose(RandomNumberGenerator &,
                                                                         const Eigen::VectorXd &) {
         throw std::runtime_error("Propose with rng and activeIndices not implemented");
+=======
+    VectorType &AdaptiveMetropolisProposal<InternalMatrixType>::propose(RandomNumberGenerator &randomNumberGenerator,
+                                                                        const Eigen::VectorXd &activeIndices_) {
+        this->activeIndices = activeIndices_;
+        stateMean = (t * stateMean + state) / (t + 1);
+
+        for (long i = 0; i < proposal.rows(); ++i) {
+            proposal(i) = normal(randomNumberGenerator);
+        }
+
+        if (t > warmUp) {
+            proposal = state + stateCholeskyOfCovariance * proposal;
+        } else {
+            proposal = state +
+                       eps * choleskyOfMaximumVolumeEllipsoid.template triangularView<Eigen::Lower>().solve(proposal);
+        };
+        ++t; // increment time
+        for (long i = 0; i < proposal.rows(); ++i) {
+            proposal(i) = (this->activeIndices->value()(i) != 0) ? proposal(i) : 0;
+        }
+
+        return proposal;
+>>>>>>> Stashed changes
     }
 
     template<typename InternalMatrixType>
