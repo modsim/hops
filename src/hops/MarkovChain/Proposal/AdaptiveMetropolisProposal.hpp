@@ -281,11 +281,11 @@ namespace hops {
                 }
             }
 
-            Eigen::LLT<decltype(activeStateCovariance)> solver(activeStateCovariance);
-            if (solver.info() != Eigen::Success) {
+            Eigen::LLT<decltype(activeStateCovariance)> stateSolver(activeStateCovariance);
+            if (stateSolver.info() != Eigen::Success) {
                 return -std::numeric_limits<double>::infinity();
             }
-            stateCholeskyOfCovariance = solver.matrixL();
+            stateCholeskyOfCovariance = stateSolver.matrixL();
             stateLogSqrtDeterminant = stateCholeskyOfCovariance.diagonal().array().log().sum();
             Eigen::LLT<decltype(activeProposalCovariance)> solver(activeProposalCovariance);
             if (solver.info() != Eigen::Success) {
