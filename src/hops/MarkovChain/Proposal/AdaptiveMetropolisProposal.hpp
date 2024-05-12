@@ -274,7 +274,7 @@ namespace hops {
                         stateDifference.segment(rowToRemove, numRows - rowToRemove) = stateDifference.tail(numRows - rowToRemove);
                         stateDifference.conservativeResize(numRows);
 
-                        Eigen::LLT<decltype(proposalCovariance)> solver(stateCovariance);
+                        Eigen::LLT<decltype(stateCovariance)> solver(stateCovariance);
                         if (solver.info() != Eigen::Success) {
                             return -std::numeric_limits<double>::infinity();
                         }
