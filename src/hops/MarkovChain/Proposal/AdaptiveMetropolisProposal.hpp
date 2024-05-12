@@ -99,6 +99,8 @@ namespace hops {
 
         MatrixType stateCovariance;
         MatrixType proposalCovariance;
+        MatrixType activeStateCovariance;
+        MatrixType activeProposalCovariance;
         MatrixType maximumVolumeEllipsoid;
 
         MatrixType stateCholeskyOfCovariance;
@@ -245,6 +247,8 @@ namespace hops {
         // before warm up we have a symmetrical m_proposal distribution, so we do the next bit only after warm up
         if (t > warmUp) {
             VectorType stateDifference = proposal - state;
+            activeStateCovariance = stateCovariance;
+            activeStateCovariance = proposalCovariance;
             if(this->activeIndices.has_value()) {
                 // resize state and covariance difference to live on subspace
                 long numRows = stateCovariance.rows();
@@ -255,36 +259,35 @@ namespace hops {
                         long colToRemove = i;
 
                         numCols--;
-                        stateCovariance.block(0, colToRemove, numRows, numCols - colToRemove) =
-                                stateCovariance.rightCols(numCols - colToRemove);
-                        stateCovariance.conservativeResize(numRows, numCols);
-                        proposalCovariance.block(0, colToRemove, numRows, numCols - colToRemove) =
-                                proposalCovariance.rightCols(numCols - colToRemove);
-                        proposalCovariance.conservativeResize(numRows, numCols);
+                        activeStateCovariance.block(0, colToRemove, numRows, numCols - colToRemove) =
+                                activeStateCovariance.rightCols(numCols - colToRemove);
+                        activeStateCovariance.conservativeResize(numRows, numCols);
+                        activeProposalCovariance.block(0, colToRemove, numRows, numCols - colToRemove) =
+                                activeProposalCovariance.rightCols(numCols - colToRemove);
+                        activeProposalCovariance.conservativeResize(numRows, numCols);
 
                         long rowToRemove = i;
                         numRows--;
-                        stateCovariance.block(rowToRemove, 0, numRows-rowToRemove, numCols) =
-                                stateCovariance.bottomRows(numCols - rowToRemove);
-                        stateCovariance.conservativeResize(numRows, numCols);
-                        proposalCovariance.block(rowToRemove, 0, numRows-rowToRemove, numCols) =
-                                proposalCovariance.bottomRows(numCols - rowToRemove);
-                        proposalCovariance.conservativeResize(numRows, numCols);
+                        activeStateCovariance.block(rowToRemove, 0, numRows-rowToRemove, numCols) =
+                                activeStateCovariance.bottomRows(numCols - rowToRemove);
+                        activeStateCovariance.conservativeResize(numRows, numCols);
+                        activeProposalCovariance.block(rowToRemove, 0, numRows-rowToRemove, numCols) =
+                                activeProposalCovariance.bottomRows(numCols - rowToRemove);
+                        activeProposalCovariance.conservativeResize(numRows, numCols);
 
                         stateDifference.segment(rowToRemove, numRows - rowToRemove) = stateDifference.tail(numRows - rowToRemove);
                         stateDifference.conservativeResize(numRows);
-
-                        Eigen::LLT<decltype(stateCovariance)> solver(stateCovariance);
-                        if (solver.info() != Eigen::Success) {
-                            return -std::numeric_limits<double>::infinity();
-                        }
-                        stateCovariance = solver.matrixL();
-                        stateLogSqrtDeterminant = stateCholeskyOfCovariance.diagonal().array().log().sum();
                     }
                 }
             }
 
-            Eigen::LLT<decltype(proposalCovariance)> solver(proposalCovariance);
+            Eigen::LLT<decltype(activeStateCovariance)> solver(activeStateCovariance);
+            if (solver.info() != Eigen::Success) {
+                return -std::numeric_limits<double>::infinity();
+            }
+            stateCholeskyOfCovariance = solver.matrixL();
+            stateLogSqrtDeterminant = stateCholeskyOfCovariance.diagonal().array().log().sum();
+            Eigen::LLT<decltype(activeProposalCovariance)> solver(activeProposalCovariance);
             if (solver.info() != Eigen::Success) {
                 return -std::numeric_limits<double>::infinity();
             }
