@@ -295,10 +295,11 @@ namespace hops {
             proposalLogSqrtDeterminant = proposalCholeskyOfCovariance.diagonal().array().log().sum();
 
             Eigen::MatrixXd covarianceDifference = proposalCholeskyOfCovariance-stateCholeskyOfCovariance;
-            std::cout << "state diff " << stateDifference.rows() << std::endl;
-            std::cout << "cov diff " << covarianceDifference.rows() << ", " << covarianceDifference.cols() << std::endl;
-            std::cout << "state diff " << activeStateCovariance.rows() << ", " << activeStateCovariance.cols() << std::endl;
-            std::cout << "prop diff " << activeProposalCovariance.rows() << ", " << activeProposalCovariance.cols() << std::endl;
+            // TODO
+//            std::cout << "state diff " << stateDifference.rows() << std::endl;
+//            std::cout << "cov diff " << covarianceDifference.rows() << ", " << covarianceDifference.cols() << std::endl;
+//            std::cout << "state diff " << activeStateCovariance.rows() << ", " << activeStateCovariance.cols() << std::endl;
+//            std::cout << "prop diff " << activeProposalCovariance.rows() << ", " << activeProposalCovariance.cols() << std::endl;
             alpha = stateLogSqrtDeterminant
                     - proposalLogSqrtDeterminant
                     - 0.5 * covarianceDifference.template triangularView<Eigen::Lower>().solve(stateDifference).squaredNorm();
