@@ -247,8 +247,8 @@ namespace hops {
             VectorType stateDifference = proposal - state;
             if(this->activeIndices.has_value()) {
                 // resize state and covariance difference to live on subspace
-                long numRows = covarianceDifference.rows();
-                long numCols = covarianceDifference.cols();
+                long numRows = stateCovariance.rows();
+                long numCols = stateCovariance.cols();
                 for(long i=this->activeIndices.value().rows()-1; i>=0; --i) {
                     if(this->activeIndices.value()(i)==0) {
                         // strip stateDifference & covarianceDifference
@@ -426,11 +426,6 @@ namespace hops {
     }
 
     template<typename InternalMatrixType>
-<<<<<<< Updated upstream
-    VectorType &AdaptiveMetropolisProposal<InternalMatrixType>::propose(RandomNumberGenerator &,
-                                                                        const Eigen::VectorXd &) {
-        throw std::runtime_error("Propose with rng and activeIndices not implemented");
-=======
     VectorType &AdaptiveMetropolisProposal<InternalMatrixType>::propose(RandomNumberGenerator &randomNumberGenerator,
                                                                         const Eigen::VectorXd &activeIndices_) {
         this->activeIndices = activeIndices_;
@@ -448,11 +443,10 @@ namespace hops {
         };
         ++t; // increment time
         for (long i = 0; i < proposal.rows(); ++i) {
-            proposal(i) = (this->activeIndices->value()(i) != 0) ? proposal(i) : 0;
+            proposal(i) = this->activeIndices.value()(i) != 0 ? proposal(i) : 0;
         }
 
         return proposal;
->>>>>>> Stashed changes
     }
 
     template<typename InternalMatrixType>
