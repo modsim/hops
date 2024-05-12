@@ -218,10 +218,8 @@ namespace hops {
         }
 
         if (t > warmUp) {
-            // warm up done
             proposal = state + stateCholeskyOfCovariance * proposal;
         } else {
-            // still warming up using max vol ellipsoid
             proposal = state +
                        eps * choleskyOfMaximumVolumeEllipsoid.template triangularView<Eigen::Lower>().solve(proposal);
         };
@@ -391,26 +389,9 @@ namespace hops {
     }
 
     template<typename InternalMatrixType>
-    VectorType &AdaptiveMetropolisProposal<InternalMatrixType>::propose(RandomNumberGenerator &randomNumberGenerator,
-                                                                        const Eigen::VectorXd &activeIndices) {
-        stateMean = (t * stateMean + state) / (t + 1);
-
-        for (long i = 0; i < proposal.rows(); ++i) {
-            proposal(i) = normal(randomNumberGenerator);
-        }
-
-        if (t > warmUp) {
-            proposal = state + stateCholeskyOfCovariance * proposal;
-        } else {
-            proposal = state +
-                       eps * choleskyOfMaximumVolumeEllipsoid.template triangularView<Eigen::Lower>().solve(proposal);
-        };
-        ++t; // increment time
-        for (long i = 0; i < proposal.rows(); ++i) {
-            proposal(i) = (activeIndices(i) != 0) ? proposal(i) : 0;
-        }
-
-        return proposal;
+    VectorType &AdaptiveMetropolisProposal<InternalMatrixType>::propose(RandomNumberGenerator &,
+                                                                        const Eigen::VectorXd &) {
+        throw std::runtime_error("Propose with rng and activeIndices not implemented");
     }
 
     template<typename InternalMatrixType>
