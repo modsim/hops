@@ -269,10 +269,10 @@ namespace hops {
                         long rowToRemove = i;
                         numRows--;
                         activeStateCovariance.block(rowToRemove, 0, numRows-rowToRemove, numCols) =
-                                activeStateCovariance.bottomRows(numCols - rowToRemove);
+                                activeStateCovariance.bottomRows(numRows - rowToRemove);
                         activeStateCovariance.conservativeResize(numRows, numCols);
                         activeProposalCovariance.block(rowToRemove, 0, numRows-rowToRemove, numCols) =
-                                activeProposalCovariance.bottomRows(numCols - rowToRemove);
+                                activeProposalCovariance.bottomRows(numRows - rowToRemove);
                         activeProposalCovariance.conservativeResize(numRows, numCols);
 
                         stateDifference.segment(rowToRemove, numRows - rowToRemove) = stateDifference.tail(numRows - rowToRemove);
