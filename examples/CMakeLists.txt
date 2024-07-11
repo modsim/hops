@@ -5,6 +5,7 @@ if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
             SamplingGaussianTarget.cpp
             SamplingGaussianSignificanceTarget.cpp
             TruncatedGaussianDemo.cpp
+            Demo.cpp
     )
 
     if (HOPS_MPI)
