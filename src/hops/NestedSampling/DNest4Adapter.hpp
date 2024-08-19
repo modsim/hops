@@ -50,6 +50,12 @@ namespace hops {
         void print(std::ostream &out) const;
 
         /**
+         * @Brief reads current state to stream
+         * @param in
+         */
+         void read(std::istream &in);
+
+        /**
          * @Brief returns string with column names in csv format
          * @return
          */
