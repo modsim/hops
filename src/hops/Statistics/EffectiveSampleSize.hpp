@@ -74,7 +74,7 @@ namespace hops {
             computeAutocorrelations(chains[m], autocorrelations[m], d);
         }
 
-        double rhoHatEven, rhoHatOdd, autocovariance;
+        double rhoHatEven=0, rhoHatOdd=0, autocovariance=0;
         for (size_t t = 0; t < numDraws / 2; ++t) {
             autocovariance = 0;
             for (size_t m = 0; m < numChains; ++m) {

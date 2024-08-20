@@ -54,8 +54,9 @@ double hops::DNest4Adapter::proposal_log_likelihood() const {
 }
 
 void hops::DNest4Adapter::print(std::ostream &out) const {
-    for (long i = 0; i < this->proposal->getState().rows(); i++)
+    for (long i = 0; i < this->proposal->getState().rows(); i++) {
         out << this->proposal->getState()(i) << " ";
+    }
 }
 
 void hops::DNest4Adapter::read(std::istream &in) {
@@ -64,7 +65,6 @@ void hops::DNest4Adapter::read(std::istream &in) {
         in >> readState(i);
     }
     this->proposal->setState(readState);
-
 }
 
 std::string hops::DNest4Adapter::description() const {

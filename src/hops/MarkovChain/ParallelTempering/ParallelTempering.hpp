@@ -122,8 +122,7 @@ namespace hops {
         std::pair<int, int> generateChainPairForExchangeProposal() {
 
             int chainIndex = uniformIntDistribution(synchronizedRandomNumberGenerator,
-                                                    std::uniform_int_distribution<int>::param_type(0,
-                                                                                                   numberOfChains - 2));
+                                                    std::uniform_int_distribution<int>::param_type(0, numberOfChains - 2));
             return std::make_pair(chainIndex, chainIndex + 1);
         }
 

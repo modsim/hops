@@ -1,6 +1,7 @@
 #ifndef HOPS_MPIINITIALIZERFINALIZER_HPP
 #define HOPS_MPIINITIALIZERFINALIZER_HPP
 
+#define OMPI_SKIP_MPICXX 1
 #include <mpi.h>
 
 namespace hops {

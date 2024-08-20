@@ -1,13 +1,13 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE CSmMALAProposalTestSuite
 
+#include <Eigen/Core>
 #include <boost/test/unit_test.hpp>
 #include <numeric>
-#include <Eigen/Core>
 
-#include "hops/MarkovChain/Proposal/CSmMALAProposal.hpp"
-#include "hops/MarkovChain/MarkovChainAdapter.hpp"
 #include "hops/MarkovChain/Draw/MetropolisHastingsFilter.hpp"
+#include "hops/MarkovChain/MarkovChainAdapter.hpp"
+#include "hops/MarkovChain/Proposal/CSmMALAProposal.hpp"
 #include "hops/Model/Gaussian.hpp"
 #include "hops/RandomNumberGenerator/RandomNumberGenerator.hpp"
 #include "hops/Statistics/EffectiveSampleSize.hpp"
