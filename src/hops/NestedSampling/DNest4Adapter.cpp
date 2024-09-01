@@ -1,4 +1,6 @@
 #include "DNest4Adapter.hpp"
+#include "hops/MarkovChain/Proposal/ReversibleJumpProposal.hpp"
+
 
 hops::DNest4Adapter::DNest4Adapter() {
     if (DNest4EnvironmentSingleton::getInstance().getProposal()) {
@@ -55,23 +57,51 @@ double hops::DNest4Adapter::proposal_log_likelihood() const {
 
 void hops::DNest4Adapter::print(std::ostream &out) const {
     for (long i = 0; i < this->proposal->getState().rows(); i++) {
-        out << this->proposal->getState()(i) << " ";
+        out << this->proposal->getState()(i) << ' ';
+    }
+}
+
+void hops::DNest4Adapter::print_internal(std::ostream &out) const {
+    for (long i = 0; i < this->proposal->getProposal().rows(); i++) {
+        out << this->proposal->getProposal()(i) << ' ';
+    }
+    auto ptr = dynamic_cast<ReversibleJumpProposal*>(this->proposal.get());
+    if(ptr != nullptr) {
+        out << ptr->isLastProposalJumpedModel() << ' ';
     }
 }
 
 void hops::DNest4Adapter::read(std::istream &in) {
     hops::VectorType readState = this->proposal->getState();
+    std::string temp_str;
     for (long i = 0; i < readState.rows(); i++) {
-        in >> readState(i);
+        in >> temp_str;
+        readState(i) = strtod(temp_str.c_str(), NULL);
     }
     this->proposal->setState(readState);
+}
+
+void hops::DNest4Adapter::read_internal(std::istream &in) {
+    hops::VectorType readProposal = this->proposal->getProposal();
+    std::string temp_str;
+    for (long i = 0; i < readProposal.rows(); i++) {
+        in >> temp_str;
+        readProposal(i) = strtod(temp_str.c_str(), NULL);
+    }
+    this->proposal->setProposal(readProposal);
+    auto ptr = dynamic_cast<ReversibleJumpProposal*>(this->proposal.get());
+    if(ptr != nullptr) {
+        bool isLastProposalJumpedModel;
+        in >> isLastProposalJumpedModel;
+        ptr->setLastProposalJumpedModel(isLastProposalJumpedModel);
+    }
 }
 
 std::string hops::DNest4Adapter::description() const {
     std::string description;
     auto parameterNames = proposal->getDimensionNames();
     for (const auto &p: parameterNames) {
-        description += p + " ,";
+        description += p + ", ";
     }
     description.pop_back();
     return description;
