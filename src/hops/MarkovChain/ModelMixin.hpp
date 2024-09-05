@@ -94,6 +94,8 @@ namespace hops {
 
         [[nodiscard]] bool isSymmetric() const override;
 
+        void resetDistributions() override;
+
     private:
         ProposalType proposal;
         double coldness = 1.;
@@ -239,6 +241,11 @@ namespace hops {
     template<typename ProposalType, typename ModelType>
     void ModelMixin<ProposalType, ModelType>::setDimensionNames(const std::vector<std::string> &names) {
         proposal.setDimensionNames(names);
+    }
+
+    template<typename ProposalType, typename ModelType>
+    void ModelMixin<ProposalType, ModelType>::resetDistributions() {
+        proposal.resetDistributions();
     }
 }// namespace hops
 

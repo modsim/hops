@@ -66,6 +66,8 @@ namespace hops {
 
         [[nodiscard]] const VectorType &getB() const override;
 
+        void resetDistributions() override;
+
     private:
         InternalMatrixType A;
         InternalVectorType b;
@@ -238,6 +240,12 @@ namespace hops {
     template<typename InternalMatrixType, typename InternalVectorType>
     std::vector<std::string> BallWalkProposal<InternalMatrixType, InternalVectorType>::getDimensionNames() const {
         return dimensionNames;
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    void BallWalkProposal<InternalMatrixType, InternalVectorType>::resetDistributions() {
+        normal.reset();
+        uniform.reset();
     }
 }
 

@@ -86,6 +86,8 @@ namespace hops {
 
         [[nodiscard]] unsigned long getT() const;
 
+        void resetDistributions() override;
+
     protected:
         // These protected types are/should be accessed in BillliardAdaptiveMetropolisProposal only
         MatrixType A;
@@ -402,6 +404,11 @@ namespace hops {
     template<typename InternalMatrixType>
     std::vector<std::string> AdaptiveMetropolisProposal<InternalMatrixType>::getDimensionNames() const {
         return dimensionNames;
+    }
+
+    template<typename InternalMatrixType>
+    void AdaptiveMetropolisProposal<InternalMatrixType>::resetDistributions() {
+        normal.reset();
     }
 }
 

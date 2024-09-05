@@ -5,20 +5,6 @@
 #include <array>
 
 namespace hops {
-    namespace {
-        std::array<unsigned char, 16> stateToBytes(pcg64::state_type state) {
-            std::array<unsigned char, 16> bytes;
-            std::memcpy(bytes.data(), &state, 16);
-            return bytes;
-        }
-
-        pcg64::state_type bytesToState(const std::array<unsigned char, 16> &bytes) {
-            pcg64::state_type state = 0;
-            std::memcpy(&state, bytes.data(), 16);
-            return state;
-        }
-    }// namespace
-
     struct RandomNumberGenerator {
         typedef pcg64::result_type result_type;
         typedef pcg64::state_type state_type;
@@ -31,12 +17,40 @@ namespace hops {
             rng_ = pcg64(seed_, stream_);
         }
 
-        static constexpr result_type min() {
+        static constexpr result_type
+
+        min() {
             return pcg64::min();
         }
 
-        static constexpr result_type max() {
+        static constexpr result_type
+
+        max() {
             return pcg64::max();
+        }
+
+        void serialize(std::ostream &out) const {
+            auto seed_bytes = stateToBytes(this->seed_);
+            auto stream_bytes = stateToBytes(this->stream_);
+            auto state_bytes = this->getStateInBytes();
+            out.write(seed_bytes.data(), seed_bytes.size());
+            out.write(stream_bytes.data(), stream_bytes.size());
+            out.write(state_bytes.data(), state_bytes.size());
+        }
+
+        static RandomNumberGenerator deserialize(std::istream &in) {
+            std::array<char, 16> seed_bytes;
+            std::array<char, 16> stream_bytes;
+            std::array<char, 16> state_bytes;
+            in.read(seed_bytes.data(), seed_bytes.size());
+            in.read(stream_bytes.data(), stream_bytes.size());
+            in.read(state_bytes.data(), state_bytes.size());
+            auto seed = bytesToState(seed_bytes);
+            auto stream = bytesToState(stream_bytes);
+            auto state = bytesToState(state_bytes);
+            RandomNumberGenerator rng(seed,stream);
+            rng.setState(state);
+            return rng;
         }
 
         [[nodiscard]] state_type getSeed() const {
@@ -51,12 +65,12 @@ namespace hops {
             return rng_ - hops::RandomNumberGenerator(seed_, stream_).rng_;
         }
 
-        [[nodiscard]] std::array<unsigned char, 16> getStateInBytes() const {
+        [[nodiscard]] std::array<char, 16> getStateInBytes() const {
             return stateToBytes(rng_ - hops::RandomNumberGenerator(seed_, stream_).rng_);
         }
 
-        [[nodiscard]] std::array<unsigned char, 16> getStreamInBytes() const {
-            return  stateToBytes(stream_);
+        [[nodiscard]] std::array<char, 16> getStreamInBytes() const {
+            return stateToBytes(stream_);
         }
 
 
@@ -75,14 +89,18 @@ namespace hops {
             rng_.set_stream(this->stream_);
         }
 
-        void setStream(const std::array<unsigned char, 16> &bytes) {
+        void setStream(const std::array<char, 16> &bytes) {
             auto stream = bytesToState(bytes);
             RandomNumberGenerator::stream_ = stream;
             rng_.set_stream(this->stream_);
         }
 
-        void setState(const std::array<unsigned char, 16> &bytes) {
+        void setState(const std::array<char, 16> &bytes) {
             rng_.advance(bytesToState(bytes));
+        }
+
+        void setState(const state_type state) {
+            rng_.advance(state);
         }
 
         result_type operator()() {
@@ -92,6 +110,31 @@ namespace hops {
         result_type operator-(const RandomNumberGenerator &other) const {
             return this->rng_ - other.rng_;
         }
+
+        static std::array<char, 16> stateToBytes(pcg64::state_type state) {
+            std::array<char, 16> bytes;
+            std::memcpy(bytes.data(), &state, 16);
+            return bytes;
+        }
+
+        static pcg64::state_type bytesToState(const std::array<char, 16> &bytes) {
+            pcg64::state_type state = 0;
+            std::memcpy(&state, bytes.data(), 16);
+            return state;
+        }
+
+        static std::string stringRepresentation(state_type value) {
+            if (value == 0) {
+                return "0";
+            }
+            std::string representation;
+            while (value > 0) {
+                representation.insert(representation.begin(), '0' + (value % 10));
+                value /= 10;
+            }
+            return representation;
+        }
+
     };
 }// namespace hops
 

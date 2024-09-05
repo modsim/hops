@@ -151,6 +151,12 @@ namespace hops {
 
         [[nodiscard]] virtual std::unique_ptr<Proposal> copyProposal() const = 0;
 
+        /**
+         * @brief resets internal states of used random number distributions.
+         * e.g. std::normal_distribution<T> might have an internal state. For reproducibility it can be reset.
+         */
+        virtual void resetDistributions() {};
+
         virtual ~Proposal() = default;
     };
 }

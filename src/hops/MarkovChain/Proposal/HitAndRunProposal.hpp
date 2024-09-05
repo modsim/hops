@@ -66,6 +66,8 @@ namespace hops {
 
         bool isSymmetric() const override;
 
+        void resetDistributions() override;
+
     private:
         InternalMatrixType A;
         InternalVectorType b;
@@ -369,6 +371,15 @@ namespace hops {
     std::vector<std::string>
     HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::getDimensionNames() const {
         return dimensionNames;
+    }
+
+
+    template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution, bool Precise>
+    void
+    HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::resetDistributions() {
+        chordStepDistribution.reset();
+        normalDistribution.reset();
+        slacks = this->b - this->A * this->state;
     }
 }
 

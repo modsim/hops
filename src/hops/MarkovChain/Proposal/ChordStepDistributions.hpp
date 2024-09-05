@@ -36,6 +36,10 @@ namespace hops {
             return 0.;
         }
 
+        void reset() {
+            uniformRealDistribution.reset();
+        }
+
     private:
         std::uniform_real_distribution<RealType> uniformRealDistribution;
     };
@@ -81,6 +85,10 @@ namespace hops {
                 throw std::invalid_argument("GaussianStepDistribution: Lower limit is larger than upper limit. Check the polytope.");
             }
             return truncatedNormalDistribution.probabilityDensity(x, sigma, lowerLimit, upperLimit);
+        }
+
+        void reset() {
+           truncatedNormalDistribution.reset();
         }
 
     private:

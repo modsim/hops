@@ -68,6 +68,8 @@ namespace hops {
 
         [[nodiscard]] const VectorType& getB() const override;
 
+        void resetDistributions() override;
+
     private:
         InternalMatrixType A;
         InternalVectorType b;
@@ -232,6 +234,11 @@ namespace hops {
     template<typename InternalMatrixType, typename InternalVectorType>
     std::vector<std::string> GaussianProposal<InternalMatrixType, InternalVectorType>::getDimensionNames() const {
         return dimensionNames;
+    }
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    void GaussianProposal<InternalMatrixType, InternalVectorType>::resetDistributions() {
+        normal.reset();
     }
 }
 

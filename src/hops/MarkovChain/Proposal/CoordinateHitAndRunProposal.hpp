@@ -1,6 +1,7 @@
 #ifndef HOPS_COORDINATEHITANDRUNPROPOSAL_HPP
 #define HOPS_COORDINATEHITANDRUNPROPOSAL_HPP
 
+#include <iostream>
 #include <optional>
 #include <random>
 
@@ -73,6 +74,8 @@ namespace hops {
 
         bool isSymmetric() const override;
 
+        void resetDistributions() override;
+
     private:
         InternalMatrixType A;
         InternalVectorType b;
@@ -92,6 +95,13 @@ namespace hops {
 
         std::vector<std::string> dimensionNames;
     };
+
+    template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
+    void
+    CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::resetDistributions() {
+        chordStepDistribution.reset();
+        slacks = b - A * CoordinateHitAndRunProposal::state;
+    }
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
     CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::CoordinateHitAndRunProposal(
@@ -115,6 +125,7 @@ namespace hops {
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
     VectorType &CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::propose(
             RandomNumberGenerator &rng) {
+        shouldRecomputeSlacks = false;
         proposal(coordinateToUpdate) = state(coordinateToUpdate);
         ++coordinateToUpdate %= state.rows();
 
@@ -142,13 +153,15 @@ namespace hops {
 
         proposal(coordinateToUpdate) += step;
 
+        assert(((b - A * proposal).array() >= 0).all());
+
         return proposal;
     }
 
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
     VectorType &CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::propose(
             RandomNumberGenerator &rng, const Eigen::VectorXd &activeIndices) {
-        this->shouldRecomputeSlacks = true;
+        shouldRecomputeSlacks = true;
         if (activeIndices.sum() <= 0) {
             // No active subspaces
             detailedBalance = 0;
@@ -217,6 +230,7 @@ namespace hops {
         if (((b - A * newState).array() < 0).any()) {
             throw std::invalid_argument("Starting point outside polytope always gives constant Markov chain.");
         }
+        chordStepDistribution.reset();
         CoordinateHitAndRunProposal::state = newState;
         CoordinateHitAndRunProposal::proposal = CoordinateHitAndRunProposal::state;
         slacks = b - A * CoordinateHitAndRunProposal::state;
@@ -225,9 +239,11 @@ namespace hops {
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
     void CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::setProposal(
             const VectorType &newProposal) {
-        shouldRecomputeSlacks = true;
         CoordinateHitAndRunProposal::proposal = newProposal;
         proposalSlacks = b - A * CoordinateHitAndRunProposal::proposal;
+        if((proposalSlacks.array() < 0 ).any()) {
+            throw std::invalid_argument("Proposal outside polytope always gives constant Markov chain.");
+        }
         detailedBalance = 0;
     }
 

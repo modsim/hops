@@ -120,6 +120,10 @@ namespace hops {
             return proposalImpl.isSymmetric();
         }
 
+        void resetDistributions() override {
+            return proposalImpl.resetDistributions();
+        }
+
     private:
         ProposalImpl proposalImpl;
         TransformationImpl transformation;

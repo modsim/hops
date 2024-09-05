@@ -396,3 +396,9 @@ void hops::ReversibleJumpProposal::setLastProposalJumpedModel(bool lastProposalJ
     ReversibleJumpProposal::m_lastProposalJumpedModel = lastProposalJumpedModel;
 }
 
+void hops::ReversibleJumpProposal::resetDistributions() {
+    uniformRealDistribution.reset();
+    stepDistribution.reset();
+    m_proposalImpl->resetDistributions();
+}
+

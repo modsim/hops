@@ -78,6 +78,8 @@ namespace hops {
 
         [[nodiscard]] bool hasNegativeLogLikelihood() const override;
 
+        void resetDistributions() override;
+
     private:
         InternalMatrixType A;
         InternalVectorType b;
@@ -294,6 +296,13 @@ namespace hops {
     template<typename InternalMatrixType, typename InternalVectorType>
     double TruncatedGaussianProposal<InternalMatrixType, InternalVectorType>::getProposalNegativeLogLikelihood() {
         return const_cast<decltype(this)>(this)->computeNegativeLogLikelihood(state);
+    }
+
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    void TruncatedGaussianProposal<InternalMatrixType, InternalVectorType>::resetDistributions() {
+        chordStepDistribution.reset();
+        backUpChordStepDistribution.reset();
     }
 }
 

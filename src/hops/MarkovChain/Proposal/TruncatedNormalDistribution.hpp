@@ -51,6 +51,10 @@ namespace hops {
             return pdf / inverseNormalization(param_type(sigma, lowerBound, upperBound));
         }
 
+        void reset() {
+            uniformRealDistribution.reset();
+        }
+
     private:
         RealType inverseCumulativeDensityFunction(RealType x, const param_type &params) const {
             x *= params.m_phiUpper - params.m_phiLower;

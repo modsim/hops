@@ -83,6 +83,8 @@ namespace hops {
 
         const VectorType &getB() const override;
 
+        virtual void resetDistributions() override;
+
     private:
         InternalMatrixType A;
         MatrixType Adense;
@@ -289,6 +291,13 @@ namespace hops {
     template<typename InternalMatrixType>
     long BilliardWalkProposal<InternalMatrixType>::getNumberOfReflections() const {
         return numberOfReflections;
+    }
+
+
+    template<typename InternalMatrixType>
+    void BilliardWalkProposal<InternalMatrixType>::resetDistributions() {
+        normalDistribution.reset();
+        chordStepDistribution.reset();
     }
 }// namespace hops
 

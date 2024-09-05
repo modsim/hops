@@ -107,6 +107,8 @@ namespace hops {
 
         [[nodiscard]] std::unique_ptr<Model> getModel() const;
 
+        virtual void resetDistributions();
+
     private:
         VectorType computeGradient(VectorType x);
 
@@ -479,6 +481,11 @@ namespace hops {
     std::vector<std::string>
     BilliardMALAProposal<ModelType, InternalMatrixType>::getDimensionNames() const {
         return dimensionNames;
+    }
+
+    template<typename ModelType, typename InternalMatrixType>
+    void BilliardMALAProposal<ModelType, InternalMatrixType>::resetDistributions() {
+        normalDistribution.reset();
     }
 }// namespace hops
 

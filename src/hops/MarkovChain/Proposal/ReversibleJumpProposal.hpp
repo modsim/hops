@@ -121,6 +121,8 @@ namespace hops {
 
         void setLastProposalJumpedModel(bool lastProposalJumpedModel);
 
+        void resetDistributions() override;
+
     private:
         VectorType &proposeModel(RandomNumberGenerator &randomNumberGenerator);
 

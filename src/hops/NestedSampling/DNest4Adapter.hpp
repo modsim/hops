@@ -73,7 +73,6 @@ namespace hops {
          */
         [[nodiscard]] std::string description() const;
 
-    private:
         void swap(DNest4Adapter &other) noexcept;
 
         double proposalLogAcceptanceProbability = 0;

@@ -62,12 +62,9 @@ void hops::DNest4Adapter::print(std::ostream &out) const {
 }
 
 void hops::DNest4Adapter::print_internal(std::ostream &out) const {
+    this->proposal->resetDistributions();
     for (long i = 0; i < this->proposal->getProposal().rows(); i++) {
         out << this->proposal->getProposal()(i) << ' ';
-    }
-    auto ptr = dynamic_cast<ReversibleJumpProposal*>(this->proposal.get());
-    if(ptr != nullptr) {
-        out << ptr->isLastProposalJumpedModel() << ' ';
     }
 }
 
@@ -82,6 +79,7 @@ void hops::DNest4Adapter::read(std::istream &in) {
 }
 
 void hops::DNest4Adapter::read_internal(std::istream &in) {
+    this->proposal->resetDistributions();
     hops::VectorType readProposal = this->proposal->getProposal();
     std::string temp_str;
     for (long i = 0; i < readProposal.rows(); i++) {
@@ -89,12 +87,6 @@ void hops::DNest4Adapter::read_internal(std::istream &in) {
         readProposal(i) = strtod(temp_str.c_str(), NULL);
     }
     this->proposal->setProposal(readProposal);
-    auto ptr = dynamic_cast<ReversibleJumpProposal*>(this->proposal.get());
-    if(ptr != nullptr) {
-        bool isLastProposalJumpedModel;
-        in >> isLastProposalJumpedModel;
-        ptr->setLastProposalJumpedModel(isLastProposalJumpedModel);
-    }
 }
 
 std::string hops::DNest4Adapter::description() const {
@@ -125,6 +117,5 @@ hops::DNest4Adapter &hops::DNest4Adapter::operator=(DNest4Adapter &&other) noexc
 
 void hops::DNest4Adapter::accept_perturbation() {
     proposal->acceptProposal();
-    // after acceptProposal accepting proposal again is not valid.
     proposalLogAcceptanceProbability = -std::numeric_limits<double>::infinity();
 }

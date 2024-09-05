@@ -90,6 +90,8 @@ namespace hops {
 
         [[nodiscard]] std::unique_ptr<Model> getModel() const;
 
+        void resetDistributions() override;
+
     private:
         VectorType computeTruncatedGradient(VectorType x);
 
@@ -411,6 +413,11 @@ namespace hops {
     template<typename ModelType, typename InternalMatrixType>
     std::vector<std::string> CSmMALAProposal<ModelType, InternalMatrixType>::getDimensionNames() const {
         return dimensionNames;
+    }
+
+    template<typename ModelType, typename InternalMatrixType>
+    void CSmMALAProposal<ModelType, InternalMatrixType>::resetDistributions() {
+        normalDistribution.reset();
     }
 
 }

@@ -73,6 +73,8 @@ namespace hops {
 
         [[nodiscard]] const VectorType &getB() const override;
 
+        void resetDistributions() override;
+
     private:
         MatrixType A;
         VectorType b;
@@ -95,6 +97,11 @@ namespace hops {
 
         std::vector<std::string> dimensionNames;
     };
+
+    template<typename InternalMatrixType, typename InternalVectorType>
+    void DikinProposal<InternalMatrixType, InternalVectorType>::resetDistributions() {
+        normalDistribution.reset();
+    }
 
     template<typename InternalMatrixType, typename InternalVectorType>
     DikinProposal<InternalMatrixType, InternalVectorType>::DikinProposal(InternalMatrixType A,

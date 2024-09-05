@@ -52,9 +52,16 @@ namespace hops {
 
         [[nodiscard]] std::unique_ptr<Proposal> copyProposal() const override;
 
+        void resetDistributions() override;
+
     private:
         long m_maxReflections;
     };
+
+    template<typename InternalMatrixType>
+    void BilliardAdaptiveMetropolisProposal<InternalMatrixType>::resetDistributions() {
+        AdaptiveMetropolisProposal<InternalMatrixType>::resetDistributions();
+    }
 
     template<typename InternalMatrixType>
     BilliardAdaptiveMetropolisProposal<InternalMatrixType>::BilliardAdaptiveMetropolisProposal(
