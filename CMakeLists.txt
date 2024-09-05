@@ -100,8 +100,8 @@ endif ()
 ########################################################################################################################
 
 if (NOT ${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-#    message(STATUS "Disabling Runtime checks: Using Release mode for hops and Eigen")
-#    add_definitions(-DNDEBUG)
+    message(STATUS "Disabling Runtime checks: Using Release mode for hops and Eigen")
+    add_definitions(-DNDEBUG)
 else ()
     message(STATUS "Enabling Runtime checks.")
 endif (NOT ${CMAKE_BUILD_TYPE} STREQUAL "Debug")

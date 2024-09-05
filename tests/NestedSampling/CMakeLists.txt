@@ -2,6 +2,7 @@ if (NOT HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
 	set(TEST_SOURCES
 #			DiffusiveNestedSamplingTestSuite.cpp
 #			LogLikelihoodValueTestSuite.cpp
+			DNest4AdapterTestSuite.cpp
 			)
 	if(HOPS_DNEST4_SUPPORT)
 	   if (OpenMP_CXX_FOUND)
