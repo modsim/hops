@@ -96,6 +96,7 @@ std::string hops::DNest4Adapter::description() const {
         description += p + ", ";
     }
     description.pop_back();
+    description.pop_back();
     return description;
 }
 
