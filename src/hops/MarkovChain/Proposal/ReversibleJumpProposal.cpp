@@ -63,6 +63,7 @@ hops::ReversibleJumpProposal::ReversibleJumpProposal(std::unique_ptr<Proposal> p
     this->m_logAcceptanceChanceModelJump = 0;
     this->m_proposal = VectorType::Zero(m_activationProposal.rows() + parameterState.rows());
     this->m_lastProposalJumpedModel = false;
+    this->m_proposal = wrapProposal(m_proposalImpl->getProposal());
 }
 
 hops::ReversibleJumpProposal::ReversibleJumpProposal(const ReversibleJumpProposal &other) {

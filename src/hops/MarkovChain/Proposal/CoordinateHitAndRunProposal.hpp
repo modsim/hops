@@ -239,6 +239,7 @@ namespace hops {
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
     void CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::setProposal(
             const VectorType &newProposal) {
+        shouldRecomputeSlacks = true;
         CoordinateHitAndRunProposal::proposal = newProposal;
         proposalSlacks = b - A * CoordinateHitAndRunProposal::proposal;
         if((proposalSlacks.array() < 0 ).any()) {
