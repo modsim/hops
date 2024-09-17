@@ -80,6 +80,13 @@ namespace hops {
             return truncatedNormalDistribution.inverseNormalization({sigma, lowerLimit, upperLimit});
         }
 
+        RealType computeInverseNormalizationConstant(RealType lowerLimit, RealType upperLimit) {
+            if(lowerLimit >= upperLimit) {
+                throw std::invalid_argument("GaussianStepDistribution: Lower limit is larger than upper limit. Check the polytope.");
+            }
+            return truncatedNormalDistribution.inverseNormalization({stepSize, lowerLimit, upperLimit});
+        }
+
         RealType computeProbabilityDensity(RealType x, RealType sigma, RealType lowerLimit, RealType upperLimit){
             if(lowerLimit >= upperLimit) {
                 throw std::invalid_argument("GaussianStepDistribution: Lower limit is larger than upper limit. Check the polytope.");

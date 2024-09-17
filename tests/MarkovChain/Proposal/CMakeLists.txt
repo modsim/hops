@@ -10,6 +10,7 @@ set(TEST_SOURCES
         IsSetStepSizeAvailableTestSuite.cpp
         ReflectorTestSuite.cpp
         TrunatedGaussianProposalTestSuite.cpp
+        TrunatedNormalTestSuite.cpp
         )
 
 if (CMAKE_BUILD_TYPE STREQUAL "Release")

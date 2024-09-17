@@ -1,7 +1,7 @@
 #ifndef HOPS_COORDINATEHITANDRUNPROPOSAL_HPP
 #define HOPS_COORDINATEHITANDRUNPROPOSAL_HPP
 
-#include <iostream>
+#include <cmath>
 #include <optional>
 #include <random>
 
@@ -125,7 +125,7 @@ namespace hops {
     template<typename InternalMatrixType, typename InternalVectorType, typename ChordStepDistribution>
     VectorType &CoordinateHitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution>::propose(
             RandomNumberGenerator &rng) {
-        shouldRecomputeSlacks = false;
+        this->shouldRecomputeSlacks = false;
         proposal(coordinateToUpdate) = state(coordinateToUpdate);
         ++coordinateToUpdate %= state.rows();
 
@@ -200,7 +200,7 @@ namespace hops {
                                                                                                            step,
                                                                                                            forwardDistance -
                                                                                                            step);
-                detailedBalance += detailedBalanceState - detailedBalanceProposal;
+                detailedBalance += std::log(detailedBalanceState) - std::log(detailedBalanceProposal);
             }
 
         }
@@ -289,7 +289,7 @@ namespace hops {
                                                                                                        step,
                                                                                                        forwardDistance -
                                                                                                        step);
-            return detailedBalanceState - detailedBalanceProposal;
+            return std::log(detailedBalanceState) - std::log(detailedBalanceProposal);
         } else {
             return 0;
         }

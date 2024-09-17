@@ -1,6 +1,7 @@
 #ifndef HOPS_HITANDRUNPROPOSAL_HPP
 #define HOPS_HITANDRUNPROPOSAL_HPP
 
+#include <cmath>
 #include <optional>
 #include <random>
 
@@ -99,7 +100,7 @@ namespace hops {
                                                                                                        step,
                                                                                                        forwardDistance -
                                                                                                        step);
-            return detailedBalanceState - detailedBalanceProposal;
+            return std::log(detailedBalanceState) - std::log(detailedBalanceProposal);
         } else {
             double detailedBalanceState = chordStepDistribution.computeInverseNormalizationConstant(1,
                                                                                                     backwardDistance,
@@ -109,7 +110,7 @@ namespace hops {
                                                                                                        step,
                                                                                                        forwardDistance -
                                                                                                        step);
-            return detailedBalanceState - detailedBalanceProposal;
+            return std::log(detailedBalanceState) - std::log(detailedBalanceProposal);
         }
     }
 

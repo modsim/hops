@@ -62,7 +62,7 @@ namespace hops {
             return inv_Phi(x) * params.m_sigma;
         }
 
-        std::uniform_real_distribution<> uniformRealDistribution{0, 1};
+        std::uniform_real_distribution<RealType> uniformRealDistribution{0, 1};
 
         static const constexpr RealType one_over_sqrt_2pi = RealType(0.398942280401432677939946);
         static const constexpr RealType sqrt_2pi = RealType(2.50662827463100050241577);
