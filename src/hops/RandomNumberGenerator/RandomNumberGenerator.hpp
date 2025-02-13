@@ -108,7 +108,7 @@ namespace hops {
         }
 
         result_type operator-(const RandomNumberGenerator &other) const {
-            return this->rng_ - other.rng_;
+            return static_cast<result_type>(this->rng_ - other.rng_);
         }
 
         static std::array<char, 16> stateToBytes(pcg64::state_type state) {
@@ -124,13 +124,14 @@ namespace hops {
         }
 
         static std::string stringRepresentation(state_type value) {
-            if (value == 0) {
+            if (value == static_cast<state_type>(0)) {
                 return "0";
             }
             std::string representation;
-            while (value > 0) {
-                representation.insert(representation.begin(), '0' + (value % 10));
-                value /= 10;
+	    auto short_value = static_cast<long>(value);
+            while (short_value > static_cast<decltype(short_value)>(0)) {
+                representation.insert(representation.begin(), '0' + (short_value % static_cast<decltype(short_value)>(10)));
+                short_value = short_value/static_cast<state_type>(10);
             }
             return representation;
         }
