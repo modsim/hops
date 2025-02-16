@@ -111,14 +111,14 @@ namespace hops {
             return static_cast<result_type>(this->rng_ - other.rng_);
         }
 
-        static std::array<char, 16> stateToBytes(pcg64::state_type state) {
+        static std::array<char, 16> stateToBytes(state_type state) {
             std::array<char, 16> bytes;
             std::memcpy(bytes.data(), &state, 16);
             return bytes;
         }
 
-        static pcg64::state_type bytesToState(const std::array<char, 16> &bytes) {
-            pcg64::state_type state = 0;
+        static state_type bytesToState(const std::array<char, 16> &bytes) {
+            state_type state = 0;
             std::memcpy(&state, bytes.data(), 16);
             return state;
         }
@@ -128,7 +128,7 @@ namespace hops {
                 return "0";
             }
             std::string representation;
-	    auto short_value = static_cast<long>(value);
+	        auto short_value = static_cast<long>(value);
             while (short_value > static_cast<decltype(short_value)>(0)) {
                 representation.insert(representation.begin(), '0' + (short_value % static_cast<decltype(short_value)>(10)));
                 short_value = short_value/static_cast<state_type>(10);
