@@ -23,3 +23,7 @@ double hops::JumpableModel<std::unique_ptr<hops::Model>>::computeNegativeLogLike
 std::vector<std::string> hops::JumpableModel<std::unique_ptr<hops::Model>>::getDimensionNames() const {
     return modelImpl->getDimensionNames();
 }
+
+std::unique_ptr<hops::Model> hops::JumpableModel<std::unique_ptr<hops::Model>>::copyModelImpl() const {
+    return modelImpl->copyModel();
+}

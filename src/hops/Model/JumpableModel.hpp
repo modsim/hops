@@ -16,6 +16,8 @@ namespace hops {
 
         [[nodiscard]] std::unique_ptr<Model> copyModel() const override;
 
+        [[nodiscard]] std::unique_ptr<Model> copyModelImpl() const;
+
         std::optional<VectorType> computeLogLikelihoodGradient(const VectorType &x) override;
 
         std::optional<MatrixType> computeExpectedFisherInformation(const VectorType &type) override;
@@ -45,7 +47,6 @@ namespace hops {
         }
 
         JumpableModel<std::unique_ptr<Model>>& operator=(JumpableModel<std::unique_ptr<Model>> &&other) {
-            this->modelImpl = other.modelImpl->copyModel();
             this->modelImpl = std::move(other.modelImpl);
             return *this;
         }
@@ -55,6 +56,8 @@ namespace hops {
         [[nodiscard]] std::vector<std::string> getDimensionNames() const override;
 
         [[nodiscard]] std::unique_ptr<Model> copyModel() const override;
+
+        [[nodiscard]] std::unique_ptr<Model> copyModelImpl() const;
 
         std::optional<VectorType> computeLogLikelihoodGradient(const VectorType &x) override;
 
@@ -82,6 +85,10 @@ namespace hops {
         return std::make_unique<JumpableModel<ModelImpl>>(*this);
     }
 
+    template<typename ModelImpl>
+    std::unique_ptr<hops::Model> hops::JumpableModel<ModelImpl>::copyModelImpl() const {
+        return std::make_unique<decltype(modelImpl)>(modelImpl);
+    }
 
     template<typename ModelImpl>
     std::optional<VectorType> JumpableModel<ModelImpl>::computeLogLikelihoodGradient(const VectorType &x) {
