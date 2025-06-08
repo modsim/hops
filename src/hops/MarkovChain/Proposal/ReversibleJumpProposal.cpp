@@ -79,6 +79,9 @@ hops::ReversibleJumpProposal::ReversibleJumpProposal(const ReversibleJumpProposa
     this->m_forwarDistances = other.m_forwarDistances;
     this->m_A = other.m_A;
     this->m_b = other.m_b;
+    this->m_modelJumpProbability = other.m_modelJumpProbability;
+    this->m_activiationProbability = other.m_activiationProbability;
+    this->m_deativationProbability = other.m_deativationProbability;
 }
 
 hops::ReversibleJumpProposal::ReversibleJumpProposal(ReversibleJumpProposal &&other) noexcept {
@@ -94,6 +97,9 @@ hops::ReversibleJumpProposal::ReversibleJumpProposal(ReversibleJumpProposal &&ot
     this->m_forwarDistances = other.m_forwarDistances;
     this->m_A = other.m_A;
     this->m_b = other.m_b;
+    this->m_modelJumpProbability = other.m_modelJumpProbability;
+    this->m_activiationProbability = other.m_activiationProbability;
+    this->m_deativationProbability = other.m_deativationProbability;
 }
 
 hops::ReversibleJumpProposal &hops::ReversibleJumpProposal::operator=(const ReversibleJumpProposal &other) {
@@ -109,6 +115,9 @@ hops::ReversibleJumpProposal &hops::ReversibleJumpProposal::operator=(const Reve
     this->m_forwarDistances = other.m_forwarDistances;
     this->m_A = other.m_A;
     this->m_b = other.m_b;
+    this->m_modelJumpProbability = other.m_modelJumpProbability;
+    this->m_activiationProbability = other.m_activiationProbability;
+    this->m_deativationProbability = other.m_deativationProbability;
     return *this;
 }
 
@@ -125,6 +134,9 @@ hops::ReversibleJumpProposal &hops::ReversibleJumpProposal::operator=(Reversible
     this->m_forwarDistances = other.m_forwarDistances;
     this->m_A = other.m_A;
     this->m_b = other.m_b;
+    this->m_modelJumpProbability = other.m_modelJumpProbability;
+    this->m_activiationProbability = other.m_activiationProbability;
+    this->m_deativationProbability = other.m_deativationProbability;
     return *this;
 }
 
