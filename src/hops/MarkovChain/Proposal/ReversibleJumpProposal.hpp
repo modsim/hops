@@ -16,7 +16,6 @@
 
 namespace hops {
 
-
     enum class PriorNormalization {
         PARAMETER_CENTRIC,
         MODEL_CENTRIC,
