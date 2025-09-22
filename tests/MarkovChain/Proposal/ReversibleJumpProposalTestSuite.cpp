@@ -344,7 +344,7 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
                         hops::ReversibleJumpProposal(
                                 std::move(proposal),
                                 jumpIndices,
-                                defaultValues
+                                defaultValues,
                         )
                 )
         );

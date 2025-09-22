@@ -15,6 +15,14 @@
 #include "Proposal.hpp"
 
 namespace hops {
+
+
+    enum class PriorNormalization {
+        PARAMETER_CENTRIC,
+        MODEL_CENTRIC,
+        CUSTOM,
+    };
+
     /**
      * @tparam ProposalImpl is required to have a model mixed in already.
      */
@@ -24,7 +32,8 @@ namespace hops {
                                const Eigen::VectorXi &jumpIndices,
                                const VectorType &parameterDefaultValues,
                                const std::optional<Eigen::MatrixXd> &A = std::nullopt,
-                               const std::optional<Eigen::VectorXd> &b = std::nullopt);
+                               const std::optional<Eigen::VectorXd> &b = std::nullopt,
+                               PriorNormalization priorNormalization = PriorNormalization::MODEL_CENTRIC);
 
         ReversibleJumpProposal(const ReversibleJumpProposal &other);
 
@@ -155,6 +164,8 @@ namespace hops {
 
         Eigen::MatrixXd m_A;
         Eigen::VectorXd m_b;
+
+        PriorNormalization priorNormalization;
     };
 }// namespace hops
 

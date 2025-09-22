@@ -37,7 +37,8 @@ namespace hops {
                 return matrix.template triangularView<Eigen::Upper>().solve(vector - shift);
             } else {
                 VectorType rhs = vector-shift;
-                return matrix.bdcSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(rhs);
+                Eigen::BDCSVD<MatrixType> svd(matrix);
+                return svd.compute(rhs, Eigen::ComputeThinU | Eigen::ComputeThinV);
             }
         }
 
