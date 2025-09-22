@@ -345,7 +345,9 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
                                 std::move(proposal),
                                 jumpIndices,
                                 defaultValues,
-                                priorNormalization=hops::PriorNormalization::MODEL_CENTRIC
+                                std::nullopt,
+                                std::nullopt,
+                                hops::PriorNormalization::MODEL_CENTRIC
                         )
                 )
         );
