@@ -299,7 +299,7 @@ hops::VectorType &hops::ReversibleJumpProposal::proposeModel(RandomNumberGenerat
             m_logAcceptanceChanceModelJump += std::log(m_activiationProbability);
             m_logAcceptanceChanceModelJump -= std::log(m_deativationProbability);
             if (priorNormalization == PriorNormalization::MODEL_CENTRIC) {
-                m_logAcceptanceChanceModelJump += std::log(m_backwardDistances(i) - m_forwarDistances(i));
+                m_logAcceptanceChanceModelJump += std::log(m_forwarDistances(i)-m_backwardDistances(i));
             }
             parameterProposal(jumpIndex) = m_defaultValues(i);
         } else if (this->m_activationProposal(jumpIndex) && !this->m_activationState(jumpIndex)) {
@@ -307,7 +307,7 @@ hops::VectorType &hops::ReversibleJumpProposal::proposeModel(RandomNumberGenerat
             m_logAcceptanceChanceModelJump -= std::log(m_activiationProbability);
             m_logAcceptanceChanceModelJump += std::log(m_deativationProbability);
             if (priorNormalization == PriorNormalization::MODEL_CENTRIC) {
-                m_logAcceptanceChanceModelJump -= std::log(m_backwardDistances(i) - m_forwarDistances(i));
+                m_logAcceptanceChanceModelJump -= std::log(m_forwarDistances(i) - m_backwardDistances(i));
             }
             parameterProposal(jumpIndex) = m_defaultValues(i) + stepDistribution.draw(randomNumberGenerator,
                                                                                       m_backwardDistances(i),
