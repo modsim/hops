@@ -56,7 +56,6 @@ namespace hops {
          * @param b
          * @param startPoint
          * @param roundingTransformation  IMPORTANT: Should be lower triangular
-         * @param shift
          * @param model
          * @param chainType
          * @param numberOfSamples
@@ -104,7 +103,6 @@ namespace hops {
                        long maxTuningIterations) {
 
         Eigen::MatrixXd roundingTrafo = Eigen::MatrixXd::Identity(startPoint.rows(), startPoint.rows());
-        Eigen::VectorXd shift = Eigen::VectorXd::Zero(startPoint.rows());
         Eigen::VectorXd startPointRounded = startPoint;
 
         if (rounding) {
@@ -121,7 +119,6 @@ namespace hops {
             b,
             startPointRounded,
             roundingTrafo,
-            shift,
             model,
             chainType,
             numberOfSamples,
