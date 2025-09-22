@@ -10,7 +10,7 @@
 #include "hops/Model/Model.hpp"
 #include "hops/Transformation/Transformation.hpp"
 #include "hops/Utility/DefaultDimensionNames.hpp"
-#include "hops/Ut/ility/LogSqrtDeterminant.hpp"
+#include "hops/Utility/LogSqrtDeterminant.hpp"
 #include "hops/Utility/MatrixType.hpp"
 #include "hops/Utility/StringUtility.hpp"
 #include "hops/Utility/VectorType.hpp"
