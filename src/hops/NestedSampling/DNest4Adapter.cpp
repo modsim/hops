@@ -34,12 +34,7 @@ void hops::DNest4Adapter::from_prior(size_t i) {
 
 double hops::DNest4Adapter::perturb(DNest4::RNG &rng) {
     proposal->propose(rng.engine);
-    // In case the proposer uses the loglikelihoods directly, we subtract them again, because DNEST4
-    // expects this acceptance chance to not contain them already.
-    // If the proposers doesn't know the loglikelihoods, they are 0 anyways.
-    proposalLogAcceptanceProbability = proposal->computeLogAcceptanceProbability()
-                                       + proposal->getProposalNegativeLogLikelihood()
-                                       - proposal->getStateNegativeLogLikelihood();
+    proposalLogAcceptanceProbability = proposal->computeLogAcceptanceProbability();
     return proposalLogAcceptanceProbability;
 }
 
