@@ -143,7 +143,7 @@ namespace hops {
                        const VectorType &b,
                        const VectorType &startPoint,
                        const MatrixType &roundingTransformation,
-                       const MatrixType &shift,
+                       const MatrixType &,
                        const ModelType &model,
                        MarkovChainType chainType,
                        long numberOfSamples,

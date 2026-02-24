@@ -122,7 +122,7 @@ namespace hops {
     std::vector<std::string>
     BilliardAdaptiveMetropolisProposal<InternalMatrixType>::getParameterNames() const {
         std::vector<std::string> parameterNames = AdaptiveMetropolisProposal<InternalMatrixType>::getParameterNames();
-        parameterNames.template emplace_back("max_reflections");
+        parameterNames.emplace_back("max_reflections");
         return parameterNames;
     }
 

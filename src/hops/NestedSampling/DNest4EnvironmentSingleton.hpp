@@ -32,7 +32,6 @@ namespace hops {
         std::vector<VectorType> prior_samples;
         std::unique_ptr<hops::Proposal> proposal;
         std::unique_ptr<hops::Model> model;
-        size_t numberOfPriorSteps; // number of steps for the priorProposer to take until we take on sample of it as initial value.
 
         DNest4EnvironmentSingleton() = default;
 

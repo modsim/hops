@@ -107,7 +107,7 @@ namespace hops {
 
         [[nodiscard]] std::unique_ptr<Model> getModel() const;
 
-        virtual void resetDistributions();
+        virtual void resetDistributions() override;
 
     private:
         VectorType computeGradient(VectorType x);
@@ -284,7 +284,7 @@ namespace hops {
         }
 
         driftedState = state + 0.5 * std::pow(covarianceFactor, 2) *
-                               stateSolver.matrixU().template solve(stateSolver.matrixL().solve(gradient));
+                               stateSolver.matrixU().solve(stateSolver.matrixL().solve(gradient));
 
         stateNegativeLogLikelihood = ModelType::computeNegativeLogLikelihood(state);
     }
@@ -346,7 +346,7 @@ namespace hops {
 
         driftedProposal = proposal +
                           0.5 * std::pow(covarianceFactor, 2) *
-                          proposalSolver.matrixU().template solve(
+                          proposalSolver.matrixU().solve(
                                   proposalSolver.matrixL().solve(gradient));
 
         proposalNegativeLogLikelihood = ModelType::computeNegativeLogLikelihood(proposal);
