@@ -2,7 +2,7 @@
 # Test subdirectories
 ########################################################################################################################
 
-find_package(Boost CONFIG REQUIRED COMPONENTS unit_test_framework)
+find_package(Boost REQUIRED COMPONENTS unit_test_framework)
 set (Boost_USE_STATIC_LIBS OFF)
 
 file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/tests/reports)

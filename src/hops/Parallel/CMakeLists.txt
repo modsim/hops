@@ -1,4 +1,5 @@
 if (HOPS_MPI)
+    message(WARNING "MPI support will be deprecated in a future release")
     find_package(MPI REQUIRED COMPONENTS CXX)
 
     if (MPI_FOUND)
