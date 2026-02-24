@@ -212,7 +212,7 @@ namespace hops {
         };
         stateLogSqrtDeterminant = logSqrtDeterminant(stateSolver.matrixLLT());
         driftedState = state + 0.5 * std::pow(covarianceFactor, 2) *
-                               stateSolver.matrixL().transpose().template solve(stateSolver.matrixL().solve(gradient));
+                               stateSolver.matrixL().transpose().solve(stateSolver.matrixL().solve(gradient));
         stateNegativeLogLikelihood = ModelType::computeNegativeLogLikelihood(state);
     }
 
@@ -279,7 +279,7 @@ namespace hops {
         proposalLogSqrtDeterminant = logSqrtDeterminant(proposalSolver.matrixLLT());
         driftedProposal = proposal +
                           0.5 * std::pow(covarianceFactor, 2) *
-                          proposalSolver.matrixL().transpose().template solve(
+                          proposalSolver.matrixL().transpose().solve(
                                   proposalSolver.matrixL().solve(gradient));
         proposalNegativeLogLikelihood = ModelType::computeNegativeLogLikelihood(proposal);
 

@@ -1,8 +1,16 @@
 if (HOPS_MPI)
-    find_package(MPI)
+    message(WARNING "MPI support will be deprecated in a future release")
+    find_package(MPI REQUIRED COMPONENTS CXX)
 
     if (MPI_FOUND)
-        message(STATUS "found MPI ${MPI_LIBRARIES} ${MPI_INCLUDE_PATH} ${MPI_C_INCLUDE_DIRS} ${MPI_C_LIBRARIES}.")
+        message(STATUS "Found MPI ${MPI_CXX_LIBRARIES} ${MPI_CXX_INCLUDE_PATH} ${MPI_C_INCLUDE_DIRS} ${MPI_C_LIBRARIES}.")
+        message(STATUS "MPI_FOUND=${MPI_FOUND}")
+        message(STATUS "MPI_CXX_FOUND=${MPI_CXX_FOUND}")
+        message(STATUS "MPI_CXX_COMPILER=${MPI_CXX_COMPILER}")
+        message(STATUS "MPI_CXX_INCLUDE_DIRS=${MPI_CXX_INCLUDE_DIRS}")
+        message(STATUS "MPI_CXX_LIBRARIES=${MPI_CXX_LIBRARIES}")
+        message(STATUS "MPI_CXX_COMPILE_OPTIONS=${MPI_CXX_COMPILE_OPTIONS}")
+        message(STATUS "MPI_CXX_LINK_FLAGS=${MPI_CXX_LINK_FLAGS}")
 
         target_compile_definitions(hops INTERFACE HOPS_MPI_SUPPORTED)
         target_compile_definitions(hops ${SCOPE} HOPS_MPI_SUPPORTED)

@@ -87,7 +87,7 @@ namespace hops {
             Eigen::VectorXd inverseDistancesToBorder = activeConstraints.cwiseProduct(
                     ((inequalityConstraintMatrix * trajectoryDirection).cwiseQuotient(slacks)));
 
-            double distanceToBorder = 1. / inverseDistancesToBorder.array().template unaryExpr(
+            double distanceToBorder = 1. / inverseDistancesToBorder.array().unaryExpr(
                     [](double v) { return std::isfinite(v) ? v : -1; }).maxCoeff();
 
             if (distanceToBorder < 0) {
@@ -158,7 +158,7 @@ namespace hops {
             Eigen::VectorXd inverseDistancesToBorder = activeConstraints.cwiseProduct(
                     ((inequalityConstraintMatrix * trajectoryDirection).cwiseQuotient(slacks)));
 
-            double distanceToLinearConstraints = 1. / inverseDistancesToBorder.array().template unaryExpr(
+            double distanceToLinearConstraints = 1. / inverseDistancesToBorder.array().unaryExpr(
                     [](double v) { return std::isfinite(v) ? v : -1; }).maxCoeff();
 
             // set up p-q-formula for ellispoid distance

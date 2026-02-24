@@ -177,7 +177,6 @@ BOOST_AUTO_TEST_SUITE(BilliardMALAProposal)
         proposer.setParameter(hops::ProposalParameter::COLDNESS, 0.5);
 
         hops::RandomNumberGenerator randomNumberGenerator(42);
-        auto t1 = std::chrono::high_resolution_clock::now();
         for (int i = 0; i < 100; ++i) {
             Eigen::VectorXd proposal = proposer.propose(randomNumberGenerator);
             BOOST_CHECK(((b - A * proposal).array() > 0).all());
@@ -186,7 +185,6 @@ BOOST_AUTO_TEST_SUITE(BilliardMALAProposal)
             BOOST_CHECK(std::exp(acceptanceChance) >= 0);
             proposer.acceptProposal();
         }
-        auto t2 = std::chrono::high_resolution_clock::now();
 
         BOOST_CHECK(proposer.getModel() != nullptr);
     }

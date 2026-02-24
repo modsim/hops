@@ -364,10 +364,8 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
         std::vector<double> shape;
 
         std::string model_name;
-        double acceptanceRates = 0;
         for (long i = 0; i < numberOfSamples; ++i) {
             auto[acceptanceRate, state] = markovChain->draw(randomNumberGenerator);
-            acceptanceRates += acceptanceRate;
             models.emplace_back(state.topRows(state.rows() / 2));
             int model_index = 0;
 
@@ -445,10 +443,8 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
         std::vector<double> shape;
 
         std::string model_name;
-        double acceptanceRates = 0;
         for (long i = 0; i < numberOfSamples; ++i) {
             auto[acceptanceRate, state] = markovChain->draw(randomNumberGenerator);
-            acceptanceRates += acceptanceRate;
             models.emplace_back(state.topRows(state.rows() / 2));
             int model_index = 0;
 
@@ -528,10 +524,8 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
         std::vector<double> shape;
 
         std::string model_name;
-        double acceptanceRates = 0;
         for (long i = 0; i < numberOfSamples; ++i) {
             auto[acceptanceRate, state] = markovChain->draw(randomNumberGenerator);
-            acceptanceRates += acceptanceRate;
             models.emplace_back(state.topRows(state.rows() / 2));
             int model_index = 0;
 
@@ -607,10 +601,8 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
         std::vector<double> shape;
 
         std::string model_name;
-        double acceptanceRates = 0;
         for (long i = 0; i < numberOfSamples; ++i) {
             auto[acceptanceRate, state] = markovChain->draw(randomNumberGenerator);
-            acceptanceRates += acceptanceRate;
             models.emplace_back(state.topRows(state.rows() / 2));
             int model_index = 0;
 
@@ -686,10 +678,8 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
         std::vector<double> shape;
 
         std::string model_name;
-        double acceptanceRates = 0;
         for (long i = 0; i < numberOfSamples; ++i) {
             auto[acceptanceRate, state] = markovChain->draw(randomNumberGenerator);
-            acceptanceRates += acceptanceRate;
             models.emplace_back(state.topRows(state.rows() / 2));
             int model_index = 0;
 
@@ -765,10 +755,8 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
         std::vector<double> shape;
 
         std::string model_name;
-        double acceptanceRates = 0;
         for (long i = 0; i < numberOfSamples; ++i) {
             auto[acceptanceRate, state] = markovChain->draw(randomNumberGenerator);
-            acceptanceRates += acceptanceRate;
             models.emplace_back(state.topRows(state.rows() / 2));
             int model_index = 0;
 
@@ -844,10 +832,8 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
         std::vector<double> shape;
 
         std::string model_name;
-        double acceptanceRates = 0;
         for (long i = 0; i < numberOfSamples; ++i) {
             auto[acceptanceRate, state] = markovChain->draw(randomNumberGenerator);
-            acceptanceRates += acceptanceRate;
             models.emplace_back(state.topRows(state.rows() / 2));
             int model_index = 0;
 
@@ -923,10 +909,8 @@ BOOST_FIXTURE_TEST_SUITE(ReversibleJumpProposal, ReversibleJumpProposalTestFixtu
         std::vector<double> shape;
 
         std::string model_name;
-        double acceptanceRates = 0;
         for (long i = 0; i < numberOfSamples; ++i) {
             auto[acceptanceRate, state] = markovChain->draw(randomNumberGenerator);
-            acceptanceRates += acceptanceRate;
             models.emplace_back(state.topRows(state.rows() / 2));
             int model_index = 0;
 

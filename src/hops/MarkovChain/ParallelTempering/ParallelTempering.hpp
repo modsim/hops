@@ -166,7 +166,7 @@ namespace hops {
         }
 
         ParallelTempering(const MarkovChainImpl &markovChainImpl, // NOLINT(cppcoreguidelines-pro-type-member-init)
-                          RandomNumberGenerator synchronizedRandomNumberGenerator) : MarkovChainImpl(markovChainImpl) {
+                          RandomNumberGenerator) : MarkovChainImpl(markovChainImpl) {
             throw std::runtime_error("MPI not supported on current platform");
         }
 

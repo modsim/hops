@@ -129,8 +129,7 @@ namespace hops {
     VectorType &TruncatedGaussianProposal<InternalMatrixType, InternalVectorType>::propose(RandomNumberGenerator &rng) {
         // A * (L * (wS) + mu) < b
         // A * L * ws < b - A * mu
-        whiteState = cholesky.template triangularView<Eigen::Lower>().
-                template solve(state - mean);
+        whiteState = cholesky.template triangularView<Eigen::Lower>().solve(state - mean);
         for (long i = state.rows() - 1; i >= 0; --i) {
             slacks = whitenedB - whitenedA * whiteState;
             inverseDistances = whitenedA.col(i).cwiseQuotient(slacks);
