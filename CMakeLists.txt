@@ -149,7 +149,7 @@ else (HOPS_LIBRARY_TYPE STREQUAL "HEADER_ONLY")
     add_library(hops ${HOPS_LIBRARY_TYPE})
     target_compile_definitions(hops ${SCOPE} HOPS_HDF5_SUPPORT)
 
-    target_include_directories(hops PUBLIC ${EIGEN3_INCLUDE_DIR}
+    target_include_directories(hops SYSTEM PUBLIC ${EIGEN3_INCLUDE_DIR}
             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
             $<INSTALL_INTERFACE:include>
     )
