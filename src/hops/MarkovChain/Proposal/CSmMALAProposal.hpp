@@ -6,7 +6,6 @@
 #include <random>
 #include <utility>
 
-#include "hops/MarkovChain/Recorder/IsAddMessageAvailabe.hpp"
 #include "hops/Model/Model.hpp"
 #include "hops/Utility/DefaultDimensionNames.hpp"
 #include "hops/Utility/MatrixType.hpp"

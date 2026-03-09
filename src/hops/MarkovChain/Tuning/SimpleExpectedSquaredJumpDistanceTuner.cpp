@@ -1,10 +1,5 @@
 #include "SimpleExpectedSquaredJumpDistanceTuner.hpp"
 
-//extern std::vector<double> measureExpectedSquaredJumpDistance(double stepSize,
-//                                                              std::vector<std::shared_ptr<hops::MarkovChain>>& markovChain,
-//                                                              std::vector<hops::RandomNumberGenerator>& randomNumberGenerator,
-//                                                              const hops::SimpleExpectedSquaredJumpDistanceTuner::param_type& parameters);
-
 std::vector<double> measureExpectedSquaredJumpDistance(double stepSize,
                                            std::vector<std::shared_ptr<hops::MarkovChain>>& markovChain,
                                            std::vector<hops::RandomNumberGenerator>& randomNumberGenerator,

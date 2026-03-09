@@ -39,22 +39,11 @@
 #include "MarkovChain/Proposal/TruncatedGaussianProposal.hpp"
 #include "MarkovChain/Proposal/TruncatedNormalDistribution.hpp"
 
-#include "MarkovChain/Recorder/AcceptanceRateRecorder.hpp"
-#include "MarkovChain/Recorder/IsAddMessageAvailabe.hpp"
-#include "MarkovChain/Recorder/IsClearRecordsAvailable.hpp"
-#include "MarkovChain/Recorder/IsStoreRecordAvailable.hpp"
-#include "MarkovChain/Recorder/IsWriteRecordsToFileAvailable.hpp"
-#include "MarkovChain/Recorder/MessageRecorder.hpp"
-#include "MarkovChain/Recorder/NegativeLogLikelihoodRecorder.hpp"
-#include "MarkovChain/Recorder/StateRecorder.hpp"
-#include "MarkovChain/Recorder/TimestampRecorder.hpp"
-
 #include "MarkovChain/Tuning/AcceptanceRateTarget.hpp"
 #include "MarkovChain/Tuning/AcceptanceRateTuner.hpp"
 #include "MarkovChain/Tuning/BinarySearchAcceptanceRateTuner.hpp"
 #include "MarkovChain/Tuning/ExpectedSquaredJumpDistanceTarget.hpp"
 #include "MarkovChain/Tuning/ExpectedSquaredJumpDistanceTuner.hpp"
-#include "MarkovChain/Tuning/GridSearchTuner.hpp"
 #include "MarkovChain/Tuning/SimpleExpectedSquaredJumpDistanceTuner.hpp"
 #include "MarkovChain/Tuning/ThompsonSamplingTuner.hpp"
 #include "MarkovChain/Tuning/TuningTarget.hpp"
@@ -131,20 +120,13 @@
 #include "Utility/KahanSum.hpp"
 #include "Utility/LogSqrtDeterminant.hpp"
 #include "Utility/MatrixType.hpp"
-#include "Utility/Sampling.hpp"
 #include "Utility/StringUtility.hpp"
 #include "Utility/VectorType.hpp"
 
 #ifdef HOPS_HEADER_ONLY
 
-
 #include "FileReader/CsvReader.cpp"
 #include "FileReader/SbmlReader.cpp"
-
-#ifdef HOPS_HDF5_SUPPORT
-#include "FileReader/Hdf5Reader.cpp"
-#include "FileWriter/Hdf5Writer.cpp"
-#endif //HOPS_HDF5_SUPPORT
 
 #include "FileWriter/CsvWriter.cpp"
 #include "FileWriter/CsvWriterImpl.cpp"
@@ -164,7 +146,6 @@
 
 #include "Utility/DefaultDimensionNames.cpp"
 #include "Utility/KahanSum.cpp"
-#include "Utility/Sampling.cpp"
 #include "Utility/StringUtility.hpp"
 
 

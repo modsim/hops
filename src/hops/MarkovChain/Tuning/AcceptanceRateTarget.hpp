@@ -5,7 +5,6 @@
 #include "hops/MarkovChain/Tuning/TuningTarget.hpp"
 #include "hops/RandomNumberGenerator/RandomNumberGenerator.hpp"
 #include "hops/Statistics/ExpectedSquaredJumpDistance.hpp"
-#include "hops/Utility/MatrixType.hpp"
 #include "hops/Utility/VectorType.hpp"
 
 #include <chrono>

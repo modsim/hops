@@ -5,8 +5,6 @@
 #include <chrono>
 #include <Eigen/Core>
 
-#include "hops/FileReader/CsvReader.hpp"
-#include "hops/MarkovChain/Draw/MetropolisHastingsFilter.hpp"
 #include "hops/MarkovChain/MarkovChainAdapter.hpp"
 #include "hops/MarkovChain/ModelWrapper.hpp"
 #include "hops/MarkovChain/Proposal/TruncatedNormalDistribution.hpp"

@@ -7,7 +7,7 @@ bool hops::ExpectedSquaredJumpDistanceTuner::tune(
         const std::vector<RandomNumberGenerator*>& randomNumberGenerators,
         ExpectedSquaredJumpDistanceTuner::param_type& parameters,
         Eigen::MatrixXd& data) {
-    auto target = ExpectedSquaredJumpDistanceTarget{markovChains, 
+    auto target = hops::ExpectedSquaredJumpDistanceTarget{markovChains,
                                                     static_cast<unsigned long>(parameters.iterationsToTestStepSize), 
                                                     /*lags=*/{1},
                                                     parameters.considerTimeCost,

@@ -2,13 +2,10 @@
 #define HOPS_TRUNCATEDGAUSSIANPROPOSAL_HPP
 
 #include <optional>
-#include <random>
 
 #include "hops/Model/Gaussian.hpp"
 #include "hops/RandomNumberGenerator/RandomNumberGenerator.hpp"
-#include "hops/Utility/DefaultDimensionNames.hpp"
 #include "hops/Utility/MatrixType.hpp"
-#include "hops/Utility/StringUtility.hpp"
 #include "hops/Utility/VectorType.hpp"
 
 #include "ChordStepDistributions.hpp"

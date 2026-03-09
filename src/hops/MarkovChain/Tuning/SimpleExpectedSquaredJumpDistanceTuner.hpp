@@ -2,15 +2,9 @@
 #define HOPS_SIMPLEEXPECTEDSQUAREDJUMPDISTANCETUNER_HPP
 
 #include "hops/Statistics/ExpectedSquaredJumpDistance.hpp"
-#include "hops/FileWriter/FileWriter.hpp"
-#include "hops/FileWriter/FileWriterFactory.hpp"
-#include "hops/FileWriter/FileWriterType.hpp"
 #include "hops/MarkovChain/MarkovChain.hpp"
 
-#include <chrono>
-#include <cmath>
 #include <memory>
-#include <stdexcept>
 #include <vector>
 
 namespace hops {

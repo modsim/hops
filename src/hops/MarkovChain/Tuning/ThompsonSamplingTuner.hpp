@@ -2,14 +2,8 @@
 #define HOPS_THOMPSONSAMPLINGTUNER_HPP
 
 #include <Eigen/Core>
-#include <chrono>
 #include <cmath>
-#include <memory>
-#include <stdexcept>
 
-#include "hops/FileWriter/FileWriter.hpp"
-#include "hops/FileWriter/FileWriterFactory.hpp"
-#include "hops/FileWriter/FileWriterType.hpp"
 #include "hops/MarkovChain/MarkovChain.hpp"
 #include "hops/Optimization/GaussianProcess.hpp"
 #include "hops/Optimization/ThompsonSampling.hpp"

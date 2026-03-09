@@ -4,15 +4,9 @@
 #include "hops/MarkovChain/MarkovChain.hpp"
 #include "hops/MarkovChain/Tuning/TuningTarget.hpp"
 #include "hops/RandomNumberGenerator/RandomNumberGenerator.hpp"
-#include "hops/Statistics/ExpectedSquaredJumpDistance.hpp"
-#include "hops/Utility/MatrixType.hpp"
 #include "hops/Utility/VectorType.hpp"
 
-#include <chrono>
-#include <cmath>
 #include <memory>
-#include <numeric>
-#include <stdexcept>
 
 #ifdef _OPENMP
 #include <omp.h>

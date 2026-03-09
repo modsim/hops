@@ -2,6 +2,7 @@
 code-quality-report.json
 cppcheck_out.xml
 
+build/
 cmake-build*/
 .vs
 out

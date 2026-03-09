@@ -16,17 +16,17 @@ namespace hops {
         DEACTIVATION_PROBABILITY,
     };
 
-    __attribute__((unused)) static char const *ProposalParameterName[] = {
-            "boundary_cushion",
-            "coldness",
-            "epsilon",
-            "fisher_weight",
-            "step_size",
-            "warm_up",
-            "max_reflections",
-            "model_jump_probability",
-            "activation_probability",
-            "deactivation_probability"
+    [[maybe_unused]] inline constexpr const char* ProposalParameterName[] = {
+        "boundary_cushion",
+        "coldness",
+        "epsilon",
+        "fisher_weight",
+        "step_size",
+        "warm_up",
+        "max_reflections",
+        "model_jump_probability",
+        "activation_probability",
+        "deactivation_probability"
     };
 }
 

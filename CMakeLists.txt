@@ -17,7 +17,6 @@ endif (UNIX)
 ########################################################################################################################
 if (CMAKE_GENERATOR MATCHES "Visual Studio")
     add_definitions(-D_USE_MATH_DEFINES)
-    add_compile_options(/Ze)
     add_compile_options(/bigobj)
 endif ()
 
@@ -37,14 +36,12 @@ set(MKL_USE_interface lp64)
 option(HOPS_DNEST4_SUPPORT "Enables Nested Sampling support with DNEST4. Use -DHOPS_DNEST4_SUPPORT=ON to enable." ON)
 option(HOPS_BENCHMARKS "Enables compilation of Benchmarks (Requires Celero). Use -DHOPS_BENCHMARKS=ON to enable." OFF)
 option(HOPS_DOCS "Enables generation of documentation. Use -DHOPS_DOCS=OFF to disable." ON)
-option(HOPS_TUNING "Enables module for tuning, default is ON." ON)
+option(HOPS_TUNING "Enables module for tuning, default is ON." OFF)
 option(HOPS_IO "Enables module for writing and reading csv. Not always required when using HOPS as a librarly. Default is OFF." ON)
-option(HOPS_BINARIES "Enables compilation of hops executables. Use -DHOPS_BINARIES=OFF to disable." OFF)
-option(HOPS_EXAMPLES "Enables compilation of hops examples. Use -DHOPS_EXAMPLES=OFF to disable." ON)
 option(HOPS_TESTS "Enables compilation of unit tests. Use -DHOPS_TESTS=OFF to disable." ON)
 option(HOPS_GUROBI "Enables use of gurobi, if available. Use -DHOPS_GUROBI=ON to enable." OFF)
 option(HOPS_LP "Enables module for linear programming, if dependencies are available." ON)
-option(HOPS_MPI "Enables module for using MPI, if a MPI implementation is available." ON)
+option(HOPS_MPI "Enables module for using MPI, if a MPI implementation is available." OFF)
 option(HOPS_NO_INSTALL "Disables installation. Use -DHOPS_NO_INSTALL=ON to disable installation." OFF)
 option(HOPS_BUILD_NATIVE "Enable this option for maximum performance. Disable it when linking to third-party software that also uses Eigen3 but is not compiled with -march=native" OFF)
 set(HOPS_LIBRARY_TYPE SHARED CACHE STRING "Type of library to build. Options are HEADER_ONLY, STATIC or SHARED")
@@ -210,28 +207,6 @@ if (HOPS_BENCHMARKS)
     add_subdirectory(benchmarks)
 else ()
     message(STATUS "Disabled compilation of benchmarks. Use -DHOPS_BENCHMARKS=ON to enable.")
-endif ()
-
-########################################################################################################################
-# HOPS_BINARIES
-########################################################################################################################
-
-if (HOPS_BINARIES)
-    message(STATUS "Enabled compilation of executables. Use -DHOPS_BINARIES=OFF to disable.")
-    add_subdirectory(bin)
-else ()
-    message(STATUS "Disabled compilation of executables. Use -DHOPS_BINARIES=ON to enable.")
-endif ()
-
-########################################################################################################################
-# HOPS_EXAMPLES
-########################################################################################################################
-
-if (HOPS_EXAMPLES)
-    message(STATUS "Enabled compilation of examples. Use -DHOPS_EXAMPLES=OFF to disable.")
-    add_subdirectory(examples)
-else ()
-    message(STATUS "Disabled compilation of examples. Use -DHOPS_EXAMPLES=ON to enable.")
 endif ()
 
 ########################################################################################################################
