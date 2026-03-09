@@ -44,6 +44,7 @@
 #include "MarkovChain/Tuning/BinarySearchAcceptanceRateTuner.hpp"
 #include "MarkovChain/Tuning/ExpectedSquaredJumpDistanceTarget.hpp"
 #include "MarkovChain/Tuning/ExpectedSquaredJumpDistanceTuner.hpp"
+#include "MarkovChain/Tuning/GridSearchTuner.hpp"
 #include "MarkovChain/Tuning/SimpleExpectedSquaredJumpDistanceTuner.hpp"
 #include "MarkovChain/Tuning/ThompsonSamplingTuner.hpp"
 #include "MarkovChain/Tuning/TuningTarget.hpp"
@@ -140,6 +141,7 @@
 #include "MarkovChain/Tuning/BinarySearchAcceptanceRateTuner.cpp"
 #include "MarkovChain/Tuning/AcceptanceRateTuner.cpp"
 #include "MarkovChain/Tuning/ExpectedSquaredJumpDistanceTuner.cpp"
+
 #include "MarkovChain/Tuning/SimpleExpectedSquaredJumpDistanceTuner.cpp"
 
 #include "Polytope/MaximumVolumeEllipsoid.cpp"
