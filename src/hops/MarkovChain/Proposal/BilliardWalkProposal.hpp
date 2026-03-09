@@ -190,7 +190,7 @@ namespace hops {
     template<typename InternalMatrixType>
     double BilliardWalkProposal<InternalMatrixType>::computeLogAcceptanceProbability() {
         bool isProposalInteriorPoint = ((A * proposal - b).array() < 0).all();
-        if (not isProposalInteriorPoint || not this->reflectionSuccessful) {
+        if (!isProposalInteriorPoint || !this->reflectionSuccessful) {
             return -std::numeric_limits<double>::infinity();
         }
         return 0;
