@@ -11,7 +11,7 @@ namespace hops {
     public:
         BilliardAdaptiveMetropolisProposal(
                 const AdaptiveMetropolisProposal<InternalMatrixType> &adaptiveMetropolisProposal,
-                long maxReflections);
+                size_t maxReflections);
 
         BilliardAdaptiveMetropolisProposal(InternalMatrixType A,
                                            VectorType b,
@@ -19,7 +19,7 @@ namespace hops {
                                            double eps = 1.e-3,
                                            size_t warmUp = 100,
                                            size_t t = 0,
-                                           long maxReflections = 100);
+                                           size_t maxReflections = 100);
 
 
         BilliardAdaptiveMetropolisProposal(InternalMatrixType A,
@@ -29,7 +29,7 @@ namespace hops {
                                            double eps = 1.e-3,
                                            size_t warmUp = 100,
                                            size_t t = 0,
-                                           long maxReflections = 100);
+                                           size_t maxReflections = 100);
 
 
         VectorType &propose(RandomNumberGenerator &randomNumberGenerator) override;
@@ -55,7 +55,7 @@ namespace hops {
         void resetDistributions() override;
 
     private:
-        long m_maxReflections;
+        size_t m_maxReflections;
     };
 
     template<typename InternalMatrixType>
@@ -66,7 +66,7 @@ namespace hops {
     template<typename InternalMatrixType>
     BilliardAdaptiveMetropolisProposal<InternalMatrixType>::BilliardAdaptiveMetropolisProposal(
             const AdaptiveMetropolisProposal<InternalMatrixType> &adaptiveMetropolisProposal,
-            long maxReflections) :
+            size_t maxReflections) :
             AdaptiveMetropolisProposal<InternalMatrixType>(adaptiveMetropolisProposal),
                                    m_maxReflections(maxReflections) {}
 
@@ -78,7 +78,7 @@ namespace hops {
             double eps,
             size_t warmUp,
             size_t t,
-            long maxReflections): AdaptiveMetropolisProposal<InternalMatrixType>(std::move(A),
+            size_t maxReflections): AdaptiveMetropolisProposal<InternalMatrixType>(std::move(A),
                                                                                  std::move(b),
                                                                                  currentState,
                                                                                  eps,
@@ -94,7 +94,7 @@ namespace hops {
                                                                                                double eps,
                                                                                                size_t warmUp,
                                                                                                size_t t,
-                                                                                               long maxReflections)
+                                                                                               size_t maxReflections)
             : AdaptiveMetropolisProposal<InternalMatrixType>(std::move(A),
                                                              std::move(b),
                                                              currentState,
@@ -139,7 +139,7 @@ namespace hops {
     std::string BilliardAdaptiveMetropolisProposal<InternalMatrixType>::getParameterType(
             const ProposalParameter &parameter) const {
         if (parameter == ProposalParameter::MAX_REFLECTIONS) {
-            return "long";
+            return "size_t";
         }
         return AdaptiveMetropolisProposal<InternalMatrixType>::getParameterType(parameter);
     }
@@ -150,7 +150,7 @@ namespace hops {
             const ProposalParameter &parameter,
             const std::any &value) {
         if (parameter == ProposalParameter::MAX_REFLECTIONS) {
-            m_maxReflections = std::any_cast<long>(value);
+            m_maxReflections = std::any_cast<size_t>(value);
         } else {
             AdaptiveMetropolisProposal<InternalMatrixType>::setParameter(parameter, value);
         }
