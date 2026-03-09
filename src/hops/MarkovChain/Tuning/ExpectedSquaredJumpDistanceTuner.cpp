@@ -1,3 +1,5 @@
+#include <numeric>
+
 #include "ExpectedSquaredJumpDistanceTuner.hpp"
 #include "hops/MarkovChain/Tuning/ExpectedSquaredJumpDistanceTarget.hpp"
 

@@ -21,7 +21,7 @@ VectorType hops::CsvReader::readVector(const std::string &file) {
 
     size_t startIndex = 0;
     try {
-        std::stod(cells[0]);
+        (void)std::stod(cells[0]);
     }
     catch (std::invalid_argument &) {
         startIndex = 1;
