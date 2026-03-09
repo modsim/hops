@@ -11,5 +11,6 @@ if (HOPS_TUNING)
             ExpectedSquaredJumpDistanceTuner.cpp
             ThompsonSamplingTuner.hpp
             ThompsonSamplingTuner.cpp
+            GridSearchTuner.hpp
     )
 endif (HOPS_TUNING)
