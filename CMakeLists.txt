@@ -72,6 +72,13 @@ elseif (MSVC)
 	    add_compile_definitions(PCG_LITTLE_ENDIAN=1)
     endif ()
 endif ()
+if(MSVC)
+    # Check for both ARM64 and the "experimental" ARM64EC
+    if(CMAKE_SYSTEM_PROCESSOR MATCHES "ARM64" OR CMAKE_GENERATOR_PLATFORM MATCHES "ARM64")
+        message(STATUS "Forcing Little Endian for Windows ARM64 build")
+        add_compile_options(/DPCG_LITTLE_ENDIAN=1)
+    endif()
+endif()
 
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${MPI_EXE_LINKER_FLAGS}")
 
