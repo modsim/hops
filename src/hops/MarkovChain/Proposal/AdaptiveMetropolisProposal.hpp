@@ -31,16 +31,16 @@ namespace hops {
                                    VectorType b,
                                    VectorType currentState,
                                    double eps = 1.e-3,
-                                   unsigned long warmUp = 100,
-                                   unsigned long t = 0);
+                                   size_t warmUp = 100,
+                                   size_t t = 0);
 
         AdaptiveMetropolisProposal(InternalMatrixType A,
                                    VectorType b,
                                    VectorType currentState,
                                    const MatrixType &sqrtMaximumVolumeEllipsoid,
                                    double eps = 1.e-3,
-                                   unsigned long warmUp = 100,
-                                   unsigned long t = 0);
+                                   size_t warmUp = 100,
+                                   size_t = 0);
 
         VectorType &propose(RandomNumberGenerator &randomNumberGenerator) override;
 
@@ -84,7 +84,7 @@ namespace hops {
 
         [[nodiscard]] const MatrixType &getCholeskyOfMaximumVolumeEllipsoid() const;
 
-        [[nodiscard]] unsigned long getT() const;
+        [[nodiscard]] size_t getT() const;
 
         void resetDistributions() override;
 
@@ -110,8 +110,8 @@ namespace hops {
         double stateLogSqrtDeterminant;
         double proposalLogSqrtDeterminant;
 
-        unsigned long t;
-        unsigned long warmUp;
+        size_t t;
+        size_t warmUp;
 
         double eps;
         const constexpr static double stepSize = 1;
@@ -142,8 +142,8 @@ namespace hops {
             VectorType currentState_,
             const MatrixType &sqrtMaximumVolumeEllipsoid,
             double eps_,
-            unsigned long warmUp_,
-            unsigned long t_) :
+            size_t warmUp_,
+            size_t t_) :
             A(std::move(A_)),
             b(std::move(b_)),
             state(std::move(currentState_)),
@@ -179,8 +179,8 @@ namespace hops {
             VectorType b_,
             VectorType currentState_,
             double eps_,
-            unsigned long warmUp_,
-            unsigned long t_) :
+            size_t warmUp_,
+            size_t t_) :
             A(std::move(A_)),
             b(std::move(b_)),
             state(std::move(currentState_)),
@@ -215,7 +215,7 @@ namespace hops {
             RandomNumberGenerator &randomNumberGenerator) {
         stateMean = (t * stateMean + state) / (t + 1);
 
-        for (long i = 0; i < proposal.rows(); ++i) {
+        for (size_t i = 0; i < proposal.rows(); ++i) {
             proposal(i) = normal(randomNumberGenerator);
         }
 
@@ -325,7 +325,7 @@ namespace hops {
         } else if (parameter == ProposalParameter::EPSILON) {
             this->eps = std::any_cast<double>(value);
         } else if (parameter == ProposalParameter::WARM_UP) {
-            this->warmUp = std::any_cast<long>(value);
+            this->warmUp = std::any_cast<size_t>(value);
         } else {
             throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
         }
@@ -386,7 +386,7 @@ namespace hops {
     }
 
     template<typename InternalMatrixType>
-    unsigned long AdaptiveMetropolisProposal<InternalMatrixType>::getT() const {
+    size_t AdaptiveMetropolisProposal<InternalMatrixType>::getT() const {
         return t;
     }
 

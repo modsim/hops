@@ -4,7 +4,7 @@
 namespace {
     std::pair<double, double>
     distanceInCoordinateDirection(const Eigen::MatrixXd &A, const Eigen::VectorXd &b, double currentValue,
-                                  long coordinate) {
+                                  size_t coordinate) {
         Eigen::VectorXd slacks = b - A.col(coordinate) * currentValue;
         Eigen::VectorXd inverseDistances = A.col(coordinate).cwiseQuotient(slacks);
         // Inverse distance are potentially nan due to default values on the boundary of the polytope.
@@ -46,7 +46,7 @@ hops::ReversibleJumpProposal::ReversibleJumpProposal(std::unique_ptr<Proposal> p
     // precomputes backward & forwards distances. Works because we use uniform jumping distribution.
     this->m_backwardDistances = VectorType::Zero(this->m_jumpIndices.rows());
     this->m_forwarDistances = VectorType::Zero(this->m_jumpIndices.rows());
-    for (long i = 0; i < this->m_jumpIndices.rows(); ++i) {
+    for (size_t i = 0; i < this->m_jumpIndices.rows(); ++i) {
         parameterState(this->m_jumpIndices(i)) = this->m_defaultValues(i);
         // Starts with all optional parameters deactivated, which is the simplest model
         this->m_activationState(jumpIndices(i)) = 0.;
@@ -272,8 +272,8 @@ hops::VectorType &hops::ReversibleJumpProposal::proposeModel(RandomNumberGenerat
     this->m_activationProposal = this->m_activationState;
     this->m_logAcceptanceChanceModelJump = 0;
 
-    for (long i = 0; i < m_jumpIndices.rows(); ++i) {
-        long jumpIndex = this->m_jumpIndices(i);
+    for (size_t i = 0; i < m_jumpIndices.rows(); ++i) {
+        size_t jumpIndex = this->m_jumpIndices(i);
         bool isActive = this->m_activationState(jumpIndex) != 0;
         auto jumpProbability = isActive ? this->m_deativationProbability
                                         : this->m_activiationProbability;
@@ -329,7 +329,7 @@ std::vector<std::string> hops::ReversibleJumpProposal::getDimensionNames() const
     // Vector is constructed on demand, because it typically is not used repeatedly.
     std::vector<std::string> dimensionNames = m_proposalImpl->getDimensionNames();
     std::vector<std::string> names;
-    for (long i = 0; i < this->m_activationState.rows(); ++i) {
+    for (size_t i = 0; i < this->m_activationState.rows(); ++i) {
         names.emplace_back(dimensionNames[i] + "_activation");
     }
     names.insert(names.end(), dimensionNames.begin(), dimensionNames.end());

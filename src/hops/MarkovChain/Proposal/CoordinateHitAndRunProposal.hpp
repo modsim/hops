@@ -87,7 +87,7 @@ namespace hops {
         bool shouldRecomputeSlacks = false;
         double detailedBalance = 0;
 
-        long coordinateToUpdate = 0;
+        size_t coordinateToUpdate = 0;
         typename InternalMatrixType::Scalar step = 0;
         ChordStepDistribution chordStepDistribution;
         typename InternalMatrixType::Scalar forwardDistance = 0;
@@ -170,7 +170,7 @@ namespace hops {
 
         proposal = state;
         proposalSlacks = slacks;
-        for (long i = 0; i < activeIndices.rows(); ++i) {
+        for (size_t i = 0; i < activeIndices.rows(); ++i) {
             if (activeIndices(i) == 0) { continue; }
             inverseDistances = A.col(i).cwiseQuotient(proposalSlacks);
             // Inverse distance are potentially nan due to default values on the boundary of the polytope.

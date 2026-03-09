@@ -17,8 +17,8 @@ namespace hops {
                                            VectorType b,
                                            const VectorType &currentState,
                                            double eps = 1.e-3,
-                                           unsigned long warmUp = 100,
-                                           unsigned long t = 0,
+                                           size_t warmUp = 100,
+                                           size_t t = 0,
                                            long maxReflections = 100);
 
 
@@ -27,8 +27,8 @@ namespace hops {
                                            const VectorType &currentState,
                                            const MatrixType &sqrtMaximumVolumeEllipsoid,
                                            double eps = 1.e-3,
-                                           unsigned long warmUp = 100,
-                                           unsigned long t = 0,
+                                           size_t warmUp = 100,
+                                           size_t t = 0,
                                            long maxReflections = 100);
 
 
@@ -76,8 +76,8 @@ namespace hops {
             VectorType b,
             const VectorType &currentState,
             double eps,
-            unsigned long warmUp,
-            unsigned long t,
+            size_t warmUp,
+            size_t t,
             long maxReflections): AdaptiveMetropolisProposal<InternalMatrixType>(std::move(A),
                                                                                  std::move(b),
                                                                                  currentState,
@@ -92,8 +92,8 @@ namespace hops {
                                                                                                const VectorType &currentState,
                                                                                                const MatrixType &sqrtMaximumVolumeEllipsoid,
                                                                                                double eps,
-                                                                                               unsigned long warmUp,
-                                                                                               unsigned long t,
+                                                                                               size_t warmUp,
+                                                                                               size_t t,
                                                                                                long maxReflections)
             : AdaptiveMetropolisProposal<InternalMatrixType>(std::move(A),
                                                              std::move(b),

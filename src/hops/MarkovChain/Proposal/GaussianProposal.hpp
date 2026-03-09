@@ -102,7 +102,7 @@ namespace hops {
 
     template<typename InternalMatrixType, typename InternalVectorType>
     VectorType &GaussianProposal<InternalMatrixType, InternalVectorType>::propose(RandomNumberGenerator &rng) {
-        for (long i = 0; i < proposal.rows(); ++i) {
+        for (size_t i = 0; i < proposal.rows(); ++i) {
             proposal(i) = normal(rng);
         }
 

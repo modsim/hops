@@ -137,7 +137,7 @@ namespace hops {
     VectorType &
     HitAndRunProposal<InternalMatrixType, InternalVectorType, ChordStepDistribution, Precise>::propose(
             RandomNumberGenerator &rng) {
-        for (long i = 0; i < updateDirection.rows(); ++i) {
+        for (size_t i = 0; i < updateDirection.rows(); ++i) {
             this->updateDirection(i) = normalDistribution(rng);
         }
         this->updateDirection.normalize();
@@ -172,7 +172,7 @@ namespace hops {
         slacks = this->b - this->A * this->state;
         updateDirection.setZero();
         assert(activeIndices.sum() > 0);
-        for (long i = 0; i < activeIndices.rows(); ++i) {
+        for (size_t i = 0; i < activeIndices.rows(); ++i) {
             updateDirection(i) = (activeIndices(i) != 0) ? normalDistribution(rng) : 0;
         }
         updateDirection.normalize();

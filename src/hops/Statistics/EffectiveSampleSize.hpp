@@ -19,13 +19,13 @@ namespace hops {
      */
     template<typename StateType>
     double computeEffectiveSampleSize(const std::vector<const std::vector<StateType> *> &chains,
-                                      unsigned long dimension) {
-        unsigned long d = dimension;
-        unsigned long numChains = chains.size();
+                                      size_t dimension) {
+        size_t d = dimension;
+        size_t numChains = chains.size();
         if (numChains == 0) {
             throw std::invalid_argument("No chains. Cannot compute ESS.");
         }
-        unsigned long numDraws = chains[0]->size();
+        size_t numDraws = chains[0]->size();
         if (numDraws == 0) {
             throw std::invalid_argument("No samples in chains. Cannot compute ESS.");
         }
@@ -160,7 +160,7 @@ namespace hops {
      * @return
      */
     template<typename StateType>
-    double computeEffectiveSampleSize(const std::vector<std::vector<StateType>> &chains, unsigned long dimension) {
+    double computeEffectiveSampleSize(const std::vector<std::vector<StateType>> &chains, size_t dimension) {
         std::vector<const std::vector<StateType> *> chainsPtrArray;
         for (auto &chain : chains) {
             chainsPtrArray.push_back(&chain);

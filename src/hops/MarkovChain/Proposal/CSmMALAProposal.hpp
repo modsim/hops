@@ -160,7 +160,7 @@ namespace hops {
 
     template<typename ModelType, typename InternalMatrixType>
     VectorType &CSmMALAProposal<ModelType, InternalMatrixType>::propose(RandomNumberGenerator &rng) {
-        for (long i = 0; i < proposal.rows(); ++i) {
+        for (size_t i = 0; i < proposal.rows(); ++i) {
             proposal(i) = normalDistribution(rng);
         }
         proposal = driftedState + covarianceFactor * (stateSolver.matrixL().transpose().solve(proposal));
