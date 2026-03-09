@@ -15,6 +15,7 @@
 #include "hops/MarkovChain/MarkovChain.hpp"
 #include "hops/MarkovChain/Tuning/ThompsonSamplingTuner.hpp"
 #include "hops/RandomNumberGenerator/RandomNumberGenerator.hpp"
+#include "hops/MarkovChain/Tuning/AcceptanceRateTarget.hpp"
 
 
 namespace hops {

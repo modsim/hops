@@ -1,4 +1,5 @@
 #include "ExpectedSquaredJumpDistanceTuner.hpp"
+#include "hops/MarkovChain/Tuning/ExpectedSquaredJumpDistanceTarget.hpp"
 
 bool hops::ExpectedSquaredJumpDistanceTuner::tune(
         VectorType& stepSize,

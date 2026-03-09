@@ -1,5 +1,6 @@
 #include "AcceptanceRateTarget.hpp"
 
+#include <numeric>
 #include <utility>
 
 hops::AcceptanceRateTarget::AcceptanceRateTarget(std::vector<std::shared_ptr<MarkovChain>> markovChains,

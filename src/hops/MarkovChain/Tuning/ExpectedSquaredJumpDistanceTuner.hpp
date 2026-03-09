@@ -8,10 +8,7 @@
 
 #include <Eigen/Core>
 
-#include <chrono>
-#include <cmath>
 #include <memory>
-#include <stdexcept>
 #include <vector>
 
 #ifdef _OPENMP
