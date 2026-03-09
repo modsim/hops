@@ -180,7 +180,7 @@ hops::computeExpectedSquaredJumpDistanceIncrementally(const std::vector<const st
             // unpack intermediate results
             const auto&[intermediateExpectedSquaredJumpDistance, numberOfSeenStates, intermediateCovarianceResults] = intermediateResult;
 
-            size_t numberOfStates, numberOfUnseenStates, correction, _start;
+            size_t numberOfStates=0, numberOfUnseenStates=0, correction=0, _start=0;
 
             for (size_t i = 0; i < chains.size(); ++i) {
                 const std::vector<StateType>& states = *chains[i];
