@@ -11,7 +11,7 @@ std::vector<double> measureExpectedSquaredJumpDistance(double stepSize,
         markovChain[i]->setAttribute(hops::MarkovChainAttribute::STEP_SIZE, stepSize);
        
         // record time taken to draw samples to scale esjd by time if specified
-        unsigned long time = std::chrono::duration_cast<std::chrono::milliseconds>(
+        auto time = std::chrono::duration_cast<std::chrono::milliseconds>(
                 std::chrono::high_resolution_clock::now().time_since_epoch()
         ).count();
         

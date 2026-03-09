@@ -17,14 +17,14 @@
 namespace hops {
     struct AcceptanceRateTarget : public TuningTarget {
         std::vector<std::shared_ptr<MarkovChain>> markovChains;
-        unsigned long numberOfTestSamples;
+        size_t numberOfTestSamples;
         double acceptanceRateTargetValue;
-        unsigned long order;
+        size_t order;
 
         AcceptanceRateTarget(std::vector<std::shared_ptr<MarkovChain>> markovChains,
-                                          unsigned long numberOfTestSamples,
+                                          size_t numberOfTestSamples,
                                           double acceptanceRateTargetValue,
-                                          unsigned long order = 1);
+                                          size_t order = 1);
 
 
         [[nodiscard]] std::string getName() const override;

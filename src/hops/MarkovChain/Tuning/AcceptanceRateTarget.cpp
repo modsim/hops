@@ -4,8 +4,8 @@
 #include <utility>
 
 hops::AcceptanceRateTarget::AcceptanceRateTarget(std::vector<std::shared_ptr<MarkovChain>> markovChains,
-                                                 unsigned long numberOfTestSamples, double acceptanceRateTargetValue,
-                                                 unsigned long order) : markovChains(std::move(markovChains)),
+                                                 size_t numberOfTestSamples, double acceptanceRateTargetValue,
+                                                 size_t order) : markovChains(std::move(markovChains)),
                                                                         numberOfTestSamples(numberOfTestSamples),
                                                                         acceptanceRateTargetValue(acceptanceRateTargetValue),
         order(order) {}

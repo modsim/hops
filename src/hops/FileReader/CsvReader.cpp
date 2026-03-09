@@ -33,12 +33,6 @@ VectorType hops::CsvReader::readVector(const std::string &file) {
     return result;
 }
 
-template Eigen::VectorXi hops::CsvReader::readVector(const std::string &file);
-
-template Eigen::Matrix<long, Eigen::Dynamic, 1> hops::CsvReader::readVector(const std::string &file);
-
-template Eigen::VectorXf hops::CsvReader::readVector(const std::string &file);
-
 template Eigen::VectorXd hops::CsvReader::readVector(const std::string &file);
 
 
