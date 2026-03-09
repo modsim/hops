@@ -1,8 +1,8 @@
 #include "DegenerateGaussian.hpp"
 
-void hops::DegenerateGaussian::removeRow(hops::MatrixType &matrix, unsigned int rowToRemove) const {
-    unsigned int numRows = matrix.rows() - 1;
-    unsigned int numCols = matrix.cols();
+void hops::DegenerateGaussian::removeRow(hops::MatrixType &matrix, Eigen::Index rowToRemove) const {
+    Eigen::Index numRows = matrix.rows() - 1;
+    Eigen::Index numCols = matrix.cols();
 
     if (rowToRemove < numRows) {
         matrix.block(rowToRemove, 0, numRows - rowToRemove, numCols) =
@@ -12,9 +12,9 @@ void hops::DegenerateGaussian::removeRow(hops::MatrixType &matrix, unsigned int 
     matrix.conservativeResize(numRows, numCols);
 }
 
-void hops::DegenerateGaussian::removeColumn(hops::MatrixType &matrix, unsigned int colToRemove) const {
-    unsigned int numRows = matrix.rows();
-    unsigned int numCols = matrix.cols() - 1;
+void hops::DegenerateGaussian::removeColumn(hops::MatrixType &matrix, Eigen::Index colToRemove) const {
+    Eigen::Index numRows = matrix.rows();
+    Eigen::Index numCols = matrix.cols() - 1;
 
     if (colToRemove < numCols) {
         matrix.block(0, colToRemove, numRows, numCols - colToRemove) =
@@ -24,8 +24,8 @@ void hops::DegenerateGaussian::removeColumn(hops::MatrixType &matrix, unsigned i
     matrix.conservativeResize(numRows, numCols);
 }
 
-void hops::DegenerateGaussian::removeRow(hops::VectorType &vector, unsigned int rowToRemove) const {
-    unsigned int numRows = vector.rows() - 1;
+void hops::DegenerateGaussian::removeRow(hops::VectorType &vector, Eigen::Index rowToRemove) const {
+    Eigen::Index numRows = vector.rows() - 1;
 
     if (rowToRemove < numRows) {
         vector.segment(rowToRemove, numRows - rowToRemove) = vector.tail(numRows - rowToRemove);
@@ -49,7 +49,7 @@ void hops::DegenerateGaussian::stripInactive(hops::VectorType &vector) const {
 
 hops::DegenerateGaussian::DegenerateGaussian(VectorType mean,
                                              MatrixType covariance,
-                                             std::vector<long> inactive) :
+                                             std::vector<Eigen::Index> inactive) :
         inactive(std::move(inactive)) {
     if (mean.size() != covariance.rows())
         throw std::runtime_error("Dimension mismatch between mean (dim=" +
@@ -89,14 +89,14 @@ const hops::MatrixType &hops::DegenerateGaussian::getCovariance() const {
     return gaussian.value().getCovariance();
 }
 
-const std::vector<long> &hops::DegenerateGaussian::getInactive() const {
+const std::vector<Eigen::Index> &hops::DegenerateGaussian::getInactive() const {
     return inactive;
 }
 
 std::vector<std::string> hops::DegenerateGaussian::getDimensionNames() const {
     std::vector<std::string> names;
     if (gaussian) {
-        for (long i = 0; i < gaussian.value().getMean().rows(); ++i) {
+        for (Eigen::Index i = 0; i < gaussian.value().getMean().rows(); ++i) {
             names.emplace_back("x_" + std::to_string(i));
         }
     }

@@ -21,7 +21,7 @@ namespace hops {
     public:
 
         DegenerateGaussian(VectorType mean, MatrixType covariance,
-                           std::vector<long> inactive = std::vector<long>(0));
+                           std::vector<Eigen::Index> inactive = std::vector<Eigen::Index>(0));
 
         [[nodiscard]] MatrixType::Scalar computeNegativeLogLikelihood(const VectorType &x) override;
 
@@ -35,7 +35,7 @@ namespace hops {
 
         [[nodiscard]] const MatrixType &getCovariance() const;
 
-        const std::vector<long> &getInactive() const;
+        const std::vector<Eigen::Index> &getInactive() const;
 
         [[nodiscard]] std::unique_ptr<Model> copyModel() const override;
 
@@ -43,13 +43,13 @@ namespace hops {
 
     private:
         std::optional<Gaussian> gaussian;
-        std::vector<long> inactive;
+        std::vector<Eigen::Index> inactive;
 
-        void removeRow(MatrixType &matrix, unsigned int rowToRemove) const;
+        void removeRow(MatrixType &matrix, Eigen::Index rowToRemove) const;
 
-        void removeColumn(MatrixType &matrix, unsigned int colToRemove) const;
+        void removeColumn(MatrixType &matrix, Eigen::Index colToRemove) const;
 
-        void removeRow(VectorType &vector, unsigned int rowToRemove) const;
+        void removeRow(VectorType &vector, Eigen::Index rowToRemove) const;
 
         void stripInactive(MatrixType &matrix) const;
 

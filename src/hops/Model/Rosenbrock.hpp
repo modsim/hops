@@ -46,7 +46,7 @@ namespace hops {
 
         [[nodiscard]] const VectorType &getShiftParameter() const;
 
-        long getNumberOfDimensions() const;
+        Eigen::Index getNumberOfDimensions() const;
 
         [[nodiscard]] std::unique_ptr<Model> copyModel() const override;
 
@@ -55,7 +55,7 @@ namespace hops {
     private:
         typename MatrixType::Scalar scaleParameter;
         VectorType shiftParameter;
-        long numberOfDimensions;
+        Eigen::Index numberOfDimensions;
     };
 }
 

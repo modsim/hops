@@ -92,10 +92,4 @@ template Eigen::MatrixXf hops::CsvReader::readMatrix(const std::string &file, bo
 
 template Eigen::MatrixXd hops::CsvReader::readMatrix(const std::string &file, bool hasColumnAndRowNames);
 
-template Eigen::SparseMatrix<int> hops::CsvReader::readMatrix(const std::string &file, bool hasColumnAndRowNames);
-
-template Eigen::SparseMatrix<long> hops::CsvReader::readMatrix(const std::string &file, bool hasColumnAndRowNames);
-
-template Eigen::SparseMatrix<float> hops::CsvReader::readMatrix(const std::string &file, bool hasColumnAndRowNames);
-
 template Eigen::SparseMatrix<double> hops::CsvReader::readMatrix(const std::string &file, bool hasColumnAndRowNames);

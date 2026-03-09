@@ -100,7 +100,7 @@ hops::MaximumVolumeEllipsoid<RealType>::construct(const Eigen::Matrix<RealType, 
     const Eigen::Matrix<RealType, Eigen::Dynamic, 1> b = Eigen::Matrix<RealType, Eigen::Dynamic, 1>::Ones(m);
     const RealType bnrm = bin.norm();
 
-    const long rank = Ain.colPivHouseholderQr().rank();
+    const Eigen::Index rank = Ain.colPivHouseholderQr().rank();
     if (rank < n) {
         throw std::runtime_error("Algorithm needs full column rank, because A^T * A has to be invertible");
     }
@@ -245,9 +245,6 @@ hops::MaximumVolumeEllipsoid<RealType> hops::MaximumVolumeEllipsoid<RealType>::c
                                                        startingPoint.template cast<RealType>(),
                                                        tolerance);
 }
-
-template
-class hops::MaximumVolumeEllipsoid<float>;
 
 template
 class hops::MaximumVolumeEllipsoid<double>;

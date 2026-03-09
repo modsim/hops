@@ -16,7 +16,7 @@ hops::Rosenbrock::computeNegativeLogLikelihood(const VectorType &x) {
                                  std::to_string(numberOfDimensions) + ").");
 
     typename MatrixType::Scalar result = 0;
-    for (long i = 0; i < shiftParameter.rows(); ++i) {
+    for (Eigen::Index i = 0; i < shiftParameter.rows(); ++i) {
         result += scaleParameter *
                   (100 * std::pow(std::pow(x(2 * i), 2) - x(2 * i + 1), 2) +
                    std::pow(x(2 * i) - shiftParameter(i), 2));
@@ -31,7 +31,7 @@ hops::MatrixType hops::Rosenbrock::computeHessian(const VectorType &x) {
                                  std::to_string(numberOfDimensions) + ").");
     MatrixType hessian = MatrixType::Zero(x.rows(), x.rows());
 
-    for (long i = 0; i < shiftParameter.rows(); ++i) {
+    for (Eigen::Index i = 0; i < shiftParameter.rows(); ++i) {
         hessian(2 * i, 2 * i) =
                 scaleParameter * (1200 * std::pow(x(2 * i), 2) - 400 * x(2 * i + 1) + 2);
         hessian(2 * i + 1, 2 * i) = scaleParameter * -400 * x(2 * i);
@@ -49,7 +49,7 @@ std::optional<hops::VectorType> hops::Rosenbrock::computeLogLikelihoodGradient(c
                                  std::to_string(numberOfDimensions) + ").");
 
     VectorType gradient = VectorType::Zero(x.rows());
-    for (long i = 0; i < shiftParameter.rows(); ++i) {
+    for (Eigen::Index i = 0; i < shiftParameter.rows(); ++i) {
         gradient(2 * i) = scaleParameter * (4 * 100 * (x(2 * i + 1) - std::pow(x(2 * i), 2)) * (-2 * x(2 * i)) +
                                             2 * (x(2 * i) - shiftParameter(i)));
 
@@ -85,13 +85,13 @@ const hops::VectorType &hops::Rosenbrock::getShiftParameter() const {
     return shiftParameter;
 }
 
-long hops::Rosenbrock::getNumberOfDimensions() const {
+Eigen::Index hops::Rosenbrock::getNumberOfDimensions() const {
     return numberOfDimensions;
 }
 
 std::vector<std::string> hops::Rosenbrock::getDimensionNames() const {
     std::vector<std::string> names;
-    for (long i = 0; i < numberOfDimensions; ++i) {
+    for (Eigen::Index i = 0; i < numberOfDimensions; ++i) {
         names.emplace_back("x_" + std::to_string(i));
     }
     return names;
