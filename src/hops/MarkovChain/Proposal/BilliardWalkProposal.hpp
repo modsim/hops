@@ -1,4 +1,4 @@
-#ifndef HOPS_BILLIARDWALKPROPOSAL_HPP
+
 #define HOPS_BILLIARDWALKPROPOSAL_HPP
 
 #include <optional>
@@ -33,7 +33,7 @@ namespace hops {
         BilliardWalkProposal(InternalMatrixType A,
                              VectorType b,
                              const VectorType &currentState,
-                             long maxReflections,
+                             size_t maxReflections,
                              double newStepSize = 1);
 
 
@@ -57,7 +57,7 @@ namespace hops {
 
         bool isReflectionSuccessful() const;
 
-        long getNumberOfReflections() const;
+        size_t getNumberOfReflections() const;
 
         void setStepSize(double stepSize);
 
@@ -95,10 +95,10 @@ namespace hops {
         VectorType unreflectedProposal;
 
         double stepSize = 1;        // called tau in the paper
-        long maxNumberOfReflections;// called rho in the paper
+        size_t maxNumberOfReflections;// called rho in the paper
 
         bool reflectionSuccessful;
-        long numberOfReflections;
+        size_t numberOfReflections;
 
         VectorType updateDirection;
         double step = 0;
@@ -116,7 +116,7 @@ namespace hops {
     BilliardWalkProposal<InternalMatrixType>::BilliardWalkProposal(InternalMatrixType A,
                                                                               VectorType b,
                                                                               const VectorType &currentState,
-                                                                              long maxReflections,
+                                                                              size_t maxReflections,
                                                                               double newStepSize) : A(std::move(A)),
                                                                                                     Adense(MatrixType(this->A)),
                                                                                                     b(std::move(b)),
@@ -133,7 +133,7 @@ namespace hops {
 
     template<typename InternalMatrixType>
     VectorType &BilliardWalkProposal<InternalMatrixType>::propose(RandomNumberGenerator &rng) {
-        for (long i = 0; i < proposal.rows(); ++i) {
+        for (Eigen::Index i = 0; i < proposal.rows(); ++i) {
             updateDirection(i) = normalDistribution(rng);
         }
         updateDirection.normalize();
@@ -141,7 +141,7 @@ namespace hops {
         proposal = state + step*updateDirection;
 
 
-        std::tuple<bool, long, VectorType> reflectionResult = Reflector::reflectIntoPolytope(Adense,
+        std::tuple<bool, size_t, VectorType> reflectionResult = Reflector::reflectIntoPolytope(Adense,
                                                                                              b,
                                                                                              state,
                                                                                              proposal,
@@ -239,7 +239,7 @@ namespace hops {
         if (parameter == ProposalParameter::STEP_SIZE) {
             return "double";
         } else if (parameter == ProposalParameter::MAX_REFLECTIONS) {
-            return "long";
+            return "size_t";
         } else {
             throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
         }
@@ -251,7 +251,7 @@ namespace hops {
         if (parameter == ProposalParameter::STEP_SIZE) {
             setStepSize(std::any_cast<double>(value));
         } else if (parameter == ProposalParameter::MAX_REFLECTIONS) {
-            maxNumberOfReflections = std::any_cast<long>(value);
+            maxNumberOfReflections = std::any_cast<size_t>(value);
         } else {
             throw std::invalid_argument("Can't get parameter which doesn't exist in " + this->getProposalName());
         }
@@ -289,7 +289,7 @@ namespace hops {
         return reflectionSuccessful;
     }
     template<typename InternalMatrixType>
-    long BilliardWalkProposal<InternalMatrixType>::getNumberOfReflections() const {
+    size_t BilliardWalkProposal<InternalMatrixType>::getNumberOfReflections() const {
         return numberOfReflections;
     }
 

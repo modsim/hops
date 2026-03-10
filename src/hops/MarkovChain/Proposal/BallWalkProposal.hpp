@@ -103,7 +103,7 @@ namespace hops {
     VectorType &BallWalkProposal<InternalMatrixType, InternalVectorType>::propose(
             RandomNumberGenerator &randomNumberGenerator) {
         // Creates m_proposal on Ballsurface
-        for (long i = 0; i < proposal.rows(); ++i) {
+        for (Eigen::Index i = 0; i < proposal.rows(); ++i) {
             proposal(i) = normal(randomNumberGenerator);
         }
         proposal.normalize();

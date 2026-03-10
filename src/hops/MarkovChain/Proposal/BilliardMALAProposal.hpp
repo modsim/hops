@@ -37,7 +37,7 @@ namespace hops {
                              VectorType b,
                              const VectorType &currentState,
                              ModelType model,
-                             long maxReflections,
+                             size_t maxReflections,
                              double newStepSize = 1);
 
 
@@ -54,7 +54,7 @@ namespace hops {
                              double quadraticConstraintLhs,
                              const VectorType &currentState,
                              ModelType model,
-                             long maxReflections,
+                             size_t maxReflections,
                              double newStepSize = 1);
 
         VectorType &propose(RandomNumberGenerator &rng) override;
@@ -144,7 +144,7 @@ namespace hops {
 
         std::normal_distribution<double> normalDistribution{0., 1.};
 
-        long maxNumberOfReflections;
+        size_t maxNumberOfReflections;
         double coldness=1;
     };
 
@@ -153,7 +153,7 @@ namespace hops {
                                                                               VectorType b,
                                                                               const VectorType &currentState,
                                                                               ModelType model,
-                                                                              long maxReflections,
+                                                                              size_t maxReflections,
                                                                               double newStepSize) :
             ModelType(std::move(model)),
             A(std::move(A)),
@@ -198,7 +198,7 @@ namespace hops {
                                                                               double quadraticConstraintLhs,
                                                                               const VectorType &currentState,
                                                                               ModelType model,
-                                                                              long maxReflections,
+                                                                              size_t maxReflections,
                                                                               double newStepSize) :
             BilliardMALAProposal(
                     A,
@@ -214,12 +214,12 @@ namespace hops {
 
     template<typename ModelType, typename InternalMatrixType>
     VectorType &BilliardMALAProposal<ModelType, InternalMatrixType>::propose(RandomNumberGenerator &rng) {
-        for (long i = 0; i < proposal.rows(); ++i) {
+        for (Eigen::Index i = 0; i < proposal.rows(); ++i) {
             proposal(i) = normalDistribution(rng);
         }
         unreflectedProposal = driftedState + covarianceFactor * stateSolver.matrixU().solve(proposal);
 
-        std::tuple<bool, long, VectorType> reflectionResult;
+        std::tuple<bool, size_t, VectorType> reflectionResult;
         if (quadraticConstraintsMatrix) {
             reflectionResult = Reflector::reflectIntoPolytope(Adense,
                                                               b,
@@ -418,7 +418,7 @@ namespace hops {
         if (parameter == ProposalParameter::STEP_SIZE) {
             return "double";
         } else if (parameter == ProposalParameter::MAX_REFLECTIONS) {
-            return "long";
+            return "size_t";
         } else if (parameter == ProposalParameter::COLDNESS) {
             return "double";
         } else {
@@ -432,7 +432,7 @@ namespace hops {
         if (parameter == ProposalParameter::STEP_SIZE) {
             setStepSize(std::any_cast<double>(value));
         } else if (parameter == ProposalParameter::MAX_REFLECTIONS) {
-            maxNumberOfReflections = std::any_cast<long>(value);
+            maxNumberOfReflections = std::any_cast<size_t>(value);
         } else if (parameter == ProposalParameter::COLDNESS) {
             coldness = std::any_cast<double>(value);
         } else {
