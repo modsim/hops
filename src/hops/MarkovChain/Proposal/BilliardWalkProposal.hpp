@@ -1,4 +1,4 @@
-
+#ifndef HOPS_BILLIARDWALKPROPOSAL_HPP
 #define HOPS_BILLIARDWALKPROPOSAL_HPP
 
 #include <optional>
